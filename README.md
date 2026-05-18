@@ -81,6 +81,8 @@ Those items are no longer described as current absence. Render script, quality g
 
 Use the quality gate and dry-run renderer before treating the template as healthy:
 
+- `python -m pip install -r requirements-dev.txt`
+- `python -m pytest`
 - `python scripts/quality_gate.py`
 - `python scripts/render_template.py --config examples/python_cli_minimal/template.config.yml --target examples/python_cli_minimal --dry-run`
 - `python scripts/render_template.py --config examples/csharp_desktop_minimal/template.config.yml --target examples/csharp_desktop_minimal --dry-run`

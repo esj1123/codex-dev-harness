@@ -23,6 +23,38 @@ def minimal_repo(root: Path) -> None:
     )
 
 
+def write_valid_example(root: Path, example_name: str, profile: str) -> None:
+    example_dir = root / "examples" / example_name
+    for relative in example_gate.COMMON_REQUIRED_FILES:
+        if relative == "template.config.yml":
+            extra_safety = "  live_device_write: prohibited\n" if example_name == "plc_tool_minimal" else ""
+            write(
+                example_dir / relative,
+                "project:\n"
+                f"  name: {example_name}\n"
+                "  status: seed\n"
+                "profile:\n"
+                f"  name: {profile}\n"
+                "paths:\n"
+                f"  target: examples/{example_name}\n"
+                "safety:\n"
+                f"{extra_safety}",
+            )
+        else:
+            write(example_dir / relative, "# example\n")
+
+    if profile == "python_cli":
+        write(example_dir / "STATUS.md", "pytest NOT RUN\nCLI smoke NOT RUN\nsynthetic fixtures only\n")
+    elif profile == "csharp_desktop":
+        write(example_dir / "STATUS.md", "build NOT RUN\ntest NOT RUN\nsmoke NOT RUN\n")
+        write(example_dir / "README.md", "no source code, solution file, project file, or script in skeleton\n")
+    elif profile == "plc_or_device_tool":
+        write(
+            example_dir / "SAFETY_POLICY.profile.md",
+            "simulator/mock first\nlive device write prohibited\nequipment IP ports tag live parameters\nstart stop reset mode change\n",
+        )
+
+
 def test_docs_gate_reports_missing_doc(tmp_path: Path) -> None:
     minimal_repo(tmp_path)
     (tmp_path / "README.md").unlink()
@@ -56,7 +88,13 @@ def test_example_gate_requires_profile_phrases(tmp_path: Path) -> None:
     minimal_repo(tmp_path)
     example_dir = tmp_path / "examples" / "python_cli_minimal"
     for relative in example_gate.COMMON_REQUIRED_FILES:
-        write(example_dir / relative, "# example\n")
+        if relative == "template.config.yml":
+            write(
+                example_dir / relative,
+                "project:\n  name: python_cli_minimal\n  status: seed\nprofile:\n  name: python_cli\npaths:\n  target: examples/python_cli_minimal\n",
+            )
+        else:
+            write(example_dir / relative, "# example\n")
 
     result = example_gate.run(tmp_path)
 
@@ -64,22 +102,38 @@ def test_example_gate_requires_profile_phrases(tmp_path: Path) -> None:
     assert any("pytest NOT RUN" in message for message in result.messages)
 
 
+def test_example_gate_validates_config_values(tmp_path: Path) -> None:
+    minimal_repo(tmp_path)
+    write_valid_example(tmp_path, "python_cli_minimal", "python_cli")
+    write(
+        tmp_path / "examples" / "python_cli_minimal" / "template.config.yml",
+        "project:\n  name: wrong_name\n  status: seed\nprofile:\n  name: python_cli\npaths:\n  target: examples/python_cli_minimal\n",
+    )
+
+    result = example_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert any("project.name=python_cli_minimal" in message for message in result.messages)
+
+
+def test_example_gate_requires_plc_live_write_prohibited(tmp_path: Path) -> None:
+    minimal_repo(tmp_path)
+    write_valid_example(tmp_path, "plc_tool_minimal", "plc_or_device_tool")
+    write(
+        tmp_path / "examples" / "plc_tool_minimal" / "template.config.yml",
+        "project:\n  name: plc_tool_minimal\n  status: seed\nprofile:\n  name: plc_or_device_tool\npaths:\n  target: examples/plc_tool_minimal\nsafety:\n  live_device_write: allowed\n",
+    )
+
+    result = example_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert any("safety.live_device_write=prohibited" in message for message in result.messages)
+
+
 def test_quality_gate_passes_minimal_repo(tmp_path: Path) -> None:
     minimal_repo(tmp_path)
     for example_name, profile in example_gate.REQUIRED_EXAMPLES.items():
-        example_dir = tmp_path / "examples" / example_name
-        for relative in example_gate.COMMON_REQUIRED_FILES:
-            write(example_dir / relative, "# example\n")
-        if profile == "python_cli":
-            write(example_dir / "STATUS.md", "pytest NOT RUN\nCLI smoke NOT RUN\nsynthetic fixtures only\n")
-        elif profile == "csharp_desktop":
-            write(example_dir / "STATUS.md", "build NOT RUN\ntest NOT RUN\nsmoke NOT RUN\n")
-            write(example_dir / "README.md", "no source code, solution file, project file, or script in skeleton\n")
-        elif profile == "plc_or_device_tool":
-            write(
-                example_dir / "SAFETY_POLICY.profile.md",
-                "simulator/mock first\nlive device write prohibited\nequipment IP ports tag live parameters\nstart stop reset mode change\n",
-            )
+        write_valid_example(tmp_path, example_name, profile)
 
     summary = run_quality_gate(tmp_path)
 

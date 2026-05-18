@@ -12,6 +12,9 @@ The repository contains documentation, base templates, profile templates, render
 
 - Core repo contract documents.
 - Safety and verification policy documents.
+- Release readiness documents:
+  - `docs/RELEASE_CHECKLIST.md`
+  - `docs/KNOWN_LIMITATIONS.md`
 - Base markdown templates.
 - Profile templates for `python_cli`, `csharp_desktop`, and `plc_or_device_tool`.
 - `scripts/render_template.py`.
@@ -41,4 +44,4 @@ The repository contains documentation, base templates, profile templates, render
 
 ## Next Recommended Step
 
-Stabilize P4/P5 validation by expanding CI/dependency instructions or adding a lightweight release checklist without adding real application behavior.
+Run the P5 release readiness checklist in a prepared development environment, then decide whether to document CI policy in `docs/CI_POLICY.md` before adding any workflow.

@@ -6,6 +6,11 @@ from dataclasses import dataclass
 from pathlib import Path
 import re
 
+try:
+    from render_template import parse_scalar_config
+except ModuleNotFoundError:
+    from scripts.render_template import parse_scalar_config
+
 
 REQUIRED_EXAMPLES = {
     "python_cli_minimal": "python_cli",
@@ -68,6 +73,30 @@ def read_example_text(example_dir: Path) -> str:
     return "\n".join(chunks)
 
 
+def validate_example_config(example_dir: Path, example_name: str, profile: str) -> list[str]:
+    findings: list[str] = []
+    config_path = example_dir / "template.config.yml"
+    if not config_path.is_file():
+        return [f"missing examples/{example_name}/template.config.yml"]
+
+    values = parse_scalar_config(config_path)
+    expected_values = {
+        "project.name": example_name,
+        "project.status": "seed",
+        "profile.name": profile,
+        "paths.target": f"examples/{example_name}",
+    }
+    if example_name == "plc_tool_minimal":
+        expected_values["safety.live_device_write"] = "prohibited"
+
+    for key, expected in expected_values.items():
+        actual = values.get(key, "")
+        if actual != expected:
+            findings.append(f"examples/{example_name}/template.config.yml expected {key}={expected}, got {actual or 'missing'}")
+
+    return findings
+
+
 def run(repo_root: Path) -> GateResult:
     findings: list[str] = []
     examples_root = repo_root / "examples"
@@ -83,6 +112,8 @@ def run(repo_root: Path) -> GateResult:
         for filename in COMMON_REQUIRED_FILES:
             if not (example_dir / filename).is_file():
                 findings.append(f"missing examples/{example_name}/{filename}")
+
+        findings.extend(validate_example_config(example_dir, example_name, profile))
 
         text = read_example_text(example_dir)
         for check in PROFILE_CHECKS[profile]:

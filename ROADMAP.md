@@ -9,7 +9,7 @@
 | P2: Render and Base Quality Gate | completed | Added config-driven renderer and base quality gates |
 | P3: Example Skeletons | completed | Added minimal docs-only examples for three profiles |
 | P4: Example Gate Validation | in progress | Add example-specific gate coverage and render target guard hardening |
-| P5: Release Readiness | not started | Define CI/dependency guidance and release checklist |
+| P5: Release Readiness | in progress | Define test dependency, release checklist, known limitations, and example config validation |
 | P6: Release | not started | Tag a reusable baseline and document known limitations |
 
 ## P0: Docs Only
@@ -63,11 +63,15 @@ Done when:
 
 Goal: prepare the repository for reusable baseline release.
 
-Candidate work:
-- Dependency setup instructions for pytest.
-- CI workflow decision.
-- Release checklist.
-- Known limitations document.
+In progress:
+- `requirements-dev.txt` defines test dependencies.
+- `docs/RELEASE_CHECKLIST.md` defines release checks.
+- `docs/KNOWN_LIMITATIONS.md` records current constraints.
+- Example config validation is part of `example_gate`.
+
+Still pending:
+- CI policy decision.
+- Release tag decision.
 
 ## P6: Release
 

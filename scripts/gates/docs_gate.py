@@ -20,6 +20,8 @@ REQUIRED_DOCS = [
     "docs/SAFETY_POLICY.md",
     "docs/AI_HANDOFF.md",
     "docs/VERIFICATION.md",
+    "docs/RELEASE_CHECKLIST.md",
+    "docs/KNOWN_LIMITATIONS.md",
 ]
 
 

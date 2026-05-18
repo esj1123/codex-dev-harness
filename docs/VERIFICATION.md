@@ -25,6 +25,10 @@ Define verification expectations for this template repository.
 
 Run:
 
+`python -m pip install -r requirements-dev.txt`
+
+`python -m pytest`
+
 `python scripts/quality_gate.py`
 
 The quality gate includes:
@@ -33,6 +37,7 @@ The quality gate includes:
 - Template config/schema validation.
 - Secret/private-pattern scan.
 - Example skeleton validation.
+- Example config validation.
 
 ## Render Dry-Run Checks
 
@@ -56,6 +61,10 @@ Current and future verification layers may include:
 - Policy validation.
 - Example validation.
 - Audit evidence.
+
+## Release Readiness
+
+Use `docs/RELEASE_CHECKLIST.md` before tagging a reusable baseline. Known gaps and intentionally unsupported behavior are tracked in `docs/KNOWN_LIMITATIONS.md`.
 
 ## NOT RUN Principle
 
