@@ -1,0 +1,36 @@
+# SAFETY_POLICY.profile.md - plc_or_device_tool
+
+## Purpose
+
+Define safety defaults for PLC, device, equipment, or hardware-adjacent tooling.
+
+## Core Safety Defaults
+
+- Simulator/mock first.
+- Live device write prohibited by default.
+- Read-only polling comes before any write concept.
+- Explicit approval required for any future live action.
+
+## Prohibited Repository Content
+
+Do not commit:
+- Equipment IP addresses.
+- Ports.
+- Tag names or detailed tag maps.
+- Device addresses.
+- Live control parameters.
+- Credentials, keys, or tokens.
+- Real config files for device access.
+
+## Prohibited Default Actions
+
+- Write.
+- Start.
+- Stop.
+- Reset.
+- Mode change.
+- Any control action against a live device.
+
+## Safe Fixture Rule
+
+Use generic labels and synthetic values in examples. Do not transform real equipment details into slightly modified examples.

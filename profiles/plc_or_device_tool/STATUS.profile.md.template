@@ -1,0 +1,30 @@
+# STATUS.profile.md - plc_or_device_tool
+
+## Profile
+
+plc_or_device_tool
+
+## Current Phase
+
+Set the current phase. Default should be inspection or planning until explicitly changed.
+
+## Expected Working Areas
+
+- docs/ safety and verification notes.
+- Interface contract notes.
+- Simulator/mock assumptions.
+- Read-only polling design notes.
+
+## Verification Status
+
+| check | status | evidence | notes |
+|---|---|---|---|
+| simulator/mock first | NOT RUN | | Confirm no live device dependency |
+| live write prohibited | NOT RUN | | Confirm no live write path exists |
+| read-only polling boundary | NOT RUN | | Confirm polling is read-only in design |
+| equipment detail exclusion | NOT RUN | | Confirm no IP/port/tag details are committed |
+| approval boundary | NOT RUN | | Confirm future live action requires explicit approval |
+
+## Known Gaps
+
+Record missing simulator context, unclear device boundary, or missing safety evidence.

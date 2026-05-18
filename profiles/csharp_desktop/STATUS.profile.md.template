@@ -1,0 +1,30 @@
+# STATUS.profile.md - csharp_desktop
+
+## Profile
+
+csharp_desktop
+
+## Current Phase
+
+Set the current phase for the target C# desktop project.
+
+## Expected Working Areas
+
+- Solution/project files.
+- src/ or project folders.
+- docs/.
+- build/test/smoke entrypoint notes.
+
+## Verification Status
+
+| check | status | evidence | notes |
+|---|---|---|---|
+| build.ps1 or equivalent | NOT RUN | | Define project-specific build entrypoint |
+| test.ps1 or equivalent | NOT RUN | | Define project-specific test entrypoint |
+| smoke.ps1 or equivalent | NOT RUN | | Define project-specific smoke entrypoint |
+| phase gate | NOT RUN | | Confirm current phase before implementation |
+| private data check | NOT RUN | | Confirm no machine-specific or sensitive data |
+
+## Known Gaps
+
+Record missing solution/project context, missing scripts, or GUI smoke limitations.

@@ -1,0 +1,26 @@
+# python_cli Profile
+
+## Purpose
+
+Use this profile for a Python command-line project that uses src/, tests/, pytest, and a CLI smoke check.
+
+## Recommended Layout
+
+- src/
+- tests/
+- docs/
+- AGENTS.override.md
+
+## Verification Model
+
+- pytest is the default test runner.
+- CLI smoke verifies the primary user-facing command path.
+- Acceptance trace records which requirement each test or smoke result supports.
+
+## P1 Boundary
+
+This profile template does not create Python source code, tests, packaging files, or scripts. Those belong to later project-specific phases.
+
+## Safety Notes
+
+Use synthetic fixtures. Do not commit private raw input, secrets, local environment dumps, or real service tokens.

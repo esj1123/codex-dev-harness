@@ -1,0 +1,24 @@
+# csharp_desktop Profile
+
+## Purpose
+
+Use this profile for a C# desktop or local tool project with a solution/project structure and explicit build, test, and smoke entrypoints.
+
+## Recommended Layout
+
+- Solution or project files.
+- src/ or project folders.
+- docs/.
+- Optional script entrypoints when implemented: build.ps1, test.ps1, smoke.ps1.
+
+## Phase Gate
+
+This profile expects a phase gate before implementation. Do not assume build/test/smoke commands exist until the target project defines them.
+
+## P1 Boundary
+
+This profile template does not create C# code, solution files, project files, or PowerShell scripts.
+
+## Safety Notes
+
+Do not include machine-specific paths, credentials, private inputs, or sensitive desktop data in docs or templates.

@@ -1,0 +1,50 @@
+# AGENTS.override.md - python_cli
+
+## Profile
+
+python_cli
+
+## Purpose
+
+Override base AGENTS.md guidance for a Python CLI project using src/, tests/, pytest, and CLI smoke checks.
+
+## Read Order
+
+1. AGENTS.md
+2. AGENTS.override.md
+3. PRODUCT.md
+4. MVP.md
+5. STATUS.md
+6. ACCEPTANCE_TRACE.md
+7. docs/SAFETY_POLICY.md
+8. docs/VERIFICATION.md
+9. docs/AI_HANDOFF.md
+
+## Expected Layout
+
+- src/: application package and CLI entrypoint location.
+- tests/: pytest tests.
+- docs/: project policies and handoff notes.
+
+## Allowed Work
+
+- Documentation changes.
+- Python source changes when the target project phase allows implementation.
+- pytest test additions or updates when in coding phases.
+- CLI smoke check definition or execution when commands are project-defined.
+
+## P1 Template Boundary
+
+This template does not create Python code, pytest files, package metadata, or CLI commands. It only defines profile guidance.
+
+## Verification Defaults
+
+- pytest for unit and integration-style checks.
+- CLI smoke check for the primary command path.
+- Acceptance trace update for requirement-to-evidence mapping.
+
+## Safety Defaults
+
+- No private raw input in tests or fixtures.
+- No credentials in CLI arguments, examples, docs, or logs.
+- Side effects are dry-run first unless the project explicitly defines safe local behavior.

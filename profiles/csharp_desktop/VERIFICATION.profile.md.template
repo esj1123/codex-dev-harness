@@ -1,0 +1,21 @@
+# VERIFICATION.profile.md - csharp_desktop
+
+## Purpose
+
+Define verification expectations for a C# desktop or local tool project.
+
+## Default Checks
+
+- Build: project-defined build.ps1 or equivalent.
+- Test: project-defined test.ps1 or equivalent.
+- Smoke: project-defined smoke.ps1 or manual desktop smoke procedure.
+- Phase gate: confirm implementation is allowed before changing source.
+- Acceptance trace: map product/MVP requirements to evidence.
+
+## Script Policy
+
+This profile names build.ps1, test.ps1, and smoke.ps1 as expected entrypoints when the target project implements them. This template does not create those scripts.
+
+## NOT RUN Principle
+
+If build, test, or smoke scripts do not exist, mark the check as NOT RUN with the reason.

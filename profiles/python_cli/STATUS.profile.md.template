@@ -1,0 +1,29 @@
+# STATUS.profile.md - python_cli
+
+## Profile
+
+python_cli
+
+## Current Phase
+
+Set the current phase for the target Python CLI project.
+
+## Expected Working Areas
+
+- src/
+- tests/
+- docs/
+- CLI smoke definition or notes
+
+## Verification Status
+
+| check | status | evidence | notes |
+|---|---|---|---|
+| pytest | NOT RUN | | Add project-specific command when available |
+| CLI smoke | NOT RUN | | Add primary CLI path when available |
+| acceptance trace | NOT RUN | | Map requirements to evidence |
+| private data check | NOT RUN | | Confirm fixtures are synthetic |
+
+## Known Gaps
+
+Record missing pytest coverage, missing CLI smoke path, or unsafe fixture risk.

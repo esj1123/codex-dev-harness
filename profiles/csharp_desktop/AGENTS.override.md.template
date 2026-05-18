@@ -1,0 +1,46 @@
+# AGENTS.override.md - csharp_desktop
+
+## Profile
+
+csharp_desktop
+
+## Purpose
+
+Override base AGENTS.md guidance for a C# desktop or local tool project with solution/project structure and explicit script entrypoints.
+
+## Read Order
+
+1. AGENTS.md
+2. AGENTS.override.md
+3. PRODUCT.md
+4. MVP.md
+5. STATUS.md
+6. ACCEPTANCE_TRACE.md
+7. docs/SAFETY_POLICY.md
+8. docs/VERIFICATION.md
+9. docs/AI_HANDOFF.md
+
+## Expected Layout
+
+- Solution file or project file at the repo root or under src/.
+- build.ps1 documented as the build entrypoint when implemented.
+- test.ps1 documented as the test entrypoint when implemented.
+- smoke.ps1 documented as the smoke entrypoint when implemented.
+
+## Phase Gate
+
+Before implementation, confirm:
+- Product and MVP contracts are current.
+- Target project path is known.
+- Build/test/smoke commands are documented or marked NOT RUN.
+- GUI or desktop side effects are understood.
+
+## P1 Template Boundary
+
+This template does not create a solution, project, PowerShell scripts, or C# source code.
+
+## Verification Defaults
+
+- Build check through project-defined build.ps1 or equivalent.
+- Test check through project-defined test.ps1 or equivalent.
+- Smoke check through project-defined smoke.ps1 or manual smoke notes.

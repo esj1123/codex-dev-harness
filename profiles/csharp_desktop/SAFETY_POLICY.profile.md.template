@@ -1,0 +1,25 @@
+# SAFETY_POLICY.profile.md - csharp_desktop
+
+## Purpose
+
+Define C# desktop safety defaults.
+
+## Side Effects
+
+Desktop apps may write files, user settings, logs, caches, or local databases. Treat those as side effects unless documented as safe test artifacts.
+
+## Machine-Specific Data
+
+Do not commit:
+- User-specific absolute paths.
+- Local machine identifiers.
+- Credentials or tokens.
+- Private documents or desktop data.
+
+## Phase Gate
+
+Do not modify source code before the current phase allows implementation. If the phase is inspection or planning, produce findings only.
+
+## Verification Safety
+
+Smoke procedures should use safe local test data and avoid changing real user data.

@@ -1,0 +1,21 @@
+# SAFETY_POLICY.profile.md - python_cli
+
+## Purpose
+
+Define Python CLI safety defaults.
+
+## Private Data
+
+- Use synthetic fixtures only.
+- Do not commit private raw input, secrets, tokens, .env contents, or local credential files.
+- Do not paste real command output containing sensitive paths or values into docs.
+
+## Side Effects
+
+- CLI commands should default to read-only or dry-run behavior when possible.
+- File writes require explicit output paths and expected change review.
+- External API mutation is out of scope unless explicitly approved by the target project contract.
+
+## Logging
+
+Logs and examples must redact or avoid credentials, private inputs, and user-specific paths.

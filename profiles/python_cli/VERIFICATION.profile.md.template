@@ -1,0 +1,24 @@
+# VERIFICATION.profile.md - python_cli
+
+## Purpose
+
+Define Python CLI verification expectations.
+
+## Default Checks
+
+- pytest: unit and integration-style checks.
+- CLI smoke: primary command path runs with safe synthetic input.
+- Acceptance trace: each important requirement maps to evidence.
+- Policy validation: no private raw input, credentials, or unsafe side effects.
+
+## Command Policy
+
+Document project-specific commands here. Do not assume a command until the target project defines it.
+
+## NOT RUN Principle
+
+If pytest or CLI smoke is unavailable, mark it as NOT RUN with the reason.
+
+## P1 Boundary
+
+This file is a template. It does not implement pytest tests, CLI commands, or quality gate scripts.

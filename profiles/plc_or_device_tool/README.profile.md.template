@@ -1,0 +1,24 @@
+# plc_or_device_tool Profile
+
+## Purpose
+
+Use this profile for PLC, device, equipment, or hardware-adjacent tools where live side effects can be high risk.
+
+## Safety Position
+
+- Simulator/mock first.
+- Read-only polling before any write concept.
+- Live device write is prohibited by default.
+- Equipment IP, port, tag, address, and live parameter details must not be committed.
+
+## Recommended Work Before Implementation
+
+- Define product and MVP contracts.
+- Define simulator/mock assumptions.
+- Define read-only polling boundaries.
+- Define safety and verification evidence.
+- Define explicit approval requirements for any future live action.
+
+## P1 Boundary
+
+This profile template does not create real device connections, PLC logic, configs, or equipment scripts.

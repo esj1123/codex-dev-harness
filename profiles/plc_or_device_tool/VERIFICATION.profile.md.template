@@ -1,0 +1,25 @@
+# VERIFICATION.profile.md - plc_or_device_tool
+
+## Purpose
+
+Define verification expectations for PLC, device, equipment, or hardware-adjacent tooling.
+
+## Default Checks
+
+- Simulator/mock availability or assumption documented.
+- Live device write path absent or explicitly prohibited.
+- Read-only polling boundary documented.
+- Equipment IP, port, tag, address, and live parameter details absent from repo.
+- Acceptance trace records safety_contract and side_effect_contract evidence.
+
+## Live Action Policy
+
+Live write, start, stop, reset, mode change, and control actions are not valid default verification steps. They require a separate approved process outside this template baseline.
+
+## NOT RUN Principle
+
+If simulator/mock verification is unavailable, mark it as NOT RUN and explain the missing evidence.
+
+## P1 Boundary
+
+This file is a template. It does not implement device polling, connection tests, or equipment automation.

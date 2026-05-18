@@ -1,0 +1,45 @@
+# AGENTS.override.md - plc_or_device_tool
+
+## Profile
+
+plc_or_device_tool
+
+## Purpose
+
+Override base AGENTS.md guidance for PLC, device, equipment, or hardware-adjacent tooling.
+
+## Read Order
+
+1. AGENTS.md
+2. AGENTS.override.md
+3. PRODUCT.md
+4. MVP.md
+5. STATUS.md
+6. ACCEPTANCE_TRACE.md
+7. docs/SAFETY_POLICY.md
+8. docs/VERIFICATION.md
+9. docs/AI_HANDOFF.md
+
+## Core Rule
+
+Simulator/mock first. Live device write is prohibited by default.
+
+## Allowed Default Work
+
+- Documentation.
+- Interface contract review.
+- Read-only polling design notes.
+- Simulator/mock workflow design.
+- Safety and verification planning.
+
+## Prohibited Default Work
+
+- Live device write.
+- Start, stop, reset, mode change, or control action.
+- Real equipment connection code.
+- Repo inclusion of equipment IP, port, tag, address, or live parameter details.
+- Secret/config generation.
+
+## P1 Template Boundary
+
+This template does not create device code, PLC code, connection config, tag maps, or live-control scripts.
