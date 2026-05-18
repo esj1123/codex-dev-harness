@@ -1,0 +1,20 @@
+project:
+  name: plc_tool_minimal
+  status: seed
+  description: "Minimal docs-only PLC or device tool example."
+
+profile:
+  name: plc_or_device_tool
+
+paths:
+  target: examples/plc_tool_minimal
+
+safety:
+  dry_run_default: true
+  private_input_policy: synthetic_fixtures_only
+  live_device_write: prohibited
+
+verification:
+  required_docs: true
+  profile_safety_policy: true
+  quality_gate: true

@@ -1,0 +1,19 @@
+project:
+  name: csharp_desktop_minimal
+  status: seed
+  description: "Minimal docs-only C# desktop example."
+
+profile:
+  name: csharp_desktop
+
+paths:
+  target: examples/csharp_desktop_minimal
+
+safety:
+  dry_run_default: true
+  private_input_policy: synthetic_fixtures_only
+
+verification:
+  required_docs: true
+  profile_safety_policy: true
+  quality_gate: true

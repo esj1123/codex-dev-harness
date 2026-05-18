@@ -1,0 +1,19 @@
+project:
+  name: python_cli_minimal
+  status: seed
+  description: "Minimal docs-only Python CLI example."
+
+profile:
+  name: python_cli
+
+paths:
+  target: examples/python_cli_minimal
+
+safety:
+  dry_run_default: true
+  private_input_policy: synthetic_fixtures_only
+
+verification:
+  required_docs: true
+  profile_safety_policy: true
+  quality_gate: true

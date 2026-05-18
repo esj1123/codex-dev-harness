@@ -99,8 +99,12 @@ def iter_templates(base_dir: Path, profile_dir: Path | None) -> Iterable[tuple[P
 def validate_target(target: Path, repo_root: Path) -> None:
     resolved_target = target.resolve()
     resolved_repo = repo_root.resolve()
-    if resolved_target == resolved_repo or resolved_repo in resolved_target.parents:
+    if resolved_target == resolved_repo:
         raise ValueError("refusing to render into the template repository itself")
+    if resolved_repo in resolved_target.parents:
+        examples_root = resolved_repo / "examples"
+        if resolved_target != examples_root and examples_root not in resolved_target.parents:
+            raise ValueError("refusing to render into the template repository outside examples/")
 
 
 def render_templates(
