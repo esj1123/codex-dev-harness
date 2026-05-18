@@ -1,0 +1,24 @@
+project:
+  name: example_project
+  status: seed
+  description: "Example config for rendering codex-dev-harness templates."
+
+profile:
+  name: python_cli
+
+paths:
+  templates: templates/base
+  profiles: profiles
+  target: _rendered/example_project
+
+safety:
+  dry_run_default: true
+  live_target_write: forbidden
+  external_network: forbidden
+  private_input_policy: synthetic_fixtures_only
+
+verification:
+  required_docs: true
+  repo_hygiene: true
+  template_schema: true
+  secret_scan: true
