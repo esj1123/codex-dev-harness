@@ -1,0 +1,21 @@
+# MVP.md
+
+## MVP Goal
+
+Define the smallest useful version.
+
+## Must Have
+
+List required behavior.
+
+## Out of Scope
+
+List deferred or prohibited work.
+
+## Acceptance Criteria
+
+List criteria that must be satisfied before closeout.
+
+## Smoke Scenario
+
+Describe the smallest workflow that should prove the MVP still works.

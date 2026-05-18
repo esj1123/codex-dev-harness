@@ -1,0 +1,41 @@
+# AGENTS.md
+
+## Purpose
+
+Define AI/Codex operating rules for this project.
+
+## Read Order
+
+1. AGENTS.md
+2. PRODUCT.md
+3. MVP.md
+4. STATUS.md
+5. ACCEPTANCE_TRACE.md
+6. docs/SAFETY_POLICY.md
+7. docs/VERIFICATION.md
+8. docs/PROFILE_MATRIX.md
+9. docs/AI_HANDOFF.md
+
+## Project Phase
+
+Set the current phase here.
+
+## Allowed Work
+
+List allowed work for this project.
+
+## No-Touch Zones
+
+List files, folders, systems, and data that must not be changed or exposed.
+
+## Side-Effect Policy
+
+State dry-run, approval, and apply rules.
+
+## Verification Plan
+
+State required checks and NOT RUN handling.
+
+## Closeout Receipt
+
+Report changed files, verification, safety checks, risks, and next step.

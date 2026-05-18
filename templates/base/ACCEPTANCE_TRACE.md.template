@@ -1,0 +1,18 @@
+# ACCEPTANCE_TRACE.md
+
+## Purpose
+
+Map requirements to evidence.
+
+## Trace Table
+
+| trace_id | category | requirement | evidence | evidence_path | status | notes |
+|---|---|---|---|---|---|---|
+| AT-001 | product_contract | Describe requirement | Describe evidence | Path or reference | NOT RUN | Initial placeholder |
+
+## Status Values
+
+- PASS.
+- FAIL.
+- PARTIAL.
+- NOT RUN.

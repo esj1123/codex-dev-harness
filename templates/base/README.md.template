@@ -1,0 +1,33 @@
+# Project Name
+
+## Purpose
+
+Describe what this project does and why it exists.
+
+## Current Phase
+
+State the current project phase.
+
+## Read Order
+
+1. AGENTS.md
+2. PRODUCT.md
+3. MVP.md
+4. STATUS.md
+5. ACCEPTANCE_TRACE.md
+6. docs/SAFETY_POLICY.md
+7. docs/VERIFICATION.md
+8. docs/PROFILE_MATRIX.md
+9. docs/AI_HANDOFF.md
+
+## Quick Start
+
+Describe how to inspect the project. Add executable commands only when the project phase allows implementation details.
+
+## Safety Defaults
+
+Summarize side-effect and private-data rules.
+
+## Verification
+
+Summarize expected verification and NOT RUN handling.
