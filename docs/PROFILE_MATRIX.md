@@ -4,7 +4,7 @@
 
 Define operating profiles for applying this template to different project risk levels.
 
-## Profiles
+## Conceptual Profiles
 
 | profile | purpose | orchestration | side-effect default | verification default | suitable projects |
 |---|---|---|---|---|---|
@@ -14,6 +14,14 @@ Define operating profiles for applying this template to different project risk l
 | multi_agent_lab | Experiment with role split | sandboxed role separation | no live target mutation | cross-review and merge risk notes | agent workflow research |
 | managed_enterprise | Operate under organization policy | audited tools only | approval-gated | policy validation and audit evidence | regulated or sensitive environments |
 
-## P0 Status
+## Implemented Template Profiles
 
-Profiles are described only. Profile folders and render behavior are future work.
+| implemented profile | status | example | notes |
+|---|---|---|---|
+| python_cli | available | examples/python_cli_minimal | pytest and CLI smoke are expected but NOT RUN in skeleton |
+| csharp_desktop | available | examples/csharp_desktop_minimal | build/test/smoke are expected but NOT RUN in skeleton |
+| plc_or_device_tool | available | examples/plc_tool_minimal | simulator/mock first and live device write prohibited |
+
+## Current Status
+
+The historical P0 profile descriptions have been extended with concrete profile template folders and example skeletons. Additional profiles should not be added casually; new profiles need a clear validation example and safety policy.

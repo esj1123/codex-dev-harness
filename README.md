@@ -1,25 +1,41 @@
 # codex-dev-harness
 
-P0 docs-only baseline for a reusable Agentic Development Repo Template.
+Reusable Agentic Development Repo Template for governed AI/Codex coding workflows.
 
-This repository is a governed coding workflow template for projects that use AI/Codex to inspect, modify, verify, and hand off software work. The word harness is used as a short repo name, but the scope is broader than a test runner. The target system includes task contracts, agent instructions, side-effect boundaries, verification, and closeout discipline.
+This repository is a governed coding workflow template for projects that use AI/Codex to inspect, modify, verify, and hand off software work. The word harness is used as a short repo name, but the scope is broader than a test runner. The target system includes task contracts, agent instructions, side-effect boundaries, verification, example validation, and closeout discipline.
 
-## P0 Scope
+## Current State
 
-P0 is documentation only.
+The repository has moved beyond the historical P0 docs-only baseline. It currently includes:
 
-In scope:
+- Root contract documents.
+- Base markdown templates.
+- Profile templates for `python_cli`, `csharp_desktop`, and `plc_or_device_tool`.
+- A config-driven render script.
+- A base quality gate.
+- Minimal example skeletons under `examples/`.
+- Tests for render and gate behavior.
+
+No real application code, PLC/device code, live target configuration, secrets, or private raw input is included.
+
+## Historical P0 Scope
+
+P0 was the initial docs-only baseline.
+
+In scope at P0:
 - Define the baseline repo contract.
 - Define read order and AI/Codex operating rules.
 - Define product, MVP, roadmap, status, acceptance trace, safety, verification, and handoff documents.
 - Provide base markdown templates.
 
-Out of scope:
+Out of scope at P0:
 - Render scripts.
 - Quality gate implementation.
-- Example project implementation.
+- Example projects.
 - Real application code.
 - Secrets, private inputs, or live system configuration.
+
+Those items are no longer described as current absence. Render script, quality gate, profile templates, and example skeletons now exist.
 
 ## Read Order
 
@@ -43,27 +59,29 @@ Out of scope:
 - STATUS.md
 - ACCEPTANCE_TRACE.md
 - code_review.md
-- docs/HARNESS_SPEC.md
-- docs/PROFILE_MATRIX.md
-- docs/SAFETY_POLICY.md
-- docs/AI_HANDOFF.md
-- docs/VERIFICATION.md
-- templates/base/AGENTS.md.template
-- templates/base/README.md.template
-- templates/base/PRODUCT.md.template
-- templates/base/MVP.md.template
-- templates/base/STATUS.md.template
-- templates/base/ACCEPTANCE_TRACE.md.template
+- docs/
+- templates/base/
+- profiles/
+- scripts/
+- scripts/gates/
+- examples/
+- tests/
+- template.config.example.yml
 
 ## Core Principles
 
 - One-agent-first: begin with one accountable AI/Codex worker before adding orchestration.
 - Read-only first: inspect and summarize before changing files.
 - Explicit side-effect boundary: live writes, deletes, moves, external sends, database writes, and device actions require explicit confirmation.
-- Verification mesh: tests, smoke checks, acceptance trace, policy validation, and audit evidence are separate but connected.
+- Verification mesh: tests, smoke checks, acceptance trace, policy validation, example validation, and audit evidence are separate but connected.
 - Private data protection: use synthetic fixtures and summaries instead of private raw input.
 - Closeout receipt: every completed task reports changed files, checks run, safety checks, risks, and next steps.
 
-## Current Status
+## Validation
 
-This repo is at P0 docs-only baseline. No scripts, generated examples, or executable project code are included yet.
+Use the quality gate and dry-run renderer before treating the template as healthy:
+
+- `python scripts/quality_gate.py`
+- `python scripts/render_template.py --config examples/python_cli_minimal/template.config.yml --target examples/python_cli_minimal --dry-run`
+- `python scripts/render_template.py --config examples/csharp_desktop_minimal/template.config.yml --target examples/csharp_desktop_minimal --dry-run`
+- `python scripts/render_template.py --config examples/plc_tool_minimal/template.config.yml --target examples/plc_tool_minimal --dry-run`

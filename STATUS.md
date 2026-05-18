@@ -2,33 +2,43 @@
 
 ## Current Phase
 
-P0 docs-only baseline.
+P4/P5 validation patch phase.
 
 ## Current State
 
-The repository contains documentation and base markdown templates only.
+The repository contains documentation, base templates, profile templates, render tooling, quality gates, tests, and minimal example skeletons.
 
 ## What Exists
 
 - Core repo contract documents.
 - Safety and verification policy documents.
 - Base markdown templates.
+- Profile templates for `python_cli`, `csharp_desktop`, and `plc_or_device_tool`.
+- `scripts/render_template.py`.
+- `scripts/quality_gate.py`.
+- Gate modules under `scripts/gates/`.
+- Example skeletons:
+  - `examples/python_cli_minimal`
+  - `examples/csharp_desktop_minimal`
+  - `examples/plc_tool_minimal`
+- Tests under `tests/`.
 
 ## What Does Not Exist Yet
 
-- Render script.
-- Quality gate script.
-- Smoke test script.
-- Repo hygiene script.
-- Example projects.
 - Real application code.
+- Real PLC/device code.
+- Live target write behavior.
+- Real secret/config files.
+- CI workflow.
+- Release automation.
 
 ## Known Constraints
 
-- P0 files are intentionally lightweight.
-- Profiles are described in docs but not implemented as separate profile folders yet.
-- Verification is policy-level only; no executable checks are included.
+- YAML parsing is intentionally scalar-only.
+- Examples are skeletons only.
+- Runtime checks in examples may be marked NOT RUN when code or scripts do not exist.
+- Render targets inside this repository are limited to `examples/<name>`.
 
 ## Next Recommended Step
 
-P1: refine base templates so they can be copied into a target project without adding implementation code.
+Stabilize P4/P5 validation by expanding CI/dependency instructions or adding a lightweight release checklist without adding real application behavior.

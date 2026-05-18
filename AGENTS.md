@@ -16,21 +16,21 @@ This file defines the operating rules for AI/Codex work in this repository.
 8. docs/PROFILE_MATRIX.md
 9. docs/AI_HANDOFF.md
 
-## P0 Docs-Only Rule
+## Current Phase Rule
 
-This repository is currently P0 docs-only.
+The historical P0 docs-only baseline is complete. The repository now includes documentation, profile templates, render tooling, quality gates, and minimal example skeletons.
 
 Allowed:
-- Edit documentation and markdown templates.
-- Clarify contracts, profiles, safety policy, verification policy, and handoff policy.
-- Keep changes small and reviewable.
+- Edit documentation, markdown templates, profiles, examples, tests, and quality gate scripts within the requested scope.
+- Keep render behavior dry-run first for examples.
+- Preserve the safety boundary around private data and live targets.
 
-Not allowed in P0:
-- Implement render scripts.
-- Implement quality gate scripts.
-- Implement examples.
+Not allowed by default:
 - Add real application code.
+- Add PLC/device connection code.
+- Add live device write, start, stop, reset, or mode-change behavior.
 - Add secrets, private inputs, customer data, equipment details, credentials, keys, or tokens.
+- Broaden render targets to arbitrary repo-internal directories outside `examples/<name>`.
 
 ## Task Contract
 
@@ -48,20 +48,21 @@ Do not add or expose:
 - Private raw input.
 - Sensitive business source text.
 - Device addresses, equipment parameters, or live-control values.
-- Generated code outside the docs-only baseline.
+- Generated application code outside an explicitly approved future phase.
 
 ## Side-Effect Policy
 
-Default to read-only inspection first. File writes are allowed only for requested documentation work. Delete, move, external send, database write, live target mutation, and device action require explicit confirmation and are out of P0 scope unless the repository owner changes the phase.
+Default to read-only inspection first. File writes are allowed only for requested repository work. Delete, move, external send, database write, live target mutation, and device action require explicit confirmation.
 
 ## Verification Plan
 
-For P0 documentation changes, verify:
-- Requested files exist.
+For the current template repository, verify:
 - README and AGENTS read order match.
-- P0 docs-only scope is preserved.
-- No executable code or sensitive information was added.
-- Links and filenames are coherent.
+- Required root documents exist.
+- Base templates and profile templates are present.
+- Render script supports dry-run example rendering.
+- Quality gate includes docs, repo hygiene, template schema, secret scan, and example validation.
+- No real application code or sensitive information was added.
 
 ## Handoff Rules
 

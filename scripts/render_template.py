@@ -103,8 +103,8 @@ def validate_target(target: Path, repo_root: Path) -> None:
         raise ValueError("refusing to render into the template repository itself")
     if resolved_repo in resolved_target.parents:
         examples_root = resolved_repo / "examples"
-        if resolved_target != examples_root and examples_root not in resolved_target.parents:
-            raise ValueError("refusing to render into the template repository outside examples/")
+        if resolved_target.parent != examples_root:
+            raise ValueError("refusing to render into the template repository outside examples/<name>")
 
 
 def render_templates(

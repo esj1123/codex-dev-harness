@@ -74,8 +74,28 @@ def test_render_refuses_repo_internal_target_outside_examples(tmp_path: Path) ->
     config = tmp_path / "template.config.yml"
     config.write_text("project:\n  name: demo\n  status: seed\n", encoding="utf-8")
 
-    with pytest.raises(ValueError, match="outside examples"):
+    with pytest.raises(ValueError, match="outside examples/<name>"):
         render_templates(config_path=config, target=repo / "src", repo_root=repo, dry_run=True)
+
+
+def test_render_refuses_examples_root_target(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    write(repo / "templates/base/README.md.template", "# demo\n")
+    config = tmp_path / "template.config.yml"
+    config.write_text("project:\n  name: demo\n  status: seed\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="outside examples/<name>"):
+        render_templates(config_path=config, target=repo / "examples", repo_root=repo, dry_run=True)
+
+
+def test_render_refuses_nested_examples_target(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    write(repo / "templates/base/README.md.template", "# demo\n")
+    config = tmp_path / "template.config.yml"
+    config.write_text("project:\n  name: demo\n  status: seed\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="outside examples/<name>"):
+        render_templates(config_path=config, target=repo / "examples" / "demo" / "nested", repo_root=repo, dry_run=True)
 
 
 def test_render_allows_examples_target(tmp_path: Path) -> None:
