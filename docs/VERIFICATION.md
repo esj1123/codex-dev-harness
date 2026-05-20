@@ -66,6 +66,8 @@ Current and future verification layers may include:
 
 Use `docs/RELEASE_CHECKLIST.md` before tagging a reusable baseline. Known gaps and intentionally unsupported behavior are tracked in `docs/KNOWN_LIMITATIONS.md`.
 
+CI policy is documented in `docs/CI_POLICY.md`. The current baseline is local verification first and does not include a GitHub Actions workflow.
+
 ## NOT RUN Principle
 
 If a check was not executed, mark it as NOT RUN with a reason. Do not imply success for checks that were not run.

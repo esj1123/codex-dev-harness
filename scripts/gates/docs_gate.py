@@ -22,6 +22,7 @@ REQUIRED_DOCS = [
     "docs/VERIFICATION.md",
     "docs/RELEASE_CHECKLIST.md",
     "docs/KNOWN_LIMITATIONS.md",
+    "docs/CI_POLICY.md",
 ]
 
 

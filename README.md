@@ -87,3 +87,5 @@ Use the quality gate and dry-run renderer before treating the template as health
 - `python scripts/render_template.py --config examples/python_cli_minimal/template.config.yml --target examples/python_cli_minimal --dry-run`
 - `python scripts/render_template.py --config examples/csharp_desktop_minimal/template.config.yml --target examples/csharp_desktop_minimal --dry-run`
 - `python scripts/render_template.py --config examples/plc_tool_minimal/template.config.yml --target examples/plc_tool_minimal --dry-run`
+
+CI policy is documented in `docs/CI_POLICY.md`. No workflow is included in the current baseline.

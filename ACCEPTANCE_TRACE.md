@@ -26,6 +26,12 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 | AT-005 | current | quality_gate | Quality gate includes docs, repo hygiene, template schema, secret scan, and examples | Gate modules and quality gate runner exist | scripts/quality_gate.py, scripts/gates/ | PASS | P4 validation target |
 | AT-006 | current | side_effect_contract | Render target guard rejects repo-internal targets outside examples/<name> | Guard and tests exist | scripts/render_template.py, tests/test_render_template.py | PASS | Examples only |
 | AT-007 | current | security_contract | PLC/device example prohibits live device write and equipment details | Example safety policy exists | examples/plc_tool_minimal/SAFETY_POLICY.profile.md | PASS | Skeleton-only example |
+| AT-008 | current | quality_gate | requirements-dev.txt exists and includes pytest | Dependency file exists | requirements-dev.txt | PASS | P5 release readiness |
+| AT-009 | current | quality_gate | pytest command is documented | Verification commands documented | README.md, docs/VERIFICATION.md | PASS | P5 release readiness |
+| AT-010 | current | product_contract | Release checklist exists | Release readiness checklist exists | docs/RELEASE_CHECKLIST.md | PASS | P5 release readiness |
+| AT-011 | current | product_contract | Known limitations are documented | Known limitations document exists | docs/KNOWN_LIMITATIONS.md | PASS | P5 release readiness |
+| AT-012 | current | quality_gate | Example config validation is covered by example_gate | example_gate validates template.config.yml values | scripts/gates/example_gate.py, tests/test_quality_gate.py | PASS | P5 release readiness |
+| AT-013 | current | governance_audit | CI policy is documented without creating a workflow | CI policy draft exists | docs/CI_POLICY.md | PASS | Policy only, no workflow |
 
 ## Status Values
 
