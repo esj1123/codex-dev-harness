@@ -25,6 +25,7 @@ REQUIRED_DOCS = [
     "docs/CI_POLICY.md",
     "docs/LOCAL_USAGE.md",
     "docs/LOCAL_RELEASE_PACKAGE.md",
+    "docs/P6_RELEASE_CLOSEOUT.md",
 ]
 
 

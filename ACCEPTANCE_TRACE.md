@@ -36,6 +36,9 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 | AT-015 | current | scope_contract | Local release package boundary is documented | Local package guide exists | docs/LOCAL_RELEASE_PACKAGE.md | PASS | P5.5 local usage readiness |
 | AT-016 | current | quality_gate | Local verification wrapper exists | PowerShell wrapper exists | scripts/run_local_verify.ps1 | PASS | P5.5 local usage readiness |
 | AT-017 | current | governance_audit | CI remains optional and local verification first | CI policy and local usage docs say local-first | docs/CI_POLICY.md, docs/LOCAL_USAGE.md | PASS | No workflow created |
+| AT-018 | current | governance_audit | P6 release candidate closeout is documented | Closeout document exists | docs/P6_RELEASE_CLOSEOUT.md | PASS | Release tag not created |
+| AT-019 | current | quality_gate | Latest verified commit is recorded | STATUS records release candidate commit | STATUS.md | PASS | `aff39d65e716ad2830647fcf52026c00a911d482` |
+| AT-020 | current | quality_gate | Local verification wrapper was run for release candidate | Latest verification records wrapper result | STATUS.md, docs/P6_RELEASE_CLOSEOUT.md | PASS | Local-first validation |
 
 ## Status Values
 

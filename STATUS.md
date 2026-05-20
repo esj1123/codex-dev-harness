@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-P5.5 Local Usage Readiness.
+P6 Release Candidate Closeout.
 
 ## Current State
 
@@ -18,6 +18,7 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/CI_POLICY.md`
   - `docs/LOCAL_USAGE.md`
   - `docs/LOCAL_RELEASE_PACKAGE.md`
+  - `docs/P6_RELEASE_CLOSEOUT.md`
 - Base markdown templates.
 - Profile templates for `python_cli`, `csharp_desktop`, and `plc_or_device_tool`.
 - `scripts/render_template.py`.
@@ -49,12 +50,13 @@ The repository contains documentation, base templates, profile templates, render
 
 ## Latest Verification
 
-Verified commit: `90d52099259dd56edf429a5d17753fdae0f618b9`
+Verified commit: `aff39d65e716ad2830647fcf52026c00a911d482`
 
 | check | status | evidence |
 |---|---|---|
-| `python -m pytest` | PASS | 16 passed |
-| `python scripts/quality_gate.py` | PASS | docs, hygiene, schema, examples, secret scan passed |
+| `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1` | PASS | pytest, quality gate, and 3 render dry-runs passed |
+| `python -m pytest` | PASS | 16 passed through the local Python runtime used by the verification wrapper |
+| `python scripts/quality_gate.py` | PASS | docs, hygiene, schema, examples, secret scan passed through the local Python runtime |
 | python_cli render dry-run | PASS | `examples/python_cli_minimal` dry-run succeeded |
 | csharp_desktop render dry-run | PASS | `examples/csharp_desktop_minimal` dry-run succeeded |
 | plc_tool render dry-run | PASS | `examples/plc_tool_minimal` dry-run succeeded |
@@ -63,4 +65,4 @@ Verified commit: `90d52099259dd56edf429a5d17753fdae0f618b9`
 
 ## Next Recommended Step
 
-P6 release tag decision. Decide whether to tag the local-first baseline, and whether CI should remain policy-only or move to a future optional workflow.
+P6 release tag decision. Decide whether to create `v0.1.0-rc1`, and whether CI should remain policy-only or move to a future optional workflow.
