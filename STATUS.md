@@ -19,6 +19,8 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/LOCAL_USAGE.md`
   - `docs/LOCAL_RELEASE_PACKAGE.md`
   - `docs/P6_RELEASE_CLOSEOUT.md`
+  - `docs/RELEASE_NOTES_v0.1.0-rc1.md`
+  - `docs/OPTIONAL_GITHUB_ACTIONS.md`
 - Base markdown templates.
 - Profile templates for `python_cli`, `csharp_desktop`, and `plc_or_device_tool`.
 - `scripts/render_template.py`.
@@ -30,6 +32,7 @@ The repository contains documentation, base templates, profile templates, render
   - `examples/plc_tool_minimal`
 - Tests under `tests/`.
 - Local verification wrapper: `scripts/run_local_verify.ps1`.
+- Optional GitHub Actions template: `templates/ci/github-actions-local-verify.yml.template`.
 
 ## What Does Not Exist Yet
 
@@ -62,7 +65,9 @@ Verified commit: `aff39d65e716ad2830647fcf52026c00a911d482`
 | plc_tool render dry-run | PASS | `examples/plc_tool_minimal` dry-run succeeded |
 | CI workflow | NOT RUN | Not included in this repository baseline |
 | release tag | NOT CREATED | P6 release tag decision remains pending |
+| release notes | PRESENT | `docs/RELEASE_NOTES_v0.1.0-rc1.md` exists |
+| optional GitHub Actions guide | PRESENT | guide and template exist, but no workflow is installed |
 
 ## Next Recommended Step
 
-P6 release tag decision. Decide whether to create `v0.1.0-rc1`, and whether CI should remain policy-only or move to a future optional workflow.
+Reverify the latest commit, then make the `v0.1.0-rc1` tag decision. GitHub Actions remains optional and is represented only by documentation plus a template file.

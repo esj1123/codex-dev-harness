@@ -6,7 +6,9 @@ This document records the P6 release candidate closeout state for the local-firs
 
 ## Candidate
 
-- Candidate commit: `aff39d65e716ad2830647fcf52026c00a911d482`
+- Previous verified candidate commit: `aff39d65e716ad2830647fcf52026c00a911d482`
+- Next candidate commit: update after release notes and optional GitHub Actions guidance are committed and locally reverified.
+- Recommended tag: `v0.1.0-rc1`
 - Release tag: NOT CREATED
 - CI workflow: NOT RUN / not included
 
@@ -25,14 +27,16 @@ This document records the P6 release candidate closeout state for the local-firs
 
 - Known limitations: `docs/KNOWN_LIMITATIONS.md`
 - Release checklist: `docs/RELEASE_CHECKLIST.md`
+- Release notes: `docs/RELEASE_NOTES_v0.1.0-rc1.md`
+- Optional GitHub Actions guide: `docs/OPTIONAL_GITHUB_ACTIONS.md`
 - Local usage guide: `docs/LOCAL_USAGE.md`
 - Local package boundary: `docs/LOCAL_RELEASE_PACKAGE.md`
 
 ## Remaining Decisions
 
-- Decide whether this candidate should be tagged as `v0.1.0-rc1`.
-- Decide whether GitHub Actions should remain policy-only or become a future optional workflow.
-- Confirm whether release notes should be prepared before creating a tag.
+- Re-run local verification on the latest commit after this documentation patch lands.
+- Decide whether the latest verified commit should be tagged as `v0.1.0-rc1`.
+- Decide whether GitHub Actions should remain template-only or become a future optional workflow.
 
 ## Scope Confirmation
 

@@ -39,6 +39,7 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 | AT-018 | current | governance_audit | P6 release candidate closeout is documented | Closeout document exists | docs/P6_RELEASE_CLOSEOUT.md | PASS | Release tag not created |
 | AT-019 | current | quality_gate | Latest verified commit is recorded | STATUS records release candidate commit | STATUS.md | PASS | `aff39d65e716ad2830647fcf52026c00a911d482` |
 | AT-020 | current | quality_gate | Local verification wrapper was run for release candidate | Latest verification records wrapper result | STATUS.md, docs/P6_RELEASE_CLOSEOUT.md | PASS | Local-first validation |
+| AT-021 | current | product_contract | Release notes are documented | Release notes exist for the recommended release candidate tag | docs/RELEASE_NOTES_v0.1.0-rc1.md | PASS | Tag not created |
 
 ## Status Values
 

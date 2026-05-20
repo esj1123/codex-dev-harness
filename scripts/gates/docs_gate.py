@@ -26,6 +26,8 @@ REQUIRED_DOCS = [
     "docs/LOCAL_USAGE.md",
     "docs/LOCAL_RELEASE_PACKAGE.md",
     "docs/P6_RELEASE_CLOSEOUT.md",
+    "docs/RELEASE_NOTES_v0.1.0-rc1.md",
+    "docs/OPTIONAL_GITHUB_ACTIONS.md",
 ]
 
 
