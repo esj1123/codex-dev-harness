@@ -23,6 +23,8 @@ REQUIRED_DOCS = [
     "docs/RELEASE_CHECKLIST.md",
     "docs/KNOWN_LIMITATIONS.md",
     "docs/CI_POLICY.md",
+    "docs/LOCAL_USAGE.md",
+    "docs/LOCAL_RELEASE_PACKAGE.md",
 ]
 
 

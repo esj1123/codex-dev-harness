@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-P4/P5 validation patch phase.
+P5.5 Local Usage Readiness.
 
 ## Current State
 
@@ -16,6 +16,8 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/RELEASE_CHECKLIST.md`
   - `docs/KNOWN_LIMITATIONS.md`
   - `docs/CI_POLICY.md`
+  - `docs/LOCAL_USAGE.md`
+  - `docs/LOCAL_RELEASE_PACKAGE.md`
 - Base markdown templates.
 - Profile templates for `python_cli`, `csharp_desktop`, and `plc_or_device_tool`.
 - `scripts/render_template.py`.
@@ -26,6 +28,7 @@ The repository contains documentation, base templates, profile templates, render
   - `examples/csharp_desktop_minimal`
   - `examples/plc_tool_minimal`
 - Tests under `tests/`.
+- Local verification wrapper: `scripts/run_local_verify.ps1`.
 
 ## What Does Not Exist Yet
 
@@ -35,6 +38,7 @@ The repository contains documentation, base templates, profile templates, render
 - Real secret/config files.
 - CI workflow.
 - Release automation.
+- Release tag.
 
 ## Known Constraints
 
@@ -55,7 +59,8 @@ Verified commit: `90d52099259dd56edf429a5d17753fdae0f618b9`
 | csharp_desktop render dry-run | PASS | `examples/csharp_desktop_minimal` dry-run succeeded |
 | plc_tool render dry-run | PASS | `examples/plc_tool_minimal` dry-run succeeded |
 | CI workflow | NOT RUN | Not included in this repository baseline |
+| release tag | NOT CREATED | P6 release tag decision remains pending |
 
 ## Next Recommended Step
 
-Run the P5 release readiness checklist in a prepared development environment, then decide whether to document CI policy in `docs/CI_POLICY.md` before adding any workflow.
+P6 release tag decision. Decide whether to tag the local-first baseline, and whether CI should remain policy-only or move to a future optional workflow.

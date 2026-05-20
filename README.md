@@ -84,8 +84,23 @@ Use the quality gate and dry-run renderer before treating the template as health
 - `python -m pip install -r requirements-dev.txt`
 - `python -m pytest`
 - `python scripts/quality_gate.py`
+- `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1`
 - `python scripts/render_template.py --config examples/python_cli_minimal/template.config.yml --target examples/python_cli_minimal --dry-run`
 - `python scripts/render_template.py --config examples/csharp_desktop_minimal/template.config.yml --target examples/csharp_desktop_minimal --dry-run`
 - `python scripts/render_template.py --config examples/plc_tool_minimal/template.config.yml --target examples/plc_tool_minimal --dry-run`
 
 CI policy is documented in `docs/CI_POLICY.md`. No workflow is included in the current baseline.
+
+## Local-First Usage
+
+The intended baseline workflow is local-first:
+- clone the repository
+- install development requirements
+- run local verification
+- dry-run example rendering
+- review expected target paths
+- apply generated docs to a separate target project only after review
+
+See `docs/LOCAL_USAGE.md` for the full local usage flow and `docs/LOCAL_RELEASE_PACKAGE.md` for local package boundaries.
+
+CI remains optional and is not a baseline requirement.

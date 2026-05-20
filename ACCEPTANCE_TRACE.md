@@ -32,6 +32,10 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 | AT-011 | current | product_contract | Known limitations are documented | Known limitations document exists | docs/KNOWN_LIMITATIONS.md | PASS | P5 release readiness |
 | AT-012 | current | quality_gate | Example config validation is covered by example_gate | example_gate validates template.config.yml values | scripts/gates/example_gate.py, tests/test_quality_gate.py | PASS | P5 release readiness |
 | AT-013 | current | governance_audit | CI policy is documented without creating a workflow | CI policy draft exists | docs/CI_POLICY.md | PASS | Policy only, no workflow |
+| AT-014 | current | product_contract | Local-first usage is documented | Local usage guide exists | docs/LOCAL_USAGE.md | PASS | P5.5 local usage readiness |
+| AT-015 | current | scope_contract | Local release package boundary is documented | Local package guide exists | docs/LOCAL_RELEASE_PACKAGE.md | PASS | P5.5 local usage readiness |
+| AT-016 | current | quality_gate | Local verification wrapper exists | PowerShell wrapper exists | scripts/run_local_verify.ps1 | PASS | P5.5 local usage readiness |
+| AT-017 | current | governance_audit | CI remains optional and local verification first | CI policy and local usage docs say local-first | docs/CI_POLICY.md, docs/LOCAL_USAGE.md | PASS | No workflow created |
 
 ## Status Values
 

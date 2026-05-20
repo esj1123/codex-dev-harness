@@ -21,7 +21,15 @@ Define verification expectations for this template repository.
 - No real PLC/device code exists.
 - No secrets or private data are included.
 
-## Quality Gate
+## Local Verification Flow
+
+Recommended local command:
+
+`powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1`
+
+The wrapper runs tests, quality gate, and all three example render dry-runs. It does not write rendered files and does not use `--force`.
+
+## Manual Verification Flow
 
 Run:
 
@@ -65,6 +73,8 @@ Current and future verification layers may include:
 ## Release Readiness
 
 Use `docs/RELEASE_CHECKLIST.md` before tagging a reusable baseline. Known gaps and intentionally unsupported behavior are tracked in `docs/KNOWN_LIMITATIONS.md`.
+
+Local package boundaries are documented in `docs/LOCAL_RELEASE_PACKAGE.md`.
 
 CI policy is documented in `docs/CI_POLICY.md`. The current baseline is local verification first and does not include a GitHub Actions workflow.
 
