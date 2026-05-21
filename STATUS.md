@@ -22,6 +22,7 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/RELEASE_NOTES_v0.1.0-rc1.md`
   - `docs/RELEASE_RECORD_v0.1.0-rc1.md`
   - `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md`
+  - `docs/LOCAL_TARGET_EXPERIMENT_python_cli_v0.1.0-rc1.md`
   - `docs/OPTIONAL_GITHUB_ACTIONS.md`
 - Base markdown templates.
 - Profile templates for `python_cli`, `csharp_desktop`, and `plc_or_device_tool`.
@@ -90,6 +91,19 @@ Tag object: `9ca08efbd43cd2c5defba7875efbd7ca702c6166`
 | `.github/workflows` | ABSENT | No workflow installed |
 | application/device/live-write scope | PASS | No real application code, PLC/device code, or live target write support added |
 
+## Local Target Experiment
+
+| item | status | evidence |
+|---|---|---|
+| basis tag | PASS | `v0.1.0-rc1` |
+| profile | PASS | `python_cli` |
+| target folder | PASS | Separate temporary local target folder |
+| pre-render verification | PASS | `scripts/run_local_verify.ps1` passed from tag checkout |
+| dry-run render | PASS | 11 Markdown outputs planned |
+| actual render | PASS | 11 Markdown docs generated after local target write permission was granted |
+| generated runtime code | ABSENT | No application runtime code generated |
+| private/secrets/live-write scope | PASS | No private input, secrets, or live target write support generated |
+
 ## Next Recommended Step
 
-Decide whether to draft a GitHub Release page, whether to run a small local target project application experiment, and when a formal `v0.1.0` tag would be appropriate. Actual project application remains deferred.
+Decide whether to draft a GitHub Release page, whether to run additional profile experiments, and when a formal `v0.1.0` tag would be appropriate. Actual project application remains deferred.
