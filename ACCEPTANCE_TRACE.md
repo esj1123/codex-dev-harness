@@ -36,13 +36,16 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 | AT-015 | current | scope_contract | Local release package boundary is documented | Local package guide exists | docs/LOCAL_RELEASE_PACKAGE.md | PASS | P5.5 local usage readiness |
 | AT-016 | current | quality_gate | Local verification wrapper exists | PowerShell wrapper exists | scripts/run_local_verify.ps1 | PASS | P5.5 local usage readiness |
 | AT-017 | current | governance_audit | CI remains optional and local verification first | CI policy and local usage docs say local-first | docs/CI_POLICY.md, docs/LOCAL_USAGE.md | PASS | No workflow created |
-| AT-018 | current | governance_audit | P6 release candidate closeout is documented | Closeout document exists | docs/P6_RELEASE_CLOSEOUT.md | PASS | Release tag not created |
-| AT-019 | current | quality_gate | Latest verified commit is recorded | STATUS records release candidate commit | STATUS.md | PASS | `aff39d65e716ad2830647fcf52026c00a911d482` |
+| AT-018 | current | governance_audit | P6 release candidate closeout is documented | Closeout document exists | docs/P6_RELEASE_CLOSEOUT.md | PASS | Updated after tag creation |
+| AT-019 | current | quality_gate | Latest verified commit is recorded | STATUS records release candidate commit | STATUS.md | PASS | `10bccadd15be9401847620eba61d3c8c4117962d` |
 | AT-020 | current | quality_gate | Local verification wrapper was run for release candidate | Latest verification records wrapper result | STATUS.md, docs/P6_RELEASE_CLOSEOUT.md | PASS | Local-first validation |
-| AT-021 | current | product_contract | Release notes are documented | Release notes exist for the recommended release candidate tag | docs/RELEASE_NOTES_v0.1.0-rc1.md | PASS | Tag not created |
+| AT-021 | current | product_contract | Release notes are documented | Release notes exist for the recommended release candidate tag | docs/RELEASE_NOTES_v0.1.0-rc1.md | PASS | Retained after tag creation |
 | AT-022 | current | governance_audit | v0.1.0-rc1 tag was created | Release record captures created tag state | docs/RELEASE_RECORD_v0.1.0-rc1.md | PASS | GitHub Release page not created |
 | AT-023 | current | governance_audit | Tag target commit is recorded | Release record and STATUS capture target commit | docs/RELEASE_RECORD_v0.1.0-rc1.md, STATUS.md | PASS | `10bccadd15be9401847620eba61d3c8c4117962d` |
 | AT-024 | current | product_contract | Release record exists | Post-release record exists | docs/RELEASE_RECORD_v0.1.0-rc1.md | PASS | Tag not modified |
+| AT-025 | current | quality_gate | v0.1.0-rc1 clean clone validation is documented | Clean clone validation record exists | docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md | PASS | Bare python launcher blocked, wrapper runtime passed |
+| AT-026 | current | governance_audit | Clean clone checkout target is recorded | Checkout target and tag target are recorded | docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md | PASS | `10bccadd15be9401847620eba61d3c8c4117962d` |
+| AT-027 | current | quality_gate | Local verification passed from clean clone | Wrapper verification passed from tag checkout | docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md | PASS | pytest 16 passed, quality gate passed, render dry-runs passed |
 
 ## Status Values
 

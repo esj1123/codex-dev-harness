@@ -31,21 +31,24 @@ This document records the P6 release candidate closeout state for the local-firs
 - Release checklist: `docs/RELEASE_CHECKLIST.md`
 - Release notes: `docs/RELEASE_NOTES_v0.1.0-rc1.md`
 - Release record: `docs/RELEASE_RECORD_v0.1.0-rc1.md`
+- Clean clone validation record: `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md`
 - Optional GitHub Actions guide: `docs/OPTIONAL_GITHUB_ACTIONS.md`
 - Local usage guide: `docs/LOCAL_USAGE.md`
 - Local package boundary: `docs/LOCAL_RELEASE_PACKAGE.md`
 
 ## Remaining Decisions
 
-- Run clean local clone validation from the `v0.1.0-rc1` tag.
+- Clean clone validation from the `v0.1.0-rc1` tag: COMPLETED.
 - Decide whether to draft a GitHub Release page without changing the tag.
-- Keep actual project application deferred until a separate adoption plan exists.
+- Decide whether to run a small local target project application experiment.
+- Decide when a formal `v0.1.0` tag would be appropriate.
 
 ## Scope Confirmation
 
 - Release tag `v0.1.0-rc1` was created.
 - No GitHub Release page was created.
 - No GitHub Actions workflow was installed.
+- Clean clone validation was documented.
 - No new profile was added.
 - No real application code was added.
 - No PLC/device code was added.

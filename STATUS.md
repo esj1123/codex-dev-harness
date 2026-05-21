@@ -21,6 +21,7 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/P6_RELEASE_CLOSEOUT.md`
   - `docs/RELEASE_NOTES_v0.1.0-rc1.md`
   - `docs/RELEASE_RECORD_v0.1.0-rc1.md`
+  - `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md`
   - `docs/OPTIONAL_GITHUB_ACTIONS.md`
 - Base markdown templates.
 - Profile templates for `python_cli`, `csharp_desktop`, and `plc_or_device_tool`.
@@ -76,6 +77,19 @@ Tag object: `9ca08efbd43cd2c5defba7875efbd7ca702c6166`
 | release record | PRESENT | `docs/RELEASE_RECORD_v0.1.0-rc1.md` exists |
 | optional GitHub Actions guide | PRESENT | guide and template exist, but no workflow is installed |
 
+## Clean Clone Validation
+
+| item | status | evidence |
+|---|---|---|
+| clean clone | PASS | Separate temporary clone created |
+| checkout ref | PASS | `v0.1.0-rc1` checked out in detached HEAD |
+| tag target | PASS | `v0.1.0-rc1` resolves to `10bccadd15be9401847620eba61d3c8c4117962d` |
+| dependency install command | ENVIRONMENT BLOCKED | Bare `python.exe` launcher is unavailable in this Codex desktop shell |
+| local Python runtime dependency check | PASS | `pytest` already satisfied for wrapper runtime |
+| local verification wrapper | PASS | pytest, quality gate, and 3 render dry-runs passed |
+| `.github/workflows` | ABSENT | No workflow installed |
+| application/device/live-write scope | PASS | No real application code, PLC/device code, or live target write support added |
+
 ## Next Recommended Step
 
-Run clean local clone validation from the `v0.1.0-rc1` tag, then decide whether to draft a GitHub Release page. Actual project application remains deferred.
+Decide whether to draft a GitHub Release page, whether to run a small local target project application experiment, and when a formal `v0.1.0` tag would be appropriate. Actual project application remains deferred.
