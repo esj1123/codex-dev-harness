@@ -6,11 +6,13 @@ This document records the P6 release candidate closeout state for the local-firs
 
 ## Candidate
 
-- Previous verified candidate commit: `aff39d65e716ad2830647fcf52026c00a911d482`
-- Next candidate commit: update after release notes and optional GitHub Actions guidance are committed and locally reverified.
-- Recommended tag: `v0.1.0-rc1`
-- Release tag: NOT CREATED
-- CI workflow: NOT RUN / not included
+- Historical pre-tag candidate commit: `aff39d65e716ad2830647fcf52026c00a911d482`
+- Final tag target commit: `10bccadd15be9401847620eba61d3c8c4117962d`
+- Tag name: `v0.1.0-rc1`
+- Tag object: `9ca08efbd43cd2c5defba7875efbd7ca702c6166`
+- Release tag: CREATED
+- GitHub Release page: NOT CREATED
+- CI workflow: NOT INSTALLED
 
 ## Local Verification
 
@@ -28,20 +30,22 @@ This document records the P6 release candidate closeout state for the local-firs
 - Known limitations: `docs/KNOWN_LIMITATIONS.md`
 - Release checklist: `docs/RELEASE_CHECKLIST.md`
 - Release notes: `docs/RELEASE_NOTES_v0.1.0-rc1.md`
+- Release record: `docs/RELEASE_RECORD_v0.1.0-rc1.md`
 - Optional GitHub Actions guide: `docs/OPTIONAL_GITHUB_ACTIONS.md`
 - Local usage guide: `docs/LOCAL_USAGE.md`
 - Local package boundary: `docs/LOCAL_RELEASE_PACKAGE.md`
 
 ## Remaining Decisions
 
-- Re-run local verification on the latest commit after this documentation patch lands.
-- Decide whether the latest verified commit should be tagged as `v0.1.0-rc1`.
-- Decide whether GitHub Actions should remain template-only or become a future optional workflow.
+- Run clean local clone validation from the `v0.1.0-rc1` tag.
+- Decide whether to draft a GitHub Release page without changing the tag.
+- Keep actual project application deferred until a separate adoption plan exists.
 
 ## Scope Confirmation
 
-- No release tag was created.
-- No GitHub Actions workflow was created.
+- Release tag `v0.1.0-rc1` was created.
+- No GitHub Release page was created.
+- No GitHub Actions workflow was installed.
 - No new profile was added.
 - No real application code was added.
 - No PLC/device code was added.

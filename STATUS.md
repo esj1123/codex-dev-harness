@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-P6 Release Candidate Closeout.
+v0.1.0-rc1 tagged baseline.
 
 ## Current State
 
@@ -20,6 +20,7 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/LOCAL_RELEASE_PACKAGE.md`
   - `docs/P6_RELEASE_CLOSEOUT.md`
   - `docs/RELEASE_NOTES_v0.1.0-rc1.md`
+  - `docs/RELEASE_RECORD_v0.1.0-rc1.md`
   - `docs/OPTIONAL_GITHUB_ACTIONS.md`
 - Base markdown templates.
 - Profile templates for `python_cli`, `csharp_desktop`, and `plc_or_device_tool`.
@@ -42,7 +43,7 @@ The repository contains documentation, base templates, profile templates, render
 - Real secret/config files.
 - CI workflow.
 - Release automation.
-- Release tag.
+- Formal `v0.1.0` tag.
 
 ## Known Constraints
 
@@ -53,7 +54,13 @@ The repository contains documentation, base templates, profile templates, render
 
 ## Latest Verification
 
-Verified commit: `aff39d65e716ad2830647fcf52026c00a911d482`
+Verified commit: `10bccadd15be9401847620eba61d3c8c4117962d`
+
+Tag name: `v0.1.0-rc1`
+
+Tag target commit: `10bccadd15be9401847620eba61d3c8c4117962d`
+
+Tag object: `9ca08efbd43cd2c5defba7875efbd7ca702c6166`
 
 | check | status | evidence |
 |---|---|---|
@@ -64,10 +71,11 @@ Verified commit: `aff39d65e716ad2830647fcf52026c00a911d482`
 | csharp_desktop render dry-run | PASS | `examples/csharp_desktop_minimal` dry-run succeeded |
 | plc_tool render dry-run | PASS | `examples/plc_tool_minimal` dry-run succeeded |
 | CI workflow | NOT RUN | Not included in this repository baseline |
-| release tag | NOT CREATED | P6 release tag decision remains pending |
+| release tag | CREATED | `v0.1.0-rc1` points to `10bccadd15be9401847620eba61d3c8c4117962d` |
 | release notes | PRESENT | `docs/RELEASE_NOTES_v0.1.0-rc1.md` exists |
+| release record | PRESENT | `docs/RELEASE_RECORD_v0.1.0-rc1.md` exists |
 | optional GitHub Actions guide | PRESENT | guide and template exist, but no workflow is installed |
 
 ## Next Recommended Step
 
-Reverify the latest commit, then make the `v0.1.0-rc1` tag decision. GitHub Actions remains optional and is represented only by documentation plus a template file.
+Run clean local clone validation from the `v0.1.0-rc1` tag, then decide whether to draft a GitHub Release page. Actual project application remains deferred.
