@@ -1,0 +1,35 @@
+# PROJECT_BOUNDARY.md
+
+## Purpose
+
+Define the project boundary for {{ project.name }}.
+
+## In Scope
+
+- TBD.
+
+## Out Of Scope
+
+- Real application code unless explicitly approved downstream.
+- Live target write behavior.
+- Secrets or private input.
+- Raw source bulk copy.
+- External service mutation without approval.
+
+## No-Touch Zones
+
+| zone | reason | approval path |
+|---|---|---|
+| TBD | TBD | TBD |
+
+## Approval-Required Changes
+
+- Creating runtime code.
+- Enabling CI workflows.
+- Writing outside the target folder.
+- Using live configuration.
+- Publishing release artifacts.
+
+## Boundary Notes
+
+Keep this file updated before implementation begins.

@@ -1,0 +1,24 @@
+# PHASE_PLAN.md
+
+## Purpose
+
+Define phase-gated work for {{ project.name }}.
+
+## Phase Table
+
+| phase | goal | allowed work | verification | exit criteria | status |
+|---|---|---|---|---|---|
+| P0 | Planning | docs only | review | scope accepted | seed |
+| P1 | Scaffold | templates and skeleton docs | dry-run | generated docs reviewed | seed |
+| P2 | Implementation readiness | approved implementation plan | quality gate | approval recorded | seed |
+
+## Phase Rules
+
+- Do not skip verification.
+- Do not create runtime code before the relevant phase is approved.
+- Do not perform live side effects in this baseline.
+- Record approvals before crossing a phase boundary.
+
+## Current Phase
+
+TBD.

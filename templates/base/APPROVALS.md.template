@@ -1,0 +1,22 @@
+# APPROVALS.md
+
+## Purpose
+
+Record approval decisions for {{ project.name }}.
+
+## Approval Table
+
+| approval_id | requested action | side effect | approver | status | evidence | notes |
+|---|---|---|---|---|---|---|
+| APR-001 | TBD | TBD | TBD | PENDING | TBD | Add before mutation |
+
+## Approval Rules
+
+- Dry-run before requesting approval.
+- Record expected changes before mutation.
+- Do not approve broad or unclear side effects.
+- Keep live target write support out of scope unless a downstream project explicitly defines a safe approval process.
+
+## Closeout
+
+Record what was approved, what was executed, and what remains pending.

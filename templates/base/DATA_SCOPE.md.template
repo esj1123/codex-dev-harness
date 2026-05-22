@@ -1,0 +1,29 @@
+# DATA_SCOPE.md
+
+## Purpose
+
+Define data classes and handling rules for {{ project.name }}.
+
+## Data Classes
+
+| data class | allowed | storage | notes |
+|---|---|---|---|
+| public or synthetic fixture | yes | repository allowed | Preferred for tests and examples |
+| private input | restricted | repository prohibited | Summarize only when needed |
+| generated output | conditional | target folder only | Review before commit |
+| secrets | no | repository prohibited | Never store secrets |
+| live configuration | no | repository prohibited | Keep outside repo |
+
+## Rules
+
+- Use synthetic fixtures for examples.
+- Do not store private input in the repository.
+- Do not store secrets, account values, or live configuration.
+- Do not include equipment connection details or live parameters.
+
+## Review Checklist
+
+- Private input absent.
+- Secrets absent.
+- Live config absent.
+- Generated output reviewed.

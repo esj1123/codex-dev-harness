@@ -22,6 +22,28 @@ Define operating profiles for applying this template to different project risk l
 | csharp_desktop | available | examples/csharp_desktop_minimal | build/test/smoke are expected but NOT RUN in skeleton |
 | plc_or_device_tool | available | examples/plc_tool_minimal | simulator/mock first and live device write prohibited |
 
+Implemented profiles are regression and example variants for validating the template system. They are not a promise to create a dedicated profile for every downstream project type.
+
+## Base Template Coverage
+
+The base template now carries reusable planning and governance surfaces that should apply across many project types:
+
+- `SOURCE_INDEX.md` for source inventory and allowed use.
+- `PROJECT_BOUNDARY.md` for scope, no-touch zones, and approval-required changes.
+- `DATA_SCOPE.md` for private input, synthetic fixtures, generated output, and forbidden material.
+- `PHASE_PLAN.md` for phase-gated execution.
+- `APPROVALS.md` for recording explicit approvals before side effects.
+
+These base documents are the preferred way to support complex downstream projects before adding a new profile.
+
+## Downstream Candidates
+
+| candidate | treatment | rationale |
+|---|---|---|
+| scenario simulator design | downstream application candidate, not a built-in profile | It needs source indexing, boundary control, phase planning, and approval records, but does not yet prove a reusable profile category |
+| local automation tool | downstream application candidate | Use base template plus existing profiles when a runtime match exists |
+| documentation-only planning repo | downstream application candidate | Use base template without runtime-specific profile expansion |
+
 ## Current Status
 
-The historical P0 profile descriptions have been extended with concrete profile template folders and example skeletons. Additional profiles should not be added casually; new profiles need a clear validation example and safety policy.
+The historical P0 profile descriptions have been extended with concrete profile template folders and example skeletons. Additional profiles should not be added casually; profile creation is an approval-gated side effect and needs repeated reuse evidence, a validation example, and a safety policy.

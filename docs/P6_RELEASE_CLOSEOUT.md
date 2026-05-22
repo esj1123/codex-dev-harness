@@ -36,6 +36,20 @@ This document records the P6 release candidate closeout state for the local-firs
 - Optional GitHub Actions guide: `docs/OPTIONAL_GITHUB_ACTIONS.md`
 - Local usage guide: `docs/LOCAL_USAGE.md`
 - Local package boundary: `docs/LOCAL_RELEASE_PACKAGE.md`
+- Architecture: `docs/ARCHITECTURE.md`
+- Validation scope: `docs/VALIDATION_SCOPE.md`
+- Template extension policy: `docs/TEMPLATE_EXTENSION_POLICY.md`
+- Domain adaptation guide: `docs/DOMAIN_ADAPTATION_GUIDE.md`
+- Local-first ADR: `docs/adr/ADR-0001-local-first.md`
+- Base-template-over-domain-profile ADR: `docs/adr/ADR-0002-base-template-over-domain-profile.md`
+- Approval-gated side-effect ADR: `docs/adr/ADR-0003-approval-gated-side-effect.md`
+
+## Base Template Strengthening
+
+- Source index, project boundary, data scope, phase plan, and approvals are base template surfaces.
+- Existing profiles remain regression/example variants.
+- Scenario simulator is recorded as a downstream application candidate, not a built-in profile.
+- New profile creation remains approval-gated and should require repeated reuse evidence.
 
 ## Remaining Decisions
 
@@ -43,6 +57,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Decide whether to draft a GitHub Release page without changing the tag.
 - Local target project experiment with `python_cli`: COMPLETED.
 - Decide whether to run additional profile experiments.
+- Decide whether to run downstream application experiments through the base template extension surfaces.
 - Decide when a formal `v0.1.0` tag would be appropriate.
 
 ## Scope Confirmation
@@ -52,6 +67,8 @@ This document records the P6 release candidate closeout state for the local-firs
 - No GitHub Actions workflow was installed.
 - Clean clone validation was documented.
 - Local target experiment was documented.
+- Base template architecture and extension policy were documented.
+- No scenario simulator profile was added.
 - No new profile was added.
 - No real application code was added.
 - No PLC/device code was added.

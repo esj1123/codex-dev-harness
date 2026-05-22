@@ -1,0 +1,27 @@
+# SOURCE_INDEX.md
+
+## Purpose
+
+Track source categories, ownership, allowed use, and evidence links for {{ project.name }}.
+
+Do not bulk-copy raw source content into this file.
+
+## Source Table
+
+| source_id | source type | owner | allowed use | sensitivity | evidence path | notes |
+|---|---|---|---|---|---|---|
+| SRC-001 | TBD | TBD | TBD | TBD | TBD | Add summary only |
+
+## Source Rules
+
+- Summarize source role instead of copying source text.
+- Do not include private input.
+- Do not include secrets.
+- Do not include live configuration.
+- Do not include equipment connection details.
+
+## Open Questions
+
+- Which sources are authoritative?
+- Which sources require approval before use?
+- Which sources must remain outside the repository?

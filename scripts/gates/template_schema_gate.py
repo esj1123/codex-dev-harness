@@ -21,6 +21,11 @@ REQUIRED_BASE_TEMPLATES = [
     "templates/base/MVP.md.template",
     "templates/base/STATUS.md.template",
     "templates/base/ACCEPTANCE_TRACE.md.template",
+    "templates/base/SOURCE_INDEX.md.template",
+    "templates/base/PROJECT_BOUNDARY.md.template",
+    "templates/base/DATA_SCOPE.md.template",
+    "templates/base/PHASE_PLAN.md.template",
+    "templates/base/APPROVALS.md.template",
 ]
 
 
@@ -49,5 +54,5 @@ def run(repo_root: Path) -> GateResult:
     messages.append(f"project.name={config.project_name}")
     messages.append(f"project.status={config.project_status}")
     messages.append(f"profile.name={config.profile or 'none'}")
-    messages.append("base templates present")
+    messages.append(f"base templates present: {len(REQUIRED_BASE_TEMPLATES)}")
     return GateResult("template_schema_gate", True, messages)

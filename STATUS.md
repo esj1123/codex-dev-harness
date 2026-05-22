@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-v0.1.0-rc1 tagged baseline.
+Post v0.1.0-rc1 base template strengthening.
 
 ## Current State
 
@@ -13,6 +13,13 @@ The repository contains documentation, base templates, profile templates, render
 - Core repo contract documents.
 - Safety and verification policy documents.
 - Release readiness documents:
+  - `docs/ARCHITECTURE.md`
+  - `docs/VALIDATION_SCOPE.md`
+  - `docs/TEMPLATE_EXTENSION_POLICY.md`
+  - `docs/DOMAIN_ADAPTATION_GUIDE.md`
+  - `docs/adr/ADR-0001-local-first.md`
+  - `docs/adr/ADR-0002-base-template-over-domain-profile.md`
+  - `docs/adr/ADR-0003-approval-gated-side-effect.md`
   - `docs/RELEASE_CHECKLIST.md`
   - `docs/KNOWN_LIMITATIONS.md`
   - `docs/CI_POLICY.md`
@@ -24,7 +31,7 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md`
   - `docs/LOCAL_TARGET_EXPERIMENT_python_cli_v0.1.0-rc1.md`
   - `docs/OPTIONAL_GITHUB_ACTIONS.md`
-- Base markdown templates.
+- Base markdown templates, including source index, project boundary, data scope, phase plan, and approvals templates.
 - Profile templates for `python_cli`, `csharp_desktop`, and `plc_or_device_tool`.
 - `scripts/render_template.py`.
 - `scripts/quality_gate.py`.
@@ -46,6 +53,8 @@ The repository contains documentation, base templates, profile templates, render
 - CI workflow.
 - Release automation.
 - Formal `v0.1.0` tag.
+- Dedicated `scenario_simulator` profile.
+- `examples/scenario_simulator_minimal`.
 
 ## Known Constraints
 
@@ -104,6 +113,17 @@ Tag object: `9ca08efbd43cd2c5defba7875efbd7ca702c6166`
 | generated runtime code | ABSENT | No application runtime code generated |
 | private/secrets/live-write scope | PASS | No private input, secrets, or live target write support generated |
 
+## Base Template Strengthening
+
+| item | status | evidence |
+|---|---|---|
+| architecture model | PRESENT | `docs/ARCHITECTURE.md` defines control, template, profile, render, verification, side-effect, release, optional CI, and downstream application planes |
+| validation scope | PRESENT | `docs/VALIDATION_SCOPE.md` separates regression examples from downstream candidates |
+| extension policy | PRESENT | `docs/TEMPLATE_EXTENSION_POLICY.md` states that new profiles are approval-gated and should not be created for every project type |
+| domain adaptation | PRESENT | `docs/DOMAIN_ADAPTATION_GUIDE.md` explains downstream use without raw source bulk copy or sensitive values |
+| base governance templates | PRESENT | `SOURCE_INDEX`, `PROJECT_BOUNDARY`, `DATA_SCOPE`, `PHASE_PLAN`, and `APPROVALS` templates exist |
+| scenario simulator treatment | DOWNSTREAM CANDIDATE | No dedicated profile or example was created |
+
 ## Next Recommended Step
 
-Decide whether to draft a GitHub Release page, whether to run additional profile experiments, and when a formal `v0.1.0` tag would be appropriate. Actual project application remains deferred.
+Decide whether to draft a GitHub Release page, whether to run additional downstream application experiments using the strengthened base template, and when a formal `v0.1.0` tag would be appropriate. Actual project application remains deferred.
