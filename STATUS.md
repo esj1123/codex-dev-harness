@@ -31,6 +31,7 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/RELEASE_RECORD_v0.1.0-rc1.md`
   - `docs/RELEASE_RECORD_v0.1.0-rc2.md`
   - `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md`
+  - `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc2.md`
   - `docs/LOCAL_TARGET_EXPERIMENT_python_cli_v0.1.0-rc1.md`
   - `docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md`
   - `docs/RC2_CANDIDATE_CLOSEOUT.md`
@@ -100,6 +101,8 @@ Previous tag: `v0.1.0-rc1`, object `9ca08efbd43cd2c5defba7875efbd7ca702c6166`, t
 
 ## Clean Clone Validation
 
+### v0.1.0-rc1
+
 | item | status | evidence |
 |---|---|---|
 | clean clone | PASS | Separate temporary clone created |
@@ -110,6 +113,20 @@ Previous tag: `v0.1.0-rc1`, object `9ca08efbd43cd2c5defba7875efbd7ca702c6166`, t
 | local verification wrapper | PASS | pytest, quality gate, and 3 render dry-runs passed |
 | `.github/workflows` | ABSENT | No workflow installed |
 | application/device/live-write scope | PASS | No real application code, PLC/device code, or live target write support added |
+
+### v0.1.0-rc2
+
+| item | status | evidence |
+|---|---|---|
+| clean clone | PASS | Separate temporary clone created |
+| checkout ref | PASS | `v0.1.0-rc2` checked out in detached HEAD |
+| tag target | PASS | `v0.1.0-rc2` resolves to `67ead73628c8ff7b15e91d2ba608efbdbb8de81e` |
+| dependency install command | ENVIRONMENT BLOCKED | Bare `python.exe` launcher is unavailable in this Codex desktop shell |
+| local Python runtime dependency check | PASS | `pytest` already satisfied for wrapper runtime |
+| local verification wrapper | PASS | pytest 17 passed, quality gate passed, and 3 render dry-runs passed |
+| example render drift gate | PASS | expected rendered example files present: 48 |
+| `.github/workflows` | ABSENT | No workflow installed |
+| application/device/live-write scope | PASS | No real application code, C# project files, PLC/device code, or live target write support added |
 
 ## Local Target Experiment
 
@@ -173,4 +190,4 @@ Previous tag: `v0.1.0-rc1`, object `9ca08efbd43cd2c5defba7875efbd7ca702c6166`, t
 
 ## Next Recommended Step
 
-Run clean clone validation for `v0.1.0-rc2` or decide whether to draft a GitHub Release page. Formal `v0.1.0` remains deferred.
+Decide whether to draft a GitHub Release page, run downstream application experiments, or define the formal `v0.1.0` release criteria. Formal `v0.1.0` remains deferred.

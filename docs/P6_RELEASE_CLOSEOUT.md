@@ -35,6 +35,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - RC2 release record: `docs/RELEASE_RECORD_v0.1.0-rc2.md`
 - RC2 candidate closeout: `docs/RC2_CANDIDATE_CLOSEOUT.md`
 - Clean clone validation record: `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md`
+- RC2 clean clone validation record: `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc2.md`
 - Local target experiment record: `docs/LOCAL_TARGET_EXPERIMENT_python_cli_v0.1.0-rc1.md`
 - Base template local target experiment record: `docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md`
 - Optional GitHub Actions guide: `docs/OPTIONAL_GITHUB_ACTIONS.md`
@@ -65,6 +66,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - `v0.1.0-rc2` is the current tagged candidate at `67ead73628c8ff7b15e91d2ba608efbdbb8de81e`.
 - `v0.1.0-rc2` tag object: `569b992b390a672cd8a321963a963ff0cbe47976`.
 - `v0.1.0-rc2` tag: CREATED.
+- `v0.1.0-rc2` clean clone validation: COMPLETED.
 - Formal `v0.1.0` tag: NOT CREATED.
 
 ## Remaining Decisions
@@ -73,7 +75,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Decide whether to draft a GitHub Release page without changing the tag.
 - Local target project experiment with `python_cli`: COMPLETED.
 - Generic/base template local target experiment: COMPLETED.
-- Clean clone validation for `v0.1.0-rc2`: PENDING.
+- Clean clone validation for `v0.1.0-rc2`: COMPLETED.
 - Decide whether to draft a GitHub Release page without changing tags.
 - Decide whether to run additional profile experiments.
 - Decide whether to run downstream application experiments through the base template extension surfaces.
