@@ -38,6 +38,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - RC2 clean clone validation record: `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc2.md`
 - GitHub Release Draft: `docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md`
 - Formal v0.1.0 criteria: `docs/FORMAL_V0.1.0_CRITERIA.md`
+- Downstream experiment: `docs/DOWNSTREAM_EXPERIMENT_scenario_simulator_design_base_template.md`
 - Local target experiment record: `docs/LOCAL_TARGET_EXPERIMENT_python_cli_v0.1.0-rc1.md`
 - Base template local target experiment record: `docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md`
 - Optional GitHub Actions guide: `docs/OPTIONAL_GITHUB_ACTIONS.md`
@@ -70,6 +71,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - `v0.1.0-rc2` tag: CREATED.
 - `v0.1.0-rc2` clean clone validation: COMPLETED.
 - GitHub Release Draft: DOCUMENTED, not published.
+- Downstream scenario simulator design candidate experiment: COMPLETED as base-template-only downstream target.
 - Formal `v0.1.0` tag: NOT CREATED.
 
 ## Remaining Decisions
@@ -80,8 +82,8 @@ This document records the P6 release candidate closeout state for the local-firs
 - Generic/base template local target experiment: COMPLETED.
 - Clean clone validation for `v0.1.0-rc2`: COMPLETED.
 - Decide whether to create a GitHub Release page from `docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md` without changing tags.
-- Decide whether to run a downstream application experiment.
-- Decide whether formal `v0.1.0` criteria are satisfied.
+- Downstream application experiment: COMPLETED.
+- Decide whether formal `v0.1.0` should be created after final approval.
 - Decide whether to run additional profile experiments.
 - Decide whether to run downstream application experiments through the base template extension surfaces.
 - Decide when a formal `v0.1.0` tag would be appropriate.
@@ -98,6 +100,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Local target experiment was documented.
 - Base template architecture and extension policy were documented.
 - No scenario simulator profile was added.
+- Scenario simulator design was tested only as a downstream candidate.
 - Regression examples include the extended base docs.
 - Generic/base template local target experiment was documented.
 - No new profile was added.

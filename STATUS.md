@@ -36,6 +36,7 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc2.md`
   - `docs/LOCAL_TARGET_EXPERIMENT_python_cli_v0.1.0-rc1.md`
   - `docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md`
+  - `docs/DOWNSTREAM_EXPERIMENT_scenario_simulator_design_base_template.md`
   - `docs/RC2_CANDIDATE_CLOSEOUT.md`
   - `docs/OPTIONAL_GITHUB_ACTIONS.md`
 - Base markdown templates, including source index, project boundary, data scope, phase plan, and approvals templates.
@@ -207,9 +208,22 @@ Previous tag: `v0.1.0-rc1`, object `9ca08efbd43cd2c5defba7875efbd7ca702c6166`, t
 |---|---|---|
 | criteria document | PRESENT | `docs/FORMAL_V0.1.0_CRITERIA.md` |
 | clean clone validation requirement | PASS | `v0.1.0-rc2` clean clone validation passed |
-| downstream experiment requirement | PENDING | At least one downstream application experiment still needed unless explicit approval changes the release decision |
+| downstream experiment requirement | PASS | `docs/DOWNSTREAM_EXPERIMENT_scenario_simulator_design_base_template.md` |
 | formal v0.1.0 tag | NOT CREATED | Deferred |
+
+## Downstream Application Experiment
+
+| item | status | evidence |
+|---|---|---|
+| downstream candidate | PASS | Scenario simulator design candidate tested as downstream target |
+| profile | NONE | No profile used or created |
+| target folder | PASS | Separate temporary local downstream target |
+| dry-run render | PASS | 11 base Markdown outputs planned |
+| actual render | PASS | 11 base Markdown docs generated after target write permission was granted |
+| required docs | PASS | `SOURCE_INDEX`, `PROJECT_BOUNDARY`, `DATA_SCOPE`, `PHASE_PLAN`, `APPROVALS`, `AGENTS`, `PRODUCT`, `MVP`, `STATUS`, `ACCEPTANCE_TRACE`, and `README` generated |
+| safety scope | PASS | No workflow, profile/example, runtime code, C# project files, device code, live-write support, private data, or live config generated |
+| record | PRESENT | `docs/DOWNSTREAM_EXPERIMENT_scenario_simulator_design_base_template.md` |
 
 ## Next Recommended Step
 
-Decide whether to run a downstream application experiment, whether to create a GitHub Release page from the draft, and when formal `v0.1.0` criteria are satisfied. Formal `v0.1.0` remains deferred.
+Decide whether to create a GitHub Release page from the draft and whether to create formal `v0.1.0` after final approval. Formal `v0.1.0` remains deferred.
