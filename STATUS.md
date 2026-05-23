@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 clean clone validation.
+Post v0.1.0 local downstream adoption planning.
 
 ## Current State
 
@@ -25,6 +25,7 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/CI_POLICY.md`
   - `docs/LOCAL_USAGE.md`
   - `docs/LOCAL_RELEASE_PACKAGE.md`
+  - `docs/LOCAL_DOWNSTREAM_ADOPTION_PLAN.md`
   - `docs/P6_RELEASE_CLOSEOUT.md`
   - `docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md`
   - `docs/GITHUB_RELEASE_DRAFT_v0.1.0.md`
@@ -110,6 +111,7 @@ Previous tags:
 | formal v0.1.0 release record | PRESENT | `docs/RELEASE_RECORD_v0.1.0.md` exists |
 | GitHub Release Draft | PRESENT | `docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md` exists; GitHub Release page not created |
 | formal v0.1.0 GitHub Release Draft | PRESENT | `docs/GITHUB_RELEASE_DRAFT_v0.1.0.md` exists; GitHub Release page not created |
+| local downstream adoption plan | PRESENT | `docs/LOCAL_DOWNSTREAM_ADOPTION_PLAN.md` exists; no downstream render executed |
 | formal v0.1.0 criteria | SATISFIED | `docs/FORMAL_V0.1.0_CRITERIA.md` exists; formal tag created |
 | optional GitHub Actions guide | PRESENT | guide and template exist, but no workflow is installed |
 
@@ -227,6 +229,17 @@ Previous tags:
 | tag target | RECORDED | `67ead73628c8ff7b15e91d2ba608efbdbb8de81e` |
 | GitHub Release page | NOT CREATED | Draft document only |
 
+## Local Downstream Adoption Plan
+
+| item | status | evidence |
+|---|---|---|
+| adoption plan | PRESENT | `docs/LOCAL_DOWNSTREAM_ADOPTION_PLAN.md` |
+| basis tag | RECORDED | `v0.1.0` |
+| first adoption candidate | RECORDED | Scenario simulator design baseline |
+| profile usage | NONE | Base template only |
+| downstream render | NOT RUN | Plan only; no target project was generated |
+| safety boundary | RECORDED | No raw source bulk copy, sensitive values, runtime code, device code, or live-write support |
+
 ## Formal v0.1.0 GitHub Release Draft
 
 | item | status | evidence |
@@ -273,4 +286,4 @@ Previous tags:
 
 ## Next Recommended Step
 
-Decide whether to publish a GitHub Release page from the formal `v0.1.0` draft, start local downstream adoption from `v0.1.0`, and plan optional post-v0.1.0 improvements.
+Decide whether to execute the first local downstream adoption trial from `v0.1.0`, whether to publish a GitHub Release page from the formal draft, and which optional post-v0.1.0 improvements to plan next.

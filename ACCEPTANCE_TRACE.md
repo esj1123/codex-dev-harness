@@ -85,6 +85,9 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 | AT-064 | current | product_contract | formal v0.1.0 GitHub Release Draft is documented | Formal release draft exists | docs/GITHUB_RELEASE_DRAFT_v0.1.0.md | PASS | GitHub Release page not created |
 | AT-065 | current | governance_audit | GitHub Release page remains not created | Status and release draft record unpublished state | STATUS.md, docs/GITHUB_RELEASE_DRAFT_v0.1.0.md | PASS | Draft only |
 | AT-066 | current | scope_contract | local-first formal baseline remains unchanged | Release draft preserves scope exclusions | docs/GITHUB_RELEASE_DRAFT_v0.1.0.md | PASS | No workflow, profile, runtime code, or live-write support added |
+| AT-067 | current | product_contract | local downstream adoption plan exists | Adoption plan document exists | docs/LOCAL_DOWNSTREAM_ADOPTION_PLAN.md | PASS | Plan only; no downstream render executed |
+| AT-068 | current | scope_contract | formal v0.1.0 tag remains unchanged | Adoption plan references existing tag without modifying it | docs/LOCAL_DOWNSTREAM_ADOPTION_PLAN.md | PASS | `v0.1.0` remains at `43bbf001e1d2770466b41d5b8366f289b972a00b` |
+| AT-069 | current | side_effect_contract | local downstream adoption remains approval-gated | Plan requires dry-run, target path review, and approval before actual render | docs/LOCAL_DOWNSTREAM_ADOPTION_PLAN.md | PASS | No downstream target created |
 
 ## Status Values
 

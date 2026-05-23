@@ -47,6 +47,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Optional GitHub Actions guide: `docs/OPTIONAL_GITHUB_ACTIONS.md`
 - Local usage guide: `docs/LOCAL_USAGE.md`
 - Local package boundary: `docs/LOCAL_RELEASE_PACKAGE.md`
+- Local downstream adoption plan: `docs/LOCAL_DOWNSTREAM_ADOPTION_PLAN.md`
 - Architecture: `docs/ARCHITECTURE.md`
 - Validation scope: `docs/VALIDATION_SCOPE.md`
 - Template extension policy: `docs/TEMPLATE_EXTENSION_POLICY.md`
@@ -80,6 +81,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Formal `v0.1.0` release record: DOCUMENTED.
 - Formal `v0.1.0` clean clone validation: COMPLETED.
 - Formal `v0.1.0` GitHub Release Draft: DOCUMENTED, not published.
+- Local downstream adoption plan: DOCUMENTED, not executed.
 
 ## Remaining Decisions
 
@@ -91,7 +93,8 @@ This document records the P6 release candidate closeout state for the local-firs
 - Formal `v0.1.0` tag: CREATED.
 - Clean clone validation from the formal `v0.1.0` tag: COMPLETED.
 - Decide whether to publish a GitHub Release page from `docs/GITHUB_RELEASE_DRAFT_v0.1.0.md`.
-- Decide whether to start local downstream adoption from `v0.1.0`.
+- Local downstream adoption plan: DOCUMENTED.
+- Decide whether to execute the first local downstream adoption trial from `v0.1.0`.
 - Decide a post-v0.1.0 improvement plan.
 - Decide whether to run additional profile experiments.
 - Decide whether to run downstream application experiments through the base template extension surfaces.
@@ -106,6 +109,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - No GitHub Actions workflow was installed.
 - GitHub Release Draft was documented.
 - Formal v0.1.0 GitHub Release Draft was documented.
+- Local downstream adoption plan was documented.
 - Formal v0.1.0 criteria were documented.
 - Clean clone validation was documented.
 - Local target experiment was documented.
