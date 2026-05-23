@@ -27,6 +27,7 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/LOCAL_RELEASE_PACKAGE.md`
   - `docs/P6_RELEASE_CLOSEOUT.md`
   - `docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md`
+  - `docs/GITHUB_RELEASE_DRAFT_v0.1.0.md`
   - `docs/FORMAL_V0.1.0_CRITERIA.md`
   - `docs/RELEASE_NOTES_v0.1.0-rc1.md`
   - `docs/RELEASE_NOTES_v0.1.0-rc2.md`
@@ -108,6 +109,7 @@ Previous tags:
 | rc2 release record | PRESENT | `docs/RELEASE_RECORD_v0.1.0-rc2.md` exists |
 | formal v0.1.0 release record | PRESENT | `docs/RELEASE_RECORD_v0.1.0.md` exists |
 | GitHub Release Draft | PRESENT | `docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md` exists; GitHub Release page not created |
+| formal v0.1.0 GitHub Release Draft | PRESENT | `docs/GITHUB_RELEASE_DRAFT_v0.1.0.md` exists; GitHub Release page not created |
 | formal v0.1.0 criteria | SATISFIED | `docs/FORMAL_V0.1.0_CRITERIA.md` exists; formal tag created |
 | optional GitHub Actions guide | PRESENT | guide and template exist, but no workflow is installed |
 
@@ -225,6 +227,16 @@ Previous tags:
 | tag target | RECORDED | `67ead73628c8ff7b15e91d2ba608efbdbb8de81e` |
 | GitHub Release page | NOT CREATED | Draft document only |
 
+## Formal v0.1.0 GitHub Release Draft
+
+| item | status | evidence |
+|---|---|---|
+| release draft document | PRESENT | `docs/GITHUB_RELEASE_DRAFT_v0.1.0.md` |
+| target tag | RECORDED | `v0.1.0` |
+| tag object | RECORDED | `a5aed964f381fecdeff54d6c94a068ae21d1dcf9` |
+| tag target | RECORDED | `43bbf001e1d2770466b41d5b8366f289b972a00b` |
+| GitHub Release page | NOT CREATED | Draft document only |
+
 ## Formal v0.1.0 Tag
 
 | item | status | evidence |
@@ -261,4 +273,4 @@ Previous tags:
 
 ## Next Recommended Step
 
-Decide whether to update the release draft for formal `v0.1.0` and whether to publish a GitHub Release page.
+Decide whether to publish a GitHub Release page from the formal `v0.1.0` draft, start local downstream adoption from `v0.1.0`, and plan optional post-v0.1.0 improvements.

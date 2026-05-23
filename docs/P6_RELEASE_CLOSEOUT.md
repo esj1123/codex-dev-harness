@@ -39,6 +39,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - RC2 clean clone validation record: `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc2.md`
 - Formal v0.1.0 clean clone validation record: `docs/CLEAN_CLONE_VALIDATION_v0.1.0.md`
 - GitHub Release Draft: `docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md`
+- Formal v0.1.0 GitHub Release Draft: `docs/GITHUB_RELEASE_DRAFT_v0.1.0.md`
 - Formal v0.1.0 criteria: `docs/FORMAL_V0.1.0_CRITERIA.md`
 - Downstream experiment: `docs/DOWNSTREAM_EXPERIMENT_scenario_simulator_design_base_template.md`
 - Local target experiment record: `docs/LOCAL_TARGET_EXPERIMENT_python_cli_v0.1.0-rc1.md`
@@ -78,18 +79,20 @@ This document records the P6 release candidate closeout state for the local-firs
 - Formal `v0.1.0` tag object: `a5aed964f381fecdeff54d6c94a068ae21d1dcf9`.
 - Formal `v0.1.0` release record: DOCUMENTED.
 - Formal `v0.1.0` clean clone validation: COMPLETED.
+- Formal `v0.1.0` GitHub Release Draft: DOCUMENTED, not published.
 
 ## Remaining Decisions
 
 - Clean clone validation from the `v0.1.0-rc1` tag: COMPLETED.
-- Decide whether to draft a GitHub Release page without changing the tag.
 - Local target project experiment with `python_cli`: COMPLETED.
 - Generic/base template local target experiment: COMPLETED.
 - Clean clone validation for `v0.1.0-rc2`: COMPLETED.
-- Decide whether to create a GitHub Release page from `docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md` without changing tags.
 - Downstream application experiment: COMPLETED.
 - Formal `v0.1.0` tag: CREATED.
 - Clean clone validation from the formal `v0.1.0` tag: COMPLETED.
+- Decide whether to publish a GitHub Release page from `docs/GITHUB_RELEASE_DRAFT_v0.1.0.md`.
+- Decide whether to start local downstream adoption from `v0.1.0`.
+- Decide a post-v0.1.0 improvement plan.
 - Decide whether to run additional profile experiments.
 - Decide whether to run downstream application experiments through the base template extension surfaces.
 
@@ -102,6 +105,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - No GitHub Release page was created.
 - No GitHub Actions workflow was installed.
 - GitHub Release Draft was documented.
+- Formal v0.1.0 GitHub Release Draft was documented.
 - Formal v0.1.0 criteria were documented.
 - Clean clone validation was documented.
 - Local target experiment was documented.

@@ -82,6 +82,9 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 | AT-061 | current | quality_gate | v0.1.0 clean clone validation is documented | Clean clone validation record exists | docs/CLEAN_CLONE_VALIDATION_v0.1.0.md | PASS | Bare python launcher blocked, wrapper runtime passed |
 | AT-062 | current | governance_audit | v0.1.0 clean clone checkout target is recorded | Checkout target and tag target are recorded | docs/CLEAN_CLONE_VALIDATION_v0.1.0.md | PASS | `43bbf001e1d2770466b41d5b8366f289b972a00b` |
 | AT-063 | current | quality_gate | Local verification passed from v0.1.0 clean clone | Wrapper verification passed from formal tag checkout | docs/CLEAN_CLONE_VALIDATION_v0.1.0.md | PASS | pytest 17 passed, quality gate passed, render dry-runs passed |
+| AT-064 | current | product_contract | formal v0.1.0 GitHub Release Draft is documented | Formal release draft exists | docs/GITHUB_RELEASE_DRAFT_v0.1.0.md | PASS | GitHub Release page not created |
+| AT-065 | current | governance_audit | GitHub Release page remains not created | Status and release draft record unpublished state | STATUS.md, docs/GITHUB_RELEASE_DRAFT_v0.1.0.md | PASS | Draft only |
+| AT-066 | current | scope_contract | local-first formal baseline remains unchanged | Release draft preserves scope exclusions | docs/GITHUB_RELEASE_DRAFT_v0.1.0.md | PASS | No workflow, profile, runtime code, or live-write support added |
 
 ## Status Values
 
