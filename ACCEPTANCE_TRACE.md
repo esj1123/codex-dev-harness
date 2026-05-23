@@ -61,9 +61,12 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 | AT-040 | current | product_contract | Extended base template local target experiment is documented | Experiment record exists | docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md | PASS | Generic/base template target, no profile |
 | AT-041 | current | quality_gate | Extended base docs rendered into local target | Actual render generated the five extended base docs | docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md | PASS | 11 base docs generated |
 | AT-042 | current | side_effect_contract | No runtime or live-write artifacts were generated | Scope confirmation recorded | docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md | PASS | No app code, C# project, PLC/device code, live write, or live config |
-| AT-043 | current | product_contract | rc2 release notes are documented | rc2 release notes exist | docs/RELEASE_NOTES_v0.1.0-rc2.md | PASS | Tag not created |
+| AT-043 | current | product_contract | rc2 release notes are documented | rc2 release notes exist | docs/RELEASE_NOTES_v0.1.0-rc2.md | PASS | Retained after tag creation |
 | AT-044 | current | governance_audit | rc2 candidate closeout is documented | rc2 candidate closeout exists | docs/RC2_CANDIDATE_CLOSEOUT.md | PASS | Candidate evidence recorded |
-| AT-045 | current | quality_gate | Latest main commit was verified for rc2 candidate | Verification result recorded for main commit | STATUS.md, docs/RC2_CANDIDATE_CLOSEOUT.md | PASS | `3f1f192af09e511fc2a22f36e404f4d4e3759509` |
+| AT-045 | current | quality_gate | Latest main commit was verified for rc2 candidate | Verification result recorded for main commit | STATUS.md, docs/RELEASE_RECORD_v0.1.0-rc2.md | PASS | `67ead73628c8ff7b15e91d2ba608efbdbb8de81e` |
+| AT-046 | current | governance_audit | v0.1.0-rc2 tag was created | Release record captures created tag state | docs/RELEASE_RECORD_v0.1.0-rc2.md | PASS | GitHub Release page not created |
+| AT-047 | current | governance_audit | rc2 tag target commit is recorded | Release record and STATUS capture target commit | docs/RELEASE_RECORD_v0.1.0-rc2.md, STATUS.md | PASS | `67ead73628c8ff7b15e91d2ba608efbdbb8de81e` |
+| AT-048 | current | product_contract | rc2 release record exists | Post-tag release record exists | docs/RELEASE_RECORD_v0.1.0-rc2.md | PASS | Tag not modified after creation |
 
 ## Status Values
 

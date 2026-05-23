@@ -32,6 +32,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Release notes: `docs/RELEASE_NOTES_v0.1.0-rc1.md`
 - RC2 release notes: `docs/RELEASE_NOTES_v0.1.0-rc2.md`
 - Release record: `docs/RELEASE_RECORD_v0.1.0-rc1.md`
+- RC2 release record: `docs/RELEASE_RECORD_v0.1.0-rc2.md`
 - RC2 candidate closeout: `docs/RC2_CANDIDATE_CLOSEOUT.md`
 - Clean clone validation record: `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md`
 - Local target experiment record: `docs/LOCAL_TARGET_EXPERIMENT_python_cli_v0.1.0-rc1.md`
@@ -61,8 +62,9 @@ This document records the P6 release candidate closeout state for the local-firs
 
 - `v0.1.0-rc1` remains the existing tagged baseline.
 - `v0.1.0-rc1` still points to `10bccadd15be9401847620eba61d3c8c4117962d`.
-- `v0.1.0-rc2` is documented as a candidate at `3f1f192af09e511fc2a22f36e404f4d4e3759509`.
-- `v0.1.0-rc2` tag: NOT CREATED.
+- `v0.1.0-rc2` is the current tagged candidate at `67ead73628c8ff7b15e91d2ba608efbdbb8de81e`.
+- `v0.1.0-rc2` tag object: `569b992b390a672cd8a321963a963ff0cbe47976`.
+- `v0.1.0-rc2` tag: CREATED.
 - Formal `v0.1.0` tag: NOT CREATED.
 
 ## Remaining Decisions
@@ -71,7 +73,8 @@ This document records the P6 release candidate closeout state for the local-firs
 - Decide whether to draft a GitHub Release page without changing the tag.
 - Local target project experiment with `python_cli`: COMPLETED.
 - Generic/base template local target experiment: COMPLETED.
-- Decide whether to create the annotated `v0.1.0-rc2` tag.
+- Clean clone validation for `v0.1.0-rc2`: PENDING.
+- Decide whether to draft a GitHub Release page without changing tags.
 - Decide whether to run additional profile experiments.
 - Decide whether to run downstream application experiments through the base template extension surfaces.
 - Decide when a formal `v0.1.0` tag would be appropriate.
@@ -79,6 +82,7 @@ This document records the P6 release candidate closeout state for the local-firs
 ## Scope Confirmation
 
 - Release tag `v0.1.0-rc1` was created.
+- Release tag `v0.1.0-rc2` was created.
 - No GitHub Release page was created.
 - No GitHub Actions workflow was installed.
 - Clean clone validation was documented.

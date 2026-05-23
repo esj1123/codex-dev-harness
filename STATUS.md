@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-v0.1.0-rc2 candidate closeout prepared.
+v0.1.0-rc2 tagged baseline.
 
 ## Current State
 
@@ -29,6 +29,7 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/RELEASE_NOTES_v0.1.0-rc1.md`
   - `docs/RELEASE_NOTES_v0.1.0-rc2.md`
   - `docs/RELEASE_RECORD_v0.1.0-rc1.md`
+  - `docs/RELEASE_RECORD_v0.1.0-rc2.md`
   - `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md`
   - `docs/LOCAL_TARGET_EXPERIMENT_python_cli_v0.1.0-rc1.md`
   - `docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md`
@@ -55,7 +56,6 @@ The repository contains documentation, base templates, profile templates, render
 - Real secret/config files.
 - CI workflow.
 - Release automation.
-- `v0.1.0-rc2` tag.
 - Formal `v0.1.0` tag.
 - Dedicated `scenario_simulator` profile.
 - `examples/scenario_simulator_minimal`.
@@ -69,13 +69,15 @@ The repository contains documentation, base templates, profile templates, render
 
 ## Latest Verification
 
-Verified main commit: `c92f98097905846915719d13ee140f699e441d2f`
+Verified main commit: `67ead73628c8ff7b15e91d2ba608efbdbb8de81e`
 
-Tag name: `v0.1.0-rc1`
+Latest tag name: `v0.1.0-rc2`
 
-Tag target commit: `10bccadd15be9401847620eba61d3c8c4117962d`
+Latest tag target commit: `67ead73628c8ff7b15e91d2ba608efbdbb8de81e`
 
-Tag object: `9ca08efbd43cd2c5defba7875efbd7ca702c6166`
+Latest tag object: `569b992b390a672cd8a321963a963ff0cbe47976`
+
+Previous tag: `v0.1.0-rc1`, object `9ca08efbd43cd2c5defba7875efbd7ca702c6166`, target `10bccadd15be9401847620eba61d3c8c4117962d`
 
 | check | status | evidence |
 |---|---|---|
@@ -87,11 +89,13 @@ Tag object: `9ca08efbd43cd2c5defba7875efbd7ca702c6166`
 | csharp_desktop render dry-run | PASS | `examples/csharp_desktop_minimal` dry-run succeeded |
 | plc_tool render dry-run | PASS | `examples/plc_tool_minimal` dry-run succeeded |
 | CI workflow | NOT RUN | Not included in this repository baseline |
-| release tag | CREATED | `v0.1.0-rc1` points to `10bccadd15be9401847620eba61d3c8c4117962d` |
+| rc1 release tag | CREATED | `v0.1.0-rc1` points to `10bccadd15be9401847620eba61d3c8c4117962d` |
+| rc2 release tag | CREATED | `v0.1.0-rc2` points to `67ead73628c8ff7b15e91d2ba608efbdbb8de81e` |
 | release notes | PRESENT | `docs/RELEASE_NOTES_v0.1.0-rc1.md` exists |
 | rc2 release notes | PRESENT | `docs/RELEASE_NOTES_v0.1.0-rc2.md` exists |
 | rc2 candidate closeout | PRESENT | `docs/RC2_CANDIDATE_CLOSEOUT.md` exists |
-| release record | PRESENT | `docs/RELEASE_RECORD_v0.1.0-rc1.md` exists |
+| rc1 release record | PRESENT | `docs/RELEASE_RECORD_v0.1.0-rc1.md` exists |
+| rc2 release record | PRESENT | `docs/RELEASE_RECORD_v0.1.0-rc2.md` exists |
 | optional GitHub Actions guide | PRESENT | guide and template exist, but no workflow is installed |
 
 ## Clean Clone Validation
@@ -157,14 +161,16 @@ Tag object: `9ca08efbd43cd2c5defba7875efbd7ca702c6166`
 
 | item | status | evidence |
 |---|---|---|
-| candidate commit | PASS | `3f1f192af09e511fc2a22f36e404f4d4e3759509` |
+| candidate closeout baseline | PASS | `3f1f192af09e511fc2a22f36e404f4d4e3759509` |
+| tag target commit | PASS | `67ead73628c8ff7b15e91d2ba608efbdbb8de81e` |
 | release notes | PRESENT | `docs/RELEASE_NOTES_v0.1.0-rc2.md` |
 | closeout evidence | PRESENT | `docs/RC2_CANDIDATE_CLOSEOUT.md` |
 | local verification | PASS | pytest 17 passed, quality gate passed, render dry-runs passed |
 | rc1 tag | RETAINED | `v0.1.0-rc1` still points to `10bccadd15be9401847620eba61d3c8c4117962d` |
-| rc2 tag | NOT CREATED | Tag decision remains pending |
+| rc2 tag | CREATED | `v0.1.0-rc2` object `569b992b390a672cd8a321963a963ff0cbe47976`, target `67ead73628c8ff7b15e91d2ba608efbdbb8de81e` |
+| rc2 release record | PRESENT | `docs/RELEASE_RECORD_v0.1.0-rc2.md` |
 | formal v0.1.0 | NOT CREATED | Deferred |
 
 ## Next Recommended Step
 
-Decide whether to create the annotated `v0.1.0-rc2` tag after one final pre-tag verification. Formal `v0.1.0` and GitHub Release page creation remain deferred.
+Run clean clone validation for `v0.1.0-rc2` or decide whether to draft a GitHub Release page. Formal `v0.1.0` remains deferred.
