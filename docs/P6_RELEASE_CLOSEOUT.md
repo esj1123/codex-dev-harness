@@ -50,6 +50,10 @@ This document records the P6 release candidate closeout state for the local-firs
 - Local downstream adoption plan: `docs/LOCAL_DOWNSTREAM_ADOPTION_PLAN.md`
 - Local downstream adoption run: `docs/LOCAL_DOWNSTREAM_ADOPTION_RUN_v0.1.0.md`
 - Downstream doc review checklist: `docs/DOWNSTREAM_DOC_REVIEW_CHECKLIST_v0.1.0.md`
+- Post v0.1.0 roadmap: `docs/POST_V0.1.0_ROADMAP.md`
+- Release page decision: `docs/RELEASE_PAGE_DECISION.md`
+- Local package checklist: `docs/LOCAL_PACKAGE_CHECKLIST.md`
+- Optional eval harness plan: `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`
 - Architecture: `docs/ARCHITECTURE.md`
 - Validation scope: `docs/VALIDATION_SCOPE.md`
 - Template extension policy: `docs/TEMPLATE_EXTENSION_POLICY.md`
@@ -86,6 +90,10 @@ This document records the P6 release candidate closeout state for the local-firs
 - Local downstream adoption plan: DOCUMENTED, not executed.
 - Local downstream adoption run: COMPLETED as base-template-only scenario simulator design baseline target.
 - Downstream doc review checklist: DOCUMENTED; downstream docs not filled in this repository.
+- Post v0.1.0 roadmap: DOCUMENTED; implementation remains deferred.
+- GitHub Release page decision: DOCUMENTED; GitHub Release page remains NOT CREATED.
+- Local package checklist: DOCUMENTED; no package archive was generated.
+- Optional eval harness plan: DOCUMENTED; no eval harness was implemented.
 
 ## Remaining Decisions
 
@@ -104,6 +112,11 @@ This document records the P6 release candidate closeout state for the local-firs
 - Decide whether to approve P1 source, boundary, and data-scope manual fill.
 - Decide whether to approve P2 simulator design after P1 review.
 - Decide a post-v0.1.0 improvement plan.
+- Post-v0.1.0 improvement plan: DOCUMENTED.
+- Decide whether downstream adoption feedback justifies a follow-up task.
+- Decide whether to publish a GitHub Release page; current recommendation is publish only for external/reference distribution.
+- Decide whether to prepare a local package from the checklist.
+- Decide whether to implement an eval harness; current state is plan only and requires explicit approval.
 - Decide whether to run additional profile experiments.
 - Decide whether to run downstream application experiments through the base template extension surfaces.
 
@@ -120,6 +133,10 @@ This document records the P6 release candidate closeout state for the local-firs
 - Local downstream adoption plan was documented.
 - Local downstream adoption run was documented.
 - Downstream doc review checklist was documented.
+- Post v0.1.0 roadmap was documented.
+- Release page decision was documented, but no GitHub Release page was created.
+- Local package checklist was documented, but no local package archive was generated.
+- Optional eval harness plan was documented, but no eval harness was implemented.
 - Formal v0.1.0 criteria were documented.
 - Clean clone validation was documented.
 - Local target experiment was documented.

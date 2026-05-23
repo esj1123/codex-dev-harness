@@ -94,6 +94,10 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 | AT-073 | current | product_contract | downstream doc review checklist is documented | Review checklist exists | docs/DOWNSTREAM_DOC_REVIEW_CHECKLIST_v0.1.0.md | PASS | 11 generated docs listed |
 | AT-074 | current | security_contract | downstream doc review prohibits sensitive content | Checklist records raw source and sensitive value prohibitions | docs/DOWNSTREAM_DOC_REVIEW_CHECKLIST_v0.1.0.md | PASS | No IFF/N3G raw source, IP, port, tag, or live parameter values |
 | AT-075 | current | governance_audit | next-phase approval criteria are documented | Checklist records P1 and P2 approval gates | docs/DOWNSTREAM_DOC_REVIEW_CHECKLIST_v0.1.0.md | PASS | Implementation remains deferred |
+| AT-076 | current | product_contract | post-v0.1.0 roadmap is documented | Roadmap document exists | docs/POST_V0.1.0_ROADMAP.md | PASS | Planning only; no implementation added |
+| AT-077 | current | governance_audit | GitHub Release page decision is documented | Decision document exists | docs/RELEASE_PAGE_DECISION.md | PASS | GitHub Release page remains not created |
+| AT-078 | current | scope_contract | local package checklist is documented | Checklist document exists | docs/LOCAL_PACKAGE_CHECKLIST.md | PASS | Package not built; boundary only |
+| AT-079 | current | product_contract | optional eval harness plan is documented | Eval plan exists | docs/OPTIONAL_EVAL_HARNESS_PLAN.md | PASS | Eval harness not implemented |
 
 ## Status Values
 

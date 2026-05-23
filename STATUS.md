@@ -28,6 +28,10 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/LOCAL_DOWNSTREAM_ADOPTION_PLAN.md`
   - `docs/LOCAL_DOWNSTREAM_ADOPTION_RUN_v0.1.0.md`
   - `docs/DOWNSTREAM_DOC_REVIEW_CHECKLIST_v0.1.0.md`
+  - `docs/POST_V0.1.0_ROADMAP.md`
+  - `docs/RELEASE_PAGE_DECISION.md`
+  - `docs/LOCAL_PACKAGE_CHECKLIST.md`
+  - `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`
   - `docs/P6_RELEASE_CLOSEOUT.md`
   - `docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md`
   - `docs/GITHUB_RELEASE_DRAFT_v0.1.0.md`
@@ -116,6 +120,10 @@ Previous tags:
 | local downstream adoption plan | PRESENT | `docs/LOCAL_DOWNSTREAM_ADOPTION_PLAN.md` exists; no downstream render executed |
 | local downstream adoption run | PASS | `docs/LOCAL_DOWNSTREAM_ADOPTION_RUN_v0.1.0.md` exists; base template rendered to separate local target |
 | downstream doc review checklist | PRESENT | `docs/DOWNSTREAM_DOC_REVIEW_CHECKLIST_v0.1.0.md` exists; downstream docs not filled |
+| post-v0.1.0 roadmap | PRESENT | `docs/POST_V0.1.0_ROADMAP.md` exists; planning only |
+| release page decision | DEFERRED | `docs/RELEASE_PAGE_DECISION.md` exists; GitHub Release page not created |
+| local package checklist | PRESENT | `docs/LOCAL_PACKAGE_CHECKLIST.md` exists; no package archive generated |
+| optional eval harness plan | PLANNED ONLY | `docs/OPTIONAL_EVAL_HARNESS_PLAN.md` exists; no eval harness implemented |
 | formal v0.1.0 criteria | SATISFIED | `docs/FORMAL_V0.1.0_CRITERIA.md` exists; formal tag created |
 | optional GitHub Actions guide | PRESENT | guide and template exist, but no workflow is installed |
 
@@ -268,6 +276,17 @@ Previous tags:
 | next phase approval | RECORDED | P1 manual fill and P2 simulator design approval gates documented |
 | downstream doc content fill | NOT DONE | This repo records the checklist only |
 
+## Post v0.1.0 Operations Plan
+
+| item | status | evidence |
+|---|---|---|
+| post-v0.1.0 roadmap | PRESENT | `docs/POST_V0.1.0_ROADMAP.md` |
+| next priority | DOWNSTREAM FEEDBACK | Roadmap prioritizes downstream adoption feedback before automation |
+| release page decision | DEFERRED | `docs/RELEASE_PAGE_DECISION.md`; GitHub Release page not created |
+| local package checklist | PRESENT | `docs/LOCAL_PACKAGE_CHECKLIST.md`; no package archive generated |
+| optional eval harness | PLANNED ONLY | `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`; no eval code, `evals/`, or runner created |
+| scenario simulator treatment | DOWNSTREAM CANDIDATE | Remains downstream candidate, not a built-in profile |
+
 ## Formal v0.1.0 GitHub Release Draft
 
 | item | status | evidence |
@@ -314,4 +333,4 @@ Previous tags:
 
 ## Next Recommended Step
 
-Review generated downstream docs with `docs/DOWNSTREAM_DOC_REVIEW_CHECKLIST_v0.1.0.md`, decide whether to publish a GitHub Release page from the formal draft, and define the next approved implementation phase for the downstream target.
+Collect downstream adoption feedback, decide whether a GitHub Release page or local package is actually needed, and keep optional eval harness work deferred until explicitly approved.
