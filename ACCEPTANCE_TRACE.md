@@ -98,6 +98,9 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 | AT-077 | current | governance_audit | GitHub Release page decision is documented | Decision document exists | docs/RELEASE_PAGE_DECISION.md | PASS | GitHub Release page remains not created |
 | AT-078 | current | scope_contract | local package checklist is documented | Checklist document exists | docs/LOCAL_PACKAGE_CHECKLIST.md | PASS | Package not built; boundary only |
 | AT-079 | current | product_contract | optional eval harness plan is documented | Eval plan exists | docs/OPTIONAL_EVAL_HARNESS_PLAN.md | PASS | Eval harness not implemented |
+| AT-080 | current | product_contract | known limitations are refreshed for post-v0.1.0 state | Current limitations and future work are updated | docs/KNOWN_LIMITATIONS.md | PASS | CI policy and release tagging guidance are no longer listed as future work |
+| AT-081 | current | governance_audit | architecture release/record plane reflects formal v0.1.0 and post-v0.1.0 records | Release/Record Plane lists current evidence documents | docs/ARCHITECTURE.md | PASS | GitHub Release page not created; GitHub Actions not installed |
+| AT-082 | current | scope_contract | no implementation was added during document drift cleanup | Scope exclusions remain documented and no new implementation artifact was created | docs/KNOWN_LIMITATIONS.md, docs/ARCHITECTURE.md, STATUS.md | PASS | Eval harness, SBOM, CI workflow, profiles, and application code remain absent |
 
 ## Status Values
 

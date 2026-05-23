@@ -124,6 +124,8 @@ Previous tags:
 | release page decision | DEFERRED | `docs/RELEASE_PAGE_DECISION.md` exists; GitHub Release page not created |
 | local package checklist | PRESENT | `docs/LOCAL_PACKAGE_CHECKLIST.md` exists; no package archive generated |
 | optional eval harness plan | PLANNED ONLY | `docs/OPTIONAL_EVAL_HARNESS_PLAN.md` exists; no eval harness implemented |
+| known limitations refresh | PRESENT | `docs/KNOWN_LIMITATIONS.md` reflects current post-v0.1.0 limitations |
+| architecture release/record plane refresh | PRESENT | `docs/ARCHITECTURE.md` reflects formal v0.1.0 and post-v0.1.0 records |
 | formal v0.1.0 criteria | SATISFIED | `docs/FORMAL_V0.1.0_CRITERIA.md` exists; formal tag created |
 | optional GitHub Actions guide | PRESENT | guide and template exist, but no workflow is installed |
 
@@ -285,6 +287,8 @@ Previous tags:
 | release page decision | DEFERRED | `docs/RELEASE_PAGE_DECISION.md`; GitHub Release page not created |
 | local package checklist | PRESENT | `docs/LOCAL_PACKAGE_CHECKLIST.md`; no package archive generated |
 | optional eval harness | PLANNED ONLY | `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`; no eval code, `evals/`, or runner created |
+| known limitations | REFRESHED | `docs/KNOWN_LIMITATIONS.md` no longer lists completed CI policy or release tagging guidance as future work |
+| architecture release/record plane | REFRESHED | `docs/ARCHITECTURE.md` lists current v0.1.0 and post-v0.1.0 evidence |
 | scenario simulator treatment | DOWNSTREAM CANDIDATE | Remains downstream candidate, not a built-in profile |
 
 ## Formal v0.1.0 GitHub Release Draft

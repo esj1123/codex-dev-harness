@@ -28,6 +28,7 @@ This document records the P6 release candidate closeout state for the local-firs
 ## Release References
 
 - Known limitations: `docs/KNOWN_LIMITATIONS.md`
+- Architecture: `docs/ARCHITECTURE.md`
 - Release checklist: `docs/RELEASE_CHECKLIST.md`
 - Release notes: `docs/RELEASE_NOTES_v0.1.0-rc1.md`
 - RC2 release notes: `docs/RELEASE_NOTES_v0.1.0-rc2.md`
@@ -54,7 +55,6 @@ This document records the P6 release candidate closeout state for the local-firs
 - Release page decision: `docs/RELEASE_PAGE_DECISION.md`
 - Local package checklist: `docs/LOCAL_PACKAGE_CHECKLIST.md`
 - Optional eval harness plan: `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`
-- Architecture: `docs/ARCHITECTURE.md`
 - Validation scope: `docs/VALIDATION_SCOPE.md`
 - Template extension policy: `docs/TEMPLATE_EXTENSION_POLICY.md`
 - Domain adaptation guide: `docs/DOMAIN_ADAPTATION_GUIDE.md`
@@ -94,6 +94,8 @@ This document records the P6 release candidate closeout state for the local-firs
 - GitHub Release page decision: DOCUMENTED; GitHub Release page remains NOT CREATED.
 - Local package checklist: DOCUMENTED; no package archive was generated.
 - Optional eval harness plan: DOCUMENTED; no eval harness was implemented.
+- Known limitations: REFRESHED for post-v0.1.0 state.
+- Architecture release/record plane: REFRESHED for formal v0.1.0 and post-v0.1.0 records.
 
 ## Remaining Decisions
 
@@ -137,6 +139,8 @@ This document records the P6 release candidate closeout state for the local-firs
 - Release page decision was documented, but no GitHub Release page was created.
 - Local package checklist was documented, but no local package archive was generated.
 - Optional eval harness plan was documented, but no eval harness was implemented.
+- Known limitations were refreshed without adding implementation.
+- Architecture release/record plane was refreshed without creating release pages, workflows, SBOM/provenance, eval harness, profiles, or application code.
 - Formal v0.1.0 criteria were documented.
 - Clean clone validation was documented.
 - Local target experiment was documented.

@@ -86,11 +86,33 @@ Downstream projects can use the generated docs to request approval before crossi
 Release evidence is tracked as documents:
 - `docs/RELEASE_CHECKLIST.md`
 - `docs/RELEASE_NOTES_v0.1.0-rc1.md`
+- `docs/RELEASE_NOTES_v0.1.0-rc2.md`
 - `docs/RELEASE_RECORD_v0.1.0-rc1.md`
+- `docs/RELEASE_RECORD_v0.1.0-rc2.md`
+- `docs/RELEASE_RECORD_v0.1.0.md`
 - `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md`
+- `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc2.md`
+- `docs/CLEAN_CLONE_VALIDATION_v0.1.0.md`
+- `docs/GITHUB_RELEASE_DRAFT_v0.1.0.md`
+- `docs/LOCAL_DOWNSTREAM_ADOPTION_RUN_v0.1.0.md`
+- `docs/DOWNSTREAM_DOC_REVIEW_CHECKLIST_v0.1.0.md`
+- `docs/POST_V0.1.0_ROADMAP.md`
+- `docs/RELEASE_PAGE_DECISION.md`
+- `docs/LOCAL_PACKAGE_CHECKLIST.md`
+- `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`
 - `docs/LOCAL_TARGET_EXPERIMENT_python_cli_v0.1.0-rc1.md`
 
 Release records document what happened. They do not create tags, move tags, publish GitHub Releases, or enable CI.
+
+Current release state:
+
+- Formal `v0.1.0` tag exists and is recorded.
+- Formal `v0.1.0` clean clone validation is recorded.
+- Formal GitHub Release draft exists, but the GitHub Release page is still NOT CREATED.
+- Downstream adoption run and downstream doc review checklist are recorded.
+- Post-v0.1.0 roadmap, release page decision, local package checklist, and optional eval harness plan are recorded.
+- GitHub Actions workflow is still NOT INSTALLED.
+- Eval harness, SBOM, provenance, release manifest/checksum, and optional CI actualization remain future/optional work.
 
 ## Optional CI Plane
 
