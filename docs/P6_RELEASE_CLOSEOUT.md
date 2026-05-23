@@ -30,7 +30,9 @@ This document records the P6 release candidate closeout state for the local-firs
 - Known limitations: `docs/KNOWN_LIMITATIONS.md`
 - Release checklist: `docs/RELEASE_CHECKLIST.md`
 - Release notes: `docs/RELEASE_NOTES_v0.1.0-rc1.md`
+- RC2 release notes: `docs/RELEASE_NOTES_v0.1.0-rc2.md`
 - Release record: `docs/RELEASE_RECORD_v0.1.0-rc1.md`
+- RC2 candidate closeout: `docs/RC2_CANDIDATE_CLOSEOUT.md`
 - Clean clone validation record: `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md`
 - Local target experiment record: `docs/LOCAL_TARGET_EXPERIMENT_python_cli_v0.1.0-rc1.md`
 - Base template local target experiment record: `docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md`
@@ -55,12 +57,21 @@ This document records the P6 release candidate closeout state for the local-firs
 - Render drift is checked at file-presence level for regression examples.
 - The extended base template was rendered into a separate generic local target with no profile selected.
 
+## RC2 Candidate State
+
+- `v0.1.0-rc1` remains the existing tagged baseline.
+- `v0.1.0-rc1` still points to `10bccadd15be9401847620eba61d3c8c4117962d`.
+- `v0.1.0-rc2` is documented as a candidate at `3f1f192af09e511fc2a22f36e404f4d4e3759509`.
+- `v0.1.0-rc2` tag: NOT CREATED.
+- Formal `v0.1.0` tag: NOT CREATED.
+
 ## Remaining Decisions
 
 - Clean clone validation from the `v0.1.0-rc1` tag: COMPLETED.
 - Decide whether to draft a GitHub Release page without changing the tag.
 - Local target project experiment with `python_cli`: COMPLETED.
 - Generic/base template local target experiment: COMPLETED.
+- Decide whether to create the annotated `v0.1.0-rc2` tag.
 - Decide whether to run additional profile experiments.
 - Decide whether to run downstream application experiments through the base template extension surfaces.
 - Decide when a formal `v0.1.0` tag would be appropriate.

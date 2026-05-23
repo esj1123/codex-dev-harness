@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0-rc1 base template strengthening.
+v0.1.0-rc2 candidate closeout prepared.
 
 ## Current State
 
@@ -27,10 +27,12 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/LOCAL_RELEASE_PACKAGE.md`
   - `docs/P6_RELEASE_CLOSEOUT.md`
   - `docs/RELEASE_NOTES_v0.1.0-rc1.md`
+  - `docs/RELEASE_NOTES_v0.1.0-rc2.md`
   - `docs/RELEASE_RECORD_v0.1.0-rc1.md`
   - `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md`
   - `docs/LOCAL_TARGET_EXPERIMENT_python_cli_v0.1.0-rc1.md`
   - `docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md`
+  - `docs/RC2_CANDIDATE_CLOSEOUT.md`
   - `docs/OPTIONAL_GITHUB_ACTIONS.md`
 - Base markdown templates, including source index, project boundary, data scope, phase plan, and approvals templates.
 - Profile templates for `python_cli`, `csharp_desktop`, and `plc_or_device_tool`.
@@ -53,6 +55,7 @@ The repository contains documentation, base templates, profile templates, render
 - Real secret/config files.
 - CI workflow.
 - Release automation.
+- `v0.1.0-rc2` tag.
 - Formal `v0.1.0` tag.
 - Dedicated `scenario_simulator` profile.
 - `examples/scenario_simulator_minimal`.
@@ -86,6 +89,8 @@ Tag object: `9ca08efbd43cd2c5defba7875efbd7ca702c6166`
 | CI workflow | NOT RUN | Not included in this repository baseline |
 | release tag | CREATED | `v0.1.0-rc1` points to `10bccadd15be9401847620eba61d3c8c4117962d` |
 | release notes | PRESENT | `docs/RELEASE_NOTES_v0.1.0-rc1.md` exists |
+| rc2 release notes | PRESENT | `docs/RELEASE_NOTES_v0.1.0-rc2.md` exists |
+| rc2 candidate closeout | PRESENT | `docs/RC2_CANDIDATE_CLOSEOUT.md` exists |
 | release record | PRESENT | `docs/RELEASE_RECORD_v0.1.0-rc1.md` exists |
 | optional GitHub Actions guide | PRESENT | guide and template exist, but no workflow is installed |
 
@@ -148,6 +153,18 @@ Tag object: `9ca08efbd43cd2c5defba7875efbd7ca702c6166`
 | runtime/live-write artifacts | ABSENT | No application code, C# project files, PLC/device code, live write support, or live config generated |
 | record | PRESENT | `docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md` |
 
+## RC2 Candidate
+
+| item | status | evidence |
+|---|---|---|
+| candidate commit | PASS | `3f1f192af09e511fc2a22f36e404f4d4e3759509` |
+| release notes | PRESENT | `docs/RELEASE_NOTES_v0.1.0-rc2.md` |
+| closeout evidence | PRESENT | `docs/RC2_CANDIDATE_CLOSEOUT.md` |
+| local verification | PASS | pytest 17 passed, quality gate passed, render dry-runs passed |
+| rc1 tag | RETAINED | `v0.1.0-rc1` still points to `10bccadd15be9401847620eba61d3c8c4117962d` |
+| rc2 tag | NOT CREATED | Tag decision remains pending |
+| formal v0.1.0 | NOT CREATED | Deferred |
+
 ## Next Recommended Step
 
-Decide whether to draft a GitHub Release page, whether to run additional downstream application experiments using the strengthened base template, and when a formal `v0.1.0` tag would be appropriate. Actual project application remains deferred.
+Decide whether to create the annotated `v0.1.0-rc2` tag after one final pre-tag verification. Formal `v0.1.0` and GitHub Release page creation remain deferred.
