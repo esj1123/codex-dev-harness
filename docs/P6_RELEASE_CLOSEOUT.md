@@ -33,6 +33,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Release record: `docs/RELEASE_RECORD_v0.1.0-rc1.md`
 - Clean clone validation record: `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md`
 - Local target experiment record: `docs/LOCAL_TARGET_EXPERIMENT_python_cli_v0.1.0-rc1.md`
+- Base template local target experiment record: `docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md`
 - Optional GitHub Actions guide: `docs/OPTIONAL_GITHUB_ACTIONS.md`
 - Local usage guide: `docs/LOCAL_USAGE.md`
 - Local package boundary: `docs/LOCAL_RELEASE_PACKAGE.md`
@@ -52,12 +53,14 @@ This document records the P6 release candidate closeout state for the local-firs
 - New profile creation remains approval-gated and should require repeated reuse evidence.
 - Regression examples are synchronized with the extended base template docs.
 - Render drift is checked at file-presence level for regression examples.
+- The extended base template was rendered into a separate generic local target with no profile selected.
 
 ## Remaining Decisions
 
 - Clean clone validation from the `v0.1.0-rc1` tag: COMPLETED.
 - Decide whether to draft a GitHub Release page without changing the tag.
 - Local target project experiment with `python_cli`: COMPLETED.
+- Generic/base template local target experiment: COMPLETED.
 - Decide whether to run additional profile experiments.
 - Decide whether to run downstream application experiments through the base template extension surfaces.
 - Decide when a formal `v0.1.0` tag would be appropriate.
@@ -72,6 +75,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Base template architecture and extension policy were documented.
 - No scenario simulator profile was added.
 - Regression examples include the extended base docs.
+- Generic/base template local target experiment was documented.
 - No new profile was added.
 - No real application code was added.
 - No PLC/device code was added.

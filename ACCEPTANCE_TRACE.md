@@ -58,6 +58,9 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 | AT-037 | current | quality_gate | Regression examples include extended base docs | Each existing example contains the five new base docs | examples/python_cli_minimal/, examples/csharp_desktop_minimal/, examples/plc_tool_minimal/ | PASS | Example skeletons synchronized |
 | AT-038 | current | quality_gate | Example gate validates extended base docs | Common required file list includes the five new base docs | scripts/gates/example_gate.py | PASS | Required in all regression examples |
 | AT-039 | current | quality_gate | Render drift check exists | Gate checks expected rendered file presence for existing examples | scripts/gates/example_render_drift_gate.py, scripts/quality_gate.py | PASS | Content comparison is intentionally out of scope |
+| AT-040 | current | product_contract | Extended base template local target experiment is documented | Experiment record exists | docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md | PASS | Generic/base template target, no profile |
+| AT-041 | current | quality_gate | Extended base docs rendered into local target | Actual render generated the five extended base docs | docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md | PASS | 11 base docs generated |
+| AT-042 | current | side_effect_contract | No runtime or live-write artifacts were generated | Scope confirmation recorded | docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md | PASS | No app code, C# project, PLC/device code, live write, or live config |
 
 ## Status Values
 

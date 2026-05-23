@@ -30,6 +30,7 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/RELEASE_RECORD_v0.1.0-rc1.md`
   - `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md`
   - `docs/LOCAL_TARGET_EXPERIMENT_python_cli_v0.1.0-rc1.md`
+  - `docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md`
   - `docs/OPTIONAL_GITHUB_ACTIONS.md`
 - Base markdown templates, including source index, project boundary, data scope, phase plan, and approvals templates.
 - Profile templates for `python_cli`, `csharp_desktop`, and `plc_or_device_tool`.
@@ -65,7 +66,7 @@ The repository contains documentation, base templates, profile templates, render
 
 ## Latest Verification
 
-Verified commit: `10bccadd15be9401847620eba61d3c8c4117962d`
+Verified main commit: `c92f98097905846915719d13ee140f699e441d2f`
 
 Tag name: `v0.1.0-rc1`
 
@@ -75,9 +76,10 @@ Tag object: `9ca08efbd43cd2c5defba7875efbd7ca702c6166`
 
 | check | status | evidence |
 |---|---|---|
-| `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1` | PASS | pytest, quality gate, and 3 render dry-runs passed |
-| `python -m pytest` | PASS | 16 passed through the local Python runtime used by the verification wrapper |
-| `python scripts/quality_gate.py` | PASS | docs, hygiene, schema, examples, secret scan passed through the local Python runtime |
+| `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1` | PASS | pytest 17 passed, quality gate passed, and 3 render dry-runs passed |
+| `python -m pytest` | PASS | 17 passed through the local Python runtime used by the verification wrapper |
+| `python scripts/quality_gate.py` | ENVIRONMENT BLOCKED | Bare `python.exe` failed in this Codex desktop shell |
+| local Python runtime `scripts/quality_gate.py` | PASS | docs, hygiene, schema, examples, render drift, and secret scan passed |
 | python_cli render dry-run | PASS | `examples/python_cli_minimal` dry-run succeeded |
 | csharp_desktop render dry-run | PASS | `examples/csharp_desktop_minimal` dry-run succeeded |
 | plc_tool render dry-run | PASS | `examples/plc_tool_minimal` dry-run succeeded |
@@ -132,6 +134,19 @@ Tag object: `9ca08efbd43cd2c5defba7875efbd7ca702c6166`
 | example gate coverage | PRESENT | `scripts/gates/example_gate.py` requires the extended base docs |
 | render drift check | PRESENT | `scripts/gates/example_render_drift_gate.py` checks expected rendered file presence |
 | scenario simulator profile | ABSENT | No dedicated profile or example was created |
+
+## Base Template Local Target Experiment
+
+| item | status | evidence |
+|---|---|---|
+| basis commit | PASS | `c92f98097905846915719d13ee140f699e441d2f` |
+| profile | NONE | Generic/base template target used no profile |
+| target folder | PASS | Separate temporary local target folder |
+| dry-run render | PASS | 11 base Markdown outputs planned |
+| actual render | PASS | 11 base Markdown docs generated after target write permission was granted |
+| extended base docs | PASS | `SOURCE_INDEX`, `PROJECT_BOUNDARY`, `DATA_SCOPE`, `PHASE_PLAN`, and `APPROVALS` generated |
+| runtime/live-write artifacts | ABSENT | No application code, C# project files, PLC/device code, live write support, or live config generated |
+| record | PRESENT | `docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md` |
 
 ## Next Recommended Step
 
