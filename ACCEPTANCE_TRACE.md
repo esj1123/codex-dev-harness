@@ -91,6 +91,9 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 | AT-070 | current | product_contract | local downstream adoption run is documented | Adoption run record exists | docs/LOCAL_DOWNSTREAM_ADOPTION_RUN_v0.1.0.md | PASS | Scenario simulator design baseline target |
 | AT-071 | current | quality_gate | v0.1.0 source checkout was verified before adoption render | Run record captures source verification | docs/LOCAL_DOWNSTREAM_ADOPTION_RUN_v0.1.0.md | PASS | pytest 17 passed, quality gate passed, render dry-runs passed |
 | AT-072 | current | side_effect_contract | downstream adoption render generated only base docs | Run record captures generated files and safety checks | docs/LOCAL_DOWNSTREAM_ADOPTION_RUN_v0.1.0.md | PASS | No profile, runtime code, C# project, PLC/device code, or live-write support |
+| AT-073 | current | product_contract | downstream doc review checklist is documented | Review checklist exists | docs/DOWNSTREAM_DOC_REVIEW_CHECKLIST_v0.1.0.md | PASS | 11 generated docs listed |
+| AT-074 | current | security_contract | downstream doc review prohibits sensitive content | Checklist records raw source and sensitive value prohibitions | docs/DOWNSTREAM_DOC_REVIEW_CHECKLIST_v0.1.0.md | PASS | No IFF/N3G raw source, IP, port, tag, or live parameter values |
+| AT-075 | current | governance_audit | next-phase approval criteria are documented | Checklist records P1 and P2 approval gates | docs/DOWNSTREAM_DOC_REVIEW_CHECKLIST_v0.1.0.md | PASS | Implementation remains deferred |
 
 ## Status Values
 

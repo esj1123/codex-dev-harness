@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 local downstream adoption run.
+Post v0.1.0 downstream doc review planning.
 
 ## Current State
 
@@ -27,6 +27,7 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/LOCAL_RELEASE_PACKAGE.md`
   - `docs/LOCAL_DOWNSTREAM_ADOPTION_PLAN.md`
   - `docs/LOCAL_DOWNSTREAM_ADOPTION_RUN_v0.1.0.md`
+  - `docs/DOWNSTREAM_DOC_REVIEW_CHECKLIST_v0.1.0.md`
   - `docs/P6_RELEASE_CLOSEOUT.md`
   - `docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md`
   - `docs/GITHUB_RELEASE_DRAFT_v0.1.0.md`
@@ -114,6 +115,7 @@ Previous tags:
 | formal v0.1.0 GitHub Release Draft | PRESENT | `docs/GITHUB_RELEASE_DRAFT_v0.1.0.md` exists; GitHub Release page not created |
 | local downstream adoption plan | PRESENT | `docs/LOCAL_DOWNSTREAM_ADOPTION_PLAN.md` exists; no downstream render executed |
 | local downstream adoption run | PASS | `docs/LOCAL_DOWNSTREAM_ADOPTION_RUN_v0.1.0.md` exists; base template rendered to separate local target |
+| downstream doc review checklist | PRESENT | `docs/DOWNSTREAM_DOC_REVIEW_CHECKLIST_v0.1.0.md` exists; downstream docs not filled |
 | formal v0.1.0 criteria | SATISFIED | `docs/FORMAL_V0.1.0_CRITERIA.md` exists; formal tag created |
 | optional GitHub Actions guide | PRESENT | guide and template exist, but no workflow is installed |
 
@@ -256,6 +258,16 @@ Previous tags:
 | force mode | NOT USED | No `--force` render |
 | safety scope | PASS | No workflow, profile/example, application code, C# project, PLC/device code, live-write support, private config, or raw sensitive values generated |
 
+## Downstream Doc Review Checklist
+
+| item | status | evidence |
+|---|---|---|
+| review checklist | PRESENT | `docs/DOWNSTREAM_DOC_REVIEW_CHECKLIST_v0.1.0.md` |
+| review target docs | RECORDED | 11 generated downstream docs listed |
+| sensitive information rules | RECORDED | Raw source, sensitive values, IP, port, tag, live parameter, and secret prohibitions documented |
+| next phase approval | RECORDED | P1 manual fill and P2 simulator design approval gates documented |
+| downstream doc content fill | NOT DONE | This repo records the checklist only |
+
 ## Formal v0.1.0 GitHub Release Draft
 
 | item | status | evidence |
@@ -302,4 +314,4 @@ Previous tags:
 
 ## Next Recommended Step
 
-Review the generated downstream docs manually, decide whether to publish a GitHub Release page from the formal draft, and define the next approved implementation phase for the downstream target.
+Review generated downstream docs with `docs/DOWNSTREAM_DOC_REVIEW_CHECKLIST_v0.1.0.md`, decide whether to publish a GitHub Release page from the formal draft, and define the next approved implementation phase for the downstream target.

@@ -49,6 +49,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Local package boundary: `docs/LOCAL_RELEASE_PACKAGE.md`
 - Local downstream adoption plan: `docs/LOCAL_DOWNSTREAM_ADOPTION_PLAN.md`
 - Local downstream adoption run: `docs/LOCAL_DOWNSTREAM_ADOPTION_RUN_v0.1.0.md`
+- Downstream doc review checklist: `docs/DOWNSTREAM_DOC_REVIEW_CHECKLIST_v0.1.0.md`
 - Architecture: `docs/ARCHITECTURE.md`
 - Validation scope: `docs/VALIDATION_SCOPE.md`
 - Template extension policy: `docs/TEMPLATE_EXTENSION_POLICY.md`
@@ -84,6 +85,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Formal `v0.1.0` GitHub Release Draft: DOCUMENTED, not published.
 - Local downstream adoption plan: DOCUMENTED, not executed.
 - Local downstream adoption run: COMPLETED as base-template-only scenario simulator design baseline target.
+- Downstream doc review checklist: DOCUMENTED; downstream docs not filled in this repository.
 
 ## Remaining Decisions
 
@@ -97,7 +99,10 @@ This document records the P6 release candidate closeout state for the local-firs
 - Decide whether to publish a GitHub Release page from `docs/GITHUB_RELEASE_DRAFT_v0.1.0.md`.
 - Local downstream adoption plan: DOCUMENTED.
 - First local downstream adoption trial from `v0.1.0`: COMPLETED.
-- Decide whether to proceed to manual downstream doc review and a separately approved implementation phase.
+- Downstream doc review checklist: DOCUMENTED.
+- Decide whether to proceed with manual downstream doc review using the checklist.
+- Decide whether to approve P1 source, boundary, and data-scope manual fill.
+- Decide whether to approve P2 simulator design after P1 review.
 - Decide a post-v0.1.0 improvement plan.
 - Decide whether to run additional profile experiments.
 - Decide whether to run downstream application experiments through the base template extension surfaces.
@@ -114,6 +119,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Formal v0.1.0 GitHub Release Draft was documented.
 - Local downstream adoption plan was documented.
 - Local downstream adoption run was documented.
+- Downstream doc review checklist was documented.
 - Formal v0.1.0 criteria were documented.
 - Clean clone validation was documented.
 - Local target experiment was documented.
