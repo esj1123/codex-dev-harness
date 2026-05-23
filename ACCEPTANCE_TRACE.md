@@ -105,6 +105,8 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 | AT-084 | current | governance_audit | optional design-stage pack plan exists | Planning document lists candidate templates and promotion criteria | docs/OPTIONAL_DESIGN_STAGE_PACK_PLAN.md | PASS | Planned only; no optional templates implemented |
 | AT-085 | current | scope_contract | template extension policy covers downstream feedback promotion | Policy includes promotion, optional-pack, downstream-only, and profile-last-resort rules | docs/TEMPLATE_EXTENSION_POLICY.md | PASS | Profile creation remains last resort |
 | AT-086 | current | side_effect_contract | no implementation was added while capturing downstream feedback | Status and feedback documents preserve non-goals | STATUS.md, docs/DOWNSTREAM_FEEDBACK_v0.1.0_P2_DESIGN.md, docs/OPTIONAL_DESIGN_STAGE_PACK_PLAN.md | PASS | No templates, profile, example, eval harness, SBOM/provenance, CI workflow, application code, C#/PLC/device code, or live-write support added |
+| AT-087 | current | governance_audit | optional design-stage pack decision is documented | Decision document records options, recommendation, decision fields, and current decision state | docs/OPTIONAL_DESIGN_STAGE_PACK_DECISION.md | PASS | Current decision is PENDING |
+| AT-088 | current | side_effect_contract | optional design-stage pack implementation remains not started | Decision and status documents record no templates, render integration, gate implementation, examples, or code | docs/OPTIONAL_DESIGN_STAGE_PACK_DECISION.md, STATUS.md | PASS | Owner approval required before implementation |
 
 ## Status Values
 

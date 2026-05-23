@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 downstream feedback capture.
+Post v0.1.0 optional design-stage pack decision pending.
 
 ## Current State
 
@@ -30,6 +30,7 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/DOWNSTREAM_DOC_REVIEW_CHECKLIST_v0.1.0.md`
   - `docs/DOWNSTREAM_FEEDBACK_v0.1.0_P2_DESIGN.md`
   - `docs/OPTIONAL_DESIGN_STAGE_PACK_PLAN.md`
+  - `docs/OPTIONAL_DESIGN_STAGE_PACK_DECISION.md`
   - `docs/POST_V0.1.0_ROADMAP.md`
   - `docs/RELEASE_PAGE_DECISION.md`
   - `docs/LOCAL_PACKAGE_CHECKLIST.md`
@@ -75,6 +76,7 @@ The repository contains documentation, base templates, profile templates, render
 - Dedicated `scenario_simulator` profile.
 - `examples/scenario_simulator_minimal`.
 - Implemented optional design-stage template pack.
+- Optional design-stage pack owner approval.
 
 ## Known Constraints
 
@@ -131,6 +133,7 @@ Previous tags:
 | architecture release/record plane refresh | PRESENT | `docs/ARCHITECTURE.md` reflects formal v0.1.0 and post-v0.1.0 records |
 | downstream P2 design feedback | CAPTURED | `docs/DOWNSTREAM_FEEDBACK_v0.1.0_P2_DESIGN.md` exists; downstream scenario content not copied |
 | optional design-stage pack plan | PLANNED ONLY | `docs/OPTIONAL_DESIGN_STAGE_PACK_PLAN.md` exists; no optional templates implemented |
+| optional design-stage pack decision | PENDING | `docs/OPTIONAL_DESIGN_STAGE_PACK_DECISION.md` exists; implementation is not started |
 | template extension policy | REFRESHED | downstream feedback promotion and optional-pack placement criteria are documented |
 | formal v0.1.0 criteria | SATISFIED | `docs/FORMAL_V0.1.0_CRITERIA.md` exists; formal tag created |
 | optional GitHub Actions guide | PRESENT | guide and template exist, but no workflow is installed |
@@ -297,6 +300,7 @@ Previous tags:
 | architecture release/record plane | REFRESHED | `docs/ARCHITECTURE.md` lists current v0.1.0 and post-v0.1.0 evidence |
 | downstream feedback | CAPTURED | `docs/DOWNSTREAM_FEEDBACK_v0.1.0_P2_DESIGN.md` captures template-level P2 design-only feedback |
 | optional design-stage pack | PLANNED ONLY | `docs/OPTIONAL_DESIGN_STAGE_PACK_PLAN.md`; no optional template files created |
+| optional design-stage pack decision | PENDING | `docs/OPTIONAL_DESIGN_STAGE_PACK_DECISION.md`; owner approval required before implementation |
 | scenario simulator treatment | DOWNSTREAM CANDIDATE | Remains downstream candidate, not a built-in profile |
 
 ## Formal v0.1.0 GitHub Release Draft
@@ -345,4 +349,4 @@ Previous tags:
 
 ## Next Recommended Step
 
-Review downstream feedback, decide whether to explicitly approve optional design-stage pack implementation, decide whether a GitHub Release page or local package is actually needed, and keep optional eval harness work deferred until explicitly approved.
+Owner decides whether to keep the optional design-stage pack planned only, implement an experimental optional pack, or wait for repeated downstream feedback. Keep optional pack implementation, eval harness work, GitHub Release page publication, and local package creation deferred until explicitly approved.
