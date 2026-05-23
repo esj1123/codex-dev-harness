@@ -26,6 +26,8 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/LOCAL_USAGE.md`
   - `docs/LOCAL_RELEASE_PACKAGE.md`
   - `docs/P6_RELEASE_CLOSEOUT.md`
+  - `docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md`
+  - `docs/FORMAL_V0.1.0_CRITERIA.md`
   - `docs/RELEASE_NOTES_v0.1.0-rc1.md`
   - `docs/RELEASE_NOTES_v0.1.0-rc2.md`
   - `docs/RELEASE_RECORD_v0.1.0-rc1.md`
@@ -97,6 +99,8 @@ Previous tag: `v0.1.0-rc1`, object `9ca08efbd43cd2c5defba7875efbd7ca702c6166`, t
 | rc2 candidate closeout | PRESENT | `docs/RC2_CANDIDATE_CLOSEOUT.md` exists |
 | rc1 release record | PRESENT | `docs/RELEASE_RECORD_v0.1.0-rc1.md` exists |
 | rc2 release record | PRESENT | `docs/RELEASE_RECORD_v0.1.0-rc2.md` exists |
+| GitHub Release Draft | PRESENT | `docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md` exists; GitHub Release page not created |
+| formal v0.1.0 criteria | PRESENT | `docs/FORMAL_V0.1.0_CRITERIA.md` exists; formal tag not created |
 | optional GitHub Actions guide | PRESENT | guide and template exist, but no workflow is installed |
 
 ## Clean Clone Validation
@@ -188,6 +192,24 @@ Previous tag: `v0.1.0-rc1`, object `9ca08efbd43cd2c5defba7875efbd7ca702c6166`, t
 | rc2 release record | PRESENT | `docs/RELEASE_RECORD_v0.1.0-rc2.md` |
 | formal v0.1.0 | NOT CREATED | Deferred |
 
+## GitHub Release Draft
+
+| item | status | evidence |
+|---|---|---|
+| release draft document | PRESENT | `docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md` |
+| target tag | RECORDED | `v0.1.0-rc2` |
+| tag target | RECORDED | `67ead73628c8ff7b15e91d2ba608efbdbb8de81e` |
+| GitHub Release page | NOT CREATED | Draft document only |
+
+## Formal v0.1.0 Criteria
+
+| item | status | evidence |
+|---|---|---|
+| criteria document | PRESENT | `docs/FORMAL_V0.1.0_CRITERIA.md` |
+| clean clone validation requirement | PASS | `v0.1.0-rc2` clean clone validation passed |
+| downstream experiment requirement | PENDING | At least one downstream application experiment still needed unless explicit approval changes the release decision |
+| formal v0.1.0 tag | NOT CREATED | Deferred |
+
 ## Next Recommended Step
 
-Decide whether to draft a GitHub Release page, run downstream application experiments, or define the formal `v0.1.0` release criteria. Formal `v0.1.0` remains deferred.
+Decide whether to run a downstream application experiment, whether to create a GitHub Release page from the draft, and when formal `v0.1.0` criteria are satisfied. Formal `v0.1.0` remains deferred.

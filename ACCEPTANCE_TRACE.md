@@ -70,6 +70,9 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 | AT-049 | current | quality_gate | v0.1.0-rc2 clean clone validation is documented | Clean clone validation record exists | docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc2.md | PASS | Bare python launcher blocked, wrapper runtime passed |
 | AT-050 | current | governance_audit | rc2 clean clone checkout target is recorded | Checkout target and tag target are recorded | docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc2.md | PASS | `67ead73628c8ff7b15e91d2ba608efbdbb8de81e` |
 | AT-051 | current | quality_gate | Local verification passed from rc2 clean clone | Wrapper verification passed from tag checkout | docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc2.md | PASS | pytest 17 passed, quality gate passed, render dry-runs passed |
+| AT-052 | current | product_contract | GitHub Release Draft is documented | Release draft document exists | docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md | PASS | GitHub Release page not created |
+| AT-053 | current | governance_audit | formal v0.1.0 criteria are documented | Criteria document exists | docs/FORMAL_V0.1.0_CRITERIA.md | PASS | Formal tag not created |
+| AT-054 | current | scope_contract | formal v0.1.0 remains deferred until downstream experiment or explicit approval | Status and criteria document record deferred state | STATUS.md, docs/FORMAL_V0.1.0_CRITERIA.md | PASS | Downstream experiment still pending |
 
 ## Status Values
 

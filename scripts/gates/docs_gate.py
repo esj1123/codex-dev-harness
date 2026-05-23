@@ -33,6 +33,8 @@ REQUIRED_DOCS = [
     "docs/LOCAL_USAGE.md",
     "docs/LOCAL_RELEASE_PACKAGE.md",
     "docs/P6_RELEASE_CLOSEOUT.md",
+    "docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md",
+    "docs/FORMAL_V0.1.0_CRITERIA.md",
     "docs/RELEASE_NOTES_v0.1.0-rc1.md",
     "docs/RELEASE_NOTES_v0.1.0-rc2.md",
     "docs/RELEASE_RECORD_v0.1.0-rc1.md",
