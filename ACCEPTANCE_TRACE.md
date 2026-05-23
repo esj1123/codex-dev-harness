@@ -88,6 +88,9 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 | AT-067 | current | product_contract | local downstream adoption plan exists | Adoption plan document exists | docs/LOCAL_DOWNSTREAM_ADOPTION_PLAN.md | PASS | Plan only; no downstream render executed |
 | AT-068 | current | scope_contract | formal v0.1.0 tag remains unchanged | Adoption plan references existing tag without modifying it | docs/LOCAL_DOWNSTREAM_ADOPTION_PLAN.md | PASS | `v0.1.0` remains at `43bbf001e1d2770466b41d5b8366f289b972a00b` |
 | AT-069 | current | side_effect_contract | local downstream adoption remains approval-gated | Plan requires dry-run, target path review, and approval before actual render | docs/LOCAL_DOWNSTREAM_ADOPTION_PLAN.md | PASS | No downstream target created |
+| AT-070 | current | product_contract | local downstream adoption run is documented | Adoption run record exists | docs/LOCAL_DOWNSTREAM_ADOPTION_RUN_v0.1.0.md | PASS | Scenario simulator design baseline target |
+| AT-071 | current | quality_gate | v0.1.0 source checkout was verified before adoption render | Run record captures source verification | docs/LOCAL_DOWNSTREAM_ADOPTION_RUN_v0.1.0.md | PASS | pytest 17 passed, quality gate passed, render dry-runs passed |
+| AT-072 | current | side_effect_contract | downstream adoption render generated only base docs | Run record captures generated files and safety checks | docs/LOCAL_DOWNSTREAM_ADOPTION_RUN_v0.1.0.md | PASS | No profile, runtime code, C# project, PLC/device code, or live-write support |
 
 ## Status Values
 

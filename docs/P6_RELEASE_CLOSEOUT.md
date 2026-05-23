@@ -48,6 +48,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Local usage guide: `docs/LOCAL_USAGE.md`
 - Local package boundary: `docs/LOCAL_RELEASE_PACKAGE.md`
 - Local downstream adoption plan: `docs/LOCAL_DOWNSTREAM_ADOPTION_PLAN.md`
+- Local downstream adoption run: `docs/LOCAL_DOWNSTREAM_ADOPTION_RUN_v0.1.0.md`
 - Architecture: `docs/ARCHITECTURE.md`
 - Validation scope: `docs/VALIDATION_SCOPE.md`
 - Template extension policy: `docs/TEMPLATE_EXTENSION_POLICY.md`
@@ -82,6 +83,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Formal `v0.1.0` clean clone validation: COMPLETED.
 - Formal `v0.1.0` GitHub Release Draft: DOCUMENTED, not published.
 - Local downstream adoption plan: DOCUMENTED, not executed.
+- Local downstream adoption run: COMPLETED as base-template-only scenario simulator design baseline target.
 
 ## Remaining Decisions
 
@@ -94,7 +96,8 @@ This document records the P6 release candidate closeout state for the local-firs
 - Clean clone validation from the formal `v0.1.0` tag: COMPLETED.
 - Decide whether to publish a GitHub Release page from `docs/GITHUB_RELEASE_DRAFT_v0.1.0.md`.
 - Local downstream adoption plan: DOCUMENTED.
-- Decide whether to execute the first local downstream adoption trial from `v0.1.0`.
+- First local downstream adoption trial from `v0.1.0`: COMPLETED.
+- Decide whether to proceed to manual downstream doc review and a separately approved implementation phase.
 - Decide a post-v0.1.0 improvement plan.
 - Decide whether to run additional profile experiments.
 - Decide whether to run downstream application experiments through the base template extension surfaces.
@@ -110,6 +113,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - GitHub Release Draft was documented.
 - Formal v0.1.0 GitHub Release Draft was documented.
 - Local downstream adoption plan was documented.
+- Local downstream adoption run was documented.
 - Formal v0.1.0 criteria were documented.
 - Clean clone validation was documented.
 - Local target experiment was documented.

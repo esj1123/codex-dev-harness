@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 local downstream adoption planning.
+Post v0.1.0 local downstream adoption run.
 
 ## Current State
 
@@ -26,6 +26,7 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/LOCAL_USAGE.md`
   - `docs/LOCAL_RELEASE_PACKAGE.md`
   - `docs/LOCAL_DOWNSTREAM_ADOPTION_PLAN.md`
+  - `docs/LOCAL_DOWNSTREAM_ADOPTION_RUN_v0.1.0.md`
   - `docs/P6_RELEASE_CLOSEOUT.md`
   - `docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md`
   - `docs/GITHUB_RELEASE_DRAFT_v0.1.0.md`
@@ -112,6 +113,7 @@ Previous tags:
 | GitHub Release Draft | PRESENT | `docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md` exists; GitHub Release page not created |
 | formal v0.1.0 GitHub Release Draft | PRESENT | `docs/GITHUB_RELEASE_DRAFT_v0.1.0.md` exists; GitHub Release page not created |
 | local downstream adoption plan | PRESENT | `docs/LOCAL_DOWNSTREAM_ADOPTION_PLAN.md` exists; no downstream render executed |
+| local downstream adoption run | PASS | `docs/LOCAL_DOWNSTREAM_ADOPTION_RUN_v0.1.0.md` exists; base template rendered to separate local target |
 | formal v0.1.0 criteria | SATISFIED | `docs/FORMAL_V0.1.0_CRITERIA.md` exists; formal tag created |
 | optional GitHub Actions guide | PRESENT | guide and template exist, but no workflow is installed |
 
@@ -240,6 +242,20 @@ Previous tags:
 | downstream render | NOT RUN | Plan only; no target project was generated |
 | safety boundary | RECORDED | No raw source bulk copy, sensitive values, runtime code, device code, or live-write support |
 
+## Local Downstream Adoption Run
+
+| item | status | evidence |
+|---|---|---|
+| adoption run record | PRESENT | `docs/LOCAL_DOWNSTREAM_ADOPTION_RUN_v0.1.0.md` |
+| basis tag | PASS | `v0.1.0` |
+| source verification | PASS | `run_local_verify.ps1` passed from `v0.1.0` checkout |
+| target type | PASS | Scenario simulator design baseline |
+| profile | NONE | Base template only |
+| dry-run render | PASS | 11 base Markdown outputs planned |
+| actual render | PASS | 11 base Markdown docs generated after target write permission was granted |
+| force mode | NOT USED | No `--force` render |
+| safety scope | PASS | No workflow, profile/example, application code, C# project, PLC/device code, live-write support, private config, or raw sensitive values generated |
+
 ## Formal v0.1.0 GitHub Release Draft
 
 | item | status | evidence |
@@ -286,4 +302,4 @@ Previous tags:
 
 ## Next Recommended Step
 
-Decide whether to execute the first local downstream adoption trial from `v0.1.0`, whether to publish a GitHub Release page from the formal draft, and which optional post-v0.1.0 improvements to plan next.
+Review the generated downstream docs manually, decide whether to publish a GitHub Release page from the formal draft, and define the next approved implementation phase for the downstream target.
