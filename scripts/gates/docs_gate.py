@@ -42,6 +42,7 @@ REQUIRED_DOCS = [
     "docs/RELEASE_RECORD_v0.1.0.md",
     "docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md",
     "docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc2.md",
+    "docs/CLEAN_CLONE_VALIDATION_v0.1.0.md",
     "docs/LOCAL_TARGET_EXPERIMENT_python_cli_v0.1.0-rc1.md",
     "docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md",
     "docs/DOWNSTREAM_EXPERIMENT_scenario_simulator_design_base_template.md",

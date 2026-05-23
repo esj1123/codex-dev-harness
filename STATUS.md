@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 tag record.
+Post v0.1.0 clean clone validation.
 
 ## Current State
 
@@ -35,6 +35,7 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/RELEASE_RECORD_v0.1.0.md`
   - `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md`
   - `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc2.md`
+  - `docs/CLEAN_CLONE_VALIDATION_v0.1.0.md`
   - `docs/LOCAL_TARGET_EXPERIMENT_python_cli_v0.1.0-rc1.md`
   - `docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md`
   - `docs/DOWNSTREAM_EXPERIMENT_scenario_simulator_design_base_template.md`
@@ -73,7 +74,7 @@ The repository contains documentation, base templates, profile templates, render
 
 ## Latest Verification
 
-Verified main commit: `43bbf001e1d2770466b41d5b8366f289b972a00b`
+Verified release tag target commit: `43bbf001e1d2770466b41d5b8366f289b972a00b`
 
 Latest tag name: `v0.1.0`
 
@@ -99,6 +100,7 @@ Previous tags:
 | rc1 release tag | CREATED | `v0.1.0-rc1` points to `10bccadd15be9401847620eba61d3c8c4117962d` |
 | rc2 release tag | CREATED | `v0.1.0-rc2` points to `67ead73628c8ff7b15e91d2ba608efbdbb8de81e` |
 | formal v0.1.0 tag | CREATED | `v0.1.0` points to `43bbf001e1d2770466b41d5b8366f289b972a00b` |
+| formal v0.1.0 clean clone validation | PASS | `docs/CLEAN_CLONE_VALIDATION_v0.1.0.md` |
 | release notes | PRESENT | `docs/RELEASE_NOTES_v0.1.0-rc1.md` exists |
 | rc2 release notes | PRESENT | `docs/RELEASE_NOTES_v0.1.0-rc2.md` exists |
 | rc2 candidate closeout | PRESENT | `docs/RC2_CANDIDATE_CLOSEOUT.md` exists |
@@ -135,6 +137,22 @@ Previous tags:
 | local Python runtime dependency check | PASS | `pytest` already satisfied for wrapper runtime |
 | local verification wrapper | PASS | pytest 17 passed, quality gate passed, and 3 render dry-runs passed |
 | example render drift gate | PASS | expected rendered example files present: 48 |
+| `.github/workflows` | ABSENT | No workflow installed |
+| application/device/live-write scope | PASS | No real application code, C# project files, PLC/device code, or live target write support added |
+
+### v0.1.0
+
+| item | status | evidence |
+|---|---|---|
+| clean clone | PASS | Separate temporary clone created |
+| checkout ref | PASS | `v0.1.0` checked out in detached HEAD |
+| tag object | PASS | `a5aed964f381fecdeff54d6c94a068ae21d1dcf9` |
+| tag target | PASS | `v0.1.0` resolves to `43bbf001e1d2770466b41d5b8366f289b972a00b` |
+| dependency install command | ENVIRONMENT BLOCKED | Bare `python.exe` launcher is blocked in this Codex desktop shell |
+| local Python runtime dependency check | PASS | `pytest` already satisfied for wrapper runtime |
+| local verification wrapper | PASS | pytest 17 passed, quality gate passed, and 3 render dry-runs passed |
+| example render drift gate | PASS | expected rendered example files present: 48 |
+| secret scan gate | PASS | no obvious secret/private patterns found |
 | `.github/workflows` | ABSENT | No workflow installed |
 | application/device/live-write scope | PASS | No real application code, C# project files, PLC/device code, or live target write support added |
 
@@ -215,6 +233,7 @@ Previous tags:
 | tag object | RECORDED | `a5aed964f381fecdeff54d6c94a068ae21d1dcf9` |
 | tag target commit | RECORDED | `43bbf001e1d2770466b41d5b8366f289b972a00b` |
 | release record | PRESENT | `docs/RELEASE_RECORD_v0.1.0.md` |
+| clean clone validation | PASS | `docs/CLEAN_CLONE_VALIDATION_v0.1.0.md` |
 | GitHub Release page | NOT CREATED | Publication remains a separate decision |
 | GitHub Actions workflow | NOT INSTALLED | Local-first baseline remains unchanged |
 
@@ -242,4 +261,4 @@ Previous tags:
 
 ## Next Recommended Step
 
-Run clean clone validation from the `v0.1.0` tag, then decide whether to create a GitHub Release page from the draft.
+Decide whether to update the release draft for formal `v0.1.0` and whether to publish a GitHub Release page.

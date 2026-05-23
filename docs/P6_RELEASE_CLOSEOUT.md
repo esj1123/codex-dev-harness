@@ -37,6 +37,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - RC2 candidate closeout: `docs/RC2_CANDIDATE_CLOSEOUT.md`
 - Clean clone validation record: `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md`
 - RC2 clean clone validation record: `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc2.md`
+- Formal v0.1.0 clean clone validation record: `docs/CLEAN_CLONE_VALIDATION_v0.1.0.md`
 - GitHub Release Draft: `docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md`
 - Formal v0.1.0 criteria: `docs/FORMAL_V0.1.0_CRITERIA.md`
 - Downstream experiment: `docs/DOWNSTREAM_EXPERIMENT_scenario_simulator_design_base_template.md`
@@ -76,6 +77,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Formal `v0.1.0` tag: CREATED at `43bbf001e1d2770466b41d5b8366f289b972a00b`.
 - Formal `v0.1.0` tag object: `a5aed964f381fecdeff54d6c94a068ae21d1dcf9`.
 - Formal `v0.1.0` release record: DOCUMENTED.
+- Formal `v0.1.0` clean clone validation: COMPLETED.
 
 ## Remaining Decisions
 
@@ -87,7 +89,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Decide whether to create a GitHub Release page from `docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md` without changing tags.
 - Downstream application experiment: COMPLETED.
 - Formal `v0.1.0` tag: CREATED.
-- Decide whether to run clean clone validation from the formal `v0.1.0` tag.
+- Clean clone validation from the formal `v0.1.0` tag: COMPLETED.
 - Decide whether to run additional profile experiments.
 - Decide whether to run downstream application experiments through the base template extension surfaces.
 
@@ -96,6 +98,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Release tag `v0.1.0-rc1` was created.
 - Release tag `v0.1.0-rc2` was created.
 - Formal release tag `v0.1.0` was created.
+- Formal release tag `v0.1.0` clean clone validation was documented.
 - No GitHub Release page was created.
 - No GitHub Actions workflow was installed.
 - GitHub Release Draft was documented.

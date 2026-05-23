@@ -79,6 +79,9 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 | AT-058 | current | governance_audit | formal v0.1.0 tag was created | Release record captures created formal tag state | docs/RELEASE_RECORD_v0.1.0.md | PASS | GitHub Release page not created |
 | AT-059 | current | governance_audit | formal v0.1.0 tag target commit is recorded | Release record and STATUS capture target commit | docs/RELEASE_RECORD_v0.1.0.md, STATUS.md | PASS | `43bbf001e1d2770466b41d5b8366f289b972a00b` |
 | AT-060 | current | product_contract | formal v0.1.0 release record exists | Post-tag release record exists | docs/RELEASE_RECORD_v0.1.0.md | PASS | Tag not modified after creation |
+| AT-061 | current | quality_gate | v0.1.0 clean clone validation is documented | Clean clone validation record exists | docs/CLEAN_CLONE_VALIDATION_v0.1.0.md | PASS | Bare python launcher blocked, wrapper runtime passed |
+| AT-062 | current | governance_audit | v0.1.0 clean clone checkout target is recorded | Checkout target and tag target are recorded | docs/CLEAN_CLONE_VALIDATION_v0.1.0.md | PASS | `43bbf001e1d2770466b41d5b8366f289b972a00b` |
+| AT-063 | current | quality_gate | Local verification passed from v0.1.0 clean clone | Wrapper verification passed from formal tag checkout | docs/CLEAN_CLONE_VALIDATION_v0.1.0.md | PASS | pytest 17 passed, quality gate passed, render dry-runs passed |
 
 ## Status Values
 
