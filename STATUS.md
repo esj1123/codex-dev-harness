@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 downstream doc review planning.
+Post v0.1.0 downstream feedback capture.
 
 ## Current State
 
@@ -28,6 +28,8 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/LOCAL_DOWNSTREAM_ADOPTION_PLAN.md`
   - `docs/LOCAL_DOWNSTREAM_ADOPTION_RUN_v0.1.0.md`
   - `docs/DOWNSTREAM_DOC_REVIEW_CHECKLIST_v0.1.0.md`
+  - `docs/DOWNSTREAM_FEEDBACK_v0.1.0_P2_DESIGN.md`
+  - `docs/OPTIONAL_DESIGN_STAGE_PACK_PLAN.md`
   - `docs/POST_V0.1.0_ROADMAP.md`
   - `docs/RELEASE_PAGE_DECISION.md`
   - `docs/LOCAL_PACKAGE_CHECKLIST.md`
@@ -72,6 +74,7 @@ The repository contains documentation, base templates, profile templates, render
 - Release automation.
 - Dedicated `scenario_simulator` profile.
 - `examples/scenario_simulator_minimal`.
+- Implemented optional design-stage template pack.
 
 ## Known Constraints
 
@@ -126,6 +129,9 @@ Previous tags:
 | optional eval harness plan | PLANNED ONLY | `docs/OPTIONAL_EVAL_HARNESS_PLAN.md` exists; no eval harness implemented |
 | known limitations refresh | PRESENT | `docs/KNOWN_LIMITATIONS.md` reflects current post-v0.1.0 limitations |
 | architecture release/record plane refresh | PRESENT | `docs/ARCHITECTURE.md` reflects formal v0.1.0 and post-v0.1.0 records |
+| downstream P2 design feedback | CAPTURED | `docs/DOWNSTREAM_FEEDBACK_v0.1.0_P2_DESIGN.md` exists; downstream scenario content not copied |
+| optional design-stage pack plan | PLANNED ONLY | `docs/OPTIONAL_DESIGN_STAGE_PACK_PLAN.md` exists; no optional templates implemented |
+| template extension policy | REFRESHED | downstream feedback promotion and optional-pack placement criteria are documented |
 | formal v0.1.0 criteria | SATISFIED | `docs/FORMAL_V0.1.0_CRITERIA.md` exists; formal tag created |
 | optional GitHub Actions guide | PRESENT | guide and template exist, but no workflow is installed |
 
@@ -289,6 +295,8 @@ Previous tags:
 | optional eval harness | PLANNED ONLY | `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`; no eval code, `evals/`, or runner created |
 | known limitations | REFRESHED | `docs/KNOWN_LIMITATIONS.md` no longer lists completed CI policy or release tagging guidance as future work |
 | architecture release/record plane | REFRESHED | `docs/ARCHITECTURE.md` lists current v0.1.0 and post-v0.1.0 evidence |
+| downstream feedback | CAPTURED | `docs/DOWNSTREAM_FEEDBACK_v0.1.0_P2_DESIGN.md` captures template-level P2 design-only feedback |
+| optional design-stage pack | PLANNED ONLY | `docs/OPTIONAL_DESIGN_STAGE_PACK_PLAN.md`; no optional template files created |
 | scenario simulator treatment | DOWNSTREAM CANDIDATE | Remains downstream candidate, not a built-in profile |
 
 ## Formal v0.1.0 GitHub Release Draft
@@ -337,4 +345,4 @@ Previous tags:
 
 ## Next Recommended Step
 
-Collect downstream adoption feedback, decide whether a GitHub Release page or local package is actually needed, and keep optional eval harness work deferred until explicitly approved.
+Review downstream feedback, decide whether to explicitly approve optional design-stage pack implementation, decide whether a GitHub Release page or local package is actually needed, and keep optional eval harness work deferred until explicitly approved.

@@ -51,6 +51,8 @@ This document records the P6 release candidate closeout state for the local-firs
 - Local downstream adoption plan: `docs/LOCAL_DOWNSTREAM_ADOPTION_PLAN.md`
 - Local downstream adoption run: `docs/LOCAL_DOWNSTREAM_ADOPTION_RUN_v0.1.0.md`
 - Downstream doc review checklist: `docs/DOWNSTREAM_DOC_REVIEW_CHECKLIST_v0.1.0.md`
+- Downstream P2 design feedback: `docs/DOWNSTREAM_FEEDBACK_v0.1.0_P2_DESIGN.md`
+- Optional design-stage pack plan: `docs/OPTIONAL_DESIGN_STAGE_PACK_PLAN.md`
 - Post v0.1.0 roadmap: `docs/POST_V0.1.0_ROADMAP.md`
 - Release page decision: `docs/RELEASE_PAGE_DECISION.md`
 - Local package checklist: `docs/LOCAL_PACKAGE_CHECKLIST.md`
@@ -96,6 +98,9 @@ This document records the P6 release candidate closeout state for the local-firs
 - Optional eval harness plan: DOCUMENTED; no eval harness was implemented.
 - Known limitations: REFRESHED for post-v0.1.0 state.
 - Architecture release/record plane: REFRESHED for formal v0.1.0 and post-v0.1.0 records.
+- Downstream P2 design-only feedback: CAPTURED at template level without copying downstream scenario content.
+- Optional design-stage pack plan: DOCUMENTED as planned only; no optional templates were created.
+- Template extension policy: UPDATED with downstream feedback promotion criteria and profile-as-last-resort guidance.
 
 ## Remaining Decisions
 
@@ -113,12 +118,14 @@ This document records the P6 release candidate closeout state for the local-firs
 - Decide whether to proceed with manual downstream doc review using the checklist.
 - Decide whether to approve P1 source, boundary, and data-scope manual fill.
 - Decide whether to approve P2 simulator design after P1 review.
+- Decide whether downstream P2 design-only feedback justifies explicit approval for optional design-stage pack implementation.
 - Decide a post-v0.1.0 improvement plan.
 - Post-v0.1.0 improvement plan: DOCUMENTED.
 - Decide whether downstream adoption feedback justifies a follow-up task.
 - Decide whether to publish a GitHub Release page; current recommendation is publish only for external/reference distribution.
 - Decide whether to prepare a local package from the checklist.
 - Decide whether to implement an eval harness; current state is plan only and requires explicit approval.
+- Decide whether to implement the optional design-stage pack; current state is plan only and requires explicit approval.
 - Decide whether to run additional profile experiments.
 - Decide whether to run downstream application experiments through the base template extension surfaces.
 
@@ -135,6 +142,8 @@ This document records the P6 release candidate closeout state for the local-firs
 - Local downstream adoption plan was documented.
 - Local downstream adoption run was documented.
 - Downstream doc review checklist was documented.
+- Downstream P2 design-only feedback was captured without copying downstream scenario content.
+- Optional design-stage pack plan was documented, but no optional templates were created.
 - Post v0.1.0 roadmap was documented.
 - Release page decision was documented, but no GitHub Release page was created.
 - Local package checklist was documented, but no local package archive was generated.
@@ -146,6 +155,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Local target experiment was documented.
 - Base template architecture and extension policy were documented.
 - No scenario simulator profile was added.
+- No optional design-stage pack templates were added.
 - Scenario simulator design was tested only as a downstream candidate.
 - Regression examples include the extended base docs.
 - Generic/base template local target experiment was documented.

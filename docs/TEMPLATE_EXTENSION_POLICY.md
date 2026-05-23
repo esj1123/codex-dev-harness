@@ -44,6 +44,35 @@ Keep material in a downstream project when it:
 
 Scenario simulator work belongs here as a downstream application candidate unless repeated use proves a durable profile is needed.
 
+## Downstream Feedback Promotion Criteria
+
+Downstream feedback may influence this template only when it is generalized before being recorded here.
+
+Promotion requires:
+
+- repeated downstream use, not a single project preference
+- domain-neutral wording
+- no raw source copy
+- no sensitive source dependency
+- no IP, port, tag, live parameter, equipment detail, secret, private input, or live configuration
+- no runtime/code generation requirement
+- no C# source/project, PLC/device code, live target write support, or cloud CI requirement
+- explicit approval before creating new templates, packs, gates, profiles, or examples
+
+Feedback may be documented before promotion, but documentation of feedback does not approve implementation.
+
+## Base Template vs Optional Pack vs Downstream-Only
+
+Use this placement rule:
+
+| placement | choose when |
+|---|---|
+| base template | The control is required across most governed local-first projects |
+| optional pack | The control is reusable across multiple projects but should not be part of every baseline render |
+| downstream-only | The material is specific to one project, one domain interpretation, or unresolved source decisions |
+
+Optional packs are appropriate for repeatable design-stage patterns that remain Markdown-only and domain-neutral. They should not be used to smuggle a domain profile into the base template.
+
 ## Absorb Or Profile Decision
 
 Use this decision rule:
@@ -51,6 +80,18 @@ Use this decision rule:
 - If the need is a repeated workflow variant with different safety defaults, consider a profile.
 - If the need is one project, keep it downstream.
 - If the need requires live values, private source, or implementation code, keep it out of this repo.
+
+## Profile As Last Resort
+
+Profile creation is the last resort, not the default response to downstream feedback.
+
+Before creating a profile, prefer this order:
+
+1. Keep the material downstream when it is project-specific.
+2. Document feedback when the pattern is promising but not proven.
+3. Plan an optional pack when the pattern repeats and stays domain-neutral.
+4. Extend the base template only when the control belongs in nearly every target.
+5. Add a profile only when repeated use proves a durable workflow variant with distinct safety and verification defaults.
 
 ## Hard Boundaries
 
