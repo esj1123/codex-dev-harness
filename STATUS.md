@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-v0.1.0-rc2 tagged baseline.
+Post v0.1.0 tag record.
 
 ## Current State
 
@@ -32,6 +32,7 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/RELEASE_NOTES_v0.1.0-rc2.md`
   - `docs/RELEASE_RECORD_v0.1.0-rc1.md`
   - `docs/RELEASE_RECORD_v0.1.0-rc2.md`
+  - `docs/RELEASE_RECORD_v0.1.0.md`
   - `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md`
   - `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc2.md`
   - `docs/LOCAL_TARGET_EXPERIMENT_python_cli_v0.1.0-rc1.md`
@@ -60,7 +61,6 @@ The repository contains documentation, base templates, profile templates, render
 - Real secret/config files.
 - CI workflow.
 - Release automation.
-- Formal `v0.1.0` tag.
 - Dedicated `scenario_simulator` profile.
 - `examples/scenario_simulator_minimal`.
 
@@ -73,15 +73,18 @@ The repository contains documentation, base templates, profile templates, render
 
 ## Latest Verification
 
-Verified main commit: `67ead73628c8ff7b15e91d2ba608efbdbb8de81e`
+Verified main commit: `43bbf001e1d2770466b41d5b8366f289b972a00b`
 
-Latest tag name: `v0.1.0-rc2`
+Latest tag name: `v0.1.0`
 
-Latest tag target commit: `67ead73628c8ff7b15e91d2ba608efbdbb8de81e`
+Latest tag target commit: `43bbf001e1d2770466b41d5b8366f289b972a00b`
 
-Latest tag object: `569b992b390a672cd8a321963a963ff0cbe47976`
+Latest tag object: `a5aed964f381fecdeff54d6c94a068ae21d1dcf9`
 
-Previous tag: `v0.1.0-rc1`, object `9ca08efbd43cd2c5defba7875efbd7ca702c6166`, target `10bccadd15be9401847620eba61d3c8c4117962d`
+Previous tags:
+
+- `v0.1.0-rc1`, object `9ca08efbd43cd2c5defba7875efbd7ca702c6166`, target `10bccadd15be9401847620eba61d3c8c4117962d`
+- `v0.1.0-rc2`, object `569b992b390a672cd8a321963a963ff0cbe47976`, target `67ead73628c8ff7b15e91d2ba608efbdbb8de81e`
 
 | check | status | evidence |
 |---|---|---|
@@ -95,13 +98,15 @@ Previous tag: `v0.1.0-rc1`, object `9ca08efbd43cd2c5defba7875efbd7ca702c6166`, t
 | CI workflow | NOT RUN | Not included in this repository baseline |
 | rc1 release tag | CREATED | `v0.1.0-rc1` points to `10bccadd15be9401847620eba61d3c8c4117962d` |
 | rc2 release tag | CREATED | `v0.1.0-rc2` points to `67ead73628c8ff7b15e91d2ba608efbdbb8de81e` |
+| formal v0.1.0 tag | CREATED | `v0.1.0` points to `43bbf001e1d2770466b41d5b8366f289b972a00b` |
 | release notes | PRESENT | `docs/RELEASE_NOTES_v0.1.0-rc1.md` exists |
 | rc2 release notes | PRESENT | `docs/RELEASE_NOTES_v0.1.0-rc2.md` exists |
 | rc2 candidate closeout | PRESENT | `docs/RC2_CANDIDATE_CLOSEOUT.md` exists |
 | rc1 release record | PRESENT | `docs/RELEASE_RECORD_v0.1.0-rc1.md` exists |
 | rc2 release record | PRESENT | `docs/RELEASE_RECORD_v0.1.0-rc2.md` exists |
+| formal v0.1.0 release record | PRESENT | `docs/RELEASE_RECORD_v0.1.0.md` exists |
 | GitHub Release Draft | PRESENT | `docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md` exists; GitHub Release page not created |
-| formal v0.1.0 criteria | PRESENT | `docs/FORMAL_V0.1.0_CRITERIA.md` exists; formal tag not created |
+| formal v0.1.0 criteria | SATISFIED | `docs/FORMAL_V0.1.0_CRITERIA.md` exists; formal tag created |
 | optional GitHub Actions guide | PRESENT | guide and template exist, but no workflow is installed |
 
 ## Clean Clone Validation
@@ -191,7 +196,7 @@ Previous tag: `v0.1.0-rc1`, object `9ca08efbd43cd2c5defba7875efbd7ca702c6166`, t
 | rc1 tag | RETAINED | `v0.1.0-rc1` still points to `10bccadd15be9401847620eba61d3c8c4117962d` |
 | rc2 tag | CREATED | `v0.1.0-rc2` object `569b992b390a672cd8a321963a963ff0cbe47976`, target `67ead73628c8ff7b15e91d2ba608efbdbb8de81e` |
 | rc2 release record | PRESENT | `docs/RELEASE_RECORD_v0.1.0-rc2.md` |
-| formal v0.1.0 | NOT CREATED | Deferred |
+| formal v0.1.0 | CREATED | `v0.1.0` object `a5aed964f381fecdeff54d6c94a068ae21d1dcf9`, target `43bbf001e1d2770466b41d5b8366f289b972a00b` |
 
 ## GitHub Release Draft
 
@@ -202,6 +207,17 @@ Previous tag: `v0.1.0-rc1`, object `9ca08efbd43cd2c5defba7875efbd7ca702c6166`, t
 | tag target | RECORDED | `67ead73628c8ff7b15e91d2ba608efbdbb8de81e` |
 | GitHub Release page | NOT CREATED | Draft document only |
 
+## Formal v0.1.0 Tag
+
+| item | status | evidence |
+|---|---|---|
+| tag | CREATED | `v0.1.0` |
+| tag object | RECORDED | `a5aed964f381fecdeff54d6c94a068ae21d1dcf9` |
+| tag target commit | RECORDED | `43bbf001e1d2770466b41d5b8366f289b972a00b` |
+| release record | PRESENT | `docs/RELEASE_RECORD_v0.1.0.md` |
+| GitHub Release page | NOT CREATED | Publication remains a separate decision |
+| GitHub Actions workflow | NOT INSTALLED | Local-first baseline remains unchanged |
+
 ## Formal v0.1.0 Criteria
 
 | item | status | evidence |
@@ -209,7 +225,7 @@ Previous tag: `v0.1.0-rc1`, object `9ca08efbd43cd2c5defba7875efbd7ca702c6166`, t
 | criteria document | PRESENT | `docs/FORMAL_V0.1.0_CRITERIA.md` |
 | clean clone validation requirement | PASS | `v0.1.0-rc2` clean clone validation passed |
 | downstream experiment requirement | PASS | `docs/DOWNSTREAM_EXPERIMENT_scenario_simulator_design_base_template.md` |
-| formal v0.1.0 tag | NOT CREATED | Deferred |
+| formal v0.1.0 tag | CREATED | `docs/RELEASE_RECORD_v0.1.0.md` |
 
 ## Downstream Application Experiment
 
@@ -226,4 +242,4 @@ Previous tag: `v0.1.0-rc1`, object `9ca08efbd43cd2c5defba7875efbd7ca702c6166`, t
 
 ## Next Recommended Step
 
-Decide whether to create a GitHub Release page from the draft and whether to create formal `v0.1.0` after final approval. Formal `v0.1.0` remains deferred.
+Run clean clone validation from the `v0.1.0` tag, then decide whether to create a GitHub Release page from the draft.

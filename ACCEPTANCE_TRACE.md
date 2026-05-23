@@ -71,11 +71,14 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 | AT-050 | current | governance_audit | rc2 clean clone checkout target is recorded | Checkout target and tag target are recorded | docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc2.md | PASS | `67ead73628c8ff7b15e91d2ba608efbdbb8de81e` |
 | AT-051 | current | quality_gate | Local verification passed from rc2 clean clone | Wrapper verification passed from tag checkout | docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc2.md | PASS | pytest 17 passed, quality gate passed, render dry-runs passed |
 | AT-052 | current | product_contract | GitHub Release Draft is documented | Release draft document exists | docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md | PASS | GitHub Release page not created |
-| AT-053 | current | governance_audit | formal v0.1.0 criteria are documented | Criteria document exists | docs/FORMAL_V0.1.0_CRITERIA.md | PASS | Formal tag not created |
-| AT-054 | current | scope_contract | formal v0.1.0 remains deferred until explicit release approval | Status and criteria document record deferred state | STATUS.md, docs/FORMAL_V0.1.0_CRITERIA.md | PASS | Downstream experiment condition satisfied; formal tag still not created |
+| AT-053 | current | governance_audit | formal v0.1.0 criteria are documented | Criteria document exists | docs/FORMAL_V0.1.0_CRITERIA.md | PASS | Formal tag created after criteria satisfaction |
+| AT-054 | current | scope_contract | GitHub Release page remains deferred after formal tag | Status and release record document post-tag state | STATUS.md, docs/RELEASE_RECORD_v0.1.0.md | PASS | Formal tag created; GitHub Release page not created |
 | AT-055 | current | product_contract | Downstream application experiment record exists | Scenario simulator design downstream experiment record exists | docs/DOWNSTREAM_EXPERIMENT_scenario_simulator_design_base_template.md | PASS | Candidate tested without profile |
 | AT-056 | current | scope_contract | Scenario simulator design was tested as downstream candidate, not profile | Record and repo structure show no profile/example was created | docs/DOWNSTREAM_EXPERIMENT_scenario_simulator_design_base_template.md, profiles/, examples/ | PASS | Base template only |
-| AT-057 | current | quality_gate | formal v0.1.0 downstream experiment condition is satisfied | Status and criteria document record condition PASS | STATUS.md, docs/FORMAL_V0.1.0_CRITERIA.md | PASS | Formal tag still not created |
+| AT-057 | current | quality_gate | formal v0.1.0 downstream experiment condition is satisfied | Status and criteria document record condition PASS | STATUS.md, docs/FORMAL_V0.1.0_CRITERIA.md | PASS | Formal tag created |
+| AT-058 | current | governance_audit | formal v0.1.0 tag was created | Release record captures created formal tag state | docs/RELEASE_RECORD_v0.1.0.md | PASS | GitHub Release page not created |
+| AT-059 | current | governance_audit | formal v0.1.0 tag target commit is recorded | Release record and STATUS capture target commit | docs/RELEASE_RECORD_v0.1.0.md, STATUS.md | PASS | `43bbf001e1d2770466b41d5b8366f289b972a00b` |
+| AT-060 | current | product_contract | formal v0.1.0 release record exists | Post-tag release record exists | docs/RELEASE_RECORD_v0.1.0.md | PASS | Tag not modified after creation |
 
 ## Status Values
 

@@ -4,7 +4,7 @@
 
 Define the criteria for deciding whether codex-dev-harness is ready for a formal `v0.1.0` tag.
 
-Formal `v0.1.0` has not been created.
+Formal `v0.1.0` has been created.
 
 ## Entry Conditions
 
@@ -32,6 +32,7 @@ Formal `v0.1.0` should be considered only when all conditions are satisfied:
 | No required GitHub Actions workflow | PASS | No workflow installed |
 | No runtime/live-write code in baseline | PASS | Status and release records |
 | Acceptance trace and status current | PASS | Updated with downstream experiment result |
+| Formal `v0.1.0` tag | CREATED | `docs/RELEASE_RECORD_v0.1.0.md` |
 
 ## Not Required For Formal v0.1.0
 
@@ -55,4 +56,4 @@ Potential work after formal `v0.1.0`:
 
 ## Current Decision
 
-Formal `v0.1.0` remains deferred until explicit release approval. The downstream application experiment condition is now satisfied.
+Formal `v0.1.0` is created at `43bbf001e1d2770466b41d5b8366f289b972a00b`. GitHub Release page creation and clean clone validation from the formal tag remain separate follow-up decisions.

@@ -39,6 +39,7 @@ REQUIRED_DOCS = [
     "docs/RELEASE_NOTES_v0.1.0-rc2.md",
     "docs/RELEASE_RECORD_v0.1.0-rc1.md",
     "docs/RELEASE_RECORD_v0.1.0-rc2.md",
+    "docs/RELEASE_RECORD_v0.1.0.md",
     "docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md",
     "docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc2.md",
     "docs/LOCAL_TARGET_EXPERIMENT_python_cli_v0.1.0-rc1.md",

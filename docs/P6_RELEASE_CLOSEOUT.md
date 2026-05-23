@@ -33,6 +33,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - RC2 release notes: `docs/RELEASE_NOTES_v0.1.0-rc2.md`
 - Release record: `docs/RELEASE_RECORD_v0.1.0-rc1.md`
 - RC2 release record: `docs/RELEASE_RECORD_v0.1.0-rc2.md`
+- Formal v0.1.0 release record: `docs/RELEASE_RECORD_v0.1.0.md`
 - RC2 candidate closeout: `docs/RC2_CANDIDATE_CLOSEOUT.md`
 - Clean clone validation record: `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md`
 - RC2 clean clone validation record: `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc2.md`
@@ -72,7 +73,9 @@ This document records the P6 release candidate closeout state for the local-firs
 - `v0.1.0-rc2` clean clone validation: COMPLETED.
 - GitHub Release Draft: DOCUMENTED, not published.
 - Downstream scenario simulator design candidate experiment: COMPLETED as base-template-only downstream target.
-- Formal `v0.1.0` tag: NOT CREATED.
+- Formal `v0.1.0` tag: CREATED at `43bbf001e1d2770466b41d5b8366f289b972a00b`.
+- Formal `v0.1.0` tag object: `a5aed964f381fecdeff54d6c94a068ae21d1dcf9`.
+- Formal `v0.1.0` release record: DOCUMENTED.
 
 ## Remaining Decisions
 
@@ -83,15 +86,16 @@ This document records the P6 release candidate closeout state for the local-firs
 - Clean clone validation for `v0.1.0-rc2`: COMPLETED.
 - Decide whether to create a GitHub Release page from `docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md` without changing tags.
 - Downstream application experiment: COMPLETED.
-- Decide whether formal `v0.1.0` should be created after final approval.
+- Formal `v0.1.0` tag: CREATED.
+- Decide whether to run clean clone validation from the formal `v0.1.0` tag.
 - Decide whether to run additional profile experiments.
 - Decide whether to run downstream application experiments through the base template extension surfaces.
-- Decide when a formal `v0.1.0` tag would be appropriate.
 
 ## Scope Confirmation
 
 - Release tag `v0.1.0-rc1` was created.
 - Release tag `v0.1.0-rc2` was created.
+- Formal release tag `v0.1.0` was created.
 - No GitHub Release page was created.
 - No GitHub Actions workflow was installed.
 - GitHub Release Draft was documented.
