@@ -124,6 +124,15 @@ Tag object: `9ca08efbd43cd2c5defba7875efbd7ca702c6166`
 | base governance templates | PRESENT | `SOURCE_INDEX`, `PROJECT_BOUNDARY`, `DATA_SCOPE`, `PHASE_PLAN`, and `APPROVALS` templates exist |
 | scenario simulator treatment | DOWNSTREAM CANDIDATE | No dedicated profile or example was created |
 
+## Regression Example Synchronization
+
+| item | status | evidence |
+|---|---|---|
+| extended base docs in examples | PRESENT | Each regression example includes `SOURCE_INDEX`, `PROJECT_BOUNDARY`, `DATA_SCOPE`, `PHASE_PLAN`, and `APPROVALS` |
+| example gate coverage | PRESENT | `scripts/gates/example_gate.py` requires the extended base docs |
+| render drift check | PRESENT | `scripts/gates/example_render_drift_gate.py` checks expected rendered file presence |
+| scenario simulator profile | ABSENT | No dedicated profile or example was created |
+
 ## Next Recommended Step
 
 Decide whether to draft a GitHub Release page, whether to run additional downstream application experiments using the strengthened base template, and when a formal `v0.1.0` tag would be appropriate. Actual project application remains deferred.

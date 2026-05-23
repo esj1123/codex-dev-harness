@@ -50,6 +50,8 @@ This document records the P6 release candidate closeout state for the local-firs
 - Existing profiles remain regression/example variants.
 - Scenario simulator is recorded as a downstream application candidate, not a built-in profile.
 - New profile creation remains approval-gated and should require repeated reuse evidence.
+- Regression examples are synchronized with the extended base template docs.
+- Render drift is checked at file-presence level for regression examples.
 
 ## Remaining Decisions
 
@@ -69,6 +71,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Local target experiment was documented.
 - Base template architecture and extension policy were documented.
 - No scenario simulator profile was added.
+- Regression examples include the extended base docs.
 - No new profile was added.
 - No real application code was added.
 - No PLC/device code was added.

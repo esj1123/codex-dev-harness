@@ -55,6 +55,9 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 | AT-034 | current | scope_contract | Base template includes source index, project boundary, data scope, phase plan, and approvals | Base templates exist and template schema gate requires them | templates/base/, scripts/gates/template_schema_gate.py | PASS | Base template supports complex downstream projects |
 | AT-035 | current | side_effect_contract | Approval-gated side-effect policy is documented | Side-effect ADR and approvals template exist | docs/adr/ADR-0003-approval-gated-side-effect.md, templates/base/APPROVALS.md.template | PASS | Read-only and dry-run first |
 | AT-036 | current | scope_contract | Scenario simulator profile was not created | Profiles and examples remain limited to existing variants | docs/PROFILE_MATRIX.md, profiles/, examples/ | PASS | Downstream candidate only |
+| AT-037 | current | quality_gate | Regression examples include extended base docs | Each existing example contains the five new base docs | examples/python_cli_minimal/, examples/csharp_desktop_minimal/, examples/plc_tool_minimal/ | PASS | Example skeletons synchronized |
+| AT-038 | current | quality_gate | Example gate validates extended base docs | Common required file list includes the five new base docs | scripts/gates/example_gate.py | PASS | Required in all regression examples |
+| AT-039 | current | quality_gate | Render drift check exists | Gate checks expected rendered file presence for existing examples | scripts/gates/example_render_drift_gate.py, scripts/quality_gate.py | PASS | Content comparison is intentionally out of scope |
 
 ## Status Values
 

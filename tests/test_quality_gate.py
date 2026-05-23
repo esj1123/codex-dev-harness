@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from scripts.gates import docs_gate, example_gate, secret_scan_gate, template_schema_gate
+from scripts.gates import docs_gate, example_gate, example_render_drift_gate, secret_scan_gate, template_schema_gate
 from scripts.quality_gate import run_quality_gate
 
 
@@ -100,6 +100,17 @@ def test_example_gate_requires_profile_phrases(tmp_path: Path) -> None:
 
     assert result.passed is False
     assert any("pytest NOT RUN" in message for message in result.messages)
+
+
+def test_example_render_drift_gate_detects_missing_rendered_file(tmp_path: Path) -> None:
+    minimal_repo(tmp_path)
+    write_valid_example(tmp_path, "python_cli_minimal", "python_cli")
+    (tmp_path / "examples" / "python_cli_minimal" / "SOURCE_INDEX.md").unlink()
+
+    result = example_render_drift_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert any("SOURCE_INDEX.md" in message for message in result.messages)
 
 
 def test_example_gate_validates_config_values(tmp_path: Path) -> None:
