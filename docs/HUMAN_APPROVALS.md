@@ -65,6 +65,23 @@ Record approval-sensitive decisions in the nearest relevant surface:
 
 Do not record secrets, private raw input, equipment details, or live values in approval records.
 
+## Approval Identifiers
+
+Future audit evidence may reference an `approval_id`. An approval identifier is
+a pointer to an approved decision record, not the approval content itself.
+
+An `approval_id` should be:
+
+- scoped to the task or decision
+- stable enough to cite from future evidence
+- connected to a record in `STATUS.md`, `ACCEPTANCE_TRACE.md`, a dedicated
+  decision or closeout document, or a downstream `APPROVALS.md`
+- free of secrets, private input, raw source, equipment details, live values,
+  and personal data beyond the approved evidence label
+
+Recording an `approval_id` does not grant new approval. It only references an
+approval that was already explicit and scoped.
+
 ## Revocation And Expiry
 
 Approval is task-local unless stated otherwise. A later task must re-establish approval for new side effects, changed targets, or broader scope.

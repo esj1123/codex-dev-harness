@@ -1,0 +1,207 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/esj1123/codex-dev-harness/audits/audit-log.schema.json",
+  "title": "codex-dev-harness audit log entry",
+  "description": "Optional future schema for redacted AI-assisted development evidence. The schema defines record shape only; it does not enable automatic logging.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "description": "Schema version used by the audit entry."
+    },
+    "task_id": {
+      "type": "string",
+      "description": "Task, issue, PR, branch, or local work identifier."
+    },
+    "timestamp_utc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp for the audit entry."
+    },
+    "actor": {
+      "type": "string",
+      "description": "Human or AI-assisted actor label. Do not include private identity details beyond the approved evidence label."
+    },
+    "repo": {
+      "type": "string",
+      "description": "Repository identifier, for example owner/name."
+    },
+    "repo_sha": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{7,40}$",
+      "description": "Repository commit SHA used as the evidence basis."
+    },
+    "model_id": {
+      "type": "string",
+      "description": "Optional model identifier. Do not include prompt or session content."
+    },
+    "prompt_template_id": {
+      "type": "string",
+      "description": "Optional prompt template identifier when a reusable template was used."
+    },
+    "prompt_hash": {
+      "$ref": "#/$defs/hash_record",
+      "description": "Hash of approved prompt material when separately approved. Do not store raw prompt text."
+    },
+    "approved_corpus_digest": {
+      "$ref": "#/$defs/hash_record",
+      "description": "Digest for an approved corpus or allowlist. Do not store raw private input or raw source."
+    },
+    "side_effect_class": {
+      "type": "string",
+      "enum": [
+        "read_only",
+        "documentation_write",
+        "code_write",
+        "test_or_verification",
+        "git_branch",
+        "git_commit",
+        "git_push",
+        "pull_request",
+        "release_or_tag",
+        "external_write",
+        "live_target"
+      ],
+      "description": "Highest side-effect class for the audited task."
+    },
+    "approval_id": {
+      "type": "string",
+      "description": "Approval identifier that references the approval rules in docs/HUMAN_APPROVALS.md."
+    },
+    "files_changed": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Repository-relative path."
+          },
+          "change_type": {
+            "type": "string",
+            "enum": [
+              "added",
+              "modified",
+              "deleted",
+              "renamed"
+            ]
+          },
+          "content_hash": {
+            "$ref": "#/$defs/hash_record",
+            "description": "Optional hash of final content. Do not store raw sensitive content."
+          }
+        }
+      }
+    },
+    "commands_run": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "command_summary": {
+            "type": "string",
+            "description": "Summary of the command. Avoid secrets, private input, raw source, and tool-call bodies."
+          },
+          "result": {
+            "type": "string",
+            "enum": [
+              "PASS",
+              "FAIL",
+              "PARTIAL",
+              "NOT RUN",
+              "ENVIRONMENT BLOCKED"
+            ]
+          },
+          "evidence_path": {
+            "type": "string",
+            "description": "Repository-relative evidence path, if applicable."
+          }
+        }
+      }
+    },
+    "verification_result": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "FAIL",
+        "PARTIAL",
+        "NOT RUN",
+        "ENVIRONMENT BLOCKED"
+      ]
+    },
+    "outputs_hash": {
+      "$ref": "#/$defs/hash_record",
+      "description": "Digest of approved output evidence. Prefer hashes over raw generated output."
+    },
+    "safety_checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "check": {
+            "type": "string"
+          },
+          "result": {
+            "type": "string",
+            "enum": [
+              "PASS",
+              "FAIL",
+              "PARTIAL",
+              "NOT RUN",
+              "ENVIRONMENT BLOCKED"
+            ]
+          },
+          "notes": {
+            "type": "string",
+            "description": "Redacted notes only."
+          }
+        }
+      }
+    },
+    "redaction_status": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "not_needed",
+            "redacted",
+            "approved_unredacted",
+            "blocked_sensitive_content"
+          ]
+        },
+        "notes": {
+          "type": "string",
+          "description": "Redacted notes describing the review status."
+        }
+      }
+    },
+    "notes": {
+      "type": "string",
+      "description": "Short redacted summary. Do not include raw prompts, private input, raw source, secrets, or live values."
+    }
+  },
+  "$defs": {
+    "hash_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "examples": [
+            "sha256"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9._:-]+$"
+        }
+      }
+    }
+  }
+}

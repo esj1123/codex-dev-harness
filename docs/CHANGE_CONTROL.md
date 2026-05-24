@@ -29,6 +29,7 @@ Downstream project content remains downstream-only unless a separate approved ta
 | prompt contract template | reusable prompt Markdown under `prompts/task_contract/` | safe when requested, scoped, and non-executing |
 | template surface | base templates, optional templates | approval-gated when adding durable surface |
 | validation surface | tests, gates, verification wrappers | separate implementation task |
+| audit evidence schema | `audits/audit-log.schema.json`, audit policy fields | safe when explicitly approved, scoped, and non-logging |
 | profile or example | new profile, new regression example | owner approval required |
 | release surface | tags, GitHub Releases, manifests, checksums | separate release approval required |
 | side-effecting behavior | workflows, external mutations, live/device actions | not allowed by default |
@@ -67,6 +68,7 @@ Separate explicit owner approval is required before:
 - creating, moving, or signing tags
 - generating release manifests, checksums, SBOMs, or provenance artifacts
 - implementing an eval harness
+- generating real audit logs or adding audit logging automation
 - adding runtime/application code
 - adding C# source, project, solution, XAML, or build assets
 - adding PLC/device code or live target write behavior
@@ -88,7 +90,11 @@ Use existing evidence surfaces first:
 - release records under `docs/`
 - closeout or decision records under `docs/`
 
-A dedicated audit log schema is deferred unless explicitly approved.
+The dedicated audit log schema exists at `audits/audit-log.schema.json` as an
+optional future evidence contract. It does not authorize real audit log
+generation, prompt capture, tool-call body capture, private input capture, or
+automation. Any actual audit log entry generation requires separate explicit
+approval.
 
 ## Non-Goals
 
@@ -102,3 +108,4 @@ This policy does not authorize:
 - release publication
 - manifest, checksum, SBOM, or provenance artifact generation
 - eval harness implementation
+- audit logging automation or real audit session log generation
