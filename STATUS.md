@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 optional design-stage manual-use-only baseline closed.
+Post v0.1.0 Stage 1 docs-only governance gap closure.
 
 ## Current State
 
@@ -43,6 +43,10 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/RELEASE_PAGE_DECISION.md`
   - `docs/LOCAL_PACKAGE_CHECKLIST.md`
   - `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`
+  - `docs/CHANGE_CONTROL.md`
+  - `docs/HUMAN_APPROVALS.md`
+  - `docs/EVAL_POLICY.md`
+  - `docs/AUDIT_LOG_POLICY.md`
   - `docs/P6_RELEASE_CLOSEOUT.md`
   - `docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md`
   - `docs/GITHUB_RELEASE_DRAFT_v0.1.0.md`
@@ -87,6 +91,13 @@ The repository contains documentation, base templates, profile templates, render
 - Optional design-stage pack render integration.
 - Optional design-stage pack gate integration.
 - Optional design-stage pack example integration.
+- Minimal eval harness implementation.
+- Release verification wrapper: `scripts/run_release_verify.ps1`.
+- Release manifest artifact or schema.
+- Checksum artifacts.
+- SBOM or provenance artifacts.
+- Audit log schema such as `audits/audit-log.schema.json`.
+- Optional CI release verification template.
 
 ## Known Constraints
 
@@ -109,6 +120,12 @@ Previous tags:
 
 - `v0.1.0-rc1`, object `9ca08efbd43cd2c5defba7875efbd7ca702c6166`, target `10bccadd15be9401847620eba61d3c8c4117962d`
 - `v0.1.0-rc2`, object `569b992b390a672cd8a321963a963ff0cbe47976`, target `67ead73628c8ff7b15e91d2ba608efbdbb8de81e`
+
+Stage 0 current-main gap review basis:
+
+- Ref: `origin/main`
+- Commit: `7add760e89b84106679461948e9db58223900e33`
+- Fetched/checked timestamp: `2026-05-24T15:45:55.4078343+09:00`
 
 | check | status | evidence |
 |---|---|---|
@@ -164,6 +181,16 @@ Previous tags:
 | template extension policy | REFRESHED | downstream feedback promotion and optional-pack placement criteria are documented |
 | formal v0.1.0 criteria | SATISFIED | `docs/FORMAL_V0.1.0_CRITERIA.md` exists; formal tag created |
 | optional GitHub Actions guide | PRESENT | guide and template exist, but no workflow is installed |
+| Stage 0 current-main gap review basis | RECORDED | `origin/main` at `7add760e89b84106679461948e9db58223900e33`, checked `2026-05-24T15:45:55.4078343+09:00` |
+| release manifest artifact/schema | MISSING | No dedicated manifest artifact or schema exists |
+| release evidence foundation | PARTIAL | Release records, clean clone validation, local package checklist, and release drafts exist |
+| optional CI local verify template | DONE | `templates/ci/github-actions-local-verify.yml.template` exists and no workflow is installed |
+| optional CI release verify template | MISSING / OPTIONAL | No release verification CI template or workflow exists |
+| dedicated change control policy | PRESENT | `docs/CHANGE_CONTROL.md` |
+| dedicated human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md` |
+| dedicated eval policy | PRESENT | `docs/EVAL_POLICY.md`; eval implementation remains missing |
+| audit log policy | PRESENT | `docs/AUDIT_LOG_POLICY.md`; audit log schema remains deferred |
+| existing governance docs not recreated | CONFIRMED | `PROMPT_PATTERNS`, `BUG_REVIEW_TEMPLATE`, `SIMPLIFICATION_CHECKLIST`, `LOCAL_PACKAGE_CHECKLIST`, and `OPTIONAL_EVAL_HARNESS_PLAN` were preserved |
 
 ## Clean Clone Validation
 
@@ -338,6 +365,11 @@ Previous tags:
 | optional design-stage manual-use-only baseline | CLOSED | Render/gate/example integration remains deferred and requires separate owner approval |
 | optional design-stage operating docs | REFRESHED | Architecture, known limitations, and roadmap reflect the closed manual-use-only baseline |
 | lightweight governance docs | ADDED | `PROMPT_PATTERNS`, `BUG_REVIEW_TEMPLATE`, and `SIMPLIFICATION_CHECKLIST` are present; no implementation added |
+| Stage 1 change control policy | PRESENT | `docs/CHANGE_CONTROL.md`; documentation-only |
+| Stage 1 human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md`; documentation-only |
+| Stage 1 eval policy | PRESENT | `docs/EVAL_POLICY.md`; no eval code, fixtures, dependencies, or gate/CI integration |
+| Stage 1 audit log policy | PRESENT | `docs/AUDIT_LOG_POLICY.md`; schema deferred unless explicitly approved |
+| Stage 1 implementation boundary | PRESERVED | No eval code, manifest/checksum artifacts, SBOM/provenance artifacts, workflows, tags, releases, profiles, application code, C# source/project, PLC/device code, or live-write behavior added |
 | scenario simulator treatment | DOWNSTREAM CANDIDATE | Remains downstream candidate, not a built-in profile |
 
 ## Formal v0.1.0 GitHub Release Draft
@@ -386,4 +418,4 @@ Previous tags:
 
 ## Next Recommended Step
 
-Use the optional design-stage pack as a closed manual-use-only baseline. Future render, gate, or example integration requires a separate owner approval triggered by repeated manual-use friction, copy/rename errors, or a clear need for opt-in render or validation support.
+Review the Stage 1 governance policies and decide whether to explicitly approve any next implementation surface. The preferred next audit step is still policy-first; defer `audits/audit-log.schema.json`, release verification wrappers, manifest/checksum artifacts, SBOM/provenance, workflows, eval code, profiles, and application/device/live-write behavior unless separately approved.
