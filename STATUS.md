@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 Stage 1 docs-only governance gap closure.
+Post v0.1.0 Stage 2 prompt contract templates.
 
 ## Current State
 
@@ -77,6 +77,7 @@ The repository contains documentation, base templates, profile templates, render
 - Tests under `tests/`.
 - Local verification wrapper: `scripts/run_local_verify.ps1`.
 - Optional GitHub Actions template: `templates/ci/github-actions-local-verify.yml.template`.
+- Reusable prompt contract templates under `prompts/task_contract/`.
 
 ## What Does Not Exist Yet
 
@@ -91,6 +92,7 @@ The repository contains documentation, base templates, profile templates, render
 - Optional design-stage pack render integration.
 - Optional design-stage pack gate integration.
 - Optional design-stage pack example integration.
+- Prompt execution automation.
 - Minimal eval harness implementation.
 - Release verification wrapper: `scripts/run_release_verify.ps1`.
 - Release manifest artifact or schema.
@@ -174,6 +176,7 @@ Stage 0 current-main gap review basis:
 | optional design-stage integrations | DEFERRED | Render, gate, and example integration are not implemented |
 | lightweight governance docs | PRESENT | Prompt patterns, bug review template, and simplification checklist exist |
 | prompt patterns | PRESENT | `docs/PROMPT_PATTERNS.md` documents task contract patterns |
+| prompt contract templates | PRESENT | `prompts/task_contract/` contains task contract, critic review, verification closeout, and release summary prompt templates; documentation-only and non-executing |
 | bug review template | PRESENT | `docs/BUG_REVIEW_TEMPLATE.md` documents evidence-based bug review |
 | simplification checklist | PRESENT | `docs/SIMPLIFICATION_CHECKLIST.md` documents keep/simplify/merge/defer/remove/downstream-only decisions |
 | known limitations optional pack refresh | PRESENT | `docs/KNOWN_LIMITATIONS.md` records manual-use-only and missing integration as current limitations |
@@ -367,6 +370,7 @@ Stage 0 current-main gap review basis:
 | optional design-stage manual-use-only baseline | CLOSED | Render/gate/example integration remains deferred and requires separate owner approval |
 | optional design-stage operating docs | REFRESHED | Architecture, known limitations, and roadmap reflect the closed manual-use-only baseline |
 | lightweight governance docs | ADDED | `PROMPT_PATTERNS`, `BUG_REVIEW_TEMPLATE`, and `SIMPLIFICATION_CHECKLIST` are present; no implementation added |
+| prompt contract templates | ADDED | Four reusable Markdown prompt templates exist under `prompts/task_contract/`; they do not execute prompts or grant approval |
 | Stage 1 change control policy | PRESENT | `docs/CHANGE_CONTROL.md`; documentation-only |
 | Stage 1 human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md`; documentation-only |
 | Stage 1 eval policy | PRESENT | `docs/EVAL_POLICY.md`; no eval code, fixtures, dependencies, or gate/CI integration |
