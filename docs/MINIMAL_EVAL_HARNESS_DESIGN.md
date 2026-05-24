@@ -2,31 +2,35 @@
 
 ## Purpose
 
-Design a future minimal, local-only eval harness for codex-dev-harness without
-implementing it.
+Document the minimal, local-only eval harness for codex-dev-harness.
 
-The intended harness would provide machine-readable verification for template
-safety and regression behavior. It would check whether generated or rendered
-template outputs preserve expected file structure, required policy language,
-forbidden artifact boundaries, and deterministic output path behavior.
+The harness provides machine-readable verification for template safety and
+regression behavior. It checks whether generated or rendered template outputs
+preserve expected file structure, required policy language, forbidden artifact
+boundaries, and deterministic output path behavior.
 
-This document is design-only. It does not create eval cases, golden files,
-runner code, gate integration, CI integration, reports, fixtures, dependencies,
-or release artifacts.
+The implementation is intentionally minimal and standalone. It does not use an
+LLM judge, external services, private input, prompt/session capture, CI, release
+artifacts, or live target behavior.
 
 ## Current State
 
-Status: DESIGN ONLY.
+Status: MINIMAL STANDALONE IMPLEMENTATION PRESENT.
 
-No eval harness is implemented. The repository does not contain:
+The repository contains:
 
-- `evals/`
+- `evals/cases/render_structure.yml`
+- `evals/cases/policy_phrases.yml`
+- `evals/cases/forbidden_artifacts.yml`
+- `evals/golden/render_structure_paths.txt`
 - `scripts/run_eval.py`
 - `scripts/gates/eval_gate.py`
-- eval fixtures
-- eval reports
-- eval integration in `scripts/quality_gate.py`
-- CI eval integration
+- `tests/test_run_eval.py`
+- `tests/test_eval_gate.py`
+
+The harness remains separate from `scripts/quality_gate.py`. CI eval integration
+is not installed. No eval report is generated unless `scripts/run_eval.py` is
+called with `--report`.
 
 ## Design Principles
 
@@ -39,7 +43,7 @@ No eval harness is implemented. The repository does not contain:
 - No live target access.
 - No release publication behavior.
 - No CI integration by default.
-- Separate owner approval before implementation.
+- Standalone first; promotion into `quality_gate.py` requires separate approval.
 
 ## Non-Goals
 
@@ -66,7 +70,7 @@ Planned checks:
 - output paths remain under the approved target root
 - output path order is deterministic and stable
 
-Candidate machine-readable fields:
+Implemented machine-readable fields:
 
 - eval id
 - target profile or base-template mode
@@ -89,7 +93,7 @@ Planned checks:
 - prohibited approval-free live-write language is absent
 - missing phrases are reported with document path and phrase id
 
-Candidate machine-readable fields:
+Implemented machine-readable fields:
 
 - eval id
 - document path
@@ -114,7 +118,7 @@ Planned checks:
 - no workflow files unless explicitly approved
 - no device or live-write artifacts
 
-Candidate machine-readable fields:
+Implemented machine-readable fields:
 
 - eval id
 - scan root
@@ -135,7 +139,7 @@ Planned checks:
 - report added, removed, or reordered planned outputs
 - keep content comparison optional and out of the minimal baseline
 
-Candidate machine-readable fields:
+Implemented machine-readable fields:
 
 - eval id
 - repeated input config path
@@ -144,21 +148,22 @@ Candidate machine-readable fields:
 - expected result
 - evidence notes
 
-## Proposed Future Files
+## Implemented Files
 
-These files are proposed for a future implementation task only. They are not
-created by this design step.
+These files are present in the minimal standalone implementation:
 
 - `evals/cases/render_structure.yml`
 - `evals/cases/policy_phrases.yml`
 - `evals/cases/forbidden_artifacts.yml`
-- `evals/golden/`
+- `evals/golden/render_structure_paths.txt`
 - `scripts/run_eval.py`
 - `scripts/gates/eval_gate.py`
+- `tests/test_run_eval.py`
+- `tests/test_eval_gate.py`
 
-## Proposed Future Output
+## Optional Output
 
-Future output, if implementation is approved:
+Optional output:
 
 - `artifacts/eval-report.json`
 
@@ -172,48 +177,39 @@ The report should be machine-readable and should record:
 - forbidden-content check result
 - unresolved risks
 
-The report path is proposed only. No `artifacts/` directory or eval report is
-created by this design step.
+The report is not written by default. It is produced only when `scripts/run_eval.py`
+is called with `--report`.
 
 ## Approval Rule
 
-Implementation requires separate explicit owner approval.
+Implementation of the minimal standalone runner is approved for this stage.
+Further expansion requires separate explicit owner approval.
 
 Approval must name the implementation surface, including whether the task may:
 
-- create `evals/`
-- create eval case files
-- create `evals/golden/`
-- create `scripts/run_eval.py`
-- create `scripts/gates/eval_gate.py`
 - modify `scripts/quality_gate.py`
 - generate `artifacts/eval-report.json`
 - add dependencies
 - integrate with CI
 
-Without that approval, eval work remains documentation-only.
+Without that approval, the eval harness remains standalone and local-only.
 
-## Stage 4 Boundary
+## Future Boundary
 
-The recommended Stage 4 boundary is an implementation approval decision, not an
-implementation by default.
+The recommended next boundary is a promotion decision, not automatic expansion.
 
-Before approving implementation, decide:
+Before approving any expansion, decide:
 
-- which candidate evals are required for the first local-only runner
-- whether all fixtures can stay synthetic
 - whether the runner remains separate from `quality_gate.py`
-- whether report generation writes to `artifacts/` or uses stdout only
+- whether report generation should become part of routine verification
 - whether failed evals are advisory or blocking
 - whether CI remains out of scope
 
 ## Safety Confirmation
 
-This design does not add:
+This implementation does not add:
 
-- eval code
-- eval fixtures
-- eval reports
+- eval reports by default
 - audit logging code
 - RAG tooling
 - CI workflows

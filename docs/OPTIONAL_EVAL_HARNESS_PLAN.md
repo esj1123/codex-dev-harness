@@ -8,30 +8,33 @@ This document is planning-only. It does not create `scripts/run_eval.py`, an `ev
 
 ## Current State
 
-Eval harness status: FUTURE OPTIONAL.
+Eval harness status: MINIMAL STANDALONE IMPLEMENTATION PRESENT.
 
-No eval harness is implemented in the `v0.1.0` baseline.
+No eval harness was implemented in the `v0.1.0` baseline. A minimal local-only
+standalone harness now exists after v0.1.0.
 
-Minimal local-only design status: DOCUMENTED ONLY.
+Minimal local-only implementation status: PRESENT.
 
-The design document is `docs/MINIMAL_EVAL_HARNESS_DESIGN.md`. It defines a
-future local-only, machine-readable eval harness direction without creating
-eval cases, fixtures, runner code, gate integration, reports, or CI.
+The design and implementation boundary are documented in
+`docs/MINIMAL_EVAL_HARNESS_DESIGN.md`. The implementation creates local
+machine-readable cases, a golden path list, a standalone runner, a standalone
+gate wrapper, and tests. It does not integrate with `scripts/quality_gate.py` or
+CI by default.
 
 ## Candidate Evals
 
 | eval | purpose | current state |
 |---|---|---|
-| render structure eval | Check expected files, forbidden extensions, approved output roots, and deterministic output path order | design only |
-| policy phrase eval | Check required safety phrases, approval boundary language, and NOT RUN honesty language | design only |
-| forbidden artifact eval | Check for generated code, workflows, live configs, secrets, and prohibited files such as solution/project artifacts | design only |
-| regression/determinism eval | Repeat the same input, compare expected output path lists, and detect drift | design only |
+| render structure eval | Check expected files, forbidden extensions, approved output roots, and deterministic output path order | implemented |
+| policy phrase eval | Check required safety phrases, approval boundary language, and NOT RUN honesty language | implemented |
+| forbidden artifact eval | Check for generated code, workflows, live configs, secrets, and prohibited files such as solution/project artifacts | implemented |
+| regression/determinism eval | Repeat the same input, compare expected output path lists, and detect drift | implemented |
 | downstream scaffold eval | Check whether downstream target docs remain design-only and source-index driven | planned only |
 | prompt/task contract eval | Check whether task prompts preserve no-touch zones and verification expectations | planned only |
 
 ## Proposed Future Files
 
-These paths are proposed for a separate future implementation task only:
+These paths exist in the minimal standalone implementation:
 
 - `evals/cases/render_structure.yml`
 - `evals/cases/policy_phrases.yml`
@@ -42,41 +45,38 @@ These paths are proposed for a separate future implementation task only:
 
 ## Proposed Future Output
 
-Future output, if implementation is separately approved:
+Optional output:
 
 - `artifacts/eval-report.json`
 
-No report or `artifacts/` directory is created by the current plan/design
-documents.
+No report or `artifacts/` directory is created by default. `scripts/run_eval.py`
+can write this report only when called with `--report`.
 
 ## Non-Goals
 
-- Do not implement eval code now.
-- Do not create `evals/`.
-- Do not create `scripts/run_eval.py`.
-- Do not create `scripts/gates/eval_gate.py`.
-- Do not create eval fixtures.
-- Do not generate eval reports.
+- Do not add external-service calls.
+- Do not add an LLM judge.
 - Do not add dependencies.
 - Do not add CI.
-- Do not convert eval planning into enforcement without approval.
+- Do not wire evals into `quality_gate.py` without approval.
+- Do not make evals release-blocking without approval.
 
 ## Approval Requirements
 
-Implementation requires explicit approval.
+Further expansion requires explicit approval.
 
 Before implementation, decide:
 
-- Which evals are required versus optional.
-- Whether eval fixtures can be fully synthetic.
-- How eval output should be recorded.
-- Whether evals run locally only.
+- Whether new evals are required versus optional.
+- Whether new fixture categories remain fully synthetic.
+- Whether eval output should stay console-only by default.
+- Whether evals remain local-only.
 - Whether evals become part of `quality_gate.py` or remain separate.
-- Whether `artifacts/eval-report.json` should be written or stdout-only output is enough.
+- Whether `artifacts/eval-report.json` should be written in routine verification.
 
 ## Recommendation
 
-Keep eval harness implementation deferred until the owner explicitly approves a
-Stage 4 implementation boundary. The safest next step is to review
-`docs/MINIMAL_EVAL_HARNESS_DESIGN.md` and decide which candidate evals, if any,
-are worth implementing as local-only checks.
+Keep `eval_gate.py` standalone until repeated local use proves it should become
+part of `scripts/quality_gate.py`. Treat quality-gate integration, CI
+integration, extra dependencies, report generation in routine checks, and
+release-blocking evals as separate approval decisions.

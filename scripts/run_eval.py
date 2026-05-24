@@ -1,0 +1,257 @@
+"""Run local-only non-LLM evals for codex-dev-harness.
+
+The eval case files use a JSON-compatible YAML subset so this runner can stay
+on the Python standard library.
+"""
+
+from __future__ import annotations
+
+import argparse
+from dataclasses import dataclass
+import fnmatch
+import json
+from pathlib import Path
+import re
+import sys
+from typing import Any
+
+
+sys.dont_write_bytecode = True
+
+try:
+    from render_template import iter_templates, load_config, template_destination
+except ModuleNotFoundError:
+    from scripts.render_template import iter_templates, load_config, template_destination
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+CASE_DIR = REPO_ROOT / "evals" / "cases"
+DEFAULT_CASES = [
+    "render_structure.yml",
+    "policy_phrases.yml",
+    "forbidden_artifacts.yml",
+]
+
+SECRET_PATTERNS = [
+    re.compile(r"-----BEGIN (?:RSA |OPENSSH |EC |DSA )?PRIVATE KEY-----"),
+    re.compile(r"(?i)\b(?:api[_-]?key|secret|token|password)\s*[:=]\s*['\"]?[A-Za-z0-9_./+=-]{16,}"),
+    re.compile(r"\bghp_[A-Za-z0-9]{20,}\b"),
+    re.compile(r"\bgithub_pat_[A-Za-z0-9_]{20,}\b"),
+    re.compile(r"\bsk-[A-Za-z0-9]{20,}\b"),
+    re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b"),
+]
+
+
+@dataclass(frozen=True)
+class EvalResult:
+    name: str
+    passed: bool
+    messages: list[str]
+
+
+@dataclass(frozen=True)
+class EvalSummary:
+    passed: bool
+    results: list[EvalResult]
+
+
+def relpath(path: Path, repo_root: Path) -> str:
+    return path.relative_to(repo_root).as_posix()
+
+
+def load_case(path: Path) -> dict[str, Any]:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"{path} must be JSON-compatible YAML: {exc}") from exc
+    if not isinstance(data, dict):
+        raise ValueError(f"{path} must contain a top-level object")
+    return data
+
+
+def planned_render_paths(repo_root: Path, config_path: Path, target: Path) -> list[str]:
+    config = load_config(config_path)
+    base_dir = repo_root / "templates" / "base"
+    profile_dir = repo_root / "profiles" / config.profile if config.profile else None
+    paths = [
+        relpath(template_destination(source, source_root, target), repo_root)
+        for source, source_root in iter_templates(base_dir, profile_dir)
+    ]
+    return paths
+
+
+def run_render_structure(repo_root: Path, case: dict[str, Any]) -> EvalResult:
+    findings: list[str] = []
+    all_planned: list[str] = []
+    forbidden_suffixes = {suffix.lower() for suffix in case.get("forbidden_suffixes", [])}
+
+    for example in case.get("examples", []):
+        name = example["name"]
+        config_path = repo_root / example["config"]
+        target = repo_root / example["target"]
+        expected = list(example.get("expected_files", []))
+
+        planned_once = planned_render_paths(repo_root, config_path, target)
+        planned_twice = planned_render_paths(repo_root, config_path, target)
+        all_planned.extend(planned_once)
+
+        if planned_once != planned_twice:
+            findings.append(f"{name}: render path order is not deterministic")
+        if planned_once != expected:
+            findings.append(f"{name}: planned output path list drifted")
+
+        for expected_path in expected:
+            if not (repo_root / expected_path).is_file():
+                findings.append(f"{name}: missing expected rendered doc: {expected_path}")
+
+        for path in sorted(target.rglob("*")):
+            if path.is_file() and path.suffix.lower() in forbidden_suffixes:
+                findings.append(f"{name}: forbidden generated file present: {relpath(path, repo_root)}")
+
+    golden = case.get("golden_paths_file")
+    if golden:
+        golden_path = repo_root / golden
+        if not golden_path.is_file():
+            findings.append(f"missing golden path list: {golden}")
+        else:
+            expected_golden = [line.strip() for line in golden_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            if all_planned != expected_golden:
+                findings.append("render path list differs from evals/golden/render_structure_paths.txt")
+
+    if findings:
+        return EvalResult("render_structure", False, findings)
+    return EvalResult("render_structure", True, [f"validated render path lists: {len(all_planned)}"])
+
+
+def run_policy_phrases(repo_root: Path, case: dict[str, Any]) -> EvalResult:
+    findings: list[str] = []
+
+    for check in case.get("checks", []):
+        relative = check["path"]
+        path = repo_root / relative
+        if not path.is_file():
+            findings.append(f"missing policy phrase target: {relative}")
+            continue
+        text = path.read_text(encoding="utf-8", errors="ignore").lower()
+        for phrase in check.get("phrases", []):
+            if phrase.lower() not in text:
+                findings.append(f"{relative}: missing phrase: {phrase}")
+
+    if findings:
+        return EvalResult("policy_phrases", False, findings)
+    return EvalResult("policy_phrases", True, [f"validated phrase targets: {len(case.get('checks', []))}"])
+
+
+def iter_repo_files(repo_root: Path, ignored_root_parts: set[str]) -> list[Path]:
+    files: list[Path] = []
+    for path in repo_root.rglob("*"):
+        relative_parts = path.relative_to(repo_root).parts
+        if relative_parts and relative_parts[0] in ignored_root_parts:
+            continue
+        if path.is_file():
+            files.append(path)
+    return files
+
+
+def matches_glob(relative: str, patterns: list[str]) -> bool:
+    return any(fnmatch.fnmatchcase(relative, pattern) for pattern in patterns)
+
+
+def run_forbidden_artifacts(repo_root: Path, case: dict[str, Any]) -> EvalResult:
+    findings: list[str] = []
+    ignored_root_parts = set(case.get("ignored_root_parts", []))
+    forbidden_globs = list(case.get("forbidden_path_globs", []))
+    forbidden_suffixes = {suffix.lower() for suffix in case.get("forbidden_suffixes", [])}
+    text_suffixes = {suffix.lower() for suffix in case.get("text_suffixes", [])}
+
+    for path in iter_repo_files(repo_root, ignored_root_parts):
+        relative = relpath(path, repo_root)
+        if matches_glob(relative, forbidden_globs):
+            findings.append(f"forbidden path pattern matched: {relative}")
+        if path.suffix.lower() in forbidden_suffixes:
+            findings.append(f"forbidden suffix matched: {relative}")
+        if path.suffix.lower() in text_suffixes or path.name.endswith(".template"):
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            for pattern in SECRET_PATTERNS:
+                if pattern.search(text):
+                    findings.append(f"secret/live-value pattern matched: {relative}")
+                    break
+
+    if findings:
+        return EvalResult("forbidden_artifacts", False, findings)
+    return EvalResult("forbidden_artifacts", True, ["no forbidden artifacts or obvious secret/live-value patterns found"])
+
+
+def run_case(repo_root: Path, case_path: Path) -> EvalResult:
+    case = load_case(case_path)
+    eval_name = case.get("eval")
+    if eval_name == "render_structure":
+        return run_render_structure(repo_root, case)
+    if eval_name == "policy_phrases":
+        return run_policy_phrases(repo_root, case)
+    if eval_name == "forbidden_artifacts":
+        return run_forbidden_artifacts(repo_root, case)
+    return EvalResult(str(eval_name or case_path.name), False, [f"unknown eval type: {eval_name or 'missing'}"])
+
+
+def run_all(repo_root: Path = REPO_ROOT, case_paths: list[Path] | None = None) -> EvalSummary:
+    repo_root = repo_root.resolve()
+    if case_paths is None:
+        case_paths = [repo_root / "evals" / "cases" / name for name in DEFAULT_CASES]
+    results = [run_case(repo_root, path) for path in case_paths]
+    return EvalSummary(all(result.passed for result in results), results)
+
+
+def summary_to_report(summary: EvalSummary) -> dict[str, Any]:
+    return {
+        "passed": summary.passed,
+        "results": [
+            {
+                "name": result.name,
+                "passed": result.passed,
+                "messages": result.messages,
+            }
+            for result in summary.results
+        ],
+    }
+
+
+def print_summary(summary: EvalSummary) -> None:
+    for result in summary.results:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"[{status}] {result.name}")
+        for message in result.messages:
+            print(f"  - {message}")
+    print("Local evals passed." if summary.passed else "Local evals failed.")
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Run local-only codex-dev-harness evals.")
+    parser.add_argument("--repo-root", default=str(REPO_ROOT), help="Repository root to check")
+    parser.add_argument("--case", action="append", default=None, help="Specific case file to run; may be repeated")
+    parser.add_argument("--report", default=None, help="Optional JSON report path, e.g. artifacts/eval-report.json")
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    repo_root = Path(args.repo_root).resolve()
+    case_paths = [Path(path).resolve() for path in args.case] if args.case else None
+
+    summary = run_all(repo_root, case_paths)
+    print_summary(summary)
+
+    if args.report:
+        report_path = Path(args.report)
+        if not report_path.is_absolute():
+            report_path = repo_root / report_path
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        report_path.write_text(json.dumps(summary_to_report(summary), indent=2) + "\n", encoding="utf-8")
+        print(f"Wrote eval report: {relpath(report_path.resolve(), repo_root)}")
+
+    return 0 if summary.passed else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

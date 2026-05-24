@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 Stage 3 minimal eval harness design.
+Post v0.1.0 Stage 4 minimal local eval harness implementation.
 
 ## Current State
 
@@ -70,7 +70,11 @@ The repository contains documentation, base templates, profile templates, render
 - Profile templates for `python_cli`, `csharp_desktop`, and `plc_or_device_tool`.
 - `scripts/render_template.py`.
 - `scripts/quality_gate.py`.
+- `scripts/run_eval.py`.
 - Gate modules under `scripts/gates/`.
+- Standalone eval gate wrapper: `scripts/gates/eval_gate.py`.
+- Minimal local eval cases under `evals/cases/`.
+- Eval golden path list under `evals/golden/`.
 - Example skeletons:
   - `examples/python_cli_minimal`
   - `examples/csharp_desktop_minimal`
@@ -79,7 +83,7 @@ The repository contains documentation, base templates, profile templates, render
 - Local verification wrapper: `scripts/run_local_verify.ps1`.
 - Optional GitHub Actions template: `templates/ci/github-actions-local-verify.yml.template`.
 - Reusable prompt contract templates under `prompts/task_contract/`.
-- Minimal local-only eval harness design: `docs/MINIMAL_EVAL_HARNESS_DESIGN.md`.
+- Minimal local-only eval harness design and implementation: `docs/MINIMAL_EVAL_HARNESS_DESIGN.md`, `scripts/run_eval.py`, `scripts/gates/eval_gate.py`, and `evals/cases/`.
 
 ## What Does Not Exist Yet
 
@@ -95,9 +99,9 @@ The repository contains documentation, base templates, profile templates, render
 - Optional design-stage pack gate integration.
 - Optional design-stage pack example integration.
 - Prompt execution automation.
-- Eval harness design is documented, but eval implementation is absent.
-- Minimal eval harness implementation.
-- Eval cases, fixtures, golden files, and reports.
+- Eval integration in `scripts/quality_gate.py`.
+- Eval CI integration.
+- Routine eval report generation.
 - Release verification wrapper: `scripts/run_release_verify.ps1`.
 - Release manifest artifact or schema.
 - Checksum artifacts.
@@ -161,8 +165,8 @@ Stage 0 current-main gap review basis:
 | post-v0.1.0 roadmap | PRESENT | `docs/POST_V0.1.0_ROADMAP.md` exists; planning only |
 | release page decision | DEFERRED | `docs/RELEASE_PAGE_DECISION.md` exists; GitHub Release page not created |
 | local package checklist | PRESENT | `docs/LOCAL_PACKAGE_CHECKLIST.md` exists; no package archive generated |
-| optional eval harness plan | PLANNED ONLY | `docs/OPTIONAL_EVAL_HARNESS_PLAN.md` exists; no eval harness implemented |
-| minimal local-only eval harness design | DESIGN ONLY | `docs/MINIMAL_EVAL_HARNESS_DESIGN.md` exists; no `evals/`, runner, gate, fixtures, report, or CI integration added |
+| optional eval harness plan | IMPLEMENTED MINIMAL STANDALONE | `docs/OPTIONAL_EVAL_HARNESS_PLAN.md` exists; minimal local-only runner is present |
+| minimal local-only eval harness | PRESENT | `docs/MINIMAL_EVAL_HARNESS_DESIGN.md`, `evals/cases/`, `evals/golden/`, `scripts/run_eval.py`, `scripts/gates/eval_gate.py`, and tests exist; no quality-gate or CI integration added |
 | known limitations refresh | PRESENT | `docs/KNOWN_LIMITATIONS.md` reflects current post-v0.1.0 limitations |
 | architecture release/record plane refresh | PRESENT | `docs/ARCHITECTURE.md` reflects formal v0.1.0 and post-v0.1.0 records |
 | architecture optional pack plane refresh | PRESENT | `docs/ARCHITECTURE.md` records optional design-stage pack as manual-use-only, not profile, and not base render |
@@ -196,7 +200,7 @@ Stage 0 current-main gap review basis:
 | optional CI release verify template | MISSING / OPTIONAL | No release verification CI template or workflow exists |
 | dedicated change control policy | PRESENT | `docs/CHANGE_CONTROL.md` |
 | dedicated human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md` |
-| dedicated eval policy | PRESENT | `docs/EVAL_POLICY.md`; eval implementation remains missing |
+| dedicated eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval implementation now exists |
 | audit log policy | PRESENT | `docs/AUDIT_LOG_POLICY.md`; audit log schema remains deferred |
 | Stage 1 policy docs gate coverage | PRESENT | `docs_gate` requires `CHANGE_CONTROL`, `HUMAN_APPROVALS`, `EVAL_POLICY`, and `AUDIT_LOG_POLICY` |
 | local staging verification compatibility | PRESENT | `pytest.ini` and `run_local_verify.ps1` scope pytest to `tests`; hygiene and secret-scan gates ignore root `local/` |
@@ -359,7 +363,7 @@ Stage 0 current-main gap review basis:
 | next priority | DOWNSTREAM FEEDBACK | Roadmap prioritizes downstream adoption feedback before automation |
 | release page decision | DEFERRED | `docs/RELEASE_PAGE_DECISION.md`; GitHub Release page not created |
 | local package checklist | PRESENT | `docs/LOCAL_PACKAGE_CHECKLIST.md`; no package archive generated |
-| optional eval harness | PLANNED ONLY | `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`; no eval code, `evals/`, or runner created |
+| optional eval harness | MINIMAL STANDALONE IMPLEMENTED | `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`; `scripts/run_eval.py`, `scripts/gates/eval_gate.py`, `evals/cases/`, and `evals/golden/` exist |
 | known limitations | REFRESHED | `docs/KNOWN_LIMITATIONS.md` no longer lists completed CI policy or release tagging guidance as future work |
 | architecture release/record plane | REFRESHED | `docs/ARCHITECTURE.md` lists current v0.1.0 and post-v0.1.0 evidence |
 | architecture optional pack plane | REFRESHED | Optional design-stage pack is documented as manual-use-only, not profile, and not base render |
@@ -376,14 +380,14 @@ Stage 0 current-main gap review basis:
 | optional design-stage operating docs | REFRESHED | Architecture, known limitations, and roadmap reflect the closed manual-use-only baseline |
 | lightweight governance docs | ADDED | `PROMPT_PATTERNS`, `BUG_REVIEW_TEMPLATE`, and `SIMPLIFICATION_CHECKLIST` are present; no implementation added |
 | prompt contract templates | ADDED | Four reusable Markdown prompt templates exist under `prompts/task_contract/`; they do not execute prompts or grant approval |
-| minimal eval harness design | ADDED | `docs/MINIMAL_EVAL_HARNESS_DESIGN.md` documents future local-only machine-readable evals; no implementation added |
+| minimal eval harness | IMPLEMENTED | Standalone non-LLM local eval runner, cases, golden path list, gate wrapper, and tests added |
 | Stage 1 change control policy | PRESENT | `docs/CHANGE_CONTROL.md`; documentation-only |
 | Stage 1 human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md`; documentation-only |
-| Stage 1 eval policy | PRESENT | `docs/EVAL_POLICY.md`; no eval code, fixtures, dependencies, or gate/CI integration |
+| Stage 1 eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval exists; no dependencies, quality-gate integration, or CI integration |
 | Stage 1 audit log policy | PRESENT | `docs/AUDIT_LOG_POLICY.md`; schema deferred unless explicitly approved |
 | Stage 1 docs gate alignment | PRESENT | `docs_gate` includes the four Stage 1 policy docs as required documentation |
 | local staging verification compatibility | PRESENT | `pytest.ini` and `scripts/run_local_verify.ps1` scope pytest to `tests`; hygiene and secret-scan gates ignore root `local/` |
-| Stage 3 implementation boundary | PRESERVED | No eval code, eval cases, fixtures, reports, manifest/checksum artifacts, SBOM/provenance artifacts, workflows, tags, releases, profiles, application code, C# source/project, PLC/device code, or live-write behavior added |
+| Stage 4 implementation boundary | PRESERVED | Minimal standalone eval code, cases, golden path list, gate wrapper, and tests added; no eval report generated by default, quality-gate integration, CI, manifest/checksum artifacts, SBOM/provenance artifacts, workflows, tags, releases, profiles, application code, C# source/project, PLC/device code, or live-write behavior added |
 | scenario simulator treatment | DOWNSTREAM CANDIDATE | Remains downstream candidate, not a built-in profile |
 
 ## Formal v0.1.0 GitHub Release Draft
@@ -432,9 +436,9 @@ Stage 0 current-main gap review basis:
 
 ## Next Recommended Step
 
-Review the minimal eval harness design and decide whether to explicitly approve
-a Stage 4 implementation boundary. Keep `evals/`, `scripts/run_eval.py`,
-`scripts/gates/eval_gate.py`, eval fixtures, eval reports,
-`audits/audit-log.schema.json`, release verification wrappers,
-manifest/checksum artifacts, SBOM/provenance, workflows, profiles, and
-application/device/live-write behavior deferred unless separately approved.
+Run `scripts/run_eval.py` as a standalone local check while it gathers usage
+evidence. Keep eval integration into `scripts/quality_gate.py`, CI integration,
+routine eval report generation, `audits/audit-log.schema.json`, release
+verification wrappers, manifest/checksum artifacts, SBOM/provenance, workflows,
+profiles, and application/device/live-write behavior deferred unless separately
+approved.

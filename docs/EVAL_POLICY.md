@@ -10,14 +10,18 @@ This policy is documentation-only. It does not implement an eval harness, create
 
 Eval planning is present in `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`.
 
-A minimal local-only eval harness design is documented in
-`docs/MINIMAL_EVAL_HARNESS_DESIGN.md`.
+A minimal local-only eval harness is documented in
+`docs/MINIMAL_EVAL_HARNESS_DESIGN.md` and implemented as a standalone local
+runner.
 
-Minimal eval harness implementation remains missing and deferred. There is no `evals/` directory, no `scripts/run_eval.py`, no grader implementation, and no eval integration in `scripts/quality_gate.py`.
+The current implementation includes `evals/cases/`, `evals/golden/`,
+`scripts/run_eval.py`, `scripts/gates/eval_gate.py`, and tests. It remains
+standalone: there is no eval integration in `scripts/quality_gate.py`, no CI
+integration, no external service call, and no LLM judge.
 
 ## Eval Principles
 
-Future evals should be:
+Eval work should be:
 
 - optional until explicitly promoted
 - local-first
@@ -56,12 +60,9 @@ Eval fixtures and records must not include:
 
 Separate explicit owner approval is required before:
 
-- creating `evals/`
-- creating `scripts/run_eval.py`
-- creating `scripts/gates/eval_gate.py`
-- adding eval fixtures
+- adding new eval fixture categories beyond the current synthetic/repo-internal cases
 - adding grader code
-- generating eval reports
+- making eval report generation part of routine verification
 - adding dependencies
 - wiring evals into `quality_gate.py`
 - adding evals to CI
@@ -83,10 +84,11 @@ Future eval output should record:
 
 A dedicated machine-readable eval output format is deferred until implementation is approved.
 
-The currently proposed future output path is `artifacts/eval-report.json`, as
-documented in `docs/MINIMAL_EVAL_HARNESS_DESIGN.md`. That output path is not
-created unless a separate implementation task is approved.
+The optional output path is `artifacts/eval-report.json`, as documented in
+`docs/MINIMAL_EVAL_HARNESS_DESIGN.md`. That output path is not created by
+default; it is produced only when `scripts/run_eval.py` is called with
+`--report`.
 
 ## Non-Goals
 
-This policy does not add eval code, eval fixtures, eval reports, release verification code, CI workflows, manifest artifacts, SBOM/provenance artifacts, profiles, examples, application code, C# project assets, PLC/device code, or live-write behavior.
+This policy does not add release verification code, CI workflows, manifest artifacts, SBOM/provenance artifacts, profiles, examples, application code, C# project assets, PLC/device code, or live-write behavior.
