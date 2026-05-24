@@ -57,6 +57,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Optional design-stage pack usage guide: `docs/OPTIONAL_DESIGN_STAGE_PACK_USAGE.md`
 - Optional design-stage pack review: `docs/OPTIONAL_DESIGN_STAGE_PACK_REVIEW.md`
 - Optional design-stage manual feedback 001: `docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_001.md`
+- Optional design-stage manual feedback 002: `docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_002.md`
 - Optional design-stage template pack: `templates/optional/design_stage/`
 - Post v0.1.0 roadmap: `docs/POST_V0.1.0_ROADMAP.md`
 - Release page decision: `docs/RELEASE_PAGE_DECISION.md`
@@ -111,6 +112,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Optional design-stage pack review record: DOCUMENTED; manual-use-only remains recommended.
 - Optional design-stage usage guide refinements: DOCUMENTED with mapping, skip/merge/review-only guidance, and manual scan examples.
 - Optional design-stage manual feedback 001: DOCUMENTED from read-only downstream target review.
+- Optional design-stage manual feedback 002: DOCUMENTED from downstream manual use of acceptance evidence and open-question templates.
 - Optional design-stage render/gate/example integration: DEFERRED.
 - Template extension policy: UPDATED with downstream feedback promotion criteria and profile-as-last-resort guidance.
 
@@ -133,8 +135,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Review whether the experimental optional design-stage template files are sufficient before approving integration work.
 - Optional design-stage pack decision: APPROVED FOR TEMPLATE FILES ONLY.
 - Review whether the optional design-stage manual usage guide is sufficient before approving integration work.
-- Collect at least one more optional design-stage manual-use feedback cycle before integration work.
-- Use the refined optional design-stage usage guide to collect feedback before deciding on integration.
+- Review optional design-stage manual feedback 001 and 002 before deciding whether to refresh the review record.
 - Decide whether to collect another manual-use feedback cycle or explicitly approve integration work.
 - Decide a post-v0.1.0 improvement plan.
 - Post-v0.1.0 improvement plan: DOCUMENTED.
@@ -180,6 +181,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Optional design-stage pack review record was documented.
 - Optional design-stage usage guide was refined without adding integration.
 - Optional design-stage manual feedback 001 was documented without downstream target modification.
+- Optional design-stage manual feedback 002 was documented from downstream manual use without adding integration.
 - No optional design-stage pack render, gate, or example integration was added.
 - Scenario simulator design was tested only as a downstream candidate.
 - Regression examples include the extended base docs.

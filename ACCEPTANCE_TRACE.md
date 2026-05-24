@@ -118,6 +118,9 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 | AT-097 | current | governance_audit | optional design-stage manual feedback 001 is documented | Feedback record exists | docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_001.md | PASS | Refined usage guide exercised against downstream target read-only |
 | AT-098 | current | side_effect_contract | manual feedback preserves no-integration boundary | Feedback record keeps render, gate, and example integration deferred | docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_001.md | PASS | No downstream target modification or integration work |
 | AT-099 | current | product_contract | ACCEPTANCE_EVIDENCE_PLAN and OPEN_QUESTIONS remain future manual-use candidates | Feedback record identifies both as next downstream manual-use candidates | docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_001.md | PASS | No optional pack integration approved |
+| AT-100 | current | governance_audit | optional design-stage manual feedback 002 is documented | Feedback record exists | docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_002.md | PASS | Downstream manual use of acceptance evidence and open-question templates captured at template level |
+| AT-101 | current | product_contract | ACCEPTANCE_EVIDENCE_PLAN and OPEN_QUESTIONS received downstream manual-use evidence | Feedback record documents downstream results for both templates | docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_002.md | PASS | Both templates are PASS for manual-use-only design-stage work |
+| AT-102 | current | side_effect_contract | no integration added during feedback capture | Feedback and status documents keep render, gate, and example integration deferred | docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_002.md, STATUS.md | PASS | No render_template.py, quality gate, example, workflow, eval, profile, or runtime work added |
 
 ## Status Values
 
