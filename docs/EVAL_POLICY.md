@@ -89,6 +89,10 @@ The optional output path is `artifacts/eval-report.json`, as documented in
 default; it is produced only when `scripts/run_eval.py` is called with
 `--report`.
 
+The `--report` value must be a repo-internal relative path. Absolute paths and
+parent traversal with `..` are rejected so local eval evidence cannot be written
+outside the repository by the report option.
+
 ## Non-Goals
 
 This policy does not add release verification code, CI workflows, manifest artifacts, SBOM/provenance artifacts, profiles, examples, application code, C# project assets, PLC/device code, or live-write behavior.
