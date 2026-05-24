@@ -13,6 +13,7 @@ This policy applies to durable repository changes, including:
 - root contract documents
 - policy and evidence documents under `docs/`
 - templates and optional packs
+- reusable prompt contract templates
 - profile folders
 - examples
 - tests and quality gates
@@ -25,6 +26,7 @@ Downstream project content remains downstream-only unless a separate approved ta
 | class | examples | default path |
 |---|---|---|
 | documentation-only | policy docs, review records, checklists | safe when requested and scoped |
+| prompt contract template | reusable prompt Markdown under `prompts/task_contract/` | safe when requested, scoped, and non-executing |
 | template surface | base templates, optional templates | approval-gated when adding durable surface |
 | validation surface | tests, gates, verification wrappers | separate implementation task |
 | profile or example | new profile, new regression example | owner approval required |
@@ -59,6 +61,7 @@ Separate explicit owner approval is required before:
 - adding or changing profiles
 - adding examples
 - integrating optional packs into render, gates, or examples
+- converting prompt contract templates into automation
 - installing `.github/workflows`
 - publishing GitHub Releases
 - creating, moving, or signing tags

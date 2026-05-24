@@ -6,6 +6,27 @@ Provide reusable prompt patterns for Codex work requests as clear task contracts
 
 These patterns are documentation-only. They do not execute tasks, grant side-effect approval, create runtime code, or bypass project safety policies.
 
+## Reusable Prompt Template Files
+
+Use these files as copy-ready prompt contracts when a task needs more structure
+than the short patterns below:
+
+| template | use when |
+|---|---|
+| `prompts/task_contract/task_contract.md` | requesting scoped implementation, documentation, review, or verification work |
+| `prompts/task_contract/critic_review.md` | requesting review-only correctness, safety, scope, and evidence review |
+| `prompts/task_contract/verification_closeout.md` | recording changed files, commands, evidence, safety checks, risks, and next step |
+| `prompts/task_contract/release_summary.md` | summarizing release state without creating tags, moving tags, publishing, or generating artifacts |
+
+These prompt templates do not grant approval by themselves.
+
+Write/apply actions still require human approval when they cross side-effect
+boundaries such as deletion, moving files, external sends, dependency or
+environment mutation, workflow installation, release publication, manifest,
+checksum, SBOM, provenance, eval harness implementation, audit logging
+implementation, RAG implementation, application code, device code, or live-write
+behavior.
+
 ## Basic Task Contract Structure
 
 A well-scoped Codex task should state:
@@ -17,6 +38,7 @@ A well-scoped Codex task should state:
 - forbidden files or actions
 - verification commands
 - completion report format
+- side-effect approval boundary
 
 ## Pattern: Implementation Task
 
@@ -45,7 +67,8 @@ Completion report:
 1. changed files
 2. behavior summary
 3. verification result
-4. known risks
+4. safety checks
+5. known risks
 ```
 
 ## Pattern: Review-Only Task
@@ -181,3 +204,5 @@ Do not include:
 - Verification commands are listed.
 - Completion report format is specified.
 - Side effects require explicit approval.
+- Prompt templates do not authorize side effects; they only make the requested
+  boundary easier to review.
