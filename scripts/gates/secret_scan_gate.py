@@ -22,6 +22,10 @@ IGNORED_PATH_PARTS = {
     ".pytest_cache",
 }
 
+ROOT_IGNORED_PATH_PARTS = {
+    "local",
+}
+
 SECRET_PATTERNS = [
     re.compile(r"-----BEGIN (?:RSA |OPENSSH |EC |DSA )?PRIVATE KEY-----"),
     re.compile(r"(?i)\b(?:api[_-]?key|secret|token|password)\s*[:=]\s*['\"]?[A-Za-z0-9_./+=-]{16,}"),
@@ -49,6 +53,8 @@ def iter_text_files(repo_root: Path) -> list[Path]:
     files: list[Path] = []
     for path in repo_root.rglob("*"):
         relative_parts = path.relative_to(repo_root).parts
+        if relative_parts and relative_parts[0] in ROOT_IGNORED_PATH_PARTS:
+            continue
         if any(part in IGNORED_PATH_PARTS for part in relative_parts) or not path.is_file():
             continue
         if is_text_candidate(path):

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from scripts.gates import docs_gate, example_gate, example_render_drift_gate, secret_scan_gate, template_schema_gate
+from scripts.gates import docs_gate, example_gate, example_render_drift_gate, repo_hygiene_gate, secret_scan_gate, template_schema_gate
 from scripts.quality_gate import run_quality_gate
 
 
@@ -82,6 +82,40 @@ def test_secret_scan_gate_detects_private_key(tmp_path: Path) -> None:
 
     assert result.passed is False
     assert "README.md" in result.messages[0]
+
+
+def test_secret_scan_gate_ignores_local_workspace(tmp_path: Path) -> None:
+    write(tmp_path / "local" / "scratch.md", "-----BEGIN " + "PRIVATE KEY-----\n")
+
+    result = secret_scan_gate.run(tmp_path)
+
+    assert result.passed is True
+
+
+def test_secret_scan_gate_checks_nested_local_named_folders(tmp_path: Path) -> None:
+    write(tmp_path / "docs" / "local" / "scratch.md", "-----BEGIN " + "PRIVATE KEY-----\n")
+
+    result = secret_scan_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert any("docs" in message and "local" in message for message in result.messages)
+
+
+def test_repo_hygiene_gate_ignores_local_workspace(tmp_path: Path) -> None:
+    write(tmp_path / "local" / "scratch.pyc", "")
+
+    result = repo_hygiene_gate.run(tmp_path)
+
+    assert result.passed is True
+
+
+def test_repo_hygiene_gate_checks_nested_local_named_folders(tmp_path: Path) -> None:
+    write(tmp_path / "docs" / "local" / "scratch.pyc", "")
+
+    result = repo_hygiene_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert any("docs" in message and "local" in message for message in result.messages)
 
 
 def test_example_gate_requires_profile_phrases(tmp_path: Path) -> None:

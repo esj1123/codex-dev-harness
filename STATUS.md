@@ -129,10 +129,10 @@ Stage 0 current-main gap review basis:
 
 | check | status | evidence |
 |---|---|---|
-| `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1` | PASS | pytest 17 passed, quality gate passed, and 3 render dry-runs passed |
-| `python -m pytest` | PASS | 17 passed through the local Python runtime used by the verification wrapper |
+| `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1` | PASS | pytest 21 passed with `tests` as the explicit collection target, quality gate passed, and 3 render dry-runs passed |
+| `python -m pytest` | PASS | 21 passed through the local Python runtime used by the verification wrapper |
 | `python scripts/quality_gate.py` | ENVIRONMENT BLOCKED | Bare `python.exe` failed in this Codex desktop shell |
-| local Python runtime `scripts/quality_gate.py` | PASS | docs, hygiene, schema, examples, render drift, and secret scan passed |
+| local Python runtime `scripts/quality_gate.py` | PASS | docs, hygiene, schema, examples, render drift, and secret scan passed; docs gate now requires 64 documents including Stage 1 policy docs |
 | python_cli render dry-run | PASS | `examples/python_cli_minimal` dry-run succeeded |
 | csharp_desktop render dry-run | PASS | `examples/csharp_desktop_minimal` dry-run succeeded |
 | plc_tool render dry-run | PASS | `examples/plc_tool_minimal` dry-run succeeded |
@@ -190,6 +190,8 @@ Stage 0 current-main gap review basis:
 | dedicated human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md` |
 | dedicated eval policy | PRESENT | `docs/EVAL_POLICY.md`; eval implementation remains missing |
 | audit log policy | PRESENT | `docs/AUDIT_LOG_POLICY.md`; audit log schema remains deferred |
+| Stage 1 policy docs gate coverage | PRESENT | `docs_gate` requires `CHANGE_CONTROL`, `HUMAN_APPROVALS`, `EVAL_POLICY`, and `AUDIT_LOG_POLICY` |
+| local staging verification compatibility | PRESENT | `pytest.ini` and `run_local_verify.ps1` scope pytest to `tests`; hygiene and secret-scan gates ignore root `local/` |
 | existing governance docs not recreated | CONFIRMED | `PROMPT_PATTERNS`, `BUG_REVIEW_TEMPLATE`, `SIMPLIFICATION_CHECKLIST`, `LOCAL_PACKAGE_CHECKLIST`, and `OPTIONAL_EVAL_HARNESS_PLAN` were preserved |
 
 ## Clean Clone Validation
@@ -369,6 +371,8 @@ Stage 0 current-main gap review basis:
 | Stage 1 human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md`; documentation-only |
 | Stage 1 eval policy | PRESENT | `docs/EVAL_POLICY.md`; no eval code, fixtures, dependencies, or gate/CI integration |
 | Stage 1 audit log policy | PRESENT | `docs/AUDIT_LOG_POLICY.md`; schema deferred unless explicitly approved |
+| Stage 1 docs gate alignment | PRESENT | `docs_gate` includes the four Stage 1 policy docs as required documentation |
+| local staging verification compatibility | PRESENT | `pytest.ini` and `scripts/run_local_verify.ps1` scope pytest to `tests`; hygiene and secret-scan gates ignore root `local/` |
 | Stage 1 implementation boundary | PRESERVED | No eval code, manifest/checksum artifacts, SBOM/provenance artifacts, workflows, tags, releases, profiles, application code, C# source/project, PLC/device code, or live-write behavior added |
 | scenario simulator treatment | DOWNSTREAM CANDIDATE | Remains downstream candidate, not a built-in profile |
 

@@ -12,6 +12,10 @@ IGNORED_PATH_PARTS = {
     ".pytest_cache",
 }
 
+ROOT_IGNORED_PATH_PARTS = {
+    "local",
+}
+
 PROHIBITED_PATH_PARTS = {
     ".env",
     ".venv",
@@ -37,6 +41,8 @@ def iter_repo_files(repo_root: Path) -> list[Path]:
     files: list[Path] = []
     for path in repo_root.rglob("*"):
         relative_parts = path.relative_to(repo_root).parts
+        if relative_parts and relative_parts[0] in ROOT_IGNORED_PATH_PARTS:
+            continue
         if any(part in IGNORED_PATH_PARTS for part in relative_parts):
             continue
         if path.is_file():
