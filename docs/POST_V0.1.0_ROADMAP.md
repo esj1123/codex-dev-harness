@@ -26,15 +26,23 @@ The first lightweight governance docs are present:
 - `docs/BUG_REVIEW_TEMPLATE.md`
 - `docs/SIMPLIFICATION_CHECKLIST.md`
 
+The minimal local-only eval harness design is present:
+
+- `docs/MINIMAL_EVAL_HARNESS_DESIGN.md`
+
+This is a design record only. It does not implement an eval runner, cases,
+fixtures, reports, gate integration, or CI.
+
 ## Optional Improvement Sequence
 
 1. Release page decision.
 2. Local package checklist.
 3. Lightweight governance docs.
-4. Eval harness plan.
-5. Release manifest/checksum.
-6. SBOM/provenance.
-7. Optional CI actualization.
+4. Eval harness plan and design.
+5. Stage 4 eval implementation approval decision.
+6. Release manifest/checksum.
+7. SBOM/provenance.
+8. Optional CI actualization.
 
 Each item is optional and should remain approval-gated. Planning a future capability does not authorize implementing it.
 
@@ -64,6 +72,25 @@ Status: PRESENT.
 
 These documents support better task contracts, evidence-based bug review, and restraint before adding new repo surface. They do not add code, gates, examples, eval harnesses, workflows, profiles, or runtime behavior.
 
+## Minimal Eval Harness Design
+
+Status: DESIGN ONLY.
+
+`docs/MINIMAL_EVAL_HARNESS_DESIGN.md` defines a future local-only eval harness
+for machine-readable verification of template safety and regression behavior.
+
+The design covers:
+
+- render structure eval
+- policy phrase eval
+- forbidden artifact eval
+- regression/determinism eval
+
+Implementation remains deferred. Future implementation requires separate owner
+approval before creating `evals/`, `scripts/run_eval.py`,
+`scripts/gates/eval_gate.py`, eval fixtures, eval reports, dependencies, quality
+gate integration, or CI integration.
+
 ## Profile Policy
 
 Do not add profiles casually.
@@ -80,6 +107,8 @@ The base template surfaces, especially `SOURCE_INDEX`, `PROJECT_BOUNDARY`, `DATA
 
 - Do not implement an eval harness in this step.
 - Do not create `evals/` or `scripts/run_eval.py`.
+- Do not create `scripts/gates/eval_gate.py`.
+- Do not create eval fixtures or eval reports.
 - Do not create SBOM/provenance artifacts.
 - Do not install GitHub Actions workflows.
 - Do not add a new profile.
@@ -90,4 +119,8 @@ The base template surfaces, especially `SOURCE_INDEX`, `PROJECT_BOUNDARY`, `DATA
 
 ## Next Review
 
-Review downstream adoption feedback and use the lightweight governance docs before deciding whether release page publication, local packaging, audit log planning, eval harness work, SBOM/provenance, CI, or any optional design-stage integration adds enough value to justify a follow-up task.
+Review downstream adoption feedback, the lightweight governance docs, and the
+minimal eval harness design before deciding whether Stage 4 eval implementation,
+release page publication, local packaging, audit log planning, SBOM/provenance,
+CI, or any optional design-stage integration adds enough value to justify a
+follow-up task.
