@@ -14,8 +14,10 @@ Record known limitations for the current codex-dev-harness baseline after the fo
 - Python CLI examples do not implement a CLI command.
 - C# desktop examples do not include solution files, project files, source files, or build/test/smoke scripts.
 - PLC/device examples do not include polling, connection, tag maps, control actions, or live device write support.
-- Eval harness work is planning-only; no eval runner, eval directory, grader, or fixture implementation exists.
+- The eval harness is minimal and standalone; it is not wired into `quality_gate.py`, CI, or release blocking.
 - GitHub Actions workflow is not installed.
+- Release bundle and manifest policies exist, but no generator or artifact exists.
+- Release manifests and checksum files are not generated.
 - SBOM and provenance artifacts are not implemented.
 - Optional design-stage pack is manual-use-only.
 - Optional design-stage pack has no render integration.
@@ -32,7 +34,8 @@ Record known limitations for the current codex-dev-harness baseline after the fo
 ## Candidate Future Work
 
 - Implement an eval harness only after explicit approval and concrete downstream failure modes.
-- Add release manifest/checksum documentation or artifacts if local package distribution needs them.
+- Implement release manifest/checksum generation only after explicit approval.
+- Implement release bundle generation only after explicit approval.
 - Add SBOM/provenance only if a distribution or compliance need appears.
 - Actualize optional CI only if local-first verification is no longer enough.
 - Split `docs_gate` into baseline, release-record, and optional-document groups if the required-doc list becomes too release-specific.
@@ -44,7 +47,8 @@ Record known limitations for the current codex-dev-harness baseline after the fo
 ## Non-Goals
 
 - Do not add a GitHub Actions workflow as part of this limitation refresh.
-- Do not implement an eval harness as part of this limitation refresh.
+- Do not expand or integrate the eval harness as part of this limitation refresh.
+- Do not generate release bundles, manifests, checksums, or release archives as part of this limitation refresh.
 - Do not create SBOM/provenance artifacts as part of this limitation refresh.
 - Do not add a new profile or downstream application implementation as part of this limitation refresh.
 - Do not implement optional design-stage render, gate, or example integration as part of this limitation refresh.

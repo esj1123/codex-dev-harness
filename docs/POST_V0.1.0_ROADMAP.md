@@ -38,6 +38,15 @@ This is a standalone local implementation. It does not use an LLM judge, call
 external services, install CI, generate reports by default, or join
 `scripts/quality_gate.py`.
 
+Release bundle and manifest policy is present:
+
+- `docs/RELEASE_BUNDLE_POLICY.md`
+- `docs/RELEASE_MANIFEST_POLICY.md`
+
+These policies define future machine-readable release evidence boundaries. They
+do not add generators, artifacts, archives, tags, release publication, SBOM,
+provenance, or CI workflows.
+
 ## Optional Improvement Sequence
 
 1. Release page decision.
@@ -45,9 +54,10 @@ external services, install CI, generate reports by default, or join
 3. Lightweight governance docs.
 4. Eval harness plan and design.
 5. Minimal standalone eval harness implementation.
-6. Release manifest/checksum.
-7. SBOM/provenance.
-8. Optional CI actualization.
+6. Release bundle and manifest policy.
+7. Release manifest/checksum generator, if separately approved.
+8. SBOM/provenance.
+9. Optional CI actualization.
 
 Each item is optional and should remain approval-gated. Planning a future capability does not authorize implementing it.
 
@@ -96,6 +106,23 @@ before adding external services, an LLM judge, extra dependencies, routine eval
 report generation, `scripts/quality_gate.py` integration, release-blocking evals,
 or CI integration.
 
+## Release Bundle And Manifest Policy
+
+Status: DOCUMENTATION POLICY PRESENT.
+
+`docs/RELEASE_BUNDLE_POLICY.md` defines future bundle components such as
+`release-manifest.json`, `checksums.sha256`, optional eval reports, optional
+SBOM/provenance files, human-readable closeout, and optional redacted audit
+sessions.
+
+`docs/RELEASE_MANIFEST_POLICY.md` defines future manifest fields including
+repository basis, Python version, included roots, excluded patterns,
+verification commands, quality gates, optional eval summary, example render
+dry-runs, and per-file size/SHA-256 records.
+
+No release bundle generator, manifest artifact, checksum file, SBOM,
+provenance, release archive, CI workflow, tag, or GitHub Release is created.
+
 ## Profile Policy
 
 Do not add profiles casually.
@@ -115,6 +142,7 @@ The base template surfaces, especially `SOURCE_INDEX`, `PROJECT_BOUNDARY`, `DATA
 - Do not make evals release-blocking without approval.
 - Do not wire evals into `scripts/quality_gate.py` without approval.
 - Do not generate eval reports by default.
+- Do not generate release manifests, checksums, release bundles, or release archives without approval.
 - Do not create SBOM/provenance artifacts.
 - Do not install GitHub Actions workflows.
 - Do not add a new profile.
@@ -127,6 +155,6 @@ The base template surfaces, especially `SOURCE_INDEX`, `PROJECT_BOUNDARY`, `DATA
 
 Review downstream adoption feedback, the lightweight governance docs, and the
 standalone eval harness before deciding whether quality-gate integration,
-release page publication, local packaging, audit log planning, SBOM/provenance,
-CI, or any optional design-stage integration adds enough value to justify a
-follow-up task.
+release page publication, local packaging, release bundle generation, audit log
+generation, SBOM/provenance, CI, or any optional design-stage integration adds
+enough value to justify a follow-up task.

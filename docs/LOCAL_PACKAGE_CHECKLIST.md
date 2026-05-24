@@ -6,6 +6,10 @@ Define a local package boundary for using codex-dev-harness after `v0.1.0`.
 
 This checklist is documentation-only. It does not build a package or write a release archive.
 
+Machine-readable release bundle and manifest policy is documented in
+`docs/RELEASE_BUNDLE_POLICY.md` and `docs/RELEASE_MANIFEST_POLICY.md`. Those
+policies do not implement generators or create release artifacts.
+
 ## Included Files
 
 Include:
@@ -19,6 +23,9 @@ Include:
 - `tests/`.
 - `requirements-dev.txt`.
 - `template.config.example.yml`.
+
+Future machine-readable release evidence may be included only after separate
+approval and should follow `docs/RELEASE_BUNDLE_POLICY.md`.
 
 ## Excluded Files
 
@@ -35,6 +42,9 @@ Exclude:
 - Downstream generated target output.
 - Temporary local adoption targets.
 - Clean clone validation working folders.
+- Generated release manifests, checksums, SBOMs, provenance, audit sessions,
+  eval reports, and release archives unless a separate release bundle task
+  explicitly approves them.
 
 ## Local Verification Before Packaging
 
@@ -61,3 +71,8 @@ Packaging should not proceed if docs, hygiene, template schema, examples, render
 ## Notes
 
 The local package should preserve the local-first baseline. It should not become a distribution vehicle for downstream target output or sensitive source material.
+
+Release bundle components such as `release-manifest.json`, `checksums.sha256`,
+`sbom.spdx.json`, `sbom.cdx.json`, `provenance.intoto.jsonl`, and
+`audit/session-*.jsonl` remain future optional artifacts. They are not generated
+by this checklist.

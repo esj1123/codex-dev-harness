@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 audit log schema and policy boundary.
+Post v0.1.0 release bundle and manifest policy boundary.
 
 ## Current State
 
@@ -42,6 +42,8 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/POST_V0.1.0_ROADMAP.md`
   - `docs/RELEASE_PAGE_DECISION.md`
   - `docs/LOCAL_PACKAGE_CHECKLIST.md`
+  - `docs/RELEASE_BUNDLE_POLICY.md`
+  - `docs/RELEASE_MANIFEST_POLICY.md`
   - `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`
   - `docs/MINIMAL_EVAL_HARNESS_DESIGN.md`
   - `docs/CHANGE_CONTROL.md`
@@ -106,8 +108,9 @@ The repository contains documentation, base templates, profile templates, render
 - Real audit session logs.
 - Audit logging automation.
 - Audit log validator or `quality_gate.py` integration.
+- Release bundle generator.
 - Release verification wrapper: `scripts/run_release_verify.ps1`.
-- Release manifest artifact or schema.
+- Release manifest artifact.
 - Checksum artifacts.
 - SBOM or provenance artifacts.
 - Optional CI release verification template.
@@ -197,10 +200,12 @@ Stage 0 current-main gap review basis:
 | formal v0.1.0 criteria | SATISFIED | `docs/FORMAL_V0.1.0_CRITERIA.md` exists; formal tag created |
 | optional GitHub Actions guide | PRESENT | guide and template exist, but no workflow is installed |
 | Stage 0 current-main gap review basis | RECORDED | `origin/main` at `7add760e89b84106679461948e9db58223900e33`, checked `2026-05-24T15:45:55.4078343+09:00` |
-| release manifest artifact/schema | MISSING | No dedicated manifest artifact or schema exists |
+| release manifest artifact/generator | MISSING | Policy exists; no dedicated manifest artifact, generator, or schema artifact exists |
 | release evidence foundation | PARTIAL | Release records, clean clone validation, local package checklist, and release drafts exist |
 | optional CI local verify template | DONE | `templates/ci/github-actions-local-verify.yml.template` exists and no workflow is installed |
 | optional CI release verify template | MISSING / OPTIONAL | No release verification CI template or workflow exists |
+| release bundle policy | PRESENT | `docs/RELEASE_BUNDLE_POLICY.md`; documentation-only, no artifacts generated |
+| release manifest policy | PRESENT | `docs/RELEASE_MANIFEST_POLICY.md`; documentation-only, no manifest or checksum generated |
 | dedicated change control policy | PRESENT | `docs/CHANGE_CONTROL.md` |
 | dedicated human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md` |
 | dedicated eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval implementation now exists |
@@ -384,6 +389,8 @@ Stage 0 current-main gap review basis:
 | lightweight governance docs | ADDED | `PROMPT_PATTERNS`, `BUG_REVIEW_TEMPLATE`, and `SIMPLIFICATION_CHECKLIST` are present; no implementation added |
 | prompt contract templates | ADDED | Four reusable Markdown prompt templates exist under `prompts/task_contract/`; they do not execute prompts or grant approval |
 | minimal eval harness | IMPLEMENTED | Standalone non-LLM local eval runner, cases, golden path list, gate wrapper, and tests added |
+| release bundle policy | PRESENT | `docs/RELEASE_BUNDLE_POLICY.md`; defines future release evidence components without generators |
+| release manifest policy | PRESENT | `docs/RELEASE_MANIFEST_POLICY.md`; defines future manifest fields and checksum rules without artifacts |
 | Stage 1 change control policy | PRESENT | `docs/CHANGE_CONTROL.md`; documentation-only |
 | Stage 1 human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md`; documentation-only |
 | Stage 1 eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval exists; no dependencies, quality-gate integration, or CI integration |
@@ -442,6 +449,6 @@ Stage 0 current-main gap review basis:
 Run `scripts/run_eval.py` as a standalone local check while it gathers usage
 evidence. Keep eval integration into `scripts/quality_gate.py`, CI integration,
 routine eval report generation, real audit session log generation, audit logging
-automation, release verification wrappers, manifest/checksum artifacts,
-SBOM/provenance, workflows, profiles, and application/device/live-write behavior
-deferred unless separately approved.
+automation, release bundle generation, release verification wrappers,
+manifest/checksum artifacts, SBOM/provenance, workflows, profiles, and
+application/device/live-write behavior deferred unless separately approved.
