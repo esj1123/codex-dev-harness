@@ -2,16 +2,17 @@
 
 ## Purpose
 
-Define a future machine-readable `release-manifest.json` contract for
-codex-dev-harness release evidence without implementing a manifest generator.
+Define the machine-readable `release-manifest.json` contract for
+codex-dev-harness release evidence.
 
-The manifest is a future optional artifact. This policy does not create the
-artifact, validate it, add scripts, install workflows, publish releases, or move
-tags.
+The repository includes a local-only manifest generator at
+`scripts/generate_manifest.py`. The generator writes a manifest only when run
+explicitly. It does not install workflows, publish releases, move tags, call
+external services, or generate SBOM/provenance artifacts.
 
 ## Manifest Fields
 
-A future `release-manifest.json` should include:
+`release-manifest.json` includes:
 
 - `schema_version`
 - `generated_at_utc`
@@ -80,7 +81,7 @@ The manifest should avoid self-reference problems:
 
 ## Determinism
 
-Future manifest generation should use deterministic ordering for:
+Manifest generation uses deterministic ordering for:
 
 - included roots
 - excluded patterns
@@ -112,19 +113,19 @@ The manifest must record exclusions for:
 
 ## Approval Boundary
 
-Generating `release-manifest.json`, `checksums.txt`,
-`checksums.sha256`, SBOM files, provenance files, eval reports, audit session
-logs, release archives, or GitHub Releases requires separate explicit owner
-approval.
+Generating `release-manifest.json` and `checksums.sha256` is approved only for
+the local generator task that explicitly names those outputs. Generating SBOM
+files, provenance files, eval reports beyond existing standalone eval behavior,
+audit session logs, release archives, or GitHub Releases requires separate
+explicit owner approval.
 
-This policy does not authorize generator scripts or artifact creation.
+This policy does not authorize CI integration, tag creation or movement, release
+publication, SBOM/provenance generation, or release archive creation.
 
 ## Non-Goals
 
 This policy does not add:
 
-- manifest generation code
-- checksum generation code
 - SBOM generation
 - provenance generation
 - eval report generation

@@ -2,11 +2,11 @@
 
 ## Purpose
 
-Define the future release bundle evidence shape for codex-dev-harness without
-implementing generators or producing artifacts.
+Define the release bundle evidence shape for codex-dev-harness.
 
-This policy is documentation-first. It does not create release archives,
-release manifests, checksums, SBOMs, provenance, eval reports, audit logs,
+The repository includes local-only generators for `release-manifest.json` and
+`checksums.sha256`. They produce artifacts only when run explicitly. This policy
+does not create release archives, SBOMs, provenance, eval reports, audit logs,
 GitHub Releases, tags, CI workflows, application code, device code, or
 live-write behavior.
 
@@ -107,9 +107,11 @@ Future bundle checksums must:
 
 ## Approval Boundary
 
-Creating a release bundle, manifest, checksum file, SBOM, provenance file, eval
-report, audit session entry, release archive, GitHub Release, tag, or workflow
-requires separate explicit owner approval.
+Creating a local manifest and checksum file is approved only for tasks that
+explicitly allow `artifacts/release-manifest.json` and
+`artifacts/checksums.sha256`. Creating a broader release bundle, SBOM,
+provenance file, eval report, audit session entry, release archive, GitHub
+Release, tag, or workflow requires separate explicit owner approval.
 
 This policy alone does not grant approval to generate or publish anything.
 
@@ -117,8 +119,7 @@ This policy alone does not grant approval to generate or publish anything.
 
 This policy does not add:
 
-- generator scripts
-- release artifacts
+- release archive generation
 - SBOM or provenance tooling
 - audit log generation
 - CI workflows

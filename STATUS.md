@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 release bundle and manifest policy boundary.
+Post v0.1.0 local release manifest and checksum generation.
 
 ## Current State
 
@@ -73,10 +73,15 @@ The repository contains documentation, base templates, profile templates, render
 - `scripts/render_template.py`.
 - `scripts/quality_gate.py`.
 - `scripts/run_eval.py`.
+- `scripts/generate_manifest.py`.
+- `scripts/generate_checksums.py`.
 - Gate modules under `scripts/gates/`.
 - Standalone eval gate wrapper: `scripts/gates/eval_gate.py`.
 - Minimal local eval cases under `evals/cases/`.
 - Eval golden path list under `evals/golden/`.
+- Generated local release evidence under `artifacts/`:
+  - `artifacts/release-manifest.json`
+  - `artifacts/checksums.sha256`
 - Example skeletons:
   - `examples/python_cli_minimal`
   - `examples/csharp_desktop_minimal`
@@ -108,10 +113,7 @@ The repository contains documentation, base templates, profile templates, render
 - Real audit session logs.
 - Audit logging automation.
 - Audit log validator or `quality_gate.py` integration.
-- Release bundle generator.
 - Release verification wrapper: `scripts/run_release_verify.ps1`.
-- Release manifest artifact.
-- Checksum artifacts.
 - SBOM or provenance artifacts.
 - Optional CI release verification template.
 
@@ -200,12 +202,13 @@ Stage 0 current-main gap review basis:
 | formal v0.1.0 criteria | SATISFIED | `docs/FORMAL_V0.1.0_CRITERIA.md` exists; formal tag created |
 | optional GitHub Actions guide | PRESENT | guide and template exist, but no workflow is installed |
 | Stage 0 current-main gap review basis | RECORDED | `origin/main` at `7add760e89b84106679461948e9db58223900e33`, checked `2026-05-24T15:45:55.4078343+09:00` |
-| release manifest artifact/generator | MISSING | Policy exists; no dedicated manifest artifact, generator, or schema artifact exists |
+| release manifest/checksum generator | PRESENT | `scripts/generate_manifest.py` and `scripts/generate_checksums.py`; local-only, standard-library-only |
+| release manifest/checksum artifacts | PRESENT | `artifacts/release-manifest.json` and `artifacts/checksums.sha256`; no release archive, SBOM, provenance, tag, release, or workflow generated |
 | release evidence foundation | PARTIAL | Release records, clean clone validation, local package checklist, and release drafts exist |
 | optional CI local verify template | DONE | `templates/ci/github-actions-local-verify.yml.template` exists and no workflow is installed |
 | optional CI release verify template | MISSING / OPTIONAL | No release verification CI template or workflow exists |
-| release bundle policy | PRESENT | `docs/RELEASE_BUNDLE_POLICY.md`; documentation-only, no artifacts generated |
-| release manifest policy | PRESENT | `docs/RELEASE_MANIFEST_POLICY.md`; documentation-only, no manifest or checksum generated |
+| release bundle policy | PRESENT | `docs/RELEASE_BUNDLE_POLICY.md`; records the local manifest/checksum generator boundary and future release evidence exclusions |
+| release manifest policy | PRESENT | `docs/RELEASE_MANIFEST_POLICY.md`; defines current manifest fields, deterministic ordering, exclusions, and checksum rules |
 | dedicated change control policy | PRESENT | `docs/CHANGE_CONTROL.md` |
 | dedicated human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md` |
 | dedicated eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval implementation now exists |
@@ -389,8 +392,8 @@ Stage 0 current-main gap review basis:
 | lightweight governance docs | ADDED | `PROMPT_PATTERNS`, `BUG_REVIEW_TEMPLATE`, and `SIMPLIFICATION_CHECKLIST` are present; no implementation added |
 | prompt contract templates | ADDED | Four reusable Markdown prompt templates exist under `prompts/task_contract/`; they do not execute prompts or grant approval |
 | minimal eval harness | IMPLEMENTED | Standalone non-LLM local eval runner, cases, golden path list, gate wrapper, and tests added |
-| release bundle policy | PRESENT | `docs/RELEASE_BUNDLE_POLICY.md`; defines future release evidence components without generators |
-| release manifest policy | PRESENT | `docs/RELEASE_MANIFEST_POLICY.md`; defines future manifest fields and checksum rules without artifacts |
+| release bundle policy | PRESENT | `docs/RELEASE_BUNDLE_POLICY.md`; records local manifest/checksum generation boundary and future release evidence components |
+| release manifest/checksum generation | IMPLEMENTED | Local-only manifest and checksum scripts, tests, and artifacts added; no SBOM/provenance, archive, CI, tag, release, application, or live-write behavior |
 | Stage 1 change control policy | PRESENT | `docs/CHANGE_CONTROL.md`; documentation-only |
 | Stage 1 human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md`; documentation-only |
 | Stage 1 eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval exists; no dependencies, quality-gate integration, or CI integration |
@@ -449,6 +452,6 @@ Stage 0 current-main gap review basis:
 Run `scripts/run_eval.py` as a standalone local check while it gathers usage
 evidence. Keep eval integration into `scripts/quality_gate.py`, CI integration,
 routine eval report generation, real audit session log generation, audit logging
-automation, release bundle generation, release verification wrappers,
-manifest/checksum artifacts, SBOM/provenance, workflows, profiles, and
+automation, broader release bundle or archive generation, release verification
+wrappers, SBOM/provenance, workflows, profiles, and
 application/device/live-write behavior deferred unless separately approved.
