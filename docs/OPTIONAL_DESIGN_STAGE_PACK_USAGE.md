@@ -46,6 +46,28 @@ Do not use this pack when:
 6. `OPEN_QUESTIONS`
 7. `DESIGN_REVIEW_RECORD`
 
+## Downstream Naming Map
+
+The mapping below is a manual-use aid only. Template names in this repository remain domain-neutral. Downstream-specific naming is allowed only inside the downstream target.
+
+| optional template | possible downstream equivalent | use mode | notes |
+|---|---|---|---|
+| `DESIGN_WORKPLAN` | `DESIGN_WORKPLAN` or phase-specific design plan | copy, merge, or review-only | Use when the downstream target needs explicit phase scope, source-use decisions, candidate outputs, and exit criteria |
+| `CONCEPT_BOUNDARY` | `CONCEPT_BOUNDARY` or project-specific concept boundary | copy, merge, or review-only | Use when concept scope and prohibited implementation/live-target boundaries need to be explicit |
+| `CATEGORY_MAP` | `CATEGORY_MAP` or domain-specific category map | copy, merge, or review-only | Use for generalized category mapping with synthetic input and abstract output categories |
+| `SYNTHETIC_FIXTURE_PLAN` | `SYNTHETIC_FIXTURE_PLAN` | copy, merge, or review-only | Use when synthetic fixture categories are needed without creating fixture files |
+| `ACCEPTANCE_EVIDENCE_PLAN` | `ACCEPTANCE_EVIDENCE_PLAN` or phase-specific evidence plan | copy, merge, or review-only | Use when design-stage requirements need evidence categories before runtime validation exists |
+| `OPEN_QUESTIONS` | `OPEN_QUESTIONS` or phase-specific open questions | copy, merge, or review-only | Use when owner-review source rows, deferred decisions, or approval blockers must be tracked |
+| `DESIGN_REVIEW_RECORD` | `DESIGN_REVIEW_RECORD` or phase-specific review record | copy or review-only | Use after design-stage documents exist to record source-use, sensitive-information, and prohibited-artifact review |
+
+## Skip, Merge, Or Review-Only Guidance
+
+- Skip a template when the downstream target already has an equivalent document and it already records design-only scope, source-use decisions, prohibited content, approval boundary, and review checklist.
+- Merge a template when an existing downstream document is useful but lacks source-use rules, prohibited-content boundaries, owner-review handling, or explicit integration deferral.
+- Use review-only mode when downstream design documents are already written and the optional template should be used only as a checklist for compliance review.
+- Do not copy optional templates into a downstream target just to increase document count. Use them only when they reduce ambiguity or risk.
+- Keep any renamed downstream document within the downstream target only. Do not rename the template files in this repository for domain-specific usage.
+
 ## Manual Adoption Flow
 
 1. Prepare a downstream target from the base template.
@@ -80,6 +102,24 @@ Do not add:
 - GitHub Actions or cloud CI workflow files;
 - scenario-specific profile or example creation;
 - runtime implementation artifacts.
+
+## Prohibited Content Scan Examples
+
+The commands below are examples for manual review. They are not gate integration and they do not replace human review. Adjust paths for the downstream target before running them.
+
+```powershell
+rg -n "<IP address regex>" <downstream-target>
+rg -n -i "password|secret|token|api_key" <downstream-target>
+rg -n -i "connection string|port|tag|live parameter" <downstream-target>
+rg --files <downstream-target> -g "*.sln" -g "*.csproj" -g "*.cs" -g "*.xaml"
+rg --files <downstream-target> -g ".github/workflows/**" -g ".env" -g "*.exe" -g "*.dll"
+```
+
+Interpret matches conservatively:
+
+- Policy-only mentions may be acceptable when they do not include real values.
+- Any value-like match should be reviewed before packaging or sharing.
+- Runtime, C#, PLC/device, workflow, executable, and live configuration artifacts require separate approval or removal.
 
 ## Future Integration Boundary
 

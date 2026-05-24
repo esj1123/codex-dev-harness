@@ -108,6 +108,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Optional design-stage pack template files: CREATED.
 - Optional design-stage pack usage guide: DOCUMENTED for manual use without integration.
 - Optional design-stage pack review record: DOCUMENTED; manual-use-only remains recommended.
+- Optional design-stage usage guide refinements: DOCUMENTED with mapping, skip/merge/review-only guidance, and manual scan examples.
 - Optional design-stage render/gate/example integration: DEFERRED.
 - Template extension policy: UPDATED with downstream feedback promotion criteria and profile-as-last-resort guidance.
 
@@ -131,6 +132,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Optional design-stage pack decision: APPROVED FOR TEMPLATE FILES ONLY.
 - Review whether the optional design-stage manual usage guide is sufficient before approving integration work.
 - Collect at least one more optional design-stage manual-use feedback cycle before integration work.
+- Use the refined optional design-stage usage guide to collect feedback before deciding on integration.
 - Decide a post-v0.1.0 improvement plan.
 - Post-v0.1.0 improvement plan: DOCUMENTED.
 - Decide whether downstream adoption feedback justifies a follow-up task.
@@ -173,6 +175,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Optional design-stage pack templates were added as Markdown-only files.
 - Optional design-stage pack usage guide was documented for manual use only.
 - Optional design-stage pack review record was documented.
+- Optional design-stage usage guide was refined without adding integration.
 - No optional design-stage pack render, gate, or example integration was added.
 - Scenario simulator design was tested only as a downstream candidate.
 - Regression examples include the extended base docs.
