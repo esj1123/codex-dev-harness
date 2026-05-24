@@ -74,5 +74,5 @@ The local package should preserve the local-first baseline. It should not become
 
 Release bundle components such as `release-manifest.json`, `checksums.sha256`,
 `sbom.spdx.json`, `sbom.cdx.json`, `provenance.intoto.jsonl`, and
-`audit/session-*.jsonl` remain future optional artifacts. They are not generated
+`audits/session-*.jsonl` remain future optional artifacts. They are not generated
 by this checklist.

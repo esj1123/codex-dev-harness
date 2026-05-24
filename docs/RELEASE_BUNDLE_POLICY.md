@@ -21,7 +21,7 @@ A future release bundle may contain:
 - `sbom.cdx.json`, future optional
 - `provenance.intoto.jsonl`, future optional
 - `closeout.md`, human-readable
-- `audit/session-*.jsonl`, future optional and redacted only
+- `audits/session-*.jsonl`, future optional and redacted only
 
 These names are reserved as future evidence component names. Their presence in
 this policy does not authorize generating them.
