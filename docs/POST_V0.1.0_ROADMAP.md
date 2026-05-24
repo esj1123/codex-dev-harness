@@ -14,20 +14,27 @@ The formal v0.1.0 baseline is a local-first governed template for downstream pro
 
 ## Next Priority
 
-Next priority: lightweight governance docs or downstream feedback.
+Next priority: downstream feedback or small governance refinements.
 
 The most useful post-v0.1.0 signal is how the base template behaves when applied to real downstream planning targets. Feedback should focus on documentation clarity, safety boundaries, approval gates, source indexing, and render ergonomics before adding new automation.
 
 The optional design-stage pack is now a closed manual-use-only baseline. Its templates can be copied, merged, skipped, or used for review-only downstream work, but they are not part of the base render path.
 
+The first lightweight governance docs are present:
+
+- `docs/PROMPT_PATTERNS.md`
+- `docs/BUG_REVIEW_TEMPLATE.md`
+- `docs/SIMPLIFICATION_CHECKLIST.md`
+
 ## Optional Improvement Sequence
 
 1. Release page decision.
 2. Local package checklist.
-3. Eval harness plan.
-4. Release manifest/checksum.
-5. SBOM/provenance.
-6. Optional CI actualization.
+3. Lightweight governance docs.
+4. Eval harness plan.
+5. Release manifest/checksum.
+6. SBOM/provenance.
+7. Optional CI actualization.
 
 Each item is optional and should remain approval-gated. Planning a future capability does not authorize implementing it.
 
@@ -46,6 +53,16 @@ Status: MANUAL-USE-ONLY BASELINE CLOSED.
 - Future integration requires separate owner approval.
 
 Potential future integration should be considered only if repeated manual-use friction, repeated copy/rename errors, opt-in render demand, or optional-pack validation demand appears.
+
+## Lightweight Governance Docs
+
+Status: PRESENT.
+
+- Prompt patterns: present.
+- Bug review template: present.
+- Simplification checklist: present.
+
+These documents support better task contracts, evidence-based bug review, and restraint before adding new repo surface. They do not add code, gates, examples, eval harnesses, workflows, profiles, or runtime behavior.
 
 ## Profile Policy
 
@@ -73,4 +90,4 @@ The base template surfaces, especially `SOURCE_INDEX`, `PROJECT_BOUNDARY`, `DATA
 
 ## Next Review
 
-Review lightweight governance docs and downstream adoption feedback first, then decide whether release page publication, local packaging, or any optional design-stage integration adds enough value to justify a follow-up task.
+Review downstream adoption feedback and use the lightweight governance docs before deciding whether release page publication, local packaging, audit log planning, eval harness work, SBOM/provenance, CI, or any optional design-stage integration adds enough value to justify a follow-up task.

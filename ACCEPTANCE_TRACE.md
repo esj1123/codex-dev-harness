@@ -132,6 +132,10 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 | AT-111 | current | governance_audit | architecture, limitations, and roadmap refreshed after optional pack closeout | Operating documents reflect closed manual-use-only baseline | docs/ARCHITECTURE.md; docs/KNOWN_LIMITATIONS.md; docs/POST_V0.1.0_ROADMAP.md | PASS | Optional pack is not profile and not base render |
 | AT-112 | current | side_effect_contract | render, gate, and example integration remain deferred after operating docs refresh | Operating documents keep integration deferred and approval-gated | docs/ARCHITECTURE.md; docs/KNOWN_LIMITATIONS.md; docs/POST_V0.1.0_ROADMAP.md; STATUS.md | PASS | No implementation added |
 | AT-113 | current | scope_contract | no implementation added during optional pack operating docs refresh | Refresh is limited to documentation state alignment | docs/ARCHITECTURE.md; docs/KNOWN_LIMITATIONS.md; docs/POST_V0.1.0_ROADMAP.md; STATUS.md | PASS | No render, gate, example, eval, workflow, profile, application, C#, PLC/device, or live-write work added |
+| AT-114 | current | governance_audit | prompt patterns are documented | Prompt pattern document exists | docs/PROMPT_PATTERNS.md | PASS | Task contract patterns only; no implementation added |
+| AT-115 | current | governance_audit | bug review template is documented | Bug review template exists | docs/BUG_REVIEW_TEMPLATE.md | PASS | Evidence-based review template only |
+| AT-116 | current | governance_audit | simplification checklist is documented | Simplification checklist exists | docs/SIMPLIFICATION_CHECKLIST.md | PASS | Helps avoid unnecessary template/repo growth |
+| AT-117 | current | side_effect_contract | no implementation added while adding lightweight governance docs | Status and roadmap record docs-only scope | STATUS.md; docs/POST_V0.1.0_ROADMAP.md | PASS | No render, gate, example, eval, workflow, profile, application, C#, PLC/device, or live-write work added |
 
 ## Status Values
 

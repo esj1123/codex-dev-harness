@@ -36,6 +36,9 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_001.md`
   - `docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_002.md`
   - `docs/OPTIONAL_DESIGN_STAGE_PACK_INTEGRATION_DECISION.md`
+  - `docs/PROMPT_PATTERNS.md`
+  - `docs/BUG_REVIEW_TEMPLATE.md`
+  - `docs/SIMPLIFICATION_CHECKLIST.md`
   - `docs/POST_V0.1.0_ROADMAP.md`
   - `docs/RELEASE_PAGE_DECISION.md`
   - `docs/LOCAL_PACKAGE_CHECKLIST.md`
@@ -152,6 +155,10 @@ Previous tags:
 | optional design-stage integration decision | CLOSED | `docs/OPTIONAL_DESIGN_STAGE_PACK_INTEGRATION_DECISION.md` records KEEP MANUAL-USE-ONLY BASELINE |
 | optional design-stage manual-use-only baseline | CLOSED | All seven optional templates have PASS evidence and remain manual-use-only |
 | optional design-stage integrations | DEFERRED | Render, gate, and example integration are not implemented |
+| lightweight governance docs | PRESENT | Prompt patterns, bug review template, and simplification checklist exist |
+| prompt patterns | PRESENT | `docs/PROMPT_PATTERNS.md` documents task contract patterns |
+| bug review template | PRESENT | `docs/BUG_REVIEW_TEMPLATE.md` documents evidence-based bug review |
+| simplification checklist | PRESENT | `docs/SIMPLIFICATION_CHECKLIST.md` documents keep/simplify/merge/defer/remove/downstream-only decisions |
 | known limitations optional pack refresh | PRESENT | `docs/KNOWN_LIMITATIONS.md` records manual-use-only and missing integration as current limitations |
 | post-v0.1.0 roadmap optional pack refresh | PRESENT | `docs/POST_V0.1.0_ROADMAP.md` records closed manual-use-only baseline and deferred integration |
 | template extension policy | REFRESHED | downstream feedback promotion and optional-pack placement criteria are documented |
@@ -330,6 +337,7 @@ Previous tags:
 | optional design-stage integration decision | CLOSED | `docs/OPTIONAL_DESIGN_STAGE_PACK_INTEGRATION_DECISION.md`; owner decision is KEEP MANUAL-USE-ONLY BASELINE |
 | optional design-stage manual-use-only baseline | CLOSED | Render/gate/example integration remains deferred and requires separate owner approval |
 | optional design-stage operating docs | REFRESHED | Architecture, known limitations, and roadmap reflect the closed manual-use-only baseline |
+| lightweight governance docs | ADDED | `PROMPT_PATTERNS`, `BUG_REVIEW_TEMPLATE`, and `SIMPLIFICATION_CHECKLIST` are present; no implementation added |
 | scenario simulator treatment | DOWNSTREAM CANDIDATE | Remains downstream candidate, not a built-in profile |
 
 ## Formal v0.1.0 GitHub Release Draft

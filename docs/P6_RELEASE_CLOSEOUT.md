@@ -60,6 +60,9 @@ This document records the P6 release candidate closeout state for the local-firs
 - Optional design-stage manual feedback 002: `docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_002.md`
 - Optional design-stage pack integration decision: `docs/OPTIONAL_DESIGN_STAGE_PACK_INTEGRATION_DECISION.md`
 - Optional design-stage template pack: `templates/optional/design_stage/`
+- Prompt patterns: `docs/PROMPT_PATTERNS.md`
+- Bug review template: `docs/BUG_REVIEW_TEMPLATE.md`
+- Simplification checklist: `docs/SIMPLIFICATION_CHECKLIST.md`
 - Post v0.1.0 roadmap: `docs/POST_V0.1.0_ROADMAP.md`
 - Release page decision: `docs/RELEASE_PAGE_DECISION.md`
 - Local package checklist: `docs/LOCAL_PACKAGE_CHECKLIST.md`
@@ -119,6 +122,10 @@ This document records the P6 release candidate closeout state for the local-firs
 - Architecture optional pack plane: REFRESHED.
 - Known limitations optional pack state: REFRESHED.
 - Post-v0.1.0 roadmap optional pack state: REFRESHED.
+- Lightweight governance docs: ADDED.
+- Prompt patterns: DOCUMENTED.
+- Bug review template: DOCUMENTED.
+- Simplification checklist: DOCUMENTED.
 - Optional design-stage render/gate/example integration: DEFERRED.
 - Template extension policy: UPDATED with downstream feedback promotion criteria and profile-as-last-resort guidance.
 
@@ -192,6 +199,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Optional design-stage pack integration decision was closed as KEEP MANUAL-USE-ONLY BASELINE without adding integration.
 - Optional design-stage manual-use-only baseline was closed.
 - Architecture, known limitations, and roadmap were refreshed after optional pack closeout.
+- Lightweight governance docs were added without implementation.
 - No optional design-stage pack render, gate, or example integration was added.
 - Scenario simulator design was tested only as a downstream candidate.
 - Regression examples include the extended base docs.
