@@ -32,6 +32,7 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/OPTIONAL_DESIGN_STAGE_PACK_PLAN.md`
   - `docs/OPTIONAL_DESIGN_STAGE_PACK_DECISION.md`
   - `docs/OPTIONAL_DESIGN_STAGE_PACK_USAGE.md`
+  - `docs/OPTIONAL_DESIGN_STAGE_PACK_REVIEW.md`
   - `docs/POST_V0.1.0_ROADMAP.md`
   - `docs/RELEASE_PAGE_DECISION.md`
   - `docs/LOCAL_PACKAGE_CHECKLIST.md`
@@ -139,6 +140,7 @@ Previous tags:
 | optional design-stage pack decision | APPROVED FOR TEMPLATE FILES ONLY | `docs/OPTIONAL_DESIGN_STAGE_PACK_DECISION.md` records owner decision |
 | optional design-stage template files | PRESENT | Seven Markdown-only templates exist under `templates/optional/design_stage/` |
 | optional design-stage usage guide | PRESENT | `docs/OPTIONAL_DESIGN_STAGE_PACK_USAGE.md` documents manual use without integration |
+| optional design-stage review record | PRESENT | `docs/OPTIONAL_DESIGN_STAGE_PACK_REVIEW.md` records template and usage guide review |
 | optional design-stage integrations | DEFERRED | Render, gate, and example integration are not implemented |
 | template extension policy | REFRESHED | downstream feedback promotion and optional-pack placement criteria are documented |
 | formal v0.1.0 criteria | SATISFIED | `docs/FORMAL_V0.1.0_CRITERIA.md` exists; formal tag created |
@@ -308,6 +310,7 @@ Previous tags:
 | optional design-stage pack | TEMPLATE FILES PRESENT | Seven Markdown-only templates created; no render/gate/example integration |
 | optional design-stage pack decision | APPROVED FOR TEMPLATE FILES ONLY | `docs/OPTIONAL_DESIGN_STAGE_PACK_DECISION.md`; further integration requires separate approval |
 | optional design-stage pack usage | MANUAL ONLY | `docs/OPTIONAL_DESIGN_STAGE_PACK_USAGE.md` documents manual downstream use; render/gate/example integration remains deferred |
+| optional design-stage pack review | REVIEWED | `docs/OPTIONAL_DESIGN_STAGE_PACK_REVIEW.md` recommends manual-use-only and one more feedback cycle before integration |
 | scenario simulator treatment | DOWNSTREAM CANDIDATE | Remains downstream candidate, not a built-in profile |
 
 ## Formal v0.1.0 GitHub Release Draft
@@ -356,4 +359,4 @@ Previous tags:
 
 ## Next Recommended Step
 
-Review the experimental optional design-stage template files and manual usage guide. Keep render integration, gate integration, example integration, eval harness work, GitHub Release page publication, and local package creation deferred until explicitly approved.
+Collect at least one more manual-use feedback cycle for the optional design-stage pack before considering render, gate, or example integration. Keep eval harness work, GitHub Release page publication, and local package creation deferred until explicitly approved.

@@ -55,6 +55,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Optional design-stage pack plan: `docs/OPTIONAL_DESIGN_STAGE_PACK_PLAN.md`
 - Optional design-stage pack decision: `docs/OPTIONAL_DESIGN_STAGE_PACK_DECISION.md`
 - Optional design-stage pack usage guide: `docs/OPTIONAL_DESIGN_STAGE_PACK_USAGE.md`
+- Optional design-stage pack review: `docs/OPTIONAL_DESIGN_STAGE_PACK_REVIEW.md`
 - Optional design-stage template pack: `templates/optional/design_stage/`
 - Post v0.1.0 roadmap: `docs/POST_V0.1.0_ROADMAP.md`
 - Release page decision: `docs/RELEASE_PAGE_DECISION.md`
@@ -106,6 +107,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Optional design-stage pack decision: APPROVED FOR TEMPLATE FILES ONLY.
 - Optional design-stage pack template files: CREATED.
 - Optional design-stage pack usage guide: DOCUMENTED for manual use without integration.
+- Optional design-stage pack review record: DOCUMENTED; manual-use-only remains recommended.
 - Optional design-stage render/gate/example integration: DEFERRED.
 - Template extension policy: UPDATED with downstream feedback promotion criteria and profile-as-last-resort guidance.
 
@@ -128,6 +130,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Review whether the experimental optional design-stage template files are sufficient before approving integration work.
 - Optional design-stage pack decision: APPROVED FOR TEMPLATE FILES ONLY.
 - Review whether the optional design-stage manual usage guide is sufficient before approving integration work.
+- Collect at least one more optional design-stage manual-use feedback cycle before integration work.
 - Decide a post-v0.1.0 improvement plan.
 - Post-v0.1.0 improvement plan: DOCUMENTED.
 - Decide whether downstream adoption feedback justifies a follow-up task.
@@ -169,6 +172,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - No scenario simulator profile was added.
 - Optional design-stage pack templates were added as Markdown-only files.
 - Optional design-stage pack usage guide was documented for manual use only.
+- Optional design-stage pack review record was documented.
 - No optional design-stage pack render, gate, or example integration was added.
 - Scenario simulator design was tested only as a downstream candidate.
 - Regression examples include the extended base docs.

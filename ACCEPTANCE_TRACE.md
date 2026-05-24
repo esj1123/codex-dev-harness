@@ -111,6 +111,8 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 | AT-090 | current | side_effect_contract | optional design-stage integrations remain deferred | Status and decision documents record no render, gate, or example integration | docs/OPTIONAL_DESIGN_STAGE_PACK_DECISION.md, STATUS.md | PASS | No render_template.py, gate implementation, or example integration added |
 | AT-091 | current | product_contract | optional design-stage pack usage guide exists | Manual usage guide exists | docs/OPTIONAL_DESIGN_STAGE_PACK_USAGE.md | PASS | Documents safe manual use without integration |
 | AT-092 | current | side_effect_contract | usage guide preserves manual-only and no-integration boundary | Usage guide states render, gate, and example integration require separate approval | docs/OPTIONAL_DESIGN_STAGE_PACK_USAGE.md | PASS | No render integration, gate implementation, or example integration added |
+| AT-093 | current | governance_audit | optional design-stage pack review record exists | Review record documents usage guide and template review | docs/OPTIONAL_DESIGN_STAGE_PACK_REVIEW.md | PASS | Template-level review captured |
+| AT-094 | current | side_effect_contract | optional design-stage review keeps integration deferred | Review recommends manual-use-only and one more feedback cycle before integration | docs/OPTIONAL_DESIGN_STAGE_PACK_REVIEW.md | PASS | No render, gate, or example integration added |
 
 ## Status Values
 
