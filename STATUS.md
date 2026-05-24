@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 optional design-stage pack templates present.
+Post v0.1.0 optional design-stage manual-use-only baseline closed.
 
 ## Current State
 
@@ -138,6 +138,7 @@ Previous tags:
 | optional eval harness plan | PLANNED ONLY | `docs/OPTIONAL_EVAL_HARNESS_PLAN.md` exists; no eval harness implemented |
 | known limitations refresh | PRESENT | `docs/KNOWN_LIMITATIONS.md` reflects current post-v0.1.0 limitations |
 | architecture release/record plane refresh | PRESENT | `docs/ARCHITECTURE.md` reflects formal v0.1.0 and post-v0.1.0 records |
+| architecture optional pack plane refresh | PRESENT | `docs/ARCHITECTURE.md` records optional design-stage pack as manual-use-only, not profile, and not base render |
 | downstream P2 design feedback | CAPTURED | `docs/DOWNSTREAM_FEEDBACK_v0.1.0_P2_DESIGN.md` exists; downstream scenario content not copied |
 | optional design-stage pack plan | TEMPLATE FILES CREATED | `docs/OPTIONAL_DESIGN_STAGE_PACK_PLAN.md` reflects experimental Markdown-only template files |
 | optional design-stage pack decision | APPROVED FOR TEMPLATE FILES ONLY | `docs/OPTIONAL_DESIGN_STAGE_PACK_DECISION.md` records owner decision |
@@ -151,6 +152,8 @@ Previous tags:
 | optional design-stage integration decision | CLOSED | `docs/OPTIONAL_DESIGN_STAGE_PACK_INTEGRATION_DECISION.md` records KEEP MANUAL-USE-ONLY BASELINE |
 | optional design-stage manual-use-only baseline | CLOSED | All seven optional templates have PASS evidence and remain manual-use-only |
 | optional design-stage integrations | DEFERRED | Render, gate, and example integration are not implemented |
+| known limitations optional pack refresh | PRESENT | `docs/KNOWN_LIMITATIONS.md` records manual-use-only and missing integration as current limitations |
+| post-v0.1.0 roadmap optional pack refresh | PRESENT | `docs/POST_V0.1.0_ROADMAP.md` records closed manual-use-only baseline and deferred integration |
 | template extension policy | REFRESHED | downstream feedback promotion and optional-pack placement criteria are documented |
 | formal v0.1.0 criteria | SATISFIED | `docs/FORMAL_V0.1.0_CRITERIA.md` exists; formal tag created |
 | optional GitHub Actions guide | PRESENT | guide and template exist, but no workflow is installed |
@@ -315,6 +318,7 @@ Previous tags:
 | optional eval harness | PLANNED ONLY | `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`; no eval code, `evals/`, or runner created |
 | known limitations | REFRESHED | `docs/KNOWN_LIMITATIONS.md` no longer lists completed CI policy or release tagging guidance as future work |
 | architecture release/record plane | REFRESHED | `docs/ARCHITECTURE.md` lists current v0.1.0 and post-v0.1.0 evidence |
+| architecture optional pack plane | REFRESHED | Optional design-stage pack is documented as manual-use-only, not profile, and not base render |
 | downstream feedback | CAPTURED | `docs/DOWNSTREAM_FEEDBACK_v0.1.0_P2_DESIGN.md` captures template-level P2 design-only feedback |
 | optional design-stage pack | TEMPLATE FILES PRESENT | Seven Markdown-only templates created; no render/gate/example integration |
 | optional design-stage pack decision | APPROVED FOR TEMPLATE FILES ONLY | `docs/OPTIONAL_DESIGN_STAGE_PACK_DECISION.md`; further integration requires separate approval |
@@ -325,6 +329,7 @@ Previous tags:
 | optional design-stage manual feedback 002 | CAPTURED | `docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_002.md`; acceptance evidence and open-question templates validated as manual-use candidates |
 | optional design-stage integration decision | CLOSED | `docs/OPTIONAL_DESIGN_STAGE_PACK_INTEGRATION_DECISION.md`; owner decision is KEEP MANUAL-USE-ONLY BASELINE |
 | optional design-stage manual-use-only baseline | CLOSED | Render/gate/example integration remains deferred and requires separate owner approval |
+| optional design-stage operating docs | REFRESHED | Architecture, known limitations, and roadmap reflect the closed manual-use-only baseline |
 | scenario simulator treatment | DOWNSTREAM CANDIDATE | Remains downstream candidate, not a built-in profile |
 
 ## Formal v0.1.0 GitHub Release Draft

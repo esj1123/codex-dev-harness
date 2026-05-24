@@ -14,9 +14,11 @@ The formal v0.1.0 baseline is a local-first governed template for downstream pro
 
 ## Next Priority
 
-Next priority: downstream adoption feedback.
+Next priority: lightweight governance docs or downstream feedback.
 
 The most useful post-v0.1.0 signal is how the base template behaves when applied to real downstream planning targets. Feedback should focus on documentation clarity, safety boundaries, approval gates, source indexing, and render ergonomics before adding new automation.
+
+The optional design-stage pack is now a closed manual-use-only baseline. Its templates can be copied, merged, skipped, or used for review-only downstream work, but they are not part of the base render path.
 
 ## Optional Improvement Sequence
 
@@ -28,6 +30,22 @@ The most useful post-v0.1.0 signal is how the base template behaves when applied
 6. Optional CI actualization.
 
 Each item is optional and should remain approval-gated. Planning a future capability does not authorize implementing it.
+
+## Optional Design-Stage Pack Status
+
+Status: MANUAL-USE-ONLY BASELINE CLOSED.
+
+- Template files exist under `templates/optional/design_stage/`.
+- Usage guide exists.
+- Review record is refreshed.
+- Manual feedback 001 and 002 are documented.
+- All seven optional design-stage templates have PASS manual-use evidence.
+- Render integration is deferred.
+- Gate integration is deferred.
+- Example integration is deferred.
+- Future integration requires separate owner approval.
+
+Potential future integration should be considered only if repeated manual-use friction, repeated copy/rename errors, opt-in render demand, or optional-pack validation demand appears.
 
 ## Profile Policy
 
@@ -50,8 +68,9 @@ The base template surfaces, especially `SOURCE_INDEX`, `PROJECT_BOUNDARY`, `DATA
 - Do not add a new profile.
 - Do not add `profiles/scenario_simulator`.
 - Do not add `examples/scenario_simulator_minimal`.
+- Do not add optional design-stage render, gate, or example integration without separate approval.
 - Do not add application, C#, PLC/device, or live-write code.
 
 ## Next Review
 
-Review downstream adoption feedback first, then decide whether release page publication or local packaging adds enough value to justify a follow-up task.
+Review lightweight governance docs and downstream adoption feedback first, then decide whether release page publication, local packaging, or any optional design-stage integration adds enough value to justify a follow-up task.

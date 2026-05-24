@@ -45,6 +45,30 @@ Profiles are optional variants for recurring workflow shapes. Current profiles a
 
 Profiles should not be created for every downstream project type. A profile is justified only when the repo needs a durable, repeated, safety-relevant variation with its own validation example.
 
+## Optional Pack Plane
+
+Optional packs are reusable document packs that are not part of the base render path and are not profiles.
+
+The current optional pack is the optional design-stage pack:
+- `templates/optional/design_stage/`
+- `docs/OPTIONAL_DESIGN_STAGE_PACK_USAGE.md`
+- `docs/OPTIONAL_DESIGN_STAGE_PACK_REVIEW.md`
+- `docs/OPTIONAL_DESIGN_STAGE_PACK_INTEGRATION_DECISION.md`
+
+Current optional design-stage pack state:
+
+- Template files exist.
+- Usage guide exists.
+- Review record is refreshed.
+- Manual feedback 001 and 002 are documented.
+- All seven optional design-stage templates have PASS manual-use evidence.
+- Manual-use-only baseline is closed.
+- Render integration is deferred.
+- Gate integration is deferred.
+- Example integration is deferred.
+
+The optional design-stage pack is not a profile, not a downstream application, and not part of the base render behavior. Future render, gate, or example integration requires a separate explicit owner approval.
+
 ## Render Plane
 
 The render plane is local-first and explicit:

@@ -17,6 +17,10 @@ Record known limitations for the current codex-dev-harness baseline after the fo
 - Eval harness work is planning-only; no eval runner, eval directory, grader, or fixture implementation exists.
 - GitHub Actions workflow is not installed.
 - SBOM and provenance artifacts are not implemented.
+- Optional design-stage pack is manual-use-only.
+- Optional design-stage pack has no render integration.
+- Optional design-stage pack has no gate integration.
+- Optional design-stage pack has no example integration.
 
 ## Safety Limitations
 
@@ -33,6 +37,9 @@ Record known limitations for the current codex-dev-harness baseline after the fo
 - Actualize optional CI only if local-first verification is no longer enough.
 - Split `docs_gate` into baseline, release-record, and optional-document groups if the required-doc list becomes too release-specific.
 - Add stricter config schema validation if template config grows beyond scalar values.
+- Add optional design-stage render integration only if manual-use friction appears.
+- Add optional design-stage validation or gate support only after explicit approval.
+- Add an optional design-stage example only after an integration decision.
 
 ## Non-Goals
 
@@ -40,3 +47,4 @@ Record known limitations for the current codex-dev-harness baseline after the fo
 - Do not implement an eval harness as part of this limitation refresh.
 - Do not create SBOM/provenance artifacts as part of this limitation refresh.
 - Do not add a new profile or downstream application implementation as part of this limitation refresh.
+- Do not implement optional design-stage render, gate, or example integration as part of this limitation refresh.
