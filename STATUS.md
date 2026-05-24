@@ -142,10 +142,11 @@ Previous tags:
 | optional design-stage pack decision | APPROVED FOR TEMPLATE FILES ONLY | `docs/OPTIONAL_DESIGN_STAGE_PACK_DECISION.md` records owner decision |
 | optional design-stage template files | PRESENT | Seven Markdown-only templates exist under `templates/optional/design_stage/` |
 | optional design-stage usage guide | PRESENT | `docs/OPTIONAL_DESIGN_STAGE_PACK_USAGE.md` documents manual use without integration |
-| optional design-stage review record | PRESENT | `docs/OPTIONAL_DESIGN_STAGE_PACK_REVIEW.md` records template and usage guide review |
+| optional design-stage review record | REFRESHED | `docs/OPTIONAL_DESIGN_STAGE_PACK_REVIEW.md` reflects manual feedback 001 and 002 |
 | optional design-stage usage refinements | PRESENT | usage guide includes mapping, skip/merge/review-only guidance, and prohibited scan examples |
 | optional design-stage manual feedback 001 | PRESENT | refined usage guide was exercised against a downstream target in read-only mode |
 | optional design-stage manual feedback 002 | PRESENT | ACCEPTANCE_EVIDENCE_PLAN and OPEN_QUESTIONS received downstream manual-use evidence |
+| optional design-stage template review results | PASS | All seven optional templates have PASS manual-use review/evidence |
 | optional design-stage integrations | DEFERRED | Render, gate, and example integration are not implemented |
 | template extension policy | REFRESHED | downstream feedback promotion and optional-pack placement criteria are documented |
 | formal v0.1.0 criteria | SATISFIED | `docs/FORMAL_V0.1.0_CRITERIA.md` exists; formal tag created |
@@ -315,7 +316,7 @@ Previous tags:
 | optional design-stage pack | TEMPLATE FILES PRESENT | Seven Markdown-only templates created; no render/gate/example integration |
 | optional design-stage pack decision | APPROVED FOR TEMPLATE FILES ONLY | `docs/OPTIONAL_DESIGN_STAGE_PACK_DECISION.md`; further integration requires separate approval |
 | optional design-stage pack usage | MANUAL ONLY | `docs/OPTIONAL_DESIGN_STAGE_PACK_USAGE.md` documents manual downstream use; render/gate/example integration remains deferred |
-| optional design-stage pack review | REVIEWED | `docs/OPTIONAL_DESIGN_STAGE_PACK_REVIEW.md` recommends manual-use-only and one more feedback cycle before integration |
+| optional design-stage pack review | REFRESHED | `docs/OPTIONAL_DESIGN_STAGE_PACK_REVIEW.md` reflects feedback 001/002 and records all seven templates as PASS |
 | optional design-stage guide refinements | PRESENT | mapping table, skip/merge/review-only guidance, and manual scan examples added without integration |
 | optional design-stage manual feedback 001 | CAPTURED | `docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_001.md`; no downstream target modification or integration work |
 | optional design-stage manual feedback 002 | CAPTURED | `docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_002.md`; acceptance evidence and open-question templates validated as manual-use candidates |
@@ -367,4 +368,4 @@ Previous tags:
 
 ## Next Recommended Step
 
-Review manual feedback 001 and 002 before any optional design-stage review refresh or integration decision. Keep render, gate, example integration, eval harness work, GitHub Release page publication, and local package creation deferred until explicitly approved.
+Use the refreshed optional design-stage pack review as the current manual-use evidence baseline before any integration decision. Keep render, gate, example integration, eval harness work, GitHub Release page publication, and local package creation deferred until explicitly approved.

@@ -11,6 +11,8 @@ This review is documentation-only. It does not approve render integration, gate 
 Reviewed documents:
 
 - `docs/OPTIONAL_DESIGN_STAGE_PACK_USAGE.md`
+- `docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_001.md`
+- `docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_002.md`
 - `templates/optional/design_stage/DESIGN_WORKPLAN.md.template`
 - `templates/optional/design_stage/CONCEPT_BOUNDARY.md.template`
 - `templates/optional/design_stage/CATEGORY_MAP.md.template`
@@ -27,6 +29,13 @@ Review criteria:
 - Prohibited content compliance.
 - Manual-use-only boundary.
 - Deferred render, gate, and example integration.
+
+## Review Evidence
+
+| evidence | result | notes |
+|---|---|---|
+| `docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_001.md` | PASS | Confirmed the first five optional template roles and identified `ACCEPTANCE_EVIDENCE_PLAN` and `OPEN_QUESTIONS` as next manual-use candidates |
+| `docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_002.md` | PASS | Confirmed downstream manual use of `ACCEPTANCE_EVIDENCE_PLAN` and `OPEN_QUESTIONS` without integration or prohibited content |
 
 ## Usage Guide Verdict
 
@@ -46,11 +55,12 @@ Review criteria:
 | `CONCEPT_BOUNDARY.md.template` | PASS | Sufficient for generalized concept scope, synthetic/mock boundary, and prohibited runtime/live-target scope |
 | `CATEGORY_MAP.md.template` | PASS | Sufficient for category-level mapping with source row references and open questions |
 | `SYNTHETIC_FIXTURE_PLAN.md.template` | PASS | Sufficient for synthetic fixture categories without real/private/live fields |
-| `ACCEPTANCE_EVIDENCE_PLAN.md.template` | PARTIAL | Template is safe and useful, but downstream manual-use evidence has not been collected yet |
-| `OPEN_QUESTIONS.md.template` | PARTIAL | Template is safe and useful, but downstream manual-use evidence has not been collected yet |
+| `ACCEPTANCE_EVIDENCE_PLAN.md.template` | PASS | Manual feedback 002 confirms safe downstream manual use for design-stage evidence category planning |
+| `OPEN_QUESTIONS.md.template` | PASS | Manual feedback 002 confirms safe downstream manual use for owner-decision and blocker tracking |
 | `DESIGN_REVIEW_RECORD.md.template` | PASS | Sufficient for design-only, source-use, sensitive-information, and prohibited-artifact review |
 
 No template is BLOCKED.
+All seven optional design-stage templates now have PASS review evidence.
 
 ## Markdown-Only Compliance
 
@@ -101,12 +111,13 @@ The usage guide and templates support manual use only. They do not add or imply 
 - Optional template to downstream equivalent mapping may be useful.
 - `rg` scan examples may be useful for manual prohibited-content review.
 - Skip/merge/review-only guidance may be useful when a downstream target already has equivalent P2 documents.
-- `ACCEPTANCE_EVIDENCE_PLAN` and `OPEN_QUESTIONS` should collect at least one downstream manual-use example before integration is considered.
+- Manual feedback 001 and 002 provide PASS manual-use evidence for all seven optional design-stage templates.
+- `ACCEPTANCE_EVIDENCE_PLAN` works as design-stage evidence category planning.
+- `OPEN_QUESTIONS` works as owner-decision, deferred-decision, P2/P3 boundary, and packaging blocker tracking.
 
 ## Recommendation
 
 - Keep the optional design-stage pack manual-use-only for now.
-- Collect at least one more manual-use feedback cycle before approving integration.
 - Defer render integration.
 - Defer gate integration.
 - Defer example integration.

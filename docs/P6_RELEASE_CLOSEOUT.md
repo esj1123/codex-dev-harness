@@ -109,7 +109,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - Optional design-stage pack decision: APPROVED FOR TEMPLATE FILES ONLY.
 - Optional design-stage pack template files: CREATED.
 - Optional design-stage pack usage guide: DOCUMENTED for manual use without integration.
-- Optional design-stage pack review record: DOCUMENTED; manual-use-only remains recommended.
+- Optional design-stage pack review record: REFRESHED after manual feedback 002; all seven templates now PASS.
 - Optional design-stage usage guide refinements: DOCUMENTED with mapping, skip/merge/review-only guidance, and manual scan examples.
 - Optional design-stage manual feedback 001: DOCUMENTED from read-only downstream target review.
 - Optional design-stage manual feedback 002: DOCUMENTED from downstream manual use of acceptance evidence and open-question templates.
@@ -132,10 +132,9 @@ This document records the P6 release candidate closeout state for the local-firs
 - Decide whether to proceed with manual downstream doc review using the checklist.
 - Decide whether to approve P1 source, boundary, and data-scope manual fill.
 - Decide whether to approve P2 simulator design after P1 review.
-- Review whether the experimental optional design-stage template files are sufficient before approving integration work.
+- Review whether PASS evidence for all seven optional design-stage templates is sufficient before approving integration work.
 - Optional design-stage pack decision: APPROVED FOR TEMPLATE FILES ONLY.
-- Review whether the optional design-stage manual usage guide is sufficient before approving integration work.
-- Review optional design-stage manual feedback 001 and 002 before deciding whether to refresh the review record.
+- Review whether the refreshed optional design-stage manual review is sufficient before approving integration work.
 - Decide whether to collect another manual-use feedback cycle or explicitly approve integration work.
 - Decide a post-v0.1.0 improvement plan.
 - Post-v0.1.0 improvement plan: DOCUMENTED.
@@ -178,7 +177,7 @@ This document records the P6 release candidate closeout state for the local-firs
 - No scenario simulator profile was added.
 - Optional design-stage pack templates were added as Markdown-only files.
 - Optional design-stage pack usage guide was documented for manual use only.
-- Optional design-stage pack review record was documented.
+- Optional design-stage pack review record was refreshed after feedback 001 and 002.
 - Optional design-stage usage guide was refined without adding integration.
 - Optional design-stage manual feedback 001 was documented without downstream target modification.
 - Optional design-stage manual feedback 002 was documented from downstream manual use without adding integration.
