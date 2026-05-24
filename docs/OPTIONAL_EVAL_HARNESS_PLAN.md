@@ -50,7 +50,9 @@ Optional output:
 - `artifacts/eval-report.json`
 
 No report or `artifacts/` directory is created by default. `scripts/run_eval.py`
-can write this report only when called with `--report`.
+can write this report only when called with `--report`. The report path must be
+a repo-internal relative path; absolute paths and parent traversal with `..` are
+rejected.
 
 ## Non-Goals
 
@@ -73,6 +75,7 @@ Before implementation, decide:
 - Whether evals remain local-only.
 - Whether evals become part of `quality_gate.py` or remain separate.
 - Whether `artifacts/eval-report.json` should be written in routine verification.
+- Whether optional report paths should remain limited to repo-internal relative paths.
 
 ## Recommendation
 

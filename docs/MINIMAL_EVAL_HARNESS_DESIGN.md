@@ -177,8 +177,12 @@ The report should be machine-readable and should record:
 - forbidden-content check result
 - unresolved risks
 
-The report is not written by default. It is produced only when `scripts/run_eval.py`
-is called with `--report`.
+The report is not written by default. It is produced only when
+`scripts/run_eval.py` is called with `--report`.
+
+The `--report` argument must be a repo-internal relative path, such as
+`artifacts/eval-report.json`. Absolute paths and parent traversal with `..` are
+rejected before any report file or parent directory is created.
 
 ## Approval Rule
 
@@ -202,6 +206,7 @@ Before approving any expansion, decide:
 
 - whether the runner remains separate from `quality_gate.py`
 - whether report generation should become part of routine verification
+- whether optional report paths remain limited to repo-internal relative paths
 - whether failed evals are advisory or blocking
 - whether CI remains out of scope
 

@@ -103,3 +103,29 @@ def test_forbidden_artifacts_ignores_root_local(tmp_path: Path) -> None:
     result = run_eval.run_forbidden_artifacts(tmp_path, case)
 
     assert result.passed is True
+
+
+def test_resolve_report_path_accepts_repo_relative_path(tmp_path: Path) -> None:
+    result = run_eval.resolve_report_path(tmp_path, "artifacts/eval-report.json")
+
+    assert result == tmp_path.resolve() / "artifacts" / "eval-report.json"
+
+
+def test_resolve_report_path_rejects_absolute_path(tmp_path: Path) -> None:
+    absolute_report = tmp_path.resolve() / "eval-report.json"
+
+    try:
+        run_eval.resolve_report_path(tmp_path, str(absolute_report))
+    except ValueError as exc:
+        assert "relative path" in str(exc)
+    else:
+        raise AssertionError("absolute report path should be rejected")
+
+
+def test_resolve_report_path_rejects_parent_traversal(tmp_path: Path) -> None:
+    try:
+        run_eval.resolve_report_path(tmp_path, "../eval-report.json")
+    except ValueError as exc:
+        assert "parent traversal" in str(exc)
+    else:
+        raise AssertionError("parent traversal should be rejected")

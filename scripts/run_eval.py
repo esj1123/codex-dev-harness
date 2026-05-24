@@ -216,6 +216,26 @@ def summary_to_report(summary: EvalSummary) -> dict[str, Any]:
     }
 
 
+def resolve_report_path(repo_root: Path, report_arg: str) -> Path:
+    raw_path = Path(report_arg)
+    if raw_path.is_absolute() or raw_path.drive or raw_path.anchor:
+        raise ValueError("--report must be a repo-internal relative path")
+    if not raw_path.parts:
+        raise ValueError("--report must name a report file")
+    if any(part == ".." for part in raw_path.parts):
+        raise ValueError("--report must not contain parent traversal")
+
+    resolved_root = repo_root.resolve()
+    report_path = (resolved_root / raw_path).resolve()
+    try:
+        report_path.relative_to(resolved_root)
+    except ValueError as exc:
+        raise ValueError("--report must resolve inside the repository") from exc
+    if report_path == resolved_root:
+        raise ValueError("--report must name a report file")
+    return report_path
+
+
 def print_summary(summary: EvalSummary) -> None:
     for result in summary.results:
         status = "PASS" if result.passed else "FAIL"
@@ -229,7 +249,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run local-only codex-dev-harness evals.")
     parser.add_argument("--repo-root", default=str(REPO_ROOT), help="Repository root to check")
     parser.add_argument("--case", action="append", default=None, help="Specific case file to run; may be repeated")
-    parser.add_argument("--report", default=None, help="Optional JSON report path, e.g. artifacts/eval-report.json")
+    parser.add_argument(
+        "--report",
+        default=None,
+        help="Optional repo-internal relative JSON report path, e.g. artifacts/eval-report.json",
+    )
     return parser
 
 
@@ -238,17 +262,20 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     repo_root = Path(args.repo_root).resolve()
     case_paths = [Path(path).resolve() for path in args.case] if args.case else None
+    report_path = None
+    if args.report:
+        try:
+            report_path = resolve_report_path(repo_root, args.report)
+        except ValueError as exc:
+            parser.error(str(exc))
 
     summary = run_all(repo_root, case_paths)
     print_summary(summary)
 
-    if args.report:
-        report_path = Path(args.report)
-        if not report_path.is_absolute():
-            report_path = repo_root / report_path
+    if report_path:
         report_path.parent.mkdir(parents=True, exist_ok=True)
         report_path.write_text(json.dumps(summary_to_report(summary), indent=2) + "\n", encoding="utf-8")
-        print(f"Wrote eval report: {relpath(report_path.resolve(), repo_root)}")
+        print(f"Wrote eval report: {relpath(report_path, repo_root)}")
 
     return 0 if summary.passed else 1
 
