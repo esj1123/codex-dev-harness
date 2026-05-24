@@ -115,6 +115,9 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 | AT-094 | current | side_effect_contract | optional design-stage review keeps integration deferred | Review recommends manual-use-only and one more feedback cycle before integration | docs/OPTIONAL_DESIGN_STAGE_PACK_REVIEW.md | PASS | No render, gate, or example integration added |
 | AT-095 | current | product_contract | optional design-stage usage guide includes mapping and skip/merge/review-only guidance | Usage guide includes downstream naming map and manual mode guidance | docs/OPTIONAL_DESIGN_STAGE_PACK_USAGE.md | PASS | Guidance only; template names remain domain-neutral |
 | AT-096 | current | side_effect_contract | optional design-stage usage guide includes prohibited scan examples without integration | Usage guide includes manual scan examples and keeps render/gate/example integration deferred | docs/OPTIONAL_DESIGN_STAGE_PACK_USAGE.md | PASS | No gate implementation or workflow added |
+| AT-097 | current | governance_audit | optional design-stage manual feedback 001 is documented | Feedback record exists | docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_001.md | PASS | Refined usage guide exercised against downstream target read-only |
+| AT-098 | current | side_effect_contract | manual feedback preserves no-integration boundary | Feedback record keeps render, gate, and example integration deferred | docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_001.md | PASS | No downstream target modification or integration work |
+| AT-099 | current | product_contract | ACCEPTANCE_EVIDENCE_PLAN and OPEN_QUESTIONS remain future manual-use candidates | Feedback record identifies both as next downstream manual-use candidates | docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_001.md | PASS | No optional pack integration approved |
 
 ## Status Values
 

@@ -33,6 +33,7 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/OPTIONAL_DESIGN_STAGE_PACK_DECISION.md`
   - `docs/OPTIONAL_DESIGN_STAGE_PACK_USAGE.md`
   - `docs/OPTIONAL_DESIGN_STAGE_PACK_REVIEW.md`
+  - `docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_001.md`
   - `docs/POST_V0.1.0_ROADMAP.md`
   - `docs/RELEASE_PAGE_DECISION.md`
   - `docs/LOCAL_PACKAGE_CHECKLIST.md`
@@ -142,6 +143,7 @@ Previous tags:
 | optional design-stage usage guide | PRESENT | `docs/OPTIONAL_DESIGN_STAGE_PACK_USAGE.md` documents manual use without integration |
 | optional design-stage review record | PRESENT | `docs/OPTIONAL_DESIGN_STAGE_PACK_REVIEW.md` records template and usage guide review |
 | optional design-stage usage refinements | PRESENT | usage guide includes mapping, skip/merge/review-only guidance, and prohibited scan examples |
+| optional design-stage manual feedback 001 | PRESENT | refined usage guide was exercised against a downstream target in read-only mode |
 | optional design-stage integrations | DEFERRED | Render, gate, and example integration are not implemented |
 | template extension policy | REFRESHED | downstream feedback promotion and optional-pack placement criteria are documented |
 | formal v0.1.0 criteria | SATISFIED | `docs/FORMAL_V0.1.0_CRITERIA.md` exists; formal tag created |
@@ -313,6 +315,7 @@ Previous tags:
 | optional design-stage pack usage | MANUAL ONLY | `docs/OPTIONAL_DESIGN_STAGE_PACK_USAGE.md` documents manual downstream use; render/gate/example integration remains deferred |
 | optional design-stage pack review | REVIEWED | `docs/OPTIONAL_DESIGN_STAGE_PACK_REVIEW.md` recommends manual-use-only and one more feedback cycle before integration |
 | optional design-stage guide refinements | PRESENT | mapping table, skip/merge/review-only guidance, and manual scan examples added without integration |
+| optional design-stage manual feedback 001 | CAPTURED | `docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_001.md`; no downstream target modification or integration work |
 | scenario simulator treatment | DOWNSTREAM CANDIDATE | Remains downstream candidate, not a built-in profile |
 
 ## Formal v0.1.0 GitHub Release Draft
@@ -361,4 +364,4 @@ Previous tags:
 
 ## Next Recommended Step
 
-Use the refined optional design-stage usage guide for at least one more manual-use feedback cycle before considering render, gate, or example integration. Keep eval harness work, GitHub Release page publication, and local package creation deferred until explicitly approved.
+Use the refined optional design-stage usage guide for another manual-use feedback cycle or get explicit owner approval before considering render, gate, or example integration. Keep eval harness work, GitHub Release page publication, and local package creation deferred until explicitly approved.
