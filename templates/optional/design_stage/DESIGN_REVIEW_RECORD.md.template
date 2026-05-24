@@ -1,0 +1,70 @@
+# DESIGN_REVIEW_RECORD.md
+
+## Purpose
+
+Record design-stage review results for {{ project.name }}.
+
+This optional template reviews design documents only. It does not create new design outputs, implementation artifacts, runtime tests, gates, examples, or live target behavior.
+
+## Scope
+
+- Reviewed documents.
+- Design-only compliance result.
+- Source-use compliance result.
+- Sensitive information check result.
+- Prohibited artifact check result.
+- Document-by-document PASS/PARTIAL/BLOCKED findings.
+- Recommended next design-stage outputs.
+
+## Reviewed Documents
+
+- DESIGN_WORKPLAN.md
+- CONCEPT_BOUNDARY.md
+- CATEGORY_MAP.md
+- SYNTHETIC_FIXTURE_PLAN.md
+- ACCEPTANCE_EVIDENCE_PLAN.md
+- OPEN_QUESTIONS.md
+
+## Source Use
+
+| check | result | notes |
+|---|---|---|
+| Approved source rows used only | TBD | TBD |
+| Owner-review source rows held until accept/revise/defer | TBD | TBD |
+| Excluded source rows remained excluded | TBD | TBD |
+
+## Prohibited Content
+
+- Runtime implementation.
+- Application code.
+- C# source, solution, project, XAML, build assets, scripts, binaries, or executable packaging.
+- PLC/device code.
+- Live target write support or external mutation.
+- GitHub Actions or cloud CI.
+- Eval harness implementation.
+- Raw source bulk copy.
+- IP, port, tag value, live parameter, secret, private input, live config, credential, account, equipment detail, or sensitive requirement text.
+
+## Approval Boundary
+
+This review can recommend whether more design-stage documentation is ready. It cannot approve implementation, profile creation, example creation, render integration, gate implementation, CI, or live target access.
+
+## Review Results
+
+| document | result | notes |
+|---|---|---|
+| DESIGN_WORKPLAN.md | TBD | TBD |
+| CONCEPT_BOUNDARY.md | TBD | TBD |
+| CATEGORY_MAP.md | TBD | TBD |
+| SYNTHETIC_FIXTURE_PLAN.md | TBD | TBD |
+| ACCEPTANCE_EVIDENCE_PLAN.md | TBD | TBD |
+| OPEN_QUESTIONS.md | TBD | TBD |
+
+## Review Checklist
+
+- Design-only compliance checked.
+- Source-use compliance checked.
+- Sensitive information check completed.
+- Prohibited artifact check completed.
+- Open issues recorded.
+- Next approvals recorded.

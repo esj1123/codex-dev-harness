@@ -1,0 +1,55 @@
+# CATEGORY_MAP.md
+
+## Purpose
+
+Map generalized design categories for {{ project.name }}.
+
+This optional template supports design-stage categorization only. It must not copy raw procedures, sensitive requirements, live values, operational details, or downstream-specific source content.
+
+## Scope
+
+- High-level category mapping.
+- Synthetic input categories.
+- Abstract output categories.
+- Evidence/source row references.
+- Open questions that require owner review.
+
+## Source Use
+
+Use source row identifiers only. Do not paste source content.
+
+| source row | decision | allowed use |
+|---|---|---|
+| SRC-### | usable for design summary | Category-level reference only |
+| SRC-### | owner review required | Do not use until accepted, revised, or deferred |
+| SRC-### | excluded from repo | Do not use |
+
+## Category Map
+
+| category | high-level use-case | synthetic input category | abstract output category | source row reference | open question |
+|---|---|---|---|---|---|
+| TBD | TBD | TBD | TBD | SRC-### | TBD |
+
+## Prohibited Content
+
+- Raw source bulk copy.
+- Real procedures, operational steps, or sensitive requirement text.
+- Runtime implementation logic.
+- C# source, solution, project, XAML, build assets, scripts, or binaries.
+- PLC/device code.
+- Live target write support or external mutation.
+- GitHub Actions or cloud CI.
+- IP, port, tag value, live parameter, secret, credential, private input, live config, or equipment detail.
+
+## Approval Boundary
+
+This map is a design-stage categorization artifact. It does not approve implementation, example creation, profile creation, render integration, gate implementation, or runtime behavior.
+
+## Review Checklist
+
+- Categories are generalized.
+- Inputs are synthetic categories only.
+- Outputs are abstract categories only.
+- Source references use allowed source rows.
+- Owner-review sources remain unused until resolved.
+- Prohibited content is absent.

@@ -4,7 +4,7 @@
 
 Plan a future optional template pack for design-only phases.
 
-The pack would help downstream projects structure design work before implementation is approved. This document is planning-only and does not create templates, scripts, profiles, examples, runtime code, or implementation artifacts.
+The pack helps downstream projects structure design work before implementation is approved. This plan is now approved for experimental Markdown-only template files. It still does not approve render integration, gate implementation, profile creation, examples, runtime code, or implementation artifacts.
 
 ## Candidate Templates
 
@@ -20,13 +20,13 @@ The pack would help downstream projects structure design work before implementat
 
 ## Current State
 
-- Planned only.
-- No optional design-stage templates are created.
-- No render support is added.
-- No gate is added.
-- No profile is created.
-- No example is created.
-- No runtime/code generation is added.
+- Experimental Markdown-only template files are created.
+- Template files live under `templates/optional/design_stage/`.
+- Render support is not added.
+- Gate implementation is not added.
+- Profile creation is not added.
+- Example integration is not added.
+- Runtime/code generation is not added.
 
 ## Promotion Criteria
 
@@ -64,4 +64,4 @@ An optional design-stage pack may be implemented only when all criteria are met:
 
 ## Next Step
 
-Review downstream feedback and decide whether an optional design-stage pack implementation should be approved. Until then, the pack remains planned only.
+Review the experimental template files and decide whether render integration, gate integration, or example integration should be separately approved. Until then, the pack remains template-files-only.

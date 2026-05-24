@@ -1,0 +1,49 @@
+# OPEN_QUESTIONS.md
+
+## Purpose
+
+Track design-stage open questions for {{ project.name }}.
+
+This optional template records unresolved decisions without copying raw source content, sensitive values, or downstream-specific implementation details.
+
+## Scope
+
+- Owner-review source decisions.
+- Design risks.
+- Deferred decisions.
+- P2/P3 boundary questions.
+- Follow-up approvals.
+
+## Source Use
+
+Open questions may refer to source row identifiers only. Owner-review source rows must not be summarized beyond approved category-level metadata until the owner accepts, revises, or defers them. Excluded source rows must remain outside repository and target content.
+
+| question_id | source row | decision state | question | owner action needed |
+|---|---|---|---|---|
+| Q-001 | SRC-### | PENDING | TBD | accept/revise/defer |
+
+## Prohibited Content
+
+- Raw source excerpts.
+- Sensitive requirement text.
+- Private notes that reveal source content.
+- Runtime implementation details.
+- C# source, solution, project, XAML, build assets, scripts, or binaries.
+- PLC/device code.
+- Live target write support or external mutation.
+- GitHub Actions or cloud CI.
+- IP, port, tag value, live parameter, secret, private input, live config, credential, account, or equipment detail.
+
+## Approval Boundary
+
+Questions recorded here do not approve implementation, source expansion, profile creation, example creation, render integration, gate implementation, or live system access.
+
+## Review Checklist
+
+- Each question is generalized.
+- Source references use row identifiers only.
+- Owner-review rows are not used beyond allowed metadata.
+- Excluded source rows remain outside repository and target content.
+- Deferred decisions are clearly marked.
+- Prohibited content is absent.
+- Next approval need is explicit.

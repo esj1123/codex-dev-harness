@@ -1,0 +1,56 @@
+# SYNTHETIC_FIXTURE_PLAN.md
+
+## Purpose
+
+Plan synthetic fixture categories for {{ project.name }}.
+
+This optional template describes fixture categories only. It does not create fixture data files, runtime tests, source code, live configuration, or device integration.
+
+## Scope
+
+- Synthetic fixture categories.
+- Allowed synthetic fields.
+- Prohibited real/live/private fields.
+- Fixture review checklist.
+- Relationship to design-stage acceptance evidence.
+
+## Source Use
+
+Use only source rows approved for design summary. Owner-review sources must be accepted, revised, or deferred before use. Excluded source rows must not appear in target content.
+
+| source row | decision | fixture use |
+|---|---|---|
+| SRC-### | usable for design summary | Synthetic category framing only |
+| SRC-### | owner review required | Not used unless resolved |
+| SRC-### | excluded from repo | Not used |
+
+## Fixture Categories
+
+| fixture category | design purpose | allowed synthetic fields | prohibited real/live/private fields | evidence relationship |
+|---|---|---|---|---|
+| TBD | TBD | synthetic id, category, review state | real values, live values, private values | TBD |
+
+## Prohibited Content
+
+- Real operational data.
+- Raw source bulk copy.
+- Sensitive requirement text.
+- Runtime test code.
+- C# source, solution, project, XAML, build assets, scripts, binaries, or executable packaging.
+- PLC/device code.
+- Live target write support or external mutation.
+- GitHub Actions or cloud CI.
+- IP, port, tag value, live parameter, secret, credential, private input, live config, or equipment detail.
+
+## Approval Boundary
+
+Synthetic fixture planning is design-only. Creating fixture files, tests, scripts, generated data, or runtime validation requires separate approval.
+
+## Review Checklist
+
+- Fixture categories are synthetic by construction.
+- No real/private/live field is included.
+- Source-use decisions are followed.
+- No fixture file or runtime test is created.
+- Prohibited content is absent.
+- Acceptance evidence relationship is explicit.

@@ -1,0 +1,56 @@
+# ACCEPTANCE_EVIDENCE_PLAN.md
+
+## Purpose
+
+Plan design-stage acceptance evidence for {{ project.name }}.
+
+This optional template maps design-stage requirements to evidence categories. It is not a runtime trace, test implementation, eval harness, or proof of live system behavior.
+
+## Scope
+
+- Design-stage requirement categories.
+- Evidence categories.
+- Evidence source row references.
+- Review status.
+- Gaps and follow-up items.
+
+## Source Use
+
+Reference source rows by identifier only. Use only rows approved for design summary unless owner-review rows have been accepted, revised, or deferred.
+
+| source row | decision | evidence handling |
+|---|---|---|
+| SRC-### | usable for design summary | Evidence category reference only |
+| SRC-### | owner review required | Not used unless resolved |
+| SRC-### | excluded from repo | Not used |
+
+## Evidence Plan
+
+| evidence_id | requirement category | evidence category | source row reference | status | notes |
+|---|---|---|---|---|---|
+| EV-001 | TBD | TBD | SRC-### | PENDING | TBD |
+
+## Prohibited Content
+
+- Runtime test code or eval harness implementation.
+- Raw source bulk copy.
+- Sensitive requirement text.
+- Real operational evidence content.
+- C# source, solution, project, XAML, build assets, scripts, or binaries.
+- PLC/device code.
+- Live target write support or external mutation.
+- GitHub Actions or cloud CI.
+- IP, port, tag value, live parameter, secret, private input, live config, credential, account, or equipment detail.
+
+## Approval Boundary
+
+This document plans evidence only. Running tests, generating evidence artifacts, implementing graders, integrating gates, or validating live systems requires separate approval.
+
+## Review Checklist
+
+- Evidence entries are design-stage categories only.
+- Source-use decisions are followed.
+- Owner-review sources are not used before resolution.
+- Excluded sources remain outside target content.
+- No runtime or live evidence is generated.
+- Prohibited content is absent.

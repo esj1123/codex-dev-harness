@@ -1,0 +1,49 @@
+# CONCEPT_BOUNDARY.md
+
+## Purpose
+
+Define the design-stage concept boundary for {{ project.name }}.
+
+This optional template describes what the concept may discuss at a generalized level. It does not define runtime behavior, implementation architecture, device integration, or live target interaction.
+
+## Scope
+
+- Generalized concept purpose and non-goals.
+- Synthetic/mock-only assumptions.
+- Input and output category boundaries.
+- Design evidence boundaries.
+- Owner-review dependencies.
+
+## Source Use
+
+Use only source rows approved for design summary. Owner-review sources must remain unused until the owner accepts, revises, or defers them. Excluded sources must remain outside the target.
+
+| source row | decision | use in this document |
+|---|---|---|
+| SRC-### | usable for design summary | TBD |
+| SRC-### | owner review required | Not used unless resolved |
+| SRC-### | excluded from repo | Not used |
+
+## Prohibited Content
+
+- Runtime implementation or executable behavior.
+- Application source code.
+- C# source, solution, project, XAML, build assets, scripts, or binaries.
+- PLC/device code.
+- Live target write support, start/stop/reset, mode change, or external mutation.
+- GitHub Actions or cloud CI.
+- Raw source bulk copy.
+- IP, port, tag value, live parameter, secret, private input, live config, account, credential, or equipment detail.
+
+## Approval Boundary
+
+This concept boundary supports design-only review. It does not approve implementation planning, runtime work, profile creation, example creation, render integration, gate implementation, or live target interaction.
+
+## Review Checklist
+
+- Concept scope is generalized and domain-neutral.
+- Synthetic/mock-only boundary is explicit.
+- No live target or device behavior is described.
+- No implementation artifacts are implied.
+- Source-use decisions are followed.
+- Prohibited content is absent.

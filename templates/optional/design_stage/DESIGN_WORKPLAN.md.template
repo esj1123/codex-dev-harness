@@ -1,0 +1,61 @@
+# DESIGN_WORKPLAN.md
+
+## Purpose
+
+Define the design-stage workplan for {{ project.name }}.
+
+This optional template is Markdown-only. It does not authorize runtime implementation, source code, live target writes, external mutation, CI, or project-specific domain content.
+
+## Scope
+
+- Design-only purpose and phase objective.
+- Candidate design outputs.
+- Source-use decisions for this phase.
+- Exit criteria before implementation planning.
+- Open risks and owner-review dependencies.
+
+## Source Use
+
+| source row | decision | allowed handling |
+|---|---|---|
+| SRC-### | usable for design summary | Use category-level summaries only |
+| SRC-### | owner review required | Do not use until owner accepts, revises, or defers |
+| SRC-### | excluded from repo | Do not use in target content |
+
+Owner-review sources must not be used until the owner records accept, revise, or defer. Excluded sources must stay outside repository and generated target content.
+
+## Prohibited Content
+
+- Runtime implementation.
+- Application source code.
+- C# source, solution, project, XAML, build assets, scripts, binaries, or executable packaging.
+- PLC/device code.
+- Live target write support or external mutation.
+- GitHub Actions or cloud CI.
+- Raw source bulk copy.
+- IP, port, tag value, live parameter, secret, credential, private input, live config, or equipment detail.
+- Downstream-specific content except placeholders and generalized summaries.
+
+## Approval Boundary
+
+Design work may start only after the relevant design-stage entry approval is recorded. Implementation planning, runtime work, live-write behavior, and example/profile creation require separate explicit approval.
+
+## Candidate Outputs
+
+| output | purpose | status |
+|---|---|---|
+| CONCEPT_BOUNDARY.md | Define design-only boundary | PENDING |
+| CATEGORY_MAP.md | Map generalized categories | PENDING |
+| SYNTHETIC_FIXTURE_PLAN.md | Plan synthetic fixture categories | PENDING |
+| ACCEPTANCE_EVIDENCE_PLAN.md | Plan evidence coverage | PENDING |
+| OPEN_QUESTIONS.md | Track unresolved owner questions | PENDING |
+| DESIGN_REVIEW_RECORD.md | Record design-stage review | PENDING |
+
+## Review Checklist
+
+- Scope is design-only and documentation-only.
+- Source-use decisions are explicit.
+- Owner-review sources are not used before accept/revise/defer.
+- Excluded sources are not used.
+- Prohibited content is absent.
+- Exit criteria are recorded before implementation planning.
