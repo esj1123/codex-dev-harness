@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 Stage 1 docs-only governance gap closure.
+Post v0.1.0 Stage 2 prompt contract templates.
 
 ## Current State
 
