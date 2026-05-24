@@ -148,7 +148,8 @@ Previous tags:
 | optional design-stage manual feedback 001 | PRESENT | refined usage guide was exercised against a downstream target in read-only mode |
 | optional design-stage manual feedback 002 | PRESENT | ACCEPTANCE_EVIDENCE_PLAN and OPEN_QUESTIONS received downstream manual-use evidence |
 | optional design-stage template review results | PASS | All seven optional templates have PASS manual-use review/evidence |
-| optional design-stage integration decision | PENDING | `docs/OPTIONAL_DESIGN_STAGE_PACK_INTEGRATION_DECISION.md` exists; manual-use-only baseline is ready |
+| optional design-stage integration decision | CLOSED | `docs/OPTIONAL_DESIGN_STAGE_PACK_INTEGRATION_DECISION.md` records KEEP MANUAL-USE-ONLY BASELINE |
+| optional design-stage manual-use-only baseline | CLOSED | All seven optional templates have PASS evidence and remain manual-use-only |
 | optional design-stage integrations | DEFERRED | Render, gate, and example integration are not implemented |
 | template extension policy | REFRESHED | downstream feedback promotion and optional-pack placement criteria are documented |
 | formal v0.1.0 criteria | SATISFIED | `docs/FORMAL_V0.1.0_CRITERIA.md` exists; formal tag created |
@@ -322,7 +323,8 @@ Previous tags:
 | optional design-stage guide refinements | PRESENT | mapping table, skip/merge/review-only guidance, and manual scan examples added without integration |
 | optional design-stage manual feedback 001 | CAPTURED | `docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_001.md`; no downstream target modification or integration work |
 | optional design-stage manual feedback 002 | CAPTURED | `docs/OPTIONAL_DESIGN_STAGE_PACK_MANUAL_FEEDBACK_002.md`; acceptance evidence and open-question templates validated as manual-use candidates |
-| optional design-stage integration decision | PENDING | `docs/OPTIONAL_DESIGN_STAGE_PACK_INTEGRATION_DECISION.md`; render/gate/example integration remains deferred |
+| optional design-stage integration decision | CLOSED | `docs/OPTIONAL_DESIGN_STAGE_PACK_INTEGRATION_DECISION.md`; owner decision is KEEP MANUAL-USE-ONLY BASELINE |
+| optional design-stage manual-use-only baseline | CLOSED | Render/gate/example integration remains deferred and requires separate owner approval |
 | scenario simulator treatment | DOWNSTREAM CANDIDATE | Remains downstream candidate, not a built-in profile |
 
 ## Formal v0.1.0 GitHub Release Draft
@@ -371,4 +373,4 @@ Previous tags:
 
 ## Next Recommended Step
 
-Decide whether to keep the optional design-stage pack manual-use-only or explicitly approve a staged integration path. Current decision state is PENDING, and render, gate, example integration, eval harness work, GitHub Release page publication, and local package creation remain deferred until explicitly approved.
+Use the optional design-stage pack as a closed manual-use-only baseline. Future render, gate, or example integration requires a separate owner approval triggered by repeated manual-use friction, copy/rename errors, or a clear need for opt-in render or validation support.

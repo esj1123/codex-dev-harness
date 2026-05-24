@@ -114,7 +114,8 @@ This document records the P6 release candidate closeout state for the local-firs
 - Optional design-stage usage guide refinements: DOCUMENTED with mapping, skip/merge/review-only guidance, and manual scan examples.
 - Optional design-stage manual feedback 001: DOCUMENTED from read-only downstream target review.
 - Optional design-stage manual feedback 002: DOCUMENTED from downstream manual use of acceptance evidence and open-question templates.
-- Optional design-stage pack integration decision: DOCUMENTED; owner decision remains PENDING.
+- Optional design-stage pack integration decision: DOCUMENTED; owner decision is KEEP MANUAL-USE-ONLY BASELINE.
+- Optional design-stage manual-use-only baseline: CLOSED.
 - Optional design-stage render/gate/example integration: DEFERRED.
 - Template extension policy: UPDATED with downstream feedback promotion criteria and profile-as-last-resort guidance.
 
@@ -137,7 +138,8 @@ This document records the P6 release candidate closeout state for the local-firs
 - Review whether PASS evidence for all seven optional design-stage templates is sufficient before approving integration work.
 - Optional design-stage pack decision: APPROVED FOR TEMPLATE FILES ONLY.
 - Review whether the refreshed optional design-stage manual review is sufficient before approving integration work.
-- Decide whether to keep manual-use-only or explicitly approve staged render, gate, or example integration.
+- Optional design-stage manual-use-only baseline: CLOSED.
+- Future optional design-stage render, gate, or example integration requires separate owner approval.
 - Decide a post-v0.1.0 improvement plan.
 - Post-v0.1.0 improvement plan: DOCUMENTED.
 - Decide whether downstream adoption feedback justifies a follow-up task.
@@ -183,7 +185,8 @@ This document records the P6 release candidate closeout state for the local-firs
 - Optional design-stage usage guide was refined without adding integration.
 - Optional design-stage manual feedback 001 was documented without downstream target modification.
 - Optional design-stage manual feedback 002 was documented from downstream manual use without adding integration.
-- Optional design-stage pack integration decision was documented without adding integration.
+- Optional design-stage pack integration decision was closed as KEEP MANUAL-USE-ONLY BASELINE without adding integration.
+- Optional design-stage manual-use-only baseline was closed.
 - No optional design-stage pack render, gate, or example integration was added.
 - Scenario simulator design was tested only as a downstream candidate.
 - Regression examples include the extended base docs.

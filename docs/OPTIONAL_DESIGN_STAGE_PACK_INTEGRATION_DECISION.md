@@ -6,7 +6,7 @@ Record the decision point for whether the optional design-stage pack should rema
 
 This document is decision-only. It does not implement render integration, gate support, example integration, profile creation, eval harness work, CI workflows, application code, C# assets, PLC/device artifacts, or live target write support.
 
-## Current State
+## Current Evidence
 
 - Optional design-stage template files are present under `templates/optional/design_stage/`.
 - Usage guide is present: `docs/OPTIONAL_DESIGN_STAGE_PACK_USAGE.md`.
@@ -33,6 +33,34 @@ Keep the optional design-stage pack manual-use-only unless the owner explicitly 
 
 The current PASS evidence supports safe manual use. It does not by itself approve render, gate, or example integration.
 
+## Owner Decision
+
+| field | decision |
+|---|---|
+| owner decision | KEEP MANUAL-USE-ONLY BASELINE |
+| render integration | DEFERRED |
+| gate integration | DEFERRED |
+| example integration | DEFERRED |
+| status | MANUAL-USE-ONLY BASELINE CLOSED |
+
+## Rationale
+
+- Manual use is sufficient for the current evidence.
+- Render, gate, and example integration would expand the maintenance surface.
+- Any integration requires a separate explicit owner approval.
+- The optional design-stage pack should not become part of the base template by accident.
+- Keeping manual-use-only preserves the optional-pack boundary while still allowing downstream teams to copy, merge, skip, or review-only the templates.
+
+## Future Triggers
+
+Integration can be reconsidered if one or more of the following triggers appears:
+
+- Repeated manual-use friction.
+- Repeated copy or rename errors.
+- Clear need for opt-in render support.
+- Clear need for optional pack validation.
+- Explicit owner approval for render, gate, or example integration.
+
 ## Possible Staged Path
 
 | stage | name | scope | approval need |
@@ -46,11 +74,11 @@ The current PASS evidence supports safe manual use. It does not by itself approv
 
 | field | decision |
 |---|---|
-| owner decision | PENDING |
-| render integration | PENDING |
-| gate integration | PENDING |
-| example integration | PENDING |
-| status | PENDING |
+| owner decision | KEEP MANUAL-USE-ONLY BASELINE |
+| render integration | DEFERRED |
+| gate integration | DEFERRED |
+| example integration | DEFERRED |
+| status | MANUAL-USE-ONLY BASELINE CLOSED |
 
 ## Non-Goals
 
@@ -73,6 +101,6 @@ The current PASS evidence supports safe manual use. It does not by itself approv
 
 ## Current Decision
 
-Status: PENDING.
+Status: MANUAL-USE-ONLY BASELINE CLOSED.
 
-Integration remains not implemented. The manual-use-only baseline is ready for continued downstream use. Any render, gate, or example integration requires a separate explicit owner decision.
+Integration remains not implemented. The manual-use-only baseline is closed and ready for continued downstream use. Any future render, gate, or example integration requires a separate explicit owner decision.
