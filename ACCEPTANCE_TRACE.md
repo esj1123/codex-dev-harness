@@ -136,6 +136,12 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 | AT-115 | current | governance_audit | bug review template is documented | Bug review template exists | docs/BUG_REVIEW_TEMPLATE.md | PASS | Evidence-based review template only |
 | AT-116 | current | governance_audit | simplification checklist is documented | Simplification checklist exists | docs/SIMPLIFICATION_CHECKLIST.md | PASS | Helps avoid unnecessary template/repo growth |
 | AT-117 | current | side_effect_contract | no implementation added while adding lightweight governance docs | Status and roadmap record docs-only scope | STATUS.md; docs/POST_V0.1.0_ROADMAP.md | PASS | No render, gate, example, eval, workflow, profile, application, C#, PLC/device, or live-write work added |
+| AT-118 | current | governance_audit | change control policy is documented | Change control document exists | docs/CHANGE_CONTROL.md | PASS | Documentation-only policy; implementation and release tooling remain approval-gated |
+| AT-119 | current | governance_audit | human approval policy is documented | Human approvals document exists | docs/HUMAN_APPROVALS.md | PASS | Approval records are defined as policy fields only; no approval database or automation added |
+| AT-120 | current | governance_audit | eval policy is documented without implementing an eval harness | Eval policy document exists | docs/EVAL_POLICY.md | PASS | No `evals/`, eval runner, fixtures, grader, gate integration, dependencies, or CI added |
+| AT-121 | current | governance_audit | audit log policy is documented without creating audit schema or logs | Audit log policy document exists | docs/AUDIT_LOG_POLICY.md | PASS | No `audits/`, schema, JSONL logs, log writers, telemetry, or persistence tooling added |
+| AT-122 | current | product_contract | Stage 1 governance closure status is recorded | STATUS records Stage 1 docs and boundary | STATUS.md | PASS | Stage 1 limited to approved docs and status/trace updates |
+| AT-123 | current | side_effect_contract | no implementation added during Stage 1 governance closure | New docs and status preserve implementation non-goals | docs/CHANGE_CONTROL.md; docs/HUMAN_APPROVALS.md; docs/EVAL_POLICY.md; docs/AUDIT_LOG_POLICY.md; STATUS.md | PASS | No prompt templates, evals, audit schema, release bundle policy, manifest policy, manifest/checksum/SBOM/provenance generator, release wrapper, workflow, profile, example, application, C#, PLC/device, or live-write work added |
 
 ## Status Values
 

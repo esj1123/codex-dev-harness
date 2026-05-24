@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 optional design-stage manual-use-only baseline closed.
+Post v0.1.0 Stage 1 documentation-only governance closure.
 
 ## Current State
 
@@ -43,6 +43,10 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/RELEASE_PAGE_DECISION.md`
   - `docs/LOCAL_PACKAGE_CHECKLIST.md`
   - `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`
+  - `docs/CHANGE_CONTROL.md`
+  - `docs/HUMAN_APPROVALS.md`
+  - `docs/EVAL_POLICY.md`
+  - `docs/AUDIT_LOG_POLICY.md`
   - `docs/P6_RELEASE_CLOSEOUT.md`
   - `docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md`
   - `docs/GITHUB_RELEASE_DRAFT_v0.1.0.md`
@@ -82,6 +86,13 @@ The repository contains documentation, base templates, profile templates, render
 - Real secret/config files.
 - CI workflow.
 - Release automation.
+- Audit log schema or audit log implementation.
+- Eval harness implementation.
+- Release manifest/checksum/SBOM/provenance generators.
+- Release verification wrapper.
+- Prompt task contract template files.
+- Model change policy.
+- Release bundle or release manifest policy.
 - Dedicated `scenario_simulator` profile.
 - `examples/scenario_simulator_minimal`.
 - Optional design-stage pack render integration.
@@ -164,6 +175,8 @@ Previous tags:
 | template extension policy | REFRESHED | downstream feedback promotion and optional-pack placement criteria are documented |
 | formal v0.1.0 criteria | SATISFIED | `docs/FORMAL_V0.1.0_CRITERIA.md` exists; formal tag created |
 | optional GitHub Actions guide | PRESENT | guide and template exist, but no workflow is installed |
+| Stage 1 governance closure docs | PRESENT | `docs/CHANGE_CONTROL.md`, `docs/HUMAN_APPROVALS.md`, `docs/EVAL_POLICY.md`, and `docs/AUDIT_LOG_POLICY.md` exist; documentation-only |
+| Stage 1 implementation boundary | PRESERVED | No audit schema, prompt templates, evals, release tooling, manifest/checksum/SBOM/provenance generator, workflow, profile, example, application code, C# asset, PLC/device code, or live-write behavior added |
 
 ## Clean Clone Validation
 
@@ -338,6 +351,10 @@ Previous tags:
 | optional design-stage manual-use-only baseline | CLOSED | Render/gate/example integration remains deferred and requires separate owner approval |
 | optional design-stage operating docs | REFRESHED | Architecture, known limitations, and roadmap reflect the closed manual-use-only baseline |
 | lightweight governance docs | ADDED | `PROMPT_PATTERNS`, `BUG_REVIEW_TEMPLATE`, and `SIMPLIFICATION_CHECKLIST` are present; no implementation added |
+| Stage 1 governance closure docs | ADDED | `CHANGE_CONTROL`, `HUMAN_APPROVALS`, `EVAL_POLICY`, and `AUDIT_LOG_POLICY` are present; no implementation added |
+| audit log policy | DOCUMENTED ONLY | `docs/AUDIT_LOG_POLICY.md`; no `audits/`, schema, JSONL logs, log writers, or telemetry added |
+| eval policy | DOCUMENTED ONLY | `docs/EVAL_POLICY.md`; no `evals/`, runner, fixtures, grader, gate integration, dependencies, or CI added |
+| change control and human approvals | DOCUMENTED ONLY | `docs/CHANGE_CONTROL.md` and `docs/HUMAN_APPROVALS.md`; side-effect approval remains explicit and task-specific |
 | scenario simulator treatment | DOWNSTREAM CANDIDATE | Remains downstream candidate, not a built-in profile |
 
 ## Formal v0.1.0 GitHub Release Draft
@@ -386,4 +403,4 @@ Previous tags:
 
 ## Next Recommended Step
 
-Use the optional design-stage pack as a closed manual-use-only baseline. Future render, gate, or example integration requires a separate owner approval triggered by repeated manual-use friction, copy/rename errors, or a clear need for opt-in render or validation support.
+Perform a Stage 1 closeout review of the documentation-only governance closure. After that, consider prompt task contract templates as a separate approved task before minimal eval harness design, audit schema design, release bundle or manifest policy, manifest/checksum implementation, SBOM/provenance planning, or release verification wrapper integration.
