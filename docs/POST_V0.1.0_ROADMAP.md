@@ -94,6 +94,17 @@ template is not installed under `.github/workflows/`, requires no secrets, uses
 read-only permissions, does not upload artifacts, and does not publish, sign,
 tag, deploy, or write to live targets.
 
+Additional local target experiment plans are present:
+
+- `docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md`
+- `docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md`
+
+These plans define future dry-run-first, approval-gated, separate temporary
+target experiments for existing profile templates. They are planning-only and
+do not execute target renders, create downstream target folders, add C# or
+PLC/device code, create live configuration, generate release artifacts, or
+install workflows.
+
 ## Optional Improvement Sequence
 
 1. Release page decision.
@@ -108,6 +119,7 @@ tag, deploy, or write to live targets.
 10. Python runtime reproducibility.
 11. Approved-corpus RAG and model-change policy planning.
 12. Optional CI actualization decision and template-only release verification.
+13. Additional local target experiment planning for existing profiles.
 
 Each item is optional and should remain approval-gated. Planning a future capability does not authorize implementing it.
 
@@ -224,6 +236,27 @@ releases, sign artifacts, create or move tags, deploy, or write to live targets.
 Actual workflow installation, required checks, artifact upload, release
 publication, signing, tag movement, or deployment requires separate owner
 approval.
+
+## Additional Local Target Experiment Planning
+
+Status: PLANNING ONLY.
+
+The `csharp_desktop` and `plc_or_device_tool` profile templates have
+documentation-only future experiment plans:
+
+- `docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md`
+- `docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md`
+
+Each plan requires a separate temporary target, dry-run review first, docs-only
+expected output, safety checks, and explicit owner approval before any actual
+render write. The plans also define the evidence record to create after a future
+approved execution and how to record `NOT RUN`, `BLOCKED`, and
+`ENVIRONMENT BLOCKED` honestly.
+
+These plans do not create target folders, execute render writes, add C# source,
+solution, project, XAML, build assets, PLC/device code, polling, connections,
+tag maps, control actions, live config, live-write behavior, CI workflows,
+release artifacts, or `scenario_simulator` profiles/examples.
 
 ## Profile Policy
 

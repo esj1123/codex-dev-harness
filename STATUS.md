@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 release manifest runtime inventory alignment.
+Post v0.1.0 additional local target experiment planning.
 
 ## Current State
 
@@ -88,6 +88,8 @@ regenerating artifacts.
   - `docs/CLEAN_CLONE_VALIDATION_v0.1.0.md`
   - `docs/LOCAL_TARGET_EXPERIMENT_python_cli_v0.1.0-rc1.md`
   - `docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md`
+  - `docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md`
+  - `docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md`
   - `docs/DOWNSTREAM_EXPERIMENT_scenario_simulator_design_base_template.md`
   - `docs/RC2_CANDIDATE_CLOSEOUT.md`
   - `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`
@@ -162,6 +164,8 @@ regenerating artifacts.
   output capture.
 - SBOM/provenance external metadata resolution.
 - SBOM/provenance signing or publication.
+- Executed additional local target experiments for `csharp_desktop` or
+  `plc_or_device_tool`.
 
 ## Known Constraints
 
@@ -369,6 +373,20 @@ Stage 0 current-main gap review basis:
 | runtime/live-write artifacts | ABSENT | No application code, C# project files, PLC/device code, live write support, or live config generated |
 | record | PRESENT | `docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md` |
 
+## Additional Local Target Experiment Plans
+
+| item | status | evidence |
+|---|---|---|
+| `csharp_desktop` plan | PRESENT / NOT RUN | `docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md` |
+| `plc_or_device_tool` plan | PRESENT / NOT RUN | `docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md` |
+| separate temporary target requirement | PRESENT | Both plans require an approved disposable target before any render write |
+| dry-run first requirement | PRESENT | Both plans require dry-run review before actual render approval |
+| expected output | DOCS ONLY | Both plans list Markdown documentation outputs and forbid application/runtime artifacts |
+| approval before actual render | REQUIRED | Planning documents do not approve actual target writes |
+| actual render | NOT RUN | No target render was executed during this planning task |
+| downstream target folder | NOT CREATED | No separate target folder was created during this planning task |
+| C#/PLC/device/live-write scope | ABSENT | No source, project, XAML, build asset, polling, connection, tag map, control action, live config, or live-write behavior added |
+
 ## RC2 Candidate
 
 | item | status | evidence |
@@ -460,6 +478,7 @@ Stage 0 current-main gap review basis:
 | approved-corpus RAG planning | ADDED | `docs/APPROVED_CORPUS_RAG_PLAN.md` defines candidate safe corpus files, required metadata, forbidden corpus, and corpus-expansion approval checkpoints; no retrieval/index tooling added |
 | model and prompt change planning | ADDED | `docs/MODEL_CHANGE_POLICY.md` defines model, prompt template, eval run, corpus digest, side-effect class, and compare-before-adopt controls; no model comparison or capture tooling added |
 | optional release verification CI template | TEMPLATE ONLY | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md` and `templates/ci/github-actions-release-verify.yml.template` exist; no `.github/workflows`, required checks, artifact upload, publishing, signing, tag movement, deployment, application code, or live-write behavior |
+| additional local target experiment plans | PLANNING ONLY | `docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md` and `docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md` define separate temporary target, dry-run first, docs-only output, safety checks, approval, future evidence, and honest NOT RUN/BLOCKED rules; no render write or target folder created |
 | Stage 1 change control policy | PRESENT | `docs/CHANGE_CONTROL.md`; documentation-only |
 | Stage 1 human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md`; documentation-only |
 | Stage 1 eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval exists; no dependencies, quality-gate integration, or CI integration |
