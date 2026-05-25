@@ -50,9 +50,29 @@ absent. The wrapper prints generated artifact paths and a PASS/FAIL/SKIPPED
 summary. It does not call external services, publish or upload artifacts, create
 or move tags, sign artifacts, create release archives, or install CI workflows.
 
+## Python Runtime And Dependencies
+
+The preferred local verification runtime is pinned in `.python-version` and
+documented in `docs/PYTHON_RUNTIME_POLICY.md`.
+
+Use `requirements-dev.txt` for the standard local setup command:
+
+`python -m pip install -r requirements-dev.txt`
+
+Use `requirements-dev.lock` when an exact local verification dependency set is
+needed:
+
+`python -m pip install -r requirements-dev.lock`
+
+The lock file is pip-compatible and limited to development verification
+dependencies. It does not add runtime application, C#, PLC, device, cloud, or
+live-target dependencies.
+
 ## Manual Verification Flow
 
 Run:
+
+`python --version`
 
 `python -m pip install -r requirements-dev.txt`
 

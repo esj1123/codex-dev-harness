@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 local release verification wrapper.
+Post v0.1.0 Python runtime reproducibility.
 
 ## Current State
 
@@ -45,6 +45,7 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/RELEASE_BUNDLE_POLICY.md`
   - `docs/RELEASE_MANIFEST_POLICY.md`
   - `docs/SBOM_PROVENANCE_PLAN.md`
+  - `docs/PYTHON_RUNTIME_POLICY.md`
   - `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`
   - `docs/MINIMAL_EVAL_HARNESS_DESIGN.md`
   - `docs/CHANGE_CONTROL.md`
@@ -79,6 +80,10 @@ The repository contains documentation, base templates, profile templates, render
 - `scripts/generate_sbom.py`.
 - `scripts/generate_provenance.py`.
 - `scripts/run_release_verify.ps1`.
+- Python runtime/dependency reproducibility files:
+  - `.python-version`
+  - `requirements-dev.txt`
+  - `requirements-dev.lock`
 - Gate modules under `scripts/gates/`.
 - Standalone eval gate wrapper: `scripts/gates/eval_gate.py`.
 - Minimal local eval cases under `evals/cases/`.
@@ -130,6 +135,10 @@ The repository contains documentation, base templates, profile templates, render
 - Examples are skeletons only.
 - Runtime checks in examples may be marked NOT RUN when code or scripts do not exist.
 - Render targets inside this repository are limited to `examples/<name>`.
+- `requirements-dev.lock` pins exact development verification package versions
+  but does not include wheel hashes.
+- The current release manifest generator was not updated in this task to
+  inventory `.python-version` or `requirements-dev.lock`.
 
 ## Latest Verification
 
@@ -220,6 +229,9 @@ Stage 0 current-main gap review basis:
 | SBOM/provenance generators | PRESENT | `scripts/generate_sbom.py` and `scripts/generate_provenance.py`; standard-library-only, local-only, restricted to repo-relative `artifacts/` paths, and reject overlapping release-evidence output paths |
 | SBOM/provenance artifacts | PRESENT | `artifacts/sbom.spdx.json`, `artifacts/sbom.cdx.json`, and `artifacts/provenance.intoto.jsonl`; no signing, publication, tag movement, release archive, workflow, application code, or live-write behavior |
 | release verification wrapper | PRESENT | `scripts/run_release_verify.ps1`; local-only wrapper for local verification, standalone eval, manifest/checksum, SBOM, and provenance generation |
+| Python runtime policy | PRESENT | `docs/PYTHON_RUNTIME_POLICY.md` documents the pinned local verification runtime and dependency update rule |
+| Python runtime pin | PRESENT | `.python-version` pins Python `3.12.13` for local verification reproducibility |
+| development dependency lock | PRESENT | `requirements-dev.txt` pins the direct pytest dependency and `requirements-dev.lock` records exact local verification dependency pins |
 | dedicated change control policy | PRESENT | `docs/CHANGE_CONTROL.md` |
 | dedicated human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md` |
 | dedicated eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval implementation now exists |
@@ -462,9 +474,10 @@ Stage 0 current-main gap review basis:
 
 ## Next Recommended Step
 
-Run `scripts/run_eval.py` as a standalone local check while it gathers usage
-evidence. Keep eval integration into `scripts/quality_gate.py`, CI integration,
-routine eval report generation, real audit session log generation, audit logging
-automation, broader release bundle or archive generation, SBOM/provenance
-expansion or publication, workflows, profiles, and
-application/device/live-write behavior deferred unless separately approved.
+Use the pinned Python runtime policy when refreshing local verification
+evidence. Keep hash-locked dependency artifacts, eval integration into
+`scripts/quality_gate.py`, CI integration, routine eval report generation, real
+audit session log generation, audit logging automation, broader release bundle
+or archive generation, SBOM/provenance expansion or publication, workflows,
+profiles, and application/device/live-write behavior deferred unless separately
+approved.

@@ -1,0 +1,10 @@
+# Exact development verification dependency set for Python 3.12.13.
+# Generated from the current local verification runtime with:
+# python -m pip show pytest iniconfig packaging pluggy Pygments colorama
+# Keep this file pip-compatible and exclude unrelated bundled runtime packages.
+colorama==0.4.6
+iniconfig==2.3.0
+packaging==26.2
+pluggy==1.6.0
+Pygments==2.20.0
+pytest==9.0.3

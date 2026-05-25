@@ -64,7 +64,8 @@ Future bundles should include only repository-controlled, reviewed evidence:
 - `scripts/gates/`
 - `examples/`
 - `tests/`
-- dependency declaration files
+- dependency declaration files such as `.python-version`,
+  `requirements-dev.txt`, and `requirements-dev.lock`
 - template configuration examples
 - approved release evidence files
 
@@ -76,6 +77,12 @@ Future SBOM and provenance artifacts should relate back to
 `release-manifest.json` and `checksums.sha256` rather than replacing them. The
 manifest remains the file inventory and digest source; checksums remain the
 integrity evidence for generated release artifacts.
+
+Release evidence should record the Python runtime and development dependency
+basis where available. `.python-version` records the preferred local
+verification runtime, `requirements-dev.txt` records direct development
+dependencies, and `requirements-dev.lock` records exact local verification
+dependency pins.
 
 ## Exclusion Policy
 

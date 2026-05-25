@@ -81,6 +81,7 @@ Those items are no longer described as current absence. Render script, quality g
 
 Use the quality gate and dry-run renderer before treating the template as healthy:
 
+- `python --version`
 - `python -m pip install -r requirements-dev.txt`
 - `python -m pytest`
 - `python scripts/quality_gate.py`
@@ -94,6 +95,12 @@ The release verification wrapper is local-only. It runs local verification,
 standalone evals when present, and local release evidence generation under
 `artifacts/`; it does not publish releases, move tags, sign artifacts, create
 archives, or install CI workflows.
+
+Python runtime and dependency reproducibility are documented in
+`docs/PYTHON_RUNTIME_POLICY.md`. The local verification runtime is pinned in
+`.python-version`, direct development dependencies are declared in
+`requirements-dev.txt`, and exact local verification pins are recorded in
+`requirements-dev.lock`.
 
 CI policy is documented in `docs/CI_POLICY.md`. No workflow is included in the current baseline.
 
