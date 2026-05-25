@@ -1,9 +1,9 @@
 {
   "schema_version": "1",
-  "generated_at_utc": "2026-05-25T01:54:02Z",
+  "generated_at_utc": "2026-05-25T02:34:06Z",
   "repository": "esj1123/codex-dev-harness",
   "git_ref": "main",
-  "git_commit": "cc5b7df8645739c4f938b872c2943fc5cb004fc4",
+  "git_commit": "0c38175160b4b86a7a44243e6cba0d614fd1ff87",
   "git_tag": null,
   "python_version": "3.12.13",
   "included_roots": [
@@ -122,8 +122,8 @@
   "files": [
     {
       "path": "ACCEPTANCE_TRACE.md",
-      "size_bytes": 40696,
-      "sha256": "d9b7ed15f78dcf3e857f82f8eb650b062bebd6a99762b8af9623a3082124b601"
+      "size_bytes": 41285,
+      "sha256": "11a7daa5c8bfb1d5d24f31f0ce4b8eb3710256ddf4cf244ee1be8494ab050bf3"
     },
     {
       "path": "AGENTS.md",
@@ -142,8 +142,8 @@
     },
     {
       "path": "README.md",
-      "size_bytes": 4094,
-      "sha256": "f92c9d404532ea0784e1718131115e2f9b7a38c3d95fd1ecd82d2dc8a0269895"
+      "size_bytes": 4430,
+      "sha256": "1ae25d306915c0bf14606fe0adbe48f36c8ba1365d7e1b0e18fc6e0e590831f8"
     },
     {
       "path": "ROADMAP.md",
@@ -152,8 +152,8 @@
     },
     {
       "path": "STATUS.md",
-      "size_bytes": 32883,
-      "sha256": "00f0d20becd0e07ad6df1924c8689c715dd15e9615fee2e5cce0288d5cdff681"
+      "size_bytes": 33396,
+      "sha256": "d54f43ae5f44e8aa3fa73e27a7f6a0269963200bf0ff2d0a2eb302a283c1380e"
     },
     {
       "path": "audits/audit-log.schema.json",
@@ -377,8 +377,8 @@
     },
     {
       "path": "docs/RELEASE_BUNDLE_POLICY.md",
-      "size_bytes": 5190,
-      "sha256": "8cc12bcd2c3c70b3d59a305bf522b80c1f06464db3022f1a135adaab1abca4c3"
+      "size_bytes": 6174,
+      "sha256": "59f1529336e63c0189630a62d09fe648c7f623b7f9e88740c6e87f7f92774467"
     },
     {
       "path": "docs/RELEASE_CHECKLIST.md",
@@ -387,8 +387,8 @@
     },
     {
       "path": "docs/RELEASE_MANIFEST_POLICY.md",
-      "size_bytes": 4316,
-      "sha256": "41ed8b8ccf2424e2c7506827ead2c383b53d6d0e16fa920eee0c87825480556b"
+      "size_bytes": 4598,
+      "sha256": "2cd7f0dc22a820533b526c1ffd876c9ca4bcbd1325e0aa1a68b4f8c7b53a64e7"
     },
     {
       "path": "docs/RELEASE_NOTES_v0.1.0-rc1.md",
@@ -427,8 +427,8 @@
     },
     {
       "path": "docs/SBOM_PROVENANCE_PLAN.md",
-      "size_bytes": 5788,
-      "sha256": "eee1cc9ca4be8245449c359d15b68d63137efb6632d5cbcc17a6e672b9803ee0"
+      "size_bytes": 6371,
+      "sha256": "1342afd75ed0cd41dca9f947a8f8b2927411c63d292987155f6f2412c1d7f6cb"
     },
     {
       "path": "docs/SIMPLIFICATION_CHECKLIST.md",
@@ -447,8 +447,8 @@
     },
     {
       "path": "docs/VERIFICATION.md",
-      "size_bytes": 2836,
-      "sha256": "bf192971a4c47e59c4a09497b78ad98dfd26e74ec664c45051e5e10068d5f1c0"
+      "size_bytes": 3646,
+      "sha256": "b8319b52850190ff55ac1399df191b8bf4b064b506eba3aa4d182bb6b06a7803"
     },
     {
       "path": "docs/adr/ADR-0001-local-first.md",
@@ -892,13 +892,13 @@
     },
     {
       "path": "scripts/generate_provenance.py",
-      "size_bytes": 8198,
-      "sha256": "1931218fbceb43f943cb31688b48956ec7eb3f8c2ceac06bd3babe125bda2f27"
+      "size_bytes": 8412,
+      "sha256": "e64c144a65d4145416cead7a2ad3fe089976676b8c90ee4b6632952be15cc369"
     },
     {
       "path": "scripts/generate_sbom.py",
-      "size_bytes": 12653,
-      "sha256": "1a4d2fc1d5f157463275027136622211c10220cddcd2575ab5766716d759363a"
+      "size_bytes": 12988,
+      "sha256": "93606f7abddd6920f73ee988fa67c46d096bb7318304c3aeefd7f9443bcbb50b"
     },
     {
       "path": "scripts/quality_gate.py",
@@ -919,6 +919,11 @@
       "path": "scripts/run_local_verify.ps1",
       "size_bytes": 2279,
       "sha256": "76ab0d48c8789949d16d1667bca954e52c4f69e64ab8a0dfbba4792ac5d211fc"
+    },
+    {
+      "path": "scripts/run_release_verify.ps1",
+      "size_bytes": 5317,
+      "sha256": "102077500af125eac11874ad3f1cbf0054047e29449e0602b487b41abb862ef6"
     },
     {
       "path": "template.config.example.yml",
@@ -1037,13 +1042,13 @@
     },
     {
       "path": "tests/test_generate_provenance.py",
-      "size_bytes": 4550,
-      "sha256": "9363715ec8d53d9225dbfc8e0c0c82f39541efdec2a74fdd12f4c7a662b2a733"
+      "size_bytes": 4656,
+      "sha256": "99c11b144e6d5950166359b4470f0c70e47774ae3256373293dced8d811d2180"
     },
     {
       "path": "tests/test_generate_sbom.py",
-      "size_bytes": 5095,
-      "sha256": "631b0951700f96cb2a592567b07c35be2ea19daacb4e4e82c0a18c3e77bf9ccf"
+      "size_bytes": 5214,
+      "sha256": "e9466ade0aa3cbf3e1a8eb81c5e500b72ba01b5c61752393543e4aa3d4264452"
     },
     {
       "path": "tests/test_quality_gate.py",

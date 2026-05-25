@@ -8,7 +8,11 @@ codex-dev-harness release evidence.
 The repository includes a local-only manifest generator at
 `scripts/generate_manifest.py`. The generator writes a manifest only when run
 explicitly. It does not install workflows, publish releases, move tags, call
-external services, or generate SBOM/provenance artifacts.
+external services, or generate SBOM/provenance artifacts by itself.
+
+The local release verification wrapper at `scripts/run_release_verify.ps1` may
+run the manifest and checksum generators together with separately approved
+local SBOM/provenance generators when those scripts are present.
 
 ## Manifest Fields
 
@@ -128,20 +132,21 @@ The manifest must record exclusions for:
 ## Approval Boundary
 
 Generating `release-manifest.json` and `checksums.sha256` is approved only for
-the local generator task that explicitly names those outputs. Generating SBOM
-files, provenance files, eval reports beyond existing standalone eval behavior,
+the local generator or release verification task that explicitly names those
+outputs. Generating eval reports beyond existing standalone eval behavior,
 audit session logs, release archives, or GitHub Releases requires separate
 explicit owner approval.
 
 This policy does not authorize CI integration, tag creation or movement, release
-publication, SBOM/provenance generation, or release archive creation.
+publication, external metadata lookup, artifact signing, or release archive
+creation.
 
 ## Non-Goals
 
 This policy does not add:
 
-- SBOM generation
-- provenance generation
+- SBOM/provenance external metadata lookup
+- SBOM/provenance publication or signing
 - eval report generation
 - audit session generation
 - release archive generation

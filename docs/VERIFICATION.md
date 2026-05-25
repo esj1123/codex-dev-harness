@@ -29,6 +29,27 @@ Recommended local command:
 
 The wrapper runs tests, quality gate, and all three example render dry-runs. It does not write rendered files and does not use `--force`.
 
+## Local Release Verification Flow
+
+Recommended release evidence command:
+
+`powershell -ExecutionPolicy Bypass -File scripts/run_release_verify.ps1`
+
+The release wrapper is local-only. It runs, in order:
+
+1. `scripts/run_local_verify.ps1`
+2. `scripts/run_eval.py`, if present
+3. `scripts/generate_manifest.py`
+4. `scripts/generate_checksums.py`
+5. `scripts/generate_sbom.py`, if present
+6. `scripts/generate_provenance.py`, if present
+7. final checksum regeneration using the current checksum policy
+
+Optional steps are reported as `SKIPPED` with a reason when their scripts are
+absent. The wrapper prints generated artifact paths and a PASS/FAIL/SKIPPED
+summary. It does not call external services, publish or upload artifacts, create
+or move tags, sign artifacts, create release archives, or install CI workflows.
+
 ## Manual Verification Flow
 
 Run:

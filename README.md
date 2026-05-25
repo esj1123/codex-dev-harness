@@ -85,9 +85,15 @@ Use the quality gate and dry-run renderer before treating the template as health
 - `python -m pytest`
 - `python scripts/quality_gate.py`
 - `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1`
+- `powershell -ExecutionPolicy Bypass -File scripts/run_release_verify.ps1`
 - `python scripts/render_template.py --config examples/python_cli_minimal/template.config.yml --target examples/python_cli_minimal --dry-run`
 - `python scripts/render_template.py --config examples/csharp_desktop_minimal/template.config.yml --target examples/csharp_desktop_minimal --dry-run`
 - `python scripts/render_template.py --config examples/plc_tool_minimal/template.config.yml --target examples/plc_tool_minimal --dry-run`
+
+The release verification wrapper is local-only. It runs local verification,
+standalone evals when present, and local release evidence generation under
+`artifacts/`; it does not publish releases, move tags, sign artifacts, create
+archives, or install CI workflows.
 
 CI policy is documented in `docs/CI_POLICY.md`. No workflow is included in the current baseline.
 

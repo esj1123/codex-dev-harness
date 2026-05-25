@@ -114,6 +114,16 @@ explicitly approved and independently evidenced.
 
 The provenance output does not include its own digest to avoid self-reference.
 
+## Release Verification Wrapper
+
+`scripts/run_release_verify.ps1` invokes the local SBOM and provenance
+generators when they are present. Missing optional generators must be reported
+as `SKIPPED` with a reason, not silently ignored.
+
+The wrapper remains local-only. It must not call external services, publish
+artifacts, sign artifacts, create release archives, install CI workflows, or
+create or move tags.
+
 ## Output Path Safety
 
 The local SBOM generator rejects output paths that would overwrite the input
@@ -139,7 +149,7 @@ approval. A future expansion approval should explicitly state:
 - whether provenance is required
 - whether generators must use Python standard library only
 - whether generated artifacts are committed, ignored, or release-only outputs
-- whether artifacts join any release verification wrapper
+- whether artifacts join any future expanded release verification wrapper
 - whether any dependency or license metadata may be resolved from external
   sources
 

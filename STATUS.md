@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 local SBOM/provenance generation.
+Post v0.1.0 local release verification wrapper.
 
 ## Current State
 
@@ -78,6 +78,7 @@ The repository contains documentation, base templates, profile templates, render
 - `scripts/generate_checksums.py`.
 - `scripts/generate_sbom.py`.
 - `scripts/generate_provenance.py`.
+- `scripts/run_release_verify.ps1`.
 - Gate modules under `scripts/gates/`.
 - Standalone eval gate wrapper: `scripts/gates/eval_gate.py`.
 - Minimal local eval cases under `evals/cases/`.
@@ -119,7 +120,6 @@ The repository contains documentation, base templates, profile templates, render
 - Real audit session logs.
 - Audit logging automation.
 - Audit log validator or `quality_gate.py` integration.
-- Release verification wrapper: `scripts/run_release_verify.ps1`.
 - SBOM/provenance external metadata resolution.
 - SBOM/provenance signing or publication.
 - Optional CI release verification template.
@@ -210,7 +210,7 @@ Stage 0 current-main gap review basis:
 | optional GitHub Actions guide | PRESENT | guide and template exist, but no workflow is installed |
 | Stage 0 current-main gap review basis | RECORDED | `origin/main` at `7add760e89b84106679461948e9db58223900e33`, checked `2026-05-24T15:45:55.4078343+09:00` |
 | release manifest/checksum generator | PRESENT | `scripts/generate_manifest.py` and `scripts/generate_checksums.py`; local-only, standard-library-only, and restricted to repo-relative `artifacts/` paths |
-| release manifest/checksum artifacts | PRESENT | `artifacts/release-manifest.json` and `artifacts/checksums.sha256`; no release archive, SBOM, provenance, tag, release, or workflow generated |
+| release manifest/checksum artifacts | PRESENT | `artifacts/release-manifest.json` and `artifacts/checksums.sha256`; no release archive, tag, release, or workflow generated |
 | release evidence foundation | PARTIAL | Release records, clean clone validation, local package checklist, and release drafts exist |
 | optional CI local verify template | DONE | `templates/ci/github-actions-local-verify.yml.template` exists and no workflow is installed |
 | optional CI release verify template | MISSING / OPTIONAL | No release verification CI template or workflow exists |
@@ -219,6 +219,7 @@ Stage 0 current-main gap review basis:
 | SBOM/provenance plan | IMPLEMENTED MINIMAL LOCAL | `docs/SBOM_PROVENANCE_PLAN.md`; minimal local generators and artifacts exist; no dependencies, external services, CI, tags, signatures, or release publication |
 | SBOM/provenance generators | PRESENT | `scripts/generate_sbom.py` and `scripts/generate_provenance.py`; standard-library-only, local-only, restricted to repo-relative `artifacts/` paths, and reject overlapping release-evidence output paths |
 | SBOM/provenance artifacts | PRESENT | `artifacts/sbom.spdx.json`, `artifacts/sbom.cdx.json`, and `artifacts/provenance.intoto.jsonl`; no signing, publication, tag movement, release archive, workflow, application code, or live-write behavior |
+| release verification wrapper | PRESENT | `scripts/run_release_verify.ps1`; local-only wrapper for local verification, standalone eval, manifest/checksum, SBOM, and provenance generation |
 | dedicated change control policy | PRESENT | `docs/CHANGE_CONTROL.md` |
 | dedicated human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md` |
 | dedicated eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval implementation now exists |
@@ -405,6 +406,7 @@ Stage 0 current-main gap review basis:
 | release bundle policy | PRESENT | `docs/RELEASE_BUNDLE_POLICY.md`; records local manifest/checksum generation boundary and future release evidence components |
 | release manifest/checksum generation | IMPLEMENTED | Local-only manifest and checksum scripts, path-boundary tests, and artifacts added; outputs and checksum inputs are restricted to repo-relative `artifacts/` paths; no SBOM/provenance, archive, CI, tag, release, application, or live-write behavior |
 | SBOM/provenance generation | IMPLEMENTED MINIMAL LOCAL | Standard-library-only SPDX, CycloneDX, and in-toto-style provenance generators and artifacts added; output paths reject release-evidence overlap; no external metadata lookup, signing, archive, CI, tag, release publication, application, or live-write behavior |
+| release verification wrapper | IMPLEMENTED LOCAL | `scripts/run_release_verify.ps1` runs local verification, optional standalone eval, manifest/checksum generation, optional SBOM/provenance generation, final checksum regeneration, and artifact path reporting; no archive, CI, signing, publication, tag movement, application, or live-write behavior |
 | Stage 1 change control policy | PRESENT | `docs/CHANGE_CONTROL.md`; documentation-only |
 | Stage 1 human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md`; documentation-only |
 | Stage 1 eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval exists; no dependencies, quality-gate integration, or CI integration |
@@ -463,6 +465,6 @@ Stage 0 current-main gap review basis:
 Run `scripts/run_eval.py` as a standalone local check while it gathers usage
 evidence. Keep eval integration into `scripts/quality_gate.py`, CI integration,
 routine eval report generation, real audit session log generation, audit logging
-automation, broader release bundle or archive generation, release verification
-wrappers, SBOM/provenance expansion or publication, workflows, profiles, and
+automation, broader release bundle or archive generation, SBOM/provenance
+expansion or publication, workflows, profiles, and
 application/device/live-write behavior deferred unless separately approved.

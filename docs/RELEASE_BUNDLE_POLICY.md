@@ -10,6 +10,11 @@ artifacts only when run explicitly. This policy does not create release
 archives, eval reports, audit logs, GitHub Releases, tags, CI workflows,
 application code, device code, or live-write behavior.
 
+The repository also includes a local release verification wrapper at
+`scripts/run_release_verify.ps1`. The wrapper runs local verification, optional
+standalone evals, and available local release evidence generators. It does not
+publish, upload, sign, archive, tag, or install CI workflows.
+
 ## Release Bundle Components
 
 A future release bundle may contain:
@@ -116,6 +121,11 @@ Future bundle checksums must:
 - clearly state whether the manifest is included in the checksum set
 - be regenerated only after all included files are final
 
+The current checksum generator records `release-manifest.json` only. The local
+release verification wrapper regenerates `checksums.sha256` after manifest
+generation and again after optional SBOM/provenance generation. Expanding the
+checksum set beyond the manifest requires a separate approved generator change.
+
 ## Local Artifact Path Boundary
 
 The current local manifest and checksum generators are limited to repository
@@ -134,6 +144,10 @@ only for tasks that explicitly allow the matching generator scripts and artifact
 paths. Creating a broader release bundle, eval report, audit session entry,
 release archive, GitHub Release, tag, signature, workflow, or externally
 resolved metadata requires separate explicit owner approval.
+
+Running `scripts/run_release_verify.ps1` is approved only as a local verification
+and evidence-generation action. It does not grant approval for release archive
+creation, publication, signing, CI installation, tag creation, or tag movement.
 
 This policy alone does not grant approval to generate or publish anything.
 
