@@ -11,6 +11,7 @@ import sys
 sys.dont_write_bytecode = True
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+ARTIFACTS_ROOT = "artifacts"
 
 
 def relpath(path: Path, repo_root: Path) -> str:
@@ -33,6 +34,8 @@ def resolve_repo_path(repo_root: Path, path_arg: str, flag_name: str) -> Path:
         raise ValueError(f"{flag_name} must name a file")
     if any(part == ".." for part in raw_path.parts):
         raise ValueError(f"{flag_name} must not contain parent traversal")
+    if raw_path.parts[0] != ARTIFACTS_ROOT or len(raw_path.parts) < 2:
+        raise ValueError(f"{flag_name} must be under artifacts/")
     resolved_root = repo_root.resolve()
     resolved_path = (resolved_root / raw_path).resolve()
     try:

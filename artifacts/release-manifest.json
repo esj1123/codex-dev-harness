@@ -1,9 +1,9 @@
 {
   "schema_version": "1",
-  "generated_at_utc": "2026-05-24T16:09:15Z",
+  "generated_at_utc": "2026-05-25T00:44:42Z",
   "repository": "esj1123/codex-dev-harness",
   "git_ref": "main",
-  "git_commit": "9c13f336487cd0e070f3bd42e25bd4425af911a3",
+  "git_commit": "fda1e43d14b4fcec16585dd75a3336eeb1aba695",
   "git_tag": null,
   "python_version": "3.12.13",
   "included_roots": [
@@ -877,13 +877,13 @@
     },
     {
       "path": "scripts/generate_checksums.py",
-      "size_bytes": 3544,
-      "sha256": "a1fe946f194c811c9fc2f2a41380da762e6ccca7c480e2fb4306673ea6dfd67b"
+      "size_bytes": 3710,
+      "sha256": "7c4ece5307590a0d348279a8198e98bb41d0c011c7b1c004cbfe925a4fc23601"
     },
     {
       "path": "scripts/generate_manifest.py",
-      "size_bytes": 9385,
-      "sha256": "2f2d6f8f06b3a26d73c5f1d21d9b9fb62d357c924e4d4988b093dfd5c2ac68ed"
+      "size_bytes": 9547,
+      "sha256": "264ca13954dfae75ca2f1741cf16a176ff7ff2d4d43a66616707445a86254341"
     },
     {
       "path": "scripts/quality_gate.py",
@@ -1012,13 +1012,13 @@
     },
     {
       "path": "tests/test_generate_checksums.py",
-      "size_bytes": 2186,
-      "sha256": "eda250f68d82525c100b97dab2d64d12a0b6c79cd3fd1f30870a3b8d93a634f0"
+      "size_bytes": 3050,
+      "sha256": "71935c2fb4b373266af85436a23d67cc5cffc1d121ae6ab9b2cb50c0814bf426"
     },
     {
       "path": "tests/test_generate_manifest.py",
-      "size_bytes": 3519,
-      "sha256": "6a76b3bec2cf05f3f0f973ec5ab6f5aadd83b2f6e0d3251170e0b409ff60e711"
+      "size_bytes": 4161,
+      "sha256": "d34bdf692c56188530123da7938d001b6f93b6c500164bad6751cf1001b3e0ba"
     },
     {
       "path": "tests/test_quality_gate.py",

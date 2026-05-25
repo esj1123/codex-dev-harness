@@ -9,6 +9,15 @@ def write(path: Path, content: str = "content\n") -> None:
     path.write_text(content, encoding="utf-8")
 
 
+def assert_output_rejected(repo_root: Path, output_arg: str, expected: str) -> None:
+    try:
+        generate_manifest.resolve_output_path(repo_root, output_arg)
+    except ValueError as exc:
+        assert expected in str(exc)
+    else:
+        raise AssertionError(f"output path should be rejected: {output_arg}")
+
+
 def test_manifest_excludes_generated_and_temporary_directories(tmp_path: Path) -> None:
     write(tmp_path / "README.md")
     write(tmp_path / "docs" / "policy.md")
@@ -93,9 +102,19 @@ def test_manifest_output_json_is_stable_shape(tmp_path: Path) -> None:
 
 
 def test_manifest_rejects_output_parent_traversal(tmp_path: Path) -> None:
-    try:
-        generate_manifest.resolve_output_path(tmp_path, "../release-manifest.json")
-    except ValueError as exc:
-        assert "parent traversal" in str(exc)
-    else:
-        raise AssertionError("parent traversal should be rejected")
+    assert_output_rejected(tmp_path, "../release-manifest.json", "parent traversal")
+
+
+def test_manifest_rejects_output_outside_artifacts(tmp_path: Path) -> None:
+    for output_arg in [
+        "STATUS.md",
+        "docs/release-manifest.md",
+        "scripts/generate_manifest.py",
+    ]:
+        assert_output_rejected(tmp_path, output_arg, "artifacts/")
+
+
+def test_manifest_rejects_absolute_output_path(tmp_path: Path) -> None:
+    output_arg = str(tmp_path / "artifacts" / "release-manifest.json")
+
+    assert_output_rejected(tmp_path, output_arg, "relative path")

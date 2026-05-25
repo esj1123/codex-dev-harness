@@ -9,6 +9,15 @@ def write(path: Path, content: str) -> None:
     path.write_text(content, encoding="utf-8")
 
 
+def assert_path_rejected(repo_root: Path, path_arg: str, flag_name: str, expected: str) -> None:
+    try:
+        generate_checksums.resolve_repo_path(repo_root, path_arg, flag_name)
+    except ValueError as exc:
+        assert expected in str(exc)
+    else:
+        raise AssertionError(f"{flag_name} path should be rejected: {path_arg}")
+
+
 def test_checksums_format_is_stable(tmp_path: Path) -> None:
     manifest = tmp_path / "artifacts" / "release-manifest.json"
     output = tmp_path / "artifacts" / "checksums.sha256"
@@ -53,9 +62,23 @@ def test_checksums_reject_manifest_output_overlap(tmp_path: Path) -> None:
 
 
 def test_checksums_reject_parent_traversal(tmp_path: Path) -> None:
-    try:
-        generate_checksums.resolve_repo_path(tmp_path, "../checksums.sha256", "--output")
-    except ValueError as exc:
-        assert "parent traversal" in str(exc)
-    else:
-        raise AssertionError("parent traversal should be rejected")
+    assert_path_rejected(tmp_path, "../checksums.sha256", "--output", "parent traversal")
+
+
+def test_checksums_reject_paths_outside_artifacts(tmp_path: Path) -> None:
+    for flag_name in ["--manifest", "--output"]:
+        for path_arg in [
+            "STATUS.md",
+            "docs/release-manifest.md",
+            "scripts/generate_checksums.py",
+        ]:
+            assert_path_rejected(tmp_path, path_arg, flag_name, "artifacts/")
+
+
+def test_checksums_reject_absolute_paths(tmp_path: Path) -> None:
+    for flag_name, filename in [
+        ("--manifest", "release-manifest.json"),
+        ("--output", "checksums.sha256"),
+    ]:
+        path_arg = str(tmp_path / "artifacts" / filename)
+        assert_path_rejected(tmp_path, path_arg, flag_name, "relative path")

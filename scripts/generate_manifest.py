@@ -22,6 +22,7 @@ sys.dont_write_bytecode = True
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_VERSION = "1"
+ARTIFACTS_ROOT = "artifacts"
 
 INCLUDED_ROOTS = [
     "ACCEPTANCE_TRACE.md",
@@ -261,6 +262,8 @@ def resolve_output_path(repo_root: Path, output_arg: str) -> Path:
         raise ValueError("--output must name a file")
     if any(part == ".." for part in raw_path.parts):
         raise ValueError("--output must not contain parent traversal")
+    if raw_path.parts[0] != ARTIFACTS_ROOT or len(raw_path.parts) < 2:
+        raise ValueError("--output must be under artifacts/")
     resolved_root = repo_root.resolve()
     output_path = (resolved_root / raw_path).resolve()
     try:
