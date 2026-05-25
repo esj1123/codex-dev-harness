@@ -74,6 +74,32 @@ summaries, and results.
 
 `files` should be sorted deterministically by path.
 
+## Source Basis And Artifact Commit Semantics
+
+`release-manifest.json` records `git_commit` as the source basis commit at
+generation time. It identifies the repository content that the local evidence
+generation process inspected.
+
+When generated evidence artifacts are later committed to the repository, the
+artifact-containing commit may be newer than the manifest `git_commit`. This is
+expected unless the repository introduces a separate artifact commit field in a
+future schema.
+
+Formal release evidence should state both:
+
+- the source basis commit recorded in `release-manifest.json`
+- the artifact-containing commit or tag used for the final record
+
+Regenerating artifacts after a final source commit can still produce a newer
+artifact-containing commit if those generated artifacts are committed afterward.
+That follow-on commit should not be treated as a mismatch by itself; closeout
+records should describe which commit is the source basis and which commit or
+tag contains the artifacts.
+
+A future manifest schema may split the current `git_commit` meaning into
+`source_basis_commit` and `artifact_commit`. This policy documents the
+semantics only and does not change the manifest schema.
+
 ## File Hash Rules
 
 File hashes must use SHA-256.

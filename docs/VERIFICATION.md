@@ -50,6 +50,18 @@ absent. The wrapper prints generated artifact paths and a PASS/FAIL/SKIPPED
 summary. It does not call external services, publish or upload artifacts, create
 or move tags, sign artifacts, create release archives, or install CI workflows.
 
+Regenerating release evidence artifacts is a local write to `artifacts/` only.
+It does not publish, sign, tag, archive, upload, or release anything.
+
+If generated artifacts are committed, the manifest source-basis commit recorded
+as `git_commit` may differ from the later artifact-containing commit. This is
+expected for committed generated evidence. Verification closeout should record
+that distinction honestly instead of treating it as a failure:
+
+- source basis commit: value from `artifacts/release-manifest.json`
+- artifact-containing commit or tag: repository ref that contains the committed
+  artifacts
+
 ## Python Runtime And Dependencies
 
 The preferred local verification runtime is pinned in `.python-version` and

@@ -85,6 +85,25 @@ dependencies, and `requirements-dev.lock` records exact local verification
 dependency pins. The release manifest inventory should include those files when
 present so runtime reproducibility evidence is covered by manifest file hashes.
 
+## Source Basis And Committed Artifact Location
+
+Committed release evidence artifacts are local evidence products. The
+`git_commit` recorded in `artifacts/release-manifest.json` should be interpreted
+as the source basis used to generate the evidence.
+
+When generated artifacts are committed, their repository location may be a later
+commit than the manifest source basis. Release closeout should explicitly state
+whether it is citing:
+
+- the source basis commit from `release-manifest.json`
+- the artifact-containing commit
+- a tag that points at either source or artifact evidence
+- all of the above
+
+This distinction is expected for committed generated artifacts and does not
+authorize release publication, signing, tag movement, archive creation, CI
+upload, or broader release automation.
+
 ## Exclusion Policy
 
 Future release bundles must exclude:
