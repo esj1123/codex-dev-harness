@@ -2,12 +2,13 @@
 
 ## Purpose
 
-Define a planning-only design for future local-first SBOM and provenance
-evidence in codex-dev-harness release bundles.
+Define the local-first SBOM and provenance evidence boundary for
+codex-dev-harness release bundles.
 
-This document does not generate SBOM artifacts, provenance artifacts, release
-archives, signatures, tags, GitHub Releases, CI workflows, dependencies,
-application code, device code, or live-write behavior.
+The current implementation is minimal and local-only. It generates SBOM and
+provenance artifacts only when the local generator scripts are run explicitly.
+It does not create release archives, signatures, tags, GitHub Releases, CI
+workflows, dependencies, application code, device code, or live-write behavior.
 
 ## Why This Matters For A Template Repo
 
@@ -30,7 +31,7 @@ The existing local release evidence baseline is:
 - `artifacts/release-manifest.json`
 - `artifacts/checksums.sha256`
 
-Future SBOM and provenance artifacts should build on that baseline:
+SBOM and provenance artifacts build on that baseline:
 
 - the release manifest remains the source for repository file inventory,
   file sizes, and SHA-256 file digests
@@ -42,7 +43,7 @@ Future SBOM and provenance artifacts should build on that baseline:
 
 ## Minimal SPDX JSON Scope
 
-A future `artifacts/sbom.spdx.json` should include only local, safe evidence:
+`artifacts/sbom.spdx.json` includes only local, safe evidence:
 
 - document metadata:
   - SPDX document name
@@ -60,30 +61,31 @@ A future `artifacts/sbom.spdx.json` should include only local, safe evidence:
   - package download or registry metadata only if available locally or approved
 - license fields:
   - known repository license value if the repository records one
-  - `NOASSERTION` for unknown dependency licenses
+  - `UNKNOWN` for unknown dependency licenses
 
 The SPDX scope must not include private source, prompt/session text, tool-call
 bodies, secrets, live configuration, or downstream generated target output.
 
 ## Minimal CycloneDX JSON Scope
 
-A future `artifacts/sbom.cdx.json` should include:
+`artifacts/sbom.cdx.json` includes:
 
 - `bomFormat`, `specVersion`, and stable metadata fields
 - metadata for this repository as the primary component
 - tools metadata for the local generator
 - components for repository-level and Python development dependency entries
 - hashes where available from `release-manifest.json`
-- optional future fields for services, models, or provenance only after
-  separate approval and only if they do not expose private or live target data
+- optional future fields for services, models, or expanded provenance only
+  after separate approval and only if they do not expose private or live target
+  data
 
 CycloneDX output should remain local-first and should not imply that this
 template repository contains a deployable application service.
 
 ## Minimal In-Toto Provenance Scope
 
-A future `artifacts/provenance.intoto.jsonl` should describe local generation
-of release evidence using a minimal in-toto-style statement:
+`artifacts/provenance.intoto.jsonl` describes local generation of release
+evidence using a minimal in-toto-style statement:
 
 - builder:
   - local generator identity
@@ -104,15 +106,15 @@ of release evidence using a minimal in-toto-style statement:
 - products/output digests:
   - `artifacts/release-manifest.json`
   - `artifacts/checksums.sha256`
-  - future SBOM/provenance artifact digests if generated
+  - SBOM artifact digests when present
 
 The provenance statement should not claim cloud attestation, CI generation,
 signature status, release publication, or tag movement unless those actions are
 explicitly approved and independently evidenced.
 
-## Future Implementation Files
+The provenance output does not include its own digest to avoid self-reference.
 
-Future implementation, if separately approved, may add:
+## Current Implementation Files
 
 - `scripts/generate_sbom.py`
 - `scripts/generate_provenance.py`
@@ -122,8 +124,9 @@ Future implementation, if separately approved, may add:
 
 ## Approval Boundary
 
-Implementing generators or creating SBOM/provenance artifacts requires separate
-owner approval. A future implementation approval should explicitly state:
+The minimal local generators and artifacts are approved only for tasks that
+explicitly name them. Expanding this implementation requires separate owner
+approval. A future expansion approval should explicitly state:
 
 - whether both SPDX and CycloneDX are required
 - whether provenance is required
@@ -144,8 +147,8 @@ This plan does not add:
 - GitHub Actions workflows
 - tag creation or movement
 - GitHub Release publication
-- SBOM or provenance artifacts
-- generator scripts
 - external dependency resolution
+- aggressive license inference
+- release archive creation
+- artifact signing
 - application, device, or live-write code
-

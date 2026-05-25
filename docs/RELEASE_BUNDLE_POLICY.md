@@ -4,11 +4,11 @@
 
 Define the release bundle evidence shape for codex-dev-harness.
 
-The repository includes local-only generators for `release-manifest.json` and
-`checksums.sha256`. They produce artifacts only when run explicitly. This policy
-does not create release archives, SBOMs, provenance, eval reports, audit logs,
-GitHub Releases, tags, CI workflows, application code, device code, or
-live-write behavior.
+The repository includes local-only generators for `release-manifest.json`,
+`checksums.sha256`, minimal SBOMs, and minimal provenance. They produce
+artifacts only when run explicitly. This policy does not create release
+archives, eval reports, audit logs, GitHub Releases, tags, CI workflows,
+application code, device code, or live-write behavior.
 
 ## Release Bundle Components
 
@@ -17,18 +17,19 @@ A future release bundle may contain:
 - `release-manifest.json`
 - `checksums.txt` or `checksums.sha256`
 - `eval-report.json`, if the eval harness is explicitly included in the bundle
-- `sbom.spdx.json`, future optional
-- `sbom.cdx.json`, future optional
-- `provenance.intoto.jsonl`, future optional
+- `sbom.spdx.json`, optional local evidence
+- `sbom.cdx.json`, optional local evidence
+- `provenance.intoto.jsonl`, optional local evidence
 - `closeout.md`, human-readable
 - `audits/session-*.jsonl`, future optional and redacted only
 
 These names are reserved as future evidence component names. Their presence in
 this policy does not authorize generating them.
 
-SBOM and provenance scope is planned in `docs/SBOM_PROVENANCE_PLAN.md`. That
-plan is documentation-only and does not authorize generators, artifacts,
-dependencies, CI workflows, release publication, signatures, or tag movement.
+SBOM and provenance scope is documented in `docs/SBOM_PROVENANCE_PLAN.md`.
+The minimal local implementation does not authorize dependencies, external
+metadata resolution, CI workflows, release publication, signatures, or tag
+movement.
 
 ## Required Boundaries
 
@@ -62,8 +63,9 @@ Future bundles should include only repository-controlled, reviewed evidence:
 - template configuration examples
 - approved release evidence files
 
-Optional evidence such as eval reports, SBOMs, provenance, and audit sessions
-must be included only after separate owner approval.
+Optional evidence such as eval reports and audit sessions must be included only
+after separate owner approval. Minimal SBOM and provenance artifacts are allowed
+only for tasks that explicitly name the local generators and artifact paths.
 
 Future SBOM and provenance artifacts should relate back to
 `release-manifest.json` and `checksums.sha256` rather than replacing them. The
@@ -123,11 +125,11 @@ non-artifact paths such as `STATUS.md`, `docs/foo.md`, or `scripts/foo.py`.
 
 ## Approval Boundary
 
-Creating a local manifest and checksum file is approved only for tasks that
-explicitly allow `artifacts/release-manifest.json` and
-`artifacts/checksums.sha256`. Creating a broader release bundle, SBOM,
-provenance file, eval report, audit session entry, release archive, GitHub
-Release, tag, or workflow requires separate explicit owner approval.
+Creating a local manifest, checksum file, SBOM, or provenance file is approved
+only for tasks that explicitly allow the matching generator scripts and artifact
+paths. Creating a broader release bundle, eval report, audit session entry,
+release archive, GitHub Release, tag, signature, workflow, or externally
+resolved metadata requires separate explicit owner approval.
 
 This policy alone does not grant approval to generate or publish anything.
 
@@ -136,7 +138,7 @@ This policy alone does not grant approval to generate or publish anything.
 This policy does not add:
 
 - release archive generation
-- SBOM or provenance tooling
+- SBOM/provenance publication, signing, or external metadata lookup
 - audit log generation
 - CI workflows
 - release publication

@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 SBOM/provenance planning boundary.
+Post v0.1.0 local SBOM/provenance generation.
 
 ## Current State
 
@@ -76,6 +76,8 @@ The repository contains documentation, base templates, profile templates, render
 - `scripts/run_eval.py`.
 - `scripts/generate_manifest.py`.
 - `scripts/generate_checksums.py`.
+- `scripts/generate_sbom.py`.
+- `scripts/generate_provenance.py`.
 - Gate modules under `scripts/gates/`.
 - Standalone eval gate wrapper: `scripts/gates/eval_gate.py`.
 - Minimal local eval cases under `evals/cases/`.
@@ -83,6 +85,9 @@ The repository contains documentation, base templates, profile templates, render
 - Generated local release evidence under `artifacts/`:
   - `artifacts/release-manifest.json`
   - `artifacts/checksums.sha256`
+  - `artifacts/sbom.spdx.json`
+  - `artifacts/sbom.cdx.json`
+  - `artifacts/provenance.intoto.jsonl`
 - Example skeletons:
   - `examples/python_cli_minimal`
   - `examples/csharp_desktop_minimal`
@@ -115,8 +120,8 @@ The repository contains documentation, base templates, profile templates, render
 - Audit logging automation.
 - Audit log validator or `quality_gate.py` integration.
 - Release verification wrapper: `scripts/run_release_verify.ps1`.
-- SBOM/provenance generators.
-- SBOM or provenance artifacts.
+- SBOM/provenance external metadata resolution.
+- SBOM/provenance signing or publication.
 - Optional CI release verification template.
 
 ## Known Constraints
@@ -211,7 +216,9 @@ Stage 0 current-main gap review basis:
 | optional CI release verify template | MISSING / OPTIONAL | No release verification CI template or workflow exists |
 | release bundle policy | PRESENT | `docs/RELEASE_BUNDLE_POLICY.md`; records the local manifest/checksum generator boundary and future release evidence exclusions |
 | release manifest policy | PRESENT | `docs/RELEASE_MANIFEST_POLICY.md`; defines current manifest fields, deterministic ordering, exclusions, and checksum rules |
-| SBOM/provenance plan | PRESENT | `docs/SBOM_PROVENANCE_PLAN.md`; documentation-only, no generators, dependencies, artifacts, CI, tags, signatures, or release publication |
+| SBOM/provenance plan | IMPLEMENTED MINIMAL LOCAL | `docs/SBOM_PROVENANCE_PLAN.md`; minimal local generators and artifacts exist; no dependencies, external services, CI, tags, signatures, or release publication |
+| SBOM/provenance generators | PRESENT | `scripts/generate_sbom.py` and `scripts/generate_provenance.py`; standard-library-only, local-only, and restricted to repo-relative `artifacts/` paths |
+| SBOM/provenance artifacts | PRESENT | `artifacts/sbom.spdx.json`, `artifacts/sbom.cdx.json`, and `artifacts/provenance.intoto.jsonl`; no signing, publication, tag movement, release archive, workflow, application code, or live-write behavior |
 | dedicated change control policy | PRESENT | `docs/CHANGE_CONTROL.md` |
 | dedicated human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md` |
 | dedicated eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval implementation now exists |
@@ -397,7 +404,7 @@ Stage 0 current-main gap review basis:
 | minimal eval harness | IMPLEMENTED | Standalone non-LLM local eval runner, cases, golden path list, gate wrapper, and tests added |
 | release bundle policy | PRESENT | `docs/RELEASE_BUNDLE_POLICY.md`; records local manifest/checksum generation boundary and future release evidence components |
 | release manifest/checksum generation | IMPLEMENTED | Local-only manifest and checksum scripts, path-boundary tests, and artifacts added; outputs and checksum inputs are restricted to repo-relative `artifacts/` paths; no SBOM/provenance, archive, CI, tag, release, application, or live-write behavior |
-| SBOM/provenance plan | PRESENT | `docs/SBOM_PROVENANCE_PLAN.md`; plans future SPDX, CycloneDX, and in-toto evidence without generators or artifacts |
+| SBOM/provenance generation | IMPLEMENTED MINIMAL LOCAL | Standard-library-only SPDX, CycloneDX, and in-toto-style provenance generators and artifacts added; no external metadata lookup, signing, archive, CI, tag, release publication, application, or live-write behavior |
 | Stage 1 change control policy | PRESENT | `docs/CHANGE_CONTROL.md`; documentation-only |
 | Stage 1 human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md`; documentation-only |
 | Stage 1 eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval exists; no dependencies, quality-gate integration, or CI integration |
@@ -457,5 +464,5 @@ Run `scripts/run_eval.py` as a standalone local check while it gathers usage
 evidence. Keep eval integration into `scripts/quality_gate.py`, CI integration,
 routine eval report generation, real audit session log generation, audit logging
 automation, broader release bundle or archive generation, release verification
-wrappers, SBOM/provenance implementation, workflows, profiles, and
+wrappers, SBOM/provenance expansion or publication, workflows, profiles, and
 application/device/live-write behavior deferred unless separately approved.
