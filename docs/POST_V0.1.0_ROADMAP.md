@@ -4,7 +4,9 @@
 
 Record the post-v0.1.0 operating direction for codex-dev-harness without starting new implementation work.
 
-This document is planning-only. It does not create an eval harness, CI workflow, SBOM, provenance bundle, new profile, example project, or application code.
+This document is planning-only. It does not create an eval harness, CI workflow,
+SBOM, provenance bundle, RAG index, model comparison tool, new profile, example
+project, or application code.
 
 ## Current Baseline
 
@@ -54,13 +56,30 @@ These generators are local-only and restricted to repo-relative `artifacts/`
 paths. They do not create release archives, tags, release publication, SBOM,
 provenance, or CI workflows.
 
-SBOM/provenance planning is present:
+SBOM/provenance planning and minimal local implementation are present:
 
 - `docs/SBOM_PROVENANCE_PLAN.md`
+- `scripts/generate_sbom.py`
+- `scripts/generate_provenance.py`
+- `artifacts/sbom.spdx.json`
+- `artifacts/sbom.cdx.json`
+- `artifacts/provenance.intoto.jsonl`
 
-The plan defines future SPDX, CycloneDX, and in-toto evidence scope without
-adding generators, dependencies, artifacts, CI workflows, signatures, tags,
-release publication, application code, or live-write behavior.
+The plan defines SPDX, CycloneDX, and in-toto evidence scope. The minimal local
+implementation is standard-library-only and does not add external metadata
+resolution, CI workflows, signatures, tags, release publication, application
+code, or live-write behavior.
+
+Approved-corpus RAG and model/prompt change planning is present:
+
+- `docs/APPROVED_CORPUS_RAG_PLAN.md`
+- `docs/MODEL_CHANGE_POLICY.md`
+
+These documents define future local approved-corpus and model-change evidence
+boundaries. They do not create `retrieval/`, `index/`, embeddings, vector
+storage, RAG dependencies, model comparison code, prompt capture, model output
+capture, external service calls, CI workflows, application code, or live-write
+behavior.
 
 ## Optional Improvement Sequence
 
@@ -73,7 +92,9 @@ release publication, application code, or live-write behavior.
 7. Release manifest/checksum generator.
 8. SBOM/provenance planning.
 9. SBOM/provenance implementation, if separately approved.
-10. Optional CI actualization.
+10. Python runtime reproducibility.
+11. Approved-corpus RAG and model-change policy planning.
+12. Optional CI actualization.
 
 Each item is optional and should remain approval-gated. Planning a future capability does not authorize implementing it.
 
@@ -143,19 +164,35 @@ CI workflow, tag, or GitHub Release.
 
 ## SBOM And Provenance Plan
 
-Status: PLANNING PRESENT.
+Status: MINIMAL LOCAL IMPLEMENTATION PRESENT.
 
 `docs/SBOM_PROVENANCE_PLAN.md` defines why SBOM/provenance can help even for a
-template repository, how future SBOM/provenance evidence should relate to
+template repository, how SBOM/provenance evidence should relate to
 `release-manifest.json` and checksums, and minimal future scope for:
 
 - SPDX JSON
 - CycloneDX JSON
 - in-toto provenance
 
-This is documentation-only. No `scripts/generate_sbom.py`,
-`scripts/generate_provenance.py`, `artifacts/sbom.spdx.json`,
-`artifacts/sbom.cdx.json`, or `artifacts/provenance.intoto.jsonl` exists.
+Minimal local generators and artifacts exist. They do not add external metadata
+lookup, signing, release publication, CI workflows, tag movement, application
+code, device code, or live-write behavior.
+
+## Approved Corpus RAG And Model Change Policy
+
+Status: PLANNING PRESENT.
+
+`docs/APPROVED_CORPUS_RAG_PLAN.md` defines candidate repository documents for a
+future local approved corpus, required metadata, forbidden corpus material, and
+the approval checkpoint required before expansion or indexing.
+
+`docs/MODEL_CHANGE_POLICY.md` defines planning-level controls for `model_id`,
+`prompt_template_id`, `eval_run_id`, `approved_corpus_digest`, and
+`side_effect_class`, including compare-before-adopt and closeout expectations.
+
+These policies are documentation-only. They do not implement retrieval, build
+an index, add dependencies, capture prompts or outputs, compare models, call
+external services, install CI, or add application/device/live-write behavior.
 
 ## Profile Policy
 
@@ -181,6 +218,11 @@ The base template surfaces, especially `SOURCE_INDEX`, `PROJECT_BOUNDARY`, `DATA
   evidence task.
 - Do not create SBOM/provenance artifacts or generators without separate
   approval.
+- Do not create retrieval indexes, embeddings, vector stores, or RAG tooling
+  without separate approval.
+- Do not capture prompts, model outputs, private input, or tool-call bodies.
+- Do not adopt model or prompt changes without eval and closeout evidence once
+  an applicable eval harness exists.
 - Do not install GitHub Actions workflows.
 - Do not add a new profile.
 - Do not add `profiles/scenario_simulator`.
@@ -194,4 +236,7 @@ Review downstream adoption feedback, the lightweight governance docs, and the
 standalone eval harness before deciding whether quality-gate integration,
 release page publication, local packaging, release bundle generation, audit log
 generation, SBOM/provenance implementation, CI, or any optional design-stage
-integration adds enough value to justify a follow-up task.
+integration adds enough value to justify a follow-up task. Keep approved-corpus
+RAG implementation and model comparison tooling deferred until a separate owner
+approval names exact files, artifacts, dependencies, verification, and safety
+boundaries.

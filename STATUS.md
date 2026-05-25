@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 Python runtime reproducibility.
+Post v0.1.0 approved corpus and model change policy planning.
 
 ## Current State
 
@@ -46,6 +46,8 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/RELEASE_MANIFEST_POLICY.md`
   - `docs/SBOM_PROVENANCE_PLAN.md`
   - `docs/PYTHON_RUNTIME_POLICY.md`
+  - `docs/APPROVED_CORPUS_RAG_PLAN.md`
+  - `docs/MODEL_CHANGE_POLICY.md`
   - `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`
   - `docs/MINIMAL_EVAL_HARNESS_DESIGN.md`
   - `docs/CHANGE_CONTROL.md`
@@ -104,6 +106,8 @@ The repository contains documentation, base templates, profile templates, render
 - Reusable prompt contract templates under `prompts/task_contract/`.
 - Minimal local-only eval harness design and implementation: `docs/MINIMAL_EVAL_HARNESS_DESIGN.md`, `scripts/run_eval.py`, `scripts/gates/eval_gate.py`, and `evals/cases/`.
 - Audit log schema for future optional evidence: `audits/audit-log.schema.json`.
+- Approved-corpus RAG planning: `docs/APPROVED_CORPUS_RAG_PLAN.md`.
+- Model and prompt change planning: `docs/MODEL_CHANGE_POLICY.md`.
 
 ## What Does Not Exist Yet
 
@@ -125,6 +129,9 @@ The repository contains documentation, base templates, profile templates, render
 - Real audit session logs.
 - Audit logging automation.
 - Audit log validator or `quality_gate.py` integration.
+- Retrieval indexes, embeddings, vector stores, or RAG tooling.
+- Model comparison code, model observability tooling, prompt capture, or model
+  output capture.
 - SBOM/provenance external metadata resolution.
 - SBOM/provenance signing or publication.
 - Optional CI release verification template.
@@ -232,6 +239,8 @@ Stage 0 current-main gap review basis:
 | Python runtime policy | PRESENT | `docs/PYTHON_RUNTIME_POLICY.md` documents the pinned local verification runtime and dependency update rule |
 | Python runtime pin | PRESENT | `.python-version` pins Python `3.12.13` for local verification reproducibility |
 | development dependency lock | PRESENT | `requirements-dev.txt` pins the direct pytest dependency and `requirements-dev.lock` records exact local verification dependency pins |
+| approved-corpus RAG plan | PRESENT | `docs/APPROVED_CORPUS_RAG_PLAN.md`; planning-only approved corpus candidates, metadata, forbidden corpus, and approval checkpoint |
+| model change policy | PRESENT | `docs/MODEL_CHANGE_POLICY.md`; planning-only model/prompt tracking, compare-before-adopt, eval/closeout evidence, and side-effect class controls |
 | dedicated change control policy | PRESENT | `docs/CHANGE_CONTROL.md` |
 | dedicated human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md` |
 | dedicated eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval implementation now exists |
@@ -419,6 +428,8 @@ Stage 0 current-main gap review basis:
 | release manifest/checksum generation | IMPLEMENTED | Local-only manifest and checksum scripts, path-boundary tests, and artifacts added; outputs and checksum inputs are restricted to repo-relative `artifacts/` paths; no SBOM/provenance, archive, CI, tag, release, application, or live-write behavior |
 | SBOM/provenance generation | IMPLEMENTED MINIMAL LOCAL | Standard-library-only SPDX, CycloneDX, and in-toto-style provenance generators and artifacts added; output paths reject release-evidence overlap; no external metadata lookup, signing, archive, CI, tag, release publication, application, or live-write behavior |
 | release verification wrapper | IMPLEMENTED LOCAL | `scripts/run_release_verify.ps1` runs local verification, optional standalone eval, manifest/checksum generation, optional SBOM/provenance generation, final checksum regeneration, and artifact path reporting; no archive, CI, signing, publication, tag movement, application, or live-write behavior |
+| approved-corpus RAG planning | ADDED | `docs/APPROVED_CORPUS_RAG_PLAN.md` defines candidate safe corpus files, required metadata, forbidden corpus, and corpus-expansion approval checkpoints; no retrieval/index tooling added |
+| model and prompt change planning | ADDED | `docs/MODEL_CHANGE_POLICY.md` defines model, prompt template, eval run, corpus digest, side-effect class, and compare-before-adopt controls; no model comparison or capture tooling added |
 | Stage 1 change control policy | PRESENT | `docs/CHANGE_CONTROL.md`; documentation-only |
 | Stage 1 human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md`; documentation-only |
 | Stage 1 eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval exists; no dependencies, quality-gate integration, or CI integration |
@@ -474,8 +485,8 @@ Stage 0 current-main gap review basis:
 
 ## Next Recommended Step
 
-Use the pinned Python runtime policy when refreshing local verification
-evidence. Keep hash-locked dependency artifacts, eval integration into
+Keep approved-corpus RAG implementation, retrieval/index generation, embeddings,
+model comparison tooling, prompt/model output capture, eval integration into
 `scripts/quality_gate.py`, CI integration, routine eval report generation, real
 audit session log generation, audit logging automation, broader release bundle
 or archive generation, SBOM/provenance expansion or publication, workflows,

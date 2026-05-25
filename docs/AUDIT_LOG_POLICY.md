@@ -51,6 +51,28 @@ These fields are optional future evidence fields. The schema is not wired into
 `scripts/quality_gate.py`, CI, release tooling, RAG tooling, or model
 observability.
 
+## RAG And Model Change References
+
+Future audit evidence may reference approved-corpus and model-change controls
+without storing raw content:
+
+- `model_id` should identify the model used or compared.
+- `prompt_template_id` should identify a reusable prompt template when used.
+- `prompt_hash` should be a hash only when prompt material is separately
+  approved for hashing.
+- `approved_corpus_digest` should identify the approved corpus basis without
+  embedding source text.
+- `side_effect_class` should identify the allowed action class without
+  broadening approval.
+
+Approved-corpus planning is documented in
+`docs/APPROVED_CORPUS_RAG_PLAN.md`. Model and prompt change planning is
+documented in `docs/MODEL_CHANGE_POLICY.md`.
+
+These references do not approve retrieval tooling, indexing, prompt capture,
+model output capture, external service calls, model observability tooling, or
+automatic audit generation.
+
 ## Content Rules
 
 Audit records must not contain:

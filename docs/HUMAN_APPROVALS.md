@@ -34,6 +34,9 @@ Separate explicit approval is required before:
 - creating, moving, or signing tags
 - creating release manifests, checksums, SBOMs, or provenance artifacts
 - implementing an eval harness
+- expanding an approved corpus for retrieval or RAG use
+- creating retrieval indexes, embeddings, vector stores, or RAG tooling
+- adopting a model or prompt change for a governed workflow
 - adding dependencies beyond the approved task
 - changing external services or APIs
 - sending email, messages, or notifications
@@ -81,6 +84,23 @@ An `approval_id` should be:
 
 Recording an `approval_id` does not grant new approval. It only references an
 approval that was already explicit and scoped.
+
+## Model And Corpus Approval Records
+
+Approved-corpus expansion and model or prompt changes should be recorded before
+implementation or adoption.
+
+Approval records should identify:
+
+- exact corpus files, directories, or patterns
+- forbidden corpus material
+- model or prompt identifiers when applicable
+- eval or closeout evidence expectations
+- approved side-effect class
+- residual risks
+
+Do not record raw prompts, model outputs, private input, raw source, live
+configuration, equipment details, secrets, or live values in approval records.
 
 ## Revocation And Expiry
 
