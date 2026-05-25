@@ -105,6 +105,13 @@ Future bundle checksums must:
 - clearly state whether the manifest is included in the checksum set
 - be regenerated only after all included files are final
 
+## Local Artifact Path Boundary
+
+The current local manifest and checksum generators are limited to repository
+relative `artifacts/` paths. Manifest output, checksum input, and checksum
+output must reject absolute paths, parent traversal, and repo-internal
+non-artifact paths such as `STATUS.md`, `docs/foo.md`, or `scripts/foo.py`.
+
 ## Approval Boundary
 
 Creating a local manifest and checksum file is approved only for tasks that

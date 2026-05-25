@@ -79,6 +79,20 @@ The manifest should avoid self-reference problems:
 - if the manifest is checksummed, write the manifest first, then checksum it
   from a final stable byte representation
 
+## Path Boundary
+
+Manifest and checksum generation must write only to explicit repository-local
+artifact paths:
+
+- `generate_manifest.py --output` must be repo-relative and under `artifacts/`.
+- `generate_checksums.py --manifest` must be repo-relative and under
+  `artifacts/`.
+- `generate_checksums.py --output` must be repo-relative and under
+  `artifacts/`.
+
+Generators must reject absolute paths, parent traversal, and repo-internal
+non-artifact paths such as `STATUS.md`, `docs/foo.md`, or `scripts/foo.py`.
+
 ## Determinism
 
 Manifest generation uses deterministic ordering for:

@@ -1,9 +1,9 @@
 {
   "schema_version": "1",
-  "generated_at_utc": "2026-05-25T00:44:42Z",
+  "generated_at_utc": "2026-05-25T00:49:54Z",
   "repository": "esj1123/codex-dev-harness",
   "git_ref": "main",
-  "git_commit": "fda1e43d14b4fcec16585dd75a3336eeb1aba695",
+  "git_commit": "996a8204ec5016c89cb76a0e7d2aa29fc9ea27ab",
   "git_tag": null,
   "python_version": "3.12.13",
   "included_roots": [
@@ -122,8 +122,8 @@
   "files": [
     {
       "path": "ACCEPTANCE_TRACE.md",
-      "size_bytes": 37923,
-      "sha256": "b430dbac37d6df565900e85cda44cceb2c3c2a5b89b35fa7e6a2f5c7580a874f"
+      "size_bytes": 38548,
+      "sha256": "3998fe5ae18f4edaa1de85da8169cf897334a298fbd303fb4df193da163391f5"
     },
     {
       "path": "AGENTS.md",
@@ -152,8 +152,8 @@
     },
     {
       "path": "STATUS.md",
-      "size_bytes": 31443,
-      "sha256": "d4fdcdc9a5dc615669aa02b5696a3cde1fe10d478e9605ed9de1bf308eca2c3a"
+      "size_bytes": 31589,
+      "sha256": "b3382e160610677ae278bc4d1bc80dd9eeb66ba1859193ac8a185d02b862f003"
     },
     {
       "path": "audits/audit-log.schema.json",
@@ -377,8 +377,8 @@
     },
     {
       "path": "docs/RELEASE_BUNDLE_POLICY.md",
-      "size_bytes": 3924,
-      "sha256": "986af6aeb573f4fd7d31cdc8d84673693ca713f724bfbcb0e94b216e091168ac"
+      "size_bytes": 4257,
+      "sha256": "59a85fa8a6b9ae5dde51ef22f7859e97d17f354fb7d886f0cf9317e2cd15c492"
     },
     {
       "path": "docs/RELEASE_CHECKLIST.md",
@@ -387,8 +387,8 @@
     },
     {
       "path": "docs/RELEASE_MANIFEST_POLICY.md",
-      "size_bytes": 3802,
-      "sha256": "f173a3dc9a5a76aa27e1fd034d2cfed5d29728a8ce460c93bbc21c395096424e"
+      "size_bytes": 4316,
+      "sha256": "41ed8b8ccf2424e2c7506827ead2c383b53d6d0e16fa920eee0c87825480556b"
     },
     {
       "path": "docs/RELEASE_NOTES_v0.1.0-rc1.md",

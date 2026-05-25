@@ -202,7 +202,7 @@ Stage 0 current-main gap review basis:
 | formal v0.1.0 criteria | SATISFIED | `docs/FORMAL_V0.1.0_CRITERIA.md` exists; formal tag created |
 | optional GitHub Actions guide | PRESENT | guide and template exist, but no workflow is installed |
 | Stage 0 current-main gap review basis | RECORDED | `origin/main` at `7add760e89b84106679461948e9db58223900e33`, checked `2026-05-24T15:45:55.4078343+09:00` |
-| release manifest/checksum generator | PRESENT | `scripts/generate_manifest.py` and `scripts/generate_checksums.py`; local-only, standard-library-only |
+| release manifest/checksum generator | PRESENT | `scripts/generate_manifest.py` and `scripts/generate_checksums.py`; local-only, standard-library-only, and restricted to repo-relative `artifacts/` paths |
 | release manifest/checksum artifacts | PRESENT | `artifacts/release-manifest.json` and `artifacts/checksums.sha256`; no release archive, SBOM, provenance, tag, release, or workflow generated |
 | release evidence foundation | PARTIAL | Release records, clean clone validation, local package checklist, and release drafts exist |
 | optional CI local verify template | DONE | `templates/ci/github-actions-local-verify.yml.template` exists and no workflow is installed |
@@ -393,7 +393,7 @@ Stage 0 current-main gap review basis:
 | prompt contract templates | ADDED | Four reusable Markdown prompt templates exist under `prompts/task_contract/`; they do not execute prompts or grant approval |
 | minimal eval harness | IMPLEMENTED | Standalone non-LLM local eval runner, cases, golden path list, gate wrapper, and tests added |
 | release bundle policy | PRESENT | `docs/RELEASE_BUNDLE_POLICY.md`; records local manifest/checksum generation boundary and future release evidence components |
-| release manifest/checksum generation | IMPLEMENTED | Local-only manifest and checksum scripts, tests, and artifacts added; no SBOM/provenance, archive, CI, tag, release, application, or live-write behavior |
+| release manifest/checksum generation | IMPLEMENTED | Local-only manifest and checksum scripts, path-boundary tests, and artifacts added; outputs and checksum inputs are restricted to repo-relative `artifacts/` paths; no SBOM/provenance, archive, CI, tag, release, application, or live-write behavior |
 | Stage 1 change control policy | PRESENT | `docs/CHANGE_CONTROL.md`; documentation-only |
 | Stage 1 human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md`; documentation-only |
 | Stage 1 eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval exists; no dependencies, quality-gate integration, or CI integration |
