@@ -123,6 +123,10 @@ relative `artifacts/` paths. Manifest output, checksum input, and checksum
 output must reject absolute paths, parent traversal, and repo-internal
 non-artifact paths such as `STATUS.md`, `docs/foo.md`, or `scripts/foo.py`.
 
+The local SBOM and provenance generators use the same repo-relative
+`artifacts/` boundary and must also reject overlapping paths that would
+overwrite release-manifest, checksum, SBOM, or provenance evidence artifacts.
+
 ## Approval Boundary
 
 Creating a local manifest, checksum file, SBOM, or provenance file is approved

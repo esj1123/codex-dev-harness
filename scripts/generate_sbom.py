@@ -6,7 +6,6 @@ import argparse
 import json
 from datetime import datetime, timezone
 from pathlib import Path
-import platform
 import re
 import sys
 from typing import Any
@@ -19,6 +18,11 @@ ARTIFACTS_ROOT = "artifacts"
 SCHEMA_VERSION = "1"
 TOOL_NAME = "codex-dev-harness generate_sbom.py"
 DEFAULT_CHECKSUMS_PATH = "artifacts/checksums.sha256"
+PROTECTED_RELEASE_ARTIFACT_PATHS = [
+    DEFAULT_CHECKSUMS_PATH,
+    "artifacts/checksums.txt",
+    "artifacts/provenance.intoto.jsonl",
+]
 
 
 def relpath(path: Path, repo_root: Path) -> str:
@@ -53,6 +57,23 @@ def resolve_artifact_path(repo_root: Path, path_arg: str, flag_name: str) -> Pat
     if resolved_path == resolved_root:
         raise ValueError(f"{flag_name} must name a file")
     return resolved_path
+
+
+def validate_sbom_paths(repo_root: Path, manifest_path: Path, spdx_path: Path, cyclonedx_path: Path) -> None:
+    protected_paths = [
+        ("--manifest", manifest_path.resolve()),
+    ]
+    protected_paths.extend((relative_path, (repo_root / relative_path).resolve()) for relative_path in PROTECTED_RELEASE_ARTIFACT_PATHS)
+    output_paths = [
+        ("--spdx", spdx_path.resolve()),
+        ("--cyclonedx", cyclonedx_path.resolve()),
+    ]
+    for output_name, output_path in output_paths:
+        for protected_name, protected_path in protected_paths:
+            if output_path == protected_path:
+                raise ValueError(f"{output_name} must not overwrite {protected_name}")
+    if output_paths[0][1] == output_paths[1][1]:
+        raise ValueError("--spdx must not overlap --cyclonedx")
 
 
 def sha256_file(path: Path) -> str:
@@ -295,6 +316,7 @@ def main(argv: list[str] | None = None) -> int:
         manifest_path = resolve_artifact_path(repo_root, args.manifest, "--manifest")
         spdx_path = resolve_artifact_path(repo_root, args.spdx, "--spdx")
         cyclonedx_path = resolve_artifact_path(repo_root, args.cyclonedx, "--cyclonedx")
+        validate_sbom_paths(repo_root, manifest_path, spdx_path, cyclonedx_path)
     except ValueError as exc:
         parser.error(str(exc))
 

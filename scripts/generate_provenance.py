@@ -23,6 +23,7 @@ DEFAULT_PRODUCTS = [
     "artifacts/sbom.spdx.json",
     "artifacts/sbom.cdx.json",
 ]
+PROTECTED_OUTPUT_PATHS = DEFAULT_PRODUCTS + ["artifacts/checksums.txt"]
 DEFAULT_COMMANDS = [
     "python scripts/generate_manifest.py --output artifacts/release-manifest.json",
     "python scripts/generate_checksums.py --manifest artifacts/release-manifest.json --output artifacts/checksums.sha256",
@@ -58,6 +59,14 @@ def resolve_artifact_path(repo_root: Path, path_arg: str, flag_name: str) -> Pat
     if resolved_path == resolved_root:
         raise ValueError(f"{flag_name} must name a file")
     return resolved_path
+
+
+def validate_provenance_paths(repo_root: Path, manifest_path: Path, output_path: Path) -> None:
+    protected_paths = [("--manifest", manifest_path.resolve())]
+    protected_paths.extend((relative_path, (repo_root / relative_path).resolve()) for relative_path in PROTECTED_OUTPUT_PATHS)
+    for protected_name, protected_path in protected_paths:
+        if output_path.resolve() == protected_path:
+            raise ValueError(f"--output must not overwrite {protected_name}")
 
 
 def sha256_file(path: Path) -> str:
@@ -189,6 +198,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         manifest_path = resolve_artifact_path(repo_root, args.manifest, "--manifest")
         output_path = resolve_artifact_path(repo_root, args.output, "--output")
+        validate_provenance_paths(repo_root, manifest_path, output_path)
     except ValueError as exc:
         parser.error(str(exc))
 

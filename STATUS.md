@@ -217,7 +217,7 @@ Stage 0 current-main gap review basis:
 | release bundle policy | PRESENT | `docs/RELEASE_BUNDLE_POLICY.md`; records the local manifest/checksum generator boundary and future release evidence exclusions |
 | release manifest policy | PRESENT | `docs/RELEASE_MANIFEST_POLICY.md`; defines current manifest fields, deterministic ordering, exclusions, and checksum rules |
 | SBOM/provenance plan | IMPLEMENTED MINIMAL LOCAL | `docs/SBOM_PROVENANCE_PLAN.md`; minimal local generators and artifacts exist; no dependencies, external services, CI, tags, signatures, or release publication |
-| SBOM/provenance generators | PRESENT | `scripts/generate_sbom.py` and `scripts/generate_provenance.py`; standard-library-only, local-only, and restricted to repo-relative `artifacts/` paths |
+| SBOM/provenance generators | PRESENT | `scripts/generate_sbom.py` and `scripts/generate_provenance.py`; standard-library-only, local-only, restricted to repo-relative `artifacts/` paths, and reject overlapping release-evidence output paths |
 | SBOM/provenance artifacts | PRESENT | `artifacts/sbom.spdx.json`, `artifacts/sbom.cdx.json`, and `artifacts/provenance.intoto.jsonl`; no signing, publication, tag movement, release archive, workflow, application code, or live-write behavior |
 | dedicated change control policy | PRESENT | `docs/CHANGE_CONTROL.md` |
 | dedicated human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md` |
@@ -404,7 +404,7 @@ Stage 0 current-main gap review basis:
 | minimal eval harness | IMPLEMENTED | Standalone non-LLM local eval runner, cases, golden path list, gate wrapper, and tests added |
 | release bundle policy | PRESENT | `docs/RELEASE_BUNDLE_POLICY.md`; records local manifest/checksum generation boundary and future release evidence components |
 | release manifest/checksum generation | IMPLEMENTED | Local-only manifest and checksum scripts, path-boundary tests, and artifacts added; outputs and checksum inputs are restricted to repo-relative `artifacts/` paths; no SBOM/provenance, archive, CI, tag, release, application, or live-write behavior |
-| SBOM/provenance generation | IMPLEMENTED MINIMAL LOCAL | Standard-library-only SPDX, CycloneDX, and in-toto-style provenance generators and artifacts added; no external metadata lookup, signing, archive, CI, tag, release publication, application, or live-write behavior |
+| SBOM/provenance generation | IMPLEMENTED MINIMAL LOCAL | Standard-library-only SPDX, CycloneDX, and in-toto-style provenance generators and artifacts added; output paths reject release-evidence overlap; no external metadata lookup, signing, archive, CI, tag, release publication, application, or live-write behavior |
 | Stage 1 change control policy | PRESENT | `docs/CHANGE_CONTROL.md`; documentation-only |
 | Stage 1 human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md`; documentation-only |
 | Stage 1 eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval exists; no dependencies, quality-gate integration, or CI integration |
