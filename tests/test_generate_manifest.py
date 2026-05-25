@@ -50,6 +50,19 @@ def test_manifest_file_list_is_sorted(tmp_path: Path) -> None:
     assert paths == sorted(paths)
 
 
+def test_manifest_includes_runtime_reproducibility_files(tmp_path: Path) -> None:
+    write(tmp_path / ".python-version", "3.12.13\n")
+    write(tmp_path / "requirements-dev.txt", "pytest==9.0.3\n")
+    write(tmp_path / "requirements-dev.lock", "pytest==9.0.3\n")
+
+    manifest = generate_manifest.build_manifest(tmp_path)
+    paths = {entry["path"] for entry in manifest["files"]}
+
+    assert ".python-version" in paths
+    assert "requirements-dev.txt" in paths
+    assert "requirements-dev.lock" in paths
+
+
 def test_manifest_has_required_top_level_fields(tmp_path: Path) -> None:
     write(tmp_path / "README.md", "hello\n")
 

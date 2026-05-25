@@ -25,6 +25,7 @@ SCHEMA_VERSION = "1"
 ARTIFACTS_ROOT = "artifacts"
 
 INCLUDED_ROOTS = [
+    ".python-version",
     "ACCEPTANCE_TRACE.md",
     "AGENTS.md",
     "MVP.md",
@@ -40,6 +41,7 @@ INCLUDED_ROOTS = [
     "profiles",
     "prompts",
     "pytest.ini",
+    "requirements-dev.lock",
     "requirements-dev.txt",
     "scripts",
     "template.config.example.yml",

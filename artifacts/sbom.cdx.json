@@ -3,7 +3,7 @@
   "specVersion": "1.5",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-05-25T02:34:06Z",
+    "timestamp": "2026-05-25T05:34:24Z",
     "tools": {
       "components": [
         {
@@ -16,7 +16,7 @@
     "component": {
       "type": "application",
       "name": "esj1123/codex-dev-harness",
-      "version": "0c38175160b4b86a7a44243e6cba0d614fd1ff87",
+      "version": "1b2e430f2a5df4dff9cc6e5a4008095e732a5a55",
       "properties": [
         {
           "name": "git_ref",
@@ -28,7 +28,7 @@
         },
         {
           "name": "manifest_sha256",
-          "value": "0a2872eec9be65e4feed0a442683c464d46dd020a24782b0caacaaaf2e850a8d"
+          "value": "cae1e363ec545582abf0af4c71605549739b8e417fc7a76708db0d24dd7eb293"
         },
         {
           "name": "checksum_entries",
@@ -40,17 +40,33 @@
   "components": [
     {
       "type": "file",
-      "name": "ACCEPTANCE_TRACE.md",
+      "name": ".python-version",
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "11a7daa5c8bfb1d5d24f31f0ce4b8eb3710256ddf4cf244ee1be8494ab050bf3"
+          "content": "aa0d6581054e6e4ff3f91839deca7a854ad37221b8784d060b42d0f847ff1a3b"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "41285"
+          "value": "8"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "ACCEPTANCE_TRACE.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2a6f76b34a77307747058c5ab2704020422904abb5b9fea4e40114cc48ef61a4"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "46328"
         }
       ]
     },
@@ -108,13 +124,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "1ae25d306915c0bf14606fe0adbe48f36c8ba1365d7e1b0e18fc6e0e590831f8"
+          "content": "ef07ff7ea257291121a7a2525224686935d77199c7fb17a84e1b8bfe2e8329d7"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "4430"
+          "value": "4761"
         }
       ]
     },
@@ -140,13 +156,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "d54f43ae5f44e8aa3fa73e27a7f6a0269963200bf0ff2d0a2eb302a283c1380e"
+          "content": "0e2f11427b8535bd2c69d3c03f3e68dcca20636fd0a31804a4cd73bd39758741"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "33396"
+          "value": "36805"
         }
       ]
     },
@@ -200,6 +216,22 @@
     },
     {
       "type": "file",
+      "name": "docs/APPROVED_CORPUS_RAG_PLAN.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c84167cc86e0bdf0d7edb996cc0243d6bcc730fc5fc433b0c88fe434ce2774cc"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "4039"
+        }
+      ]
+    },
+    {
+      "type": "file",
       "name": "docs/ARCHITECTURE.md",
       "hashes": [
         {
@@ -220,13 +252,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "4e8ca0484705db3be155d995006d79171acc0be278e24ecf6c95f3944f023b6e"
+          "content": "62c1146a867ff6d2db1f1263b7395b53ebf5084a998589ca9261951fa550c85c"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "3594"
+          "value": "4510"
         }
       ]
     },
@@ -476,13 +508,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "536263b9752da0bcd063515f58f24913508ea49e698345741dfc0cc49f490693"
+          "content": "5167719da9e15545c87158cd5426c38bf6463ef4a7efc35e7b02d1fefa1045d5"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "3483"
+          "value": "4211"
         }
       ]
     },
@@ -632,6 +664,38 @@
     },
     {
       "type": "file",
+      "name": "docs/MODEL_CHANGE_POLICY.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ada19f8c23b945a0f23263f04b7f9db2a1b045b880a90f90cfe08ce18bfb37b1"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "4437"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "42bfc59225f658484a9649f609cf1860eda1bfc838bad31f423a08a7de78733c"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "3478"
+        }
+      ]
+    },
+    {
+      "type": "file",
       "name": "docs/OPTIONAL_DESIGN_STAGE_PACK_DECISION.md",
       "hashes": [
         {
@@ -764,13 +828,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "7e94642fdd3000d106b9658879cbf055e95b0f7e0219592c7d50a37aca20368f"
+          "content": "9e08a3d4d442894f3cb44fd24c019d9c004c7c491cdf1f773f1821cef9c4ee22"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "1497"
+          "value": "2491"
         }
       ]
     },
@@ -796,13 +860,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "6071b73e735de2fe86b946f78c30412c640e7ae4f8a81253648c35765bdc4bd8"
+          "content": "5b90c92c812cc30cd99ea3e8ca785c4bb40290e72013efee6a7f16d4fc086967"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "8043"
+          "value": "12047"
         }
       ]
     },
@@ -840,6 +904,22 @@
     },
     {
       "type": "file",
+      "name": "docs/PYTHON_RUNTIME_POLICY.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "64f19bccc95434ea0dca2fc3caf8f56eee7df54cb92a3344ac56203cb3b072f0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "3476"
+        }
+      ]
+    },
+    {
+      "type": "file",
       "name": "docs/RC2_CANDIDATE_CLOSEOUT.md",
       "hashes": [
         {
@@ -860,13 +940,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "59f1529336e63c0189630a62d09fe648c7f623b7f9e88740c6e87f7f92774467"
+          "content": "461b16ea5e4bf4f3046236f7ef255e8b08fd532ee2260bb5cf5bc3ee0bb8b502"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "6174"
+          "value": "6725"
         }
       ]
     },
@@ -892,13 +972,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "2cd7f0dc22a820533b526c1ffd876c9ca4bcbd1325e0aa1a68b4f8c7b53a64e7"
+          "content": "250d47f25291e7a026c086252ea66f2bb8a3631dd283a93709b5f735bdf60b47"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "4598"
+          "value": "4895"
         }
       ]
     },
@@ -1020,13 +1100,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "1342afd75ed0cd41dca9f947a8f8b2927411c63d292987155f6f2412c1d7f6cb"
+          "content": "47c548e88e24a0292dbca82c20e2804979d1169159d3d52de125fedd11b1252e"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "6371"
+          "value": "6384"
         }
       ]
     },
@@ -1084,13 +1164,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "b8319b52850190ff55ac1399df191b8bf4b064b506eba3aa4d182bb6b06a7803"
+          "content": "e1d65d81a9e7504729d94b83d0a8039dd3ab717b9eae718722a8287b2e12e4d2"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "3646"
+          "value": "4276"
         }
       ]
     },
@@ -2344,17 +2424,33 @@
     },
     {
       "type": "file",
-      "name": "requirements-dev.txt",
+      "name": "requirements-dev.lock",
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "aa9ecf0e3f7c6cb776fe2dbbfad2d8149c4af75796e875a22efb895d95f98c99"
+          "content": "8fe600c9bc173e88594e2a16fa0f47387159253a383f0380a1d3c39121b3ad01"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "8"
+          "value": "377"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "requirements-dev.txt",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "aac18ea2bbe1936db21c5b2809373c38b8628fbd53d997da327687d89523ff3a"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "143"
         }
       ]
     },
@@ -2364,13 +2460,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "058cb6c0db0bfd267d46767299eef534892bca489f2b1717ec57c8696c493004"
+          "content": "64be6e22651361e0b8295a138c196197691226c079dea098e036db7cfd038f75"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "3168"
+          "value": "3478"
         }
       ]
     },
@@ -2492,13 +2588,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "264ca13954dfae75ca2f1741cf16a176ff7ff2d4d43a66616707445a86254341"
+          "content": "d3334317eaab6a951d1f0c78e5d70505fa7f835e9f004d2ac937c2bcaf32b060"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "9547"
+          "value": "9599"
         }
       ]
     },
@@ -2604,13 +2700,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "102077500af125eac11874ad3f1cbf0054047e29449e0602b487b41abb862ef6"
+          "content": "d116e833eb4ae4ce9eaa824f3677b1a9bc24f26b785f613add4f2333c525a17f"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "5317"
+          "value": "5484"
         }
       ]
     },
@@ -2824,6 +2920,22 @@
     },
     {
       "type": "file",
+      "name": "templates/ci/github-actions-release-verify.yml.template",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "8e04721e88f5a040b6921735301ee016c1cb508c4b472fcd25399488a9b67ba4"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "1173"
+        }
+      ]
+    },
+    {
+      "type": "file",
       "name": "templates/optional/design_stage/ACCEPTANCE_EVIDENCE_PLAN.md.template",
       "hashes": [
         {
@@ -2972,13 +3084,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "d34bdf692c56188530123da7938d001b6f93b6c500164bad6751cf1001b3e0ba"
+          "content": "5acbb651c084d084c89c0849f32981df40d3e7f98290ff788dbf6b76b65f27f5"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "4161"
+          "value": "4671"
         }
       ]
     },
@@ -3020,13 +3132,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "bc3d1f5475a8427730cf406742a1899852d2cbc075adae538036dba96df02c1e"
+          "content": "ab8c7a2e03e859f2c36390115829cc3e694cb5620de1021336332e1546899ad6"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "7007"
+          "value": "7589"
         }
       ]
     },
@@ -3075,9 +3187,10 @@
       "properties": [
         {
           "name": "declared_requirement",
-          "value": "pytest"
+          "value": "pytest==9.0.3"
         }
-      ]
+      ],
+      "version": "9.0.3"
     }
   ],
   "dependencies": []

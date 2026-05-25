@@ -82,7 +82,8 @@ Release evidence should record the Python runtime and development dependency
 basis where available. `.python-version` records the preferred local
 verification runtime, `requirements-dev.txt` records direct development
 dependencies, and `requirements-dev.lock` records exact local verification
-dependency pins.
+dependency pins. The release manifest inventory should include those files when
+present so runtime reproducibility evidence is covered by manifest file hashes.
 
 ## Exclusion Policy
 

@@ -88,10 +88,10 @@ The lock file does not include wheel hashes. It records exact package versions
 only. Hash-locked, platform-specific wheel evidence would require a separate
 owner-approved dependency locking task.
 
-The current release manifest generator was not changed by this policy update.
-If release manifests must inventory `.python-version` and
-`requirements-dev.lock`, update `scripts/generate_manifest.py` in a separate
-approved generator-alignment task.
+The release manifest inventory includes `.python-version`,
+`requirements-dev.txt`, and `requirements-dev.lock` when those files are
+present. The manifest records them as file inventory evidence only; dependency
+changes remain governed by the lock update rule above.
 
 Bare `python.exe` may be unavailable in some Codex desktop Windows shells. In
 that case, verification may use the local runtime selected by

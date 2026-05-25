@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "esj1123/codex-dev-harness local release SBOM",
-  "documentNamespace": "https://example.invalid/codex-dev-harness/spdx/0a2872eec9be65e4feed0a442683c464d46dd020a24782b0caacaaaf2e850a8d",
+  "documentNamespace": "https://example.invalid/codex-dev-harness/spdx/cae1e363ec545582abf0af4c71605549739b8e417fc7a76708db0d24dd7eb293",
   "creationInfo": {
-    "created": "2026-05-25T02:34:06Z",
+    "created": "2026-05-25T05:34:24Z",
     "creators": [
       "Tool: codex-dev-harness generate_sbom.py"
     ]
@@ -20,7 +20,7 @@
       "licenseConcluded": "UNKNOWN",
       "licenseDeclared": "UNKNOWN",
       "copyrightText": "UNKNOWN",
-      "versionInfo": "0c38175160b4b86a7a44243e6cba0d614fd1ff87"
+      "versionInfo": "1b2e430f2a5df4dff9cc6e5a4008095e732a5a55"
     },
     {
       "name": "pytest",
@@ -30,18 +30,30 @@
       "licenseConcluded": "UNKNOWN",
       "licenseDeclared": "UNKNOWN",
       "copyrightText": "UNKNOWN",
-      "versionInfo": "UNKNOWN",
-      "summary": "Declared in requirements-dev.txt as pytest"
+      "versionInfo": "9.0.3",
+      "summary": "Declared in requirements-dev.txt as pytest==9.0.3"
     }
   ],
   "files": [
+    {
+      "fileName": ".python-version",
+      "SPDXID": "SPDXRef-File-.python-version",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "aa0d6581054e6e4ff3f91839deca7a854ad37221b8784d060b42d0f847ff1a3b"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
     {
       "fileName": "ACCEPTANCE_TRACE.md",
       "SPDXID": "SPDXRef-File-ACCEPTANCE-TRACE.md",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "11a7daa5c8bfb1d5d24f31f0ce4b8eb3710256ddf4cf244ee1be8494ab050bf3"
+          "checksumValue": "2a6f76b34a77307747058c5ab2704020422904abb5b9fea4e40114cc48ef61a4"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -89,7 +101,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "1ae25d306915c0bf14606fe0adbe48f36c8ba1365d7e1b0e18fc6e0e590831f8"
+          "checksumValue": "ef07ff7ea257291121a7a2525224686935d77199c7fb17a84e1b8bfe2e8329d7"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -113,7 +125,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "d54f43ae5f44e8aa3fa73e27a7f6a0269963200bf0ff2d0a2eb302a283c1380e"
+          "checksumValue": "0e2f11427b8535bd2c69d3c03f3e68dcca20636fd0a31804a4cd73bd39758741"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -156,6 +168,18 @@
       "copyrightText": "UNKNOWN"
     },
     {
+      "fileName": "docs/APPROVED_CORPUS_RAG_PLAN.md",
+      "SPDXID": "SPDXRef-File-docs-APPROVED-CORPUS-RAG-PLAN.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "c84167cc86e0bdf0d7edb996cc0243d6bcc730fc5fc433b0c88fe434ce2774cc"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
       "fileName": "docs/ARCHITECTURE.md",
       "SPDXID": "SPDXRef-File-docs-ARCHITECTURE.md",
       "checksums": [
@@ -173,7 +197,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "4e8ca0484705db3be155d995006d79171acc0be278e24ecf6c95f3944f023b6e"
+          "checksumValue": "62c1146a867ff6d2db1f1263b7395b53ebf5084a998589ca9261951fa550c85c"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -365,7 +389,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "536263b9752da0bcd063515f58f24913508ea49e698345741dfc0cc49f490693"
+          "checksumValue": "5167719da9e15545c87158cd5426c38bf6463ef4a7efc35e7b02d1fefa1045d5"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -480,6 +504,30 @@
       "copyrightText": "UNKNOWN"
     },
     {
+      "fileName": "docs/MODEL_CHANGE_POLICY.md",
+      "SPDXID": "SPDXRef-File-docs-MODEL-CHANGE-POLICY.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "ada19f8c23b945a0f23263f04b7f9db2a1b045b880a90f90cfe08ce18bfb37b1"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md",
+      "SPDXID": "SPDXRef-File-docs-OPTIONAL-CI-ACTUALIZATION-DECISION.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "42bfc59225f658484a9649f609cf1860eda1bfc838bad31f423a08a7de78733c"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
       "fileName": "docs/OPTIONAL_DESIGN_STAGE_PACK_DECISION.md",
       "SPDXID": "SPDXRef-File-docs-OPTIONAL-DESIGN-STAGE-PACK-DECISION.md",
       "checksums": [
@@ -581,7 +629,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "7e94642fdd3000d106b9658879cbf055e95b0f7e0219592c7d50a37aca20368f"
+          "checksumValue": "9e08a3d4d442894f3cb44fd24c019d9c004c7c491cdf1f773f1821cef9c4ee22"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -605,7 +653,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "6071b73e735de2fe86b946f78c30412c640e7ae4f8a81253648c35765bdc4bd8"
+          "checksumValue": "5b90c92c812cc30cd99ea3e8ca785c4bb40290e72013efee6a7f16d4fc086967"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -636,6 +684,18 @@
       "copyrightText": "UNKNOWN"
     },
     {
+      "fileName": "docs/PYTHON_RUNTIME_POLICY.md",
+      "SPDXID": "SPDXRef-File-docs-PYTHON-RUNTIME-POLICY.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "64f19bccc95434ea0dca2fc3caf8f56eee7df54cb92a3344ac56203cb3b072f0"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
       "fileName": "docs/RC2_CANDIDATE_CLOSEOUT.md",
       "SPDXID": "SPDXRef-File-docs-RC2-CANDIDATE-CLOSEOUT.md",
       "checksums": [
@@ -653,7 +713,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "59f1529336e63c0189630a62d09fe648c7f623b7f9e88740c6e87f7f92774467"
+          "checksumValue": "461b16ea5e4bf4f3046236f7ef255e8b08fd532ee2260bb5cf5bc3ee0bb8b502"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -677,7 +737,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "2cd7f0dc22a820533b526c1ffd876c9ca4bcbd1325e0aa1a68b4f8c7b53a64e7"
+          "checksumValue": "250d47f25291e7a026c086252ea66f2bb8a3631dd283a93709b5f735bdf60b47"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -773,7 +833,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "1342afd75ed0cd41dca9f947a8f8b2927411c63d292987155f6f2412c1d7f6cb"
+          "checksumValue": "47c548e88e24a0292dbca82c20e2804979d1169159d3d52de125fedd11b1252e"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -821,7 +881,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "b8319b52850190ff55ac1399df191b8bf4b064b506eba3aa4d182bb6b06a7803"
+          "checksumValue": "e1d65d81a9e7504729d94b83d0a8039dd3ab717b9eae718722a8287b2e12e4d2"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -1764,12 +1824,24 @@
       "copyrightText": "UNKNOWN"
     },
     {
+      "fileName": "requirements-dev.lock",
+      "SPDXID": "SPDXRef-File-requirements-dev.lock",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "8fe600c9bc173e88594e2a16fa0f47387159253a383f0380a1d3c39121b3ad01"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
       "fileName": "requirements-dev.txt",
       "SPDXID": "SPDXRef-File-requirements-dev.txt",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "aa9ecf0e3f7c6cb776fe2dbbfad2d8149c4af75796e875a22efb895d95f98c99"
+          "checksumValue": "aac18ea2bbe1936db21c5b2809373c38b8628fbd53d997da327687d89523ff3a"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -1781,7 +1853,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "058cb6c0db0bfd267d46767299eef534892bca489f2b1717ec57c8696c493004"
+          "checksumValue": "64be6e22651361e0b8295a138c196197691226c079dea098e036db7cfd038f75"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -1877,7 +1949,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "264ca13954dfae75ca2f1741cf16a176ff7ff2d4d43a66616707445a86254341"
+          "checksumValue": "d3334317eaab6a951d1f0c78e5d70505fa7f835e9f004d2ac937c2bcaf32b060"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -1961,7 +2033,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "102077500af125eac11874ad3f1cbf0054047e29449e0602b487b41abb862ef6"
+          "checksumValue": "d116e833eb4ae4ce9eaa824f3677b1a9bc24f26b785f613add4f2333c525a17f"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -2124,6 +2196,18 @@
       "copyrightText": "UNKNOWN"
     },
     {
+      "fileName": "templates/ci/github-actions-release-verify.yml.template",
+      "SPDXID": "SPDXRef-File-templates-ci-github-actions-release-verify.yml.template",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "8e04721e88f5a040b6921735301ee016c1cb508c4b472fcd25399488a9b67ba4"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
       "fileName": "templates/optional/design_stage/ACCEPTANCE_EVIDENCE_PLAN.md.template",
       "SPDXID": "SPDXRef-File-templates-optional-design-stage-ACCEPTANCE-EVIDENCE-PLAN.md.template",
       "checksums": [
@@ -2237,7 +2321,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "d34bdf692c56188530123da7938d001b6f93b6c500164bad6751cf1001b3e0ba"
+          "checksumValue": "5acbb651c084d084c89c0849f32981df40d3e7f98290ff788dbf6b76b65f27f5"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -2273,7 +2357,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "bc3d1f5475a8427730cf406742a1899852d2cbc075adae538036dba96df02c1e"
+          "checksumValue": "ab8c7a2e03e859f2c36390115829cc3e694cb5620de1021336332e1546899ad6"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -2309,6 +2393,11 @@
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
       "relatedSpdxElement": "SPDXRef-Package-codex-dev-harness"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-.python-version"
     },
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
@@ -2359,6 +2448,11 @@
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-docs-AI-HANDOFF.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-APPROVED-CORPUS-RAG-PLAN.md"
     },
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
@@ -2498,6 +2592,16 @@
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-MODEL-CHANGE-POLICY.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-OPTIONAL-CI-ACTUALIZATION-DECISION.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-docs-OPTIONAL-DESIGN-STAGE-PACK-DECISION.md"
     },
     {
@@ -2559,6 +2663,11 @@
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-docs-PROMPT-PATTERNS.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-PYTHON-RUNTIME-POLICY.md"
     },
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
@@ -3033,6 +3142,11 @@
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-requirements-dev.lock"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-requirements-dev.txt"
     },
     {
@@ -3183,6 +3297,11 @@
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-templates-ci-github-actions-release-verify.yml.template"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-templates-optional-design-stage-ACCEPTANCE-EVIDENCE-PLAN.md.template"
     },
     {
@@ -3259,10 +3378,10 @@
   "externalDocumentRefs": [],
   "annotations": [
     {
-      "annotationDate": "2026-05-25T02:34:06Z",
+      "annotationDate": "2026-05-25T05:34:24Z",
       "annotationType": "OTHER",
       "annotator": "Tool: codex-dev-harness generate_sbom.py",
-      "comment": "manifest=artifacts/release-manifest.json sha256=0a2872eec9be65e4feed0a442683c464d46dd020a24782b0caacaaaf2e850a8d; checksum_entries=1"
+      "comment": "manifest=artifacts/release-manifest.json sha256=cae1e363ec545582abf0af4c71605549739b8e417fc7a76708db0d24dd7eb293; checksum_entries=1"
     }
   ]
 }

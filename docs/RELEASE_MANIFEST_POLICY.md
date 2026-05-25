@@ -54,6 +54,9 @@ Each `files` entry should include:
 verification.
 
 `included_roots` should list approved repository roots included in the bundle.
+Runtime reproducibility evidence such as `.python-version`,
+`requirements-dev.txt`, and `requirements-dev.lock` should be included when
+present.
 
 `excluded_patterns` should record the exclusion policy applied to the bundle.
 

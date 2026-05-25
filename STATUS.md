@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 docs gate coverage alignment.
+Post v0.1.0 release manifest runtime inventory alignment.
 
 ## Current State
 
@@ -151,8 +151,8 @@ The repository contains documentation, base templates, profile templates, render
 - Render targets inside this repository are limited to `examples/<name>`.
 - `requirements-dev.lock` pins exact development verification package versions
   but does not include wheel hashes.
-- The current release manifest generator was not updated in this task to
-  inventory `.python-version` or `requirements-dev.lock`.
+- The release manifest inventories `.python-version`, `requirements-dev.txt`,
+  and `requirements-dev.lock` when present.
 
 ## Latest Verification
 
@@ -233,6 +233,7 @@ Stage 0 current-main gap review basis:
 | optional GitHub Actions guide | PRESENT | guide and local/release verification templates exist, but no workflow is installed |
 | Stage 0 current-main gap review basis | RECORDED | `origin/main` at `7add760e89b84106679461948e9db58223900e33`, checked `2026-05-24T15:45:55.4078343+09:00` |
 | release manifest/checksum generator | PRESENT | `scripts/generate_manifest.py` and `scripts/generate_checksums.py`; local-only, standard-library-only, and restricted to repo-relative `artifacts/` paths |
+| release manifest runtime reproducibility inventory | PRESENT | manifest file inventory includes `.python-version`, `requirements-dev.txt`, and `requirements-dev.lock` when present |
 | release manifest/checksum artifacts | PRESENT | `artifacts/release-manifest.json` and `artifacts/checksums.sha256`; no release archive, tag, release, or workflow generated |
 | release evidence foundation | PARTIAL | Release records, clean clone validation, local package checklist, and release drafts exist |
 | optional CI local verify template | DONE | `templates/ci/github-actions-local-verify.yml.template` exists and no workflow is installed |
@@ -433,7 +434,7 @@ Stage 0 current-main gap review basis:
 | prompt contract templates | ADDED | Four reusable Markdown prompt templates exist under `prompts/task_contract/`; they do not execute prompts or grant approval |
 | minimal eval harness | IMPLEMENTED | Standalone non-LLM local eval runner, cases, golden path list, gate wrapper, and tests added |
 | release bundle policy | PRESENT | `docs/RELEASE_BUNDLE_POLICY.md`; records local manifest/checksum generation boundary and future release evidence components |
-| release manifest/checksum generation | IMPLEMENTED | Local-only manifest and checksum scripts, path-boundary tests, and artifacts added; outputs and checksum inputs are restricted to repo-relative `artifacts/` paths; no SBOM/provenance, archive, CI, tag, release, application, or live-write behavior |
+| release manifest/checksum generation | IMPLEMENTED | Local-only manifest and checksum scripts, path-boundary tests, runtime reproducibility inventory, and artifacts added; outputs and checksum inputs are restricted to repo-relative `artifacts/` paths; no archive, CI, tag, release, application, or live-write behavior |
 | SBOM/provenance generation | IMPLEMENTED MINIMAL LOCAL | Standard-library-only SPDX, CycloneDX, and in-toto-style provenance generators and artifacts added; output paths reject release-evidence overlap; no external metadata lookup, signing, archive, CI, tag, release publication, application, or live-write behavior |
 | release verification wrapper | IMPLEMENTED LOCAL | `scripts/run_release_verify.ps1` runs local verification, optional standalone eval, manifest/checksum generation, optional SBOM/provenance generation, final checksum regeneration, and artifact path reporting; no archive, CI, signing, publication, tag movement, application, or live-write behavior |
 | approved-corpus RAG planning | ADDED | `docs/APPROVED_CORPUS_RAG_PLAN.md` defines candidate safe corpus files, required metadata, forbidden corpus, and corpus-expansion approval checkpoints; no retrieval/index tooling added |
