@@ -6,6 +6,17 @@ from scripts.quality_gate import run_quality_gate
 
 REQUIRED_DOC_CONTENT = "# doc\n"
 
+POST_V0_1_GOVERNANCE_DOCS = {
+    "docs/RELEASE_BUNDLE_POLICY.md",
+    "docs/RELEASE_MANIFEST_POLICY.md",
+    "docs/SBOM_PROVENANCE_PLAN.md",
+    "docs/PYTHON_RUNTIME_POLICY.md",
+    "docs/APPROVED_CORPUS_RAG_PLAN.md",
+    "docs/MODEL_CHANGE_POLICY.md",
+    "docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md",
+    "docs/MINIMAL_EVAL_HARNESS_DESIGN.md",
+}
+
 
 def write(path: Path, content: str = REQUIRED_DOC_CONTENT) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -63,6 +74,13 @@ def test_docs_gate_reports_missing_doc(tmp_path: Path) -> None:
 
     assert result.passed is False
     assert any("README.md" in message for message in result.messages)
+
+
+def test_docs_gate_requires_current_post_v0_1_governance_docs() -> None:
+    required_docs = set(docs_gate.REQUIRED_DOCS)
+
+    assert POST_V0_1_GOVERNANCE_DOCS <= required_docs
+    assert len(docs_gate.REQUIRED_DOCS) == len(required_docs)
 
 
 def test_template_schema_gate_requires_seed_config(tmp_path: Path) -> None:

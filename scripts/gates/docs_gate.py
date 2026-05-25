@@ -49,7 +49,14 @@ REQUIRED_DOCS = [
     "docs/POST_V0.1.0_ROADMAP.md",
     "docs/RELEASE_PAGE_DECISION.md",
     "docs/LOCAL_PACKAGE_CHECKLIST.md",
+    "docs/RELEASE_BUNDLE_POLICY.md",
+    "docs/RELEASE_MANIFEST_POLICY.md",
+    "docs/SBOM_PROVENANCE_PLAN.md",
+    "docs/PYTHON_RUNTIME_POLICY.md",
+    "docs/APPROVED_CORPUS_RAG_PLAN.md",
+    "docs/MODEL_CHANGE_POLICY.md",
     "docs/OPTIONAL_EVAL_HARNESS_PLAN.md",
+    "docs/MINIMAL_EVAL_HARNESS_DESIGN.md",
     "docs/CHANGE_CONTROL.md",
     "docs/HUMAN_APPROVALS.md",
     "docs/EVAL_POLICY.md",
@@ -70,6 +77,7 @@ REQUIRED_DOCS = [
     "docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md",
     "docs/DOWNSTREAM_EXPERIMENT_scenario_simulator_design_base_template.md",
     "docs/RC2_CANDIDATE_CLOSEOUT.md",
+    "docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md",
     "docs/OPTIONAL_GITHUB_ACTIONS.md",
 ]
 
