@@ -105,6 +105,15 @@ do not execute target renders, create downstream target folders, add C# or
 PLC/device code, create live configuration, generate release artifacts, or
 install workflows.
 
+The post-v0.1.0 evidence baseline closeout is present:
+
+- `docs/POST_V0.1.0_EVIDENCE_BASELINE_CLOSEOUT.md`
+
+The closeout summarizes completed Stage 0-14 evidence surfaces, current
+verification state, deferred surfaces, and future approval boundaries. It is
+documentation-only and does not regenerate artifacts or change generator, eval,
+CI, release, target render, application, device, or live-write behavior.
+
 ## Optional Improvement Sequence
 
 1. Release page decision.
@@ -120,6 +129,7 @@ install workflows.
 11. Approved-corpus RAG and model-change policy planning.
 12. Optional CI actualization decision and template-only release verification.
 13. Additional local target experiment planning for existing profiles.
+14. Post-v0.1.0 evidence baseline closeout.
 
 Each item is optional and should remain approval-gated. Planning a future capability does not authorize implementing it.
 
@@ -257,6 +267,20 @@ These plans do not create target folders, execute render writes, add C# source,
 solution, project, XAML, build assets, PLC/device code, polling, connections,
 tag maps, control actions, live config, live-write behavior, CI workflows,
 release artifacts, or `scenario_simulator` profiles/examples.
+
+## Evidence Baseline Closeout
+
+Status: PRESENT.
+
+`docs/POST_V0.1.0_EVIDENCE_BASELINE_CLOSEOUT.md` records the current
+post-v0.1.0 evidence baseline. It summarizes Stage 0-14 work, current evidence
+surfaces, release evidence source-basis semantics, verification state, deferred
+surfaces, approval boundaries, known limitations, and recommended next steps.
+
+The closeout is documentation-only. It does not add gate coverage, regenerate
+artifacts, modify generators, change eval behavior, install CI, create tags,
+publish releases, create archives, run target renders, or add application,
+device, or live-write behavior.
 
 ## Profile Policy
 

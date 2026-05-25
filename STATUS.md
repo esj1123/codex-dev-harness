@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 additional local target experiment planning.
+Post v0.1.0 evidence baseline closeout.
 
 ## Current State
 
@@ -10,20 +10,20 @@ The repository contains documentation, base templates, profile templates, render
 
 ## Current Verification Snapshot
 
-Snapshot purpose: document release evidence source-basis semantics without
-regenerating artifacts.
+Snapshot purpose: document the post-v0.1.0 evidence baseline closeout without
+regenerating release artifacts.
 
 | item | status | evidence |
 |---|---|---|
 | basis branch/ref | PRESENT | `main` / `origin/main` |
-| current repository commit | PRESENT | `a88ac171f75205f0b507359c4b88ffd0e638910e` |
+| current repository commit at closeout drafting | PRESENT | `03161f7d26ef70b5bdc4db90026d49479926cf97` |
 | release manifest source basis commit | PRESENT | `artifacts/release-manifest.json` records `git_commit` as `1b2e430f2a5df4dff9cc6e5a4008095e732a5a55` |
 | manifest generated timestamp | PRESENT | `2026-05-25T05:34:23Z` |
 | Python runtime used for verification | PRESENT | bundled Codex Python `3.12.13` |
 | bare `python.exe` | ENVIRONMENT BLOCKED | Windows logon session error in this Codex desktop shell |
-| bundled Python `python -m pytest` | PASS | 61 passed |
-| bundled Python `python scripts/quality_gate.py` | PASS | docs, hygiene, schema, examples, render drift, and secret scan passed |
-| `scripts/run_local_verify.ps1` | PASS | pytest, quality gate, and three render dry-runs passed |
+| bundled Python `python -m pytest` | PASS | 61 passed in this closeout verification |
+| bundled Python `python scripts/quality_gate.py` | PASS | docs, hygiene, schema, examples, render drift, and secret scan passed in this closeout verification |
+| `scripts/run_local_verify.ps1` | NOT RUN | Optional and not re-run in this documentation-only closeout task |
 | `scripts/run_release_verify.ps1` | NOT RUN | Not re-run in this documentation-only task because it regenerates artifacts |
 | CI workflow | NOT INSTALLED | `.github/workflows/` remains absent |
 | release publication, tag movement, archive creation, signing | NOT DONE | Documentation-only task |
@@ -60,6 +60,7 @@ regenerating artifacts.
   - `docs/BUG_REVIEW_TEMPLATE.md`
   - `docs/SIMPLIFICATION_CHECKLIST.md`
   - `docs/POST_V0.1.0_ROADMAP.md`
+  - `docs/POST_V0.1.0_EVIDENCE_BASELINE_CLOSEOUT.md`
   - `docs/RELEASE_PAGE_DECISION.md`
   - `docs/LOCAL_PACKAGE_CHECKLIST.md`
   - `docs/RELEASE_BUNDLE_POLICY.md`
@@ -450,6 +451,7 @@ Stage 0 current-main gap review basis:
 | item | status | evidence |
 |---|---|---|
 | post-v0.1.0 roadmap | PRESENT | `docs/POST_V0.1.0_ROADMAP.md` |
+| post-v0.1.0 evidence baseline closeout | PRESENT | `docs/POST_V0.1.0_EVIDENCE_BASELINE_CLOSEOUT.md`; documents completed Stage 0-14 evidence surfaces, verification status, deferred surfaces, and approval boundaries without regenerating artifacts |
 | next priority | DOWNSTREAM FEEDBACK | Roadmap prioritizes downstream adoption feedback before automation |
 | release page decision | DEFERRED | `docs/RELEASE_PAGE_DECISION.md`; GitHub Release page not created |
 | local package checklist | PRESENT | `docs/LOCAL_PACKAGE_CHECKLIST.md`; no package archive generated |
