@@ -37,6 +37,21 @@ def assert_path_rejected(repo_root: Path, path_arg: str, flag_name: str, expecte
         raise AssertionError(f"{flag_name} path should be rejected: {path_arg}")
 
 
+def assert_sbom_paths_rejected(
+    repo_root: Path,
+    manifest_path: Path,
+    spdx_path: Path,
+    cyclonedx_path: Path,
+    expected: str,
+) -> None:
+    try:
+        generate_sbom.validate_sbom_paths(repo_root, manifest_path, spdx_path, cyclonedx_path)
+    except ValueError as exc:
+        assert expected in str(exc)
+    else:
+        raise AssertionError("SBOM paths should be rejected")
+
+
 def test_spdx_uses_manifest_files_and_unknown_licenses(tmp_path: Path) -> None:
     manifest_path = write_manifest(tmp_path)
     write(tmp_path / "requirements-dev.txt", "pytest>=9\n")
@@ -84,3 +99,21 @@ def test_sbom_rejects_absolute_paths(tmp_path: Path) -> None:
 
 def test_sbom_rejects_parent_traversal(tmp_path: Path) -> None:
     assert_path_rejected(tmp_path, "../sbom.spdx.json", "--spdx", "parent traversal")
+
+
+def test_sbom_rejects_overlapping_artifact_paths(tmp_path: Path) -> None:
+    manifest_path = tmp_path / "artifacts" / "release-manifest.json"
+    checksums_path = tmp_path / "artifacts" / "checksums.sha256"
+    checksums_txt_path = tmp_path / "artifacts" / "checksums.txt"
+    provenance_path = tmp_path / "artifacts" / "provenance.intoto.jsonl"
+    spdx_path = tmp_path / "artifacts" / "sbom.spdx.json"
+    cyclonedx_path = tmp_path / "artifacts" / "sbom.cdx.json"
+
+    generate_sbom.validate_sbom_paths(tmp_path, manifest_path, spdx_path, cyclonedx_path)
+    assert_sbom_paths_rejected(tmp_path, manifest_path, manifest_path, cyclonedx_path, "--manifest")
+    assert_sbom_paths_rejected(tmp_path, manifest_path, checksums_path, cyclonedx_path, "checksums.sha256")
+    assert_sbom_paths_rejected(tmp_path, manifest_path, checksums_txt_path, cyclonedx_path, "checksums.txt")
+    assert_sbom_paths_rejected(tmp_path, manifest_path, provenance_path, cyclonedx_path, "provenance.intoto.jsonl")
+    assert_sbom_paths_rejected(tmp_path, manifest_path, spdx_path, manifest_path, "--manifest")
+    assert_sbom_paths_rejected(tmp_path, manifest_path, spdx_path, checksums_path, "checksums.sha256")
+    assert_sbom_paths_rejected(tmp_path, manifest_path, spdx_path, spdx_path, "--spdx")

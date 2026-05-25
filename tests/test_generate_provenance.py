@@ -40,6 +40,15 @@ def assert_path_rejected(repo_root: Path, path_arg: str, flag_name: str, expecte
         raise AssertionError(f"{flag_name} path should be rejected: {path_arg}")
 
 
+def assert_provenance_path_rejected(repo_root: Path, manifest_path: Path, output_path: Path, expected: str) -> None:
+    try:
+        generate_provenance.validate_provenance_paths(repo_root, manifest_path, output_path)
+    except ValueError as exc:
+        assert expected in str(exc)
+    else:
+        raise AssertionError("Provenance output path should be rejected")
+
+
 def test_provenance_records_repo_commands_python_and_digests(tmp_path: Path) -> None:
     manifest_path = write_release_artifacts(tmp_path)
     output_path = tmp_path / "artifacts" / "provenance.intoto.jsonl"
@@ -80,3 +89,18 @@ def test_provenance_rejects_absolute_paths(tmp_path: Path) -> None:
 
 def test_provenance_rejects_parent_traversal(tmp_path: Path) -> None:
     assert_path_rejected(tmp_path, "../provenance.intoto.jsonl", "--output", "parent traversal")
+
+
+def test_provenance_rejects_overwriting_release_artifacts(tmp_path: Path) -> None:
+    manifest_path = tmp_path / "artifacts" / "release-manifest.json"
+    output_path = tmp_path / "artifacts" / "provenance.intoto.jsonl"
+
+    generate_provenance.validate_provenance_paths(tmp_path, manifest_path, output_path)
+    for protected_path, expected in [
+        (manifest_path, "--manifest"),
+        (tmp_path / "artifacts" / "checksums.sha256", "checksums.sha256"),
+        (tmp_path / "artifacts" / "checksums.txt", "checksums.txt"),
+        (tmp_path / "artifacts" / "sbom.spdx.json", "sbom.spdx.json"),
+        (tmp_path / "artifacts" / "sbom.cdx.json", "sbom.cdx.json"),
+    ]:
+        assert_provenance_path_rejected(tmp_path, manifest_path, protected_path, expected)

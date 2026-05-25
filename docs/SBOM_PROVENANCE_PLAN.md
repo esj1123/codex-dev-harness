@@ -114,6 +114,13 @@ explicitly approved and independently evidenced.
 
 The provenance output does not include its own digest to avoid self-reference.
 
+## Output Path Safety
+
+The local SBOM generator rejects output paths that would overwrite the input
+manifest, checksum artifacts, the other SBOM output, or the provenance artifact.
+The local provenance generator rejects output paths that would overwrite the
+manifest, checksum artifacts, or SBOM artifacts.
+
 ## Current Implementation Files
 
 - `scripts/generate_sbom.py`
