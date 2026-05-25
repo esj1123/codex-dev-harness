@@ -26,6 +26,10 @@ A future release bundle may contain:
 These names are reserved as future evidence component names. Their presence in
 this policy does not authorize generating them.
 
+SBOM and provenance scope is planned in `docs/SBOM_PROVENANCE_PLAN.md`. That
+plan is documentation-only and does not authorize generators, artifacts,
+dependencies, CI workflows, release publication, signatures, or tag movement.
+
 ## Required Boundaries
 
 Future release bundles must preserve the local-first baseline:
@@ -60,6 +64,11 @@ Future bundles should include only repository-controlled, reviewed evidence:
 
 Optional evidence such as eval reports, SBOMs, provenance, and audit sessions
 must be included only after separate owner approval.
+
+Future SBOM and provenance artifacts should relate back to
+`release-manifest.json` and `checksums.sha256` rather than replacing them. The
+manifest remains the file inventory and digest source; checksums remain the
+integrity evidence for generated release artifacts.
 
 ## Exclusion Policy
 

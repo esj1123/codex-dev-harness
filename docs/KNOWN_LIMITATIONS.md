@@ -16,9 +16,12 @@ Record known limitations for the current codex-dev-harness baseline after the fo
 - PLC/device examples do not include polling, connection, tag maps, control actions, or live device write support.
 - The eval harness is minimal and standalone; it is not wired into `quality_gate.py`, CI, or release blocking.
 - GitHub Actions workflow is not installed.
-- Release bundle and manifest policies exist, but no generator or artifact exists.
-- Release manifests and checksum files are not generated.
-- SBOM and provenance artifacts are not implemented.
+- Release manifest and checksum generation exists, but broader release bundle
+  generation and release verification wrapping are not implemented.
+- Generated manifest and checksum files are local evidence only; no release
+  archive is generated.
+- SBOM and provenance planning exists, but generators and artifacts are not
+  implemented.
 - Optional design-stage pack is manual-use-only.
 - Optional design-stage pack has no render integration.
 - Optional design-stage pack has no gate integration.
@@ -33,10 +36,12 @@ Record known limitations for the current codex-dev-harness baseline after the fo
 
 ## Candidate Future Work
 
-- Implement an eval harness only after explicit approval and concrete downstream failure modes.
-- Implement release manifest/checksum generation only after explicit approval.
-- Implement release bundle generation only after explicit approval.
-- Add SBOM/provenance only if a distribution or compliance need appears.
+- Expand or integrate the eval harness only after explicit approval and
+  concrete downstream failure modes.
+- Implement release verification wrapping or broader release bundle generation
+  only after explicit approval.
+- Implement SBOM/provenance generators only after explicit approval and a
+  concrete distribution, audit, or compliance need.
 - Actualize optional CI only if local-first verification is no longer enough.
 - Split `docs_gate` into baseline, release-record, and optional-document groups if the required-doc list becomes too release-specific.
 - Add stricter config schema validation if template config grows beyond scalar values.
@@ -48,7 +53,7 @@ Record known limitations for the current codex-dev-harness baseline after the fo
 
 - Do not add a GitHub Actions workflow as part of this limitation refresh.
 - Do not expand or integrate the eval harness as part of this limitation refresh.
-- Do not generate release bundles, manifests, checksums, or release archives as part of this limitation refresh.
-- Do not create SBOM/provenance artifacts as part of this limitation refresh.
+- Do not generate release bundles, release archives, SBOMs, or provenance
+  artifacts as part of this limitation refresh.
 - Do not add a new profile or downstream application implementation as part of this limitation refresh.
 - Do not implement optional design-stage render, gate, or example integration as part of this limitation refresh.

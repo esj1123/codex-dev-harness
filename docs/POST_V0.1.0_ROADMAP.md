@@ -43,9 +43,24 @@ Release bundle and manifest policy is present:
 - `docs/RELEASE_BUNDLE_POLICY.md`
 - `docs/RELEASE_MANIFEST_POLICY.md`
 
-These policies define future machine-readable release evidence boundaries. They
-do not add generators, artifacts, archives, tags, release publication, SBOM,
+Local manifest/checksum generation is also present:
+
+- `scripts/generate_manifest.py`
+- `scripts/generate_checksums.py`
+- `artifacts/release-manifest.json`
+- `artifacts/checksums.sha256`
+
+These generators are local-only and restricted to repo-relative `artifacts/`
+paths. They do not create release archives, tags, release publication, SBOM,
 provenance, or CI workflows.
+
+SBOM/provenance planning is present:
+
+- `docs/SBOM_PROVENANCE_PLAN.md`
+
+The plan defines future SPDX, CycloneDX, and in-toto evidence scope without
+adding generators, dependencies, artifacts, CI workflows, signatures, tags,
+release publication, application code, or live-write behavior.
 
 ## Optional Improvement Sequence
 
@@ -55,9 +70,10 @@ provenance, or CI workflows.
 4. Eval harness plan and design.
 5. Minimal standalone eval harness implementation.
 6. Release bundle and manifest policy.
-7. Release manifest/checksum generator, if separately approved.
-8. SBOM/provenance.
-9. Optional CI actualization.
+7. Release manifest/checksum generator.
+8. SBOM/provenance planning.
+9. SBOM/provenance implementation, if separately approved.
+10. Optional CI actualization.
 
 Each item is optional and should remain approval-gated. Planning a future capability does not authorize implementing it.
 
@@ -108,20 +124,38 @@ or CI integration.
 
 ## Release Bundle And Manifest Policy
 
-Status: DOCUMENTATION POLICY PRESENT.
+Status: POLICY AND LOCAL MANIFEST/CHECKSUM GENERATION PRESENT.
 
 `docs/RELEASE_BUNDLE_POLICY.md` defines future bundle components such as
 `release-manifest.json`, `checksums.sha256`, optional eval reports, optional
 SBOM/provenance files, human-readable closeout, and optional redacted audit
 sessions.
 
-`docs/RELEASE_MANIFEST_POLICY.md` defines future manifest fields including
+`docs/RELEASE_MANIFEST_POLICY.md` defines manifest fields including
 repository basis, Python version, included roots, excluded patterns,
 verification commands, quality gates, optional eval summary, example render
 dry-runs, and per-file size/SHA-256 records.
 
-No release bundle generator, manifest artifact, checksum file, SBOM,
-provenance, release archive, CI workflow, tag, or GitHub Release is created.
+`scripts/generate_manifest.py` and `scripts/generate_checksums.py` generate
+local-only `artifacts/release-manifest.json` and `artifacts/checksums.sha256`
+when explicitly run. They do not create a release archive, SBOM, provenance,
+CI workflow, tag, or GitHub Release.
+
+## SBOM And Provenance Plan
+
+Status: PLANNING PRESENT.
+
+`docs/SBOM_PROVENANCE_PLAN.md` defines why SBOM/provenance can help even for a
+template repository, how future SBOM/provenance evidence should relate to
+`release-manifest.json` and checksums, and minimal future scope for:
+
+- SPDX JSON
+- CycloneDX JSON
+- in-toto provenance
+
+This is documentation-only. No `scripts/generate_sbom.py`,
+`scripts/generate_provenance.py`, `artifacts/sbom.spdx.json`,
+`artifacts/sbom.cdx.json`, or `artifacts/provenance.intoto.jsonl` exists.
 
 ## Profile Policy
 
@@ -142,8 +176,11 @@ The base template surfaces, especially `SOURCE_INDEX`, `PROJECT_BOUNDARY`, `DATA
 - Do not make evals release-blocking without approval.
 - Do not wire evals into `scripts/quality_gate.py` without approval.
 - Do not generate eval reports by default.
-- Do not generate release manifests, checksums, release bundles, or release archives without approval.
-- Do not create SBOM/provenance artifacts.
+- Do not generate release bundles or release archives without approval.
+- Do not regenerate release manifests or checksums outside an explicit release
+  evidence task.
+- Do not create SBOM/provenance artifacts or generators without separate
+  approval.
 - Do not install GitHub Actions workflows.
 - Do not add a new profile.
 - Do not add `profiles/scenario_simulator`.
@@ -156,5 +193,5 @@ The base template surfaces, especially `SOURCE_INDEX`, `PROJECT_BOUNDARY`, `DATA
 Review downstream adoption feedback, the lightweight governance docs, and the
 standalone eval harness before deciding whether quality-gate integration,
 release page publication, local packaging, release bundle generation, audit log
-generation, SBOM/provenance, CI, or any optional design-stage integration adds
-enough value to justify a follow-up task.
+generation, SBOM/provenance implementation, CI, or any optional design-stage
+integration adds enough value to justify a follow-up task.
