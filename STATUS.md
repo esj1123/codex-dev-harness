@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 approved corpus and model change policy planning.
+Post v0.1.0 optional release verification CI template planning.
 
 ## Current State
 
@@ -70,6 +70,7 @@ The repository contains documentation, base templates, profile templates, render
   - `docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md`
   - `docs/DOWNSTREAM_EXPERIMENT_scenario_simulator_design_base_template.md`
   - `docs/RC2_CANDIDATE_CLOSEOUT.md`
+  - `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`
   - `docs/OPTIONAL_GITHUB_ACTIONS.md`
 - Base markdown templates, including source index, project boundary, data scope, phase plan, and approvals templates.
 - Experimental optional design-stage Markdown template pack under `templates/optional/design_stage/`.
@@ -103,6 +104,10 @@ The repository contains documentation, base templates, profile templates, render
 - Tests under `tests/`.
 - Local verification wrapper: `scripts/run_local_verify.ps1`.
 - Optional GitHub Actions template: `templates/ci/github-actions-local-verify.yml.template`.
+- Optional release verification GitHub Actions template:
+  `templates/ci/github-actions-release-verify.yml.template`.
+- Optional CI actualization decision:
+  `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`.
 - Reusable prompt contract templates under `prompts/task_contract/`.
 - Minimal local-only eval harness design and implementation: `docs/MINIMAL_EVAL_HARNESS_DESIGN.md`, `scripts/run_eval.py`, `scripts/gates/eval_gate.py`, and `evals/cases/`.
 - Audit log schema for future optional evidence: `audits/audit-log.schema.json`.
@@ -116,6 +121,9 @@ The repository contains documentation, base templates, profile templates, render
 - Live target write behavior.
 - Real secret/config files.
 - CI workflow.
+- Active release verification GitHub Actions workflow.
+- CI artifact upload.
+- Required CI checks.
 - Release automation.
 - Dedicated `scenario_simulator` profile.
 - `examples/scenario_simulator_minimal`.
@@ -134,7 +142,6 @@ The repository contains documentation, base templates, profile templates, render
   output capture.
 - SBOM/provenance external metadata resolution.
 - SBOM/provenance signing or publication.
-- Optional CI release verification template.
 
 ## Known Constraints
 
@@ -223,13 +230,14 @@ Stage 0 current-main gap review basis:
 | post-v0.1.0 roadmap optional pack refresh | PRESENT | `docs/POST_V0.1.0_ROADMAP.md` records closed manual-use-only baseline and deferred integration |
 | template extension policy | REFRESHED | downstream feedback promotion and optional-pack placement criteria are documented |
 | formal v0.1.0 criteria | SATISFIED | `docs/FORMAL_V0.1.0_CRITERIA.md` exists; formal tag created |
-| optional GitHub Actions guide | PRESENT | guide and template exist, but no workflow is installed |
+| optional GitHub Actions guide | PRESENT | guide and local/release verification templates exist, but no workflow is installed |
 | Stage 0 current-main gap review basis | RECORDED | `origin/main` at `7add760e89b84106679461948e9db58223900e33`, checked `2026-05-24T15:45:55.4078343+09:00` |
 | release manifest/checksum generator | PRESENT | `scripts/generate_manifest.py` and `scripts/generate_checksums.py`; local-only, standard-library-only, and restricted to repo-relative `artifacts/` paths |
 | release manifest/checksum artifacts | PRESENT | `artifacts/release-manifest.json` and `artifacts/checksums.sha256`; no release archive, tag, release, or workflow generated |
 | release evidence foundation | PARTIAL | Release records, clean clone validation, local package checklist, and release drafts exist |
 | optional CI local verify template | DONE | `templates/ci/github-actions-local-verify.yml.template` exists and no workflow is installed |
-| optional CI release verify template | MISSING / OPTIONAL | No release verification CI template or workflow exists |
+| optional CI release verify template | PRESENT / OPTIONAL | `templates/ci/github-actions-release-verify.yml.template` exists and no workflow is installed |
+| optional CI actualization decision | PRESENT | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md` records template-only decision, no artifact upload, and owner-approval boundary |
 | release bundle policy | PRESENT | `docs/RELEASE_BUNDLE_POLICY.md`; records the local manifest/checksum generator boundary and future release evidence exclusions |
 | release manifest policy | PRESENT | `docs/RELEASE_MANIFEST_POLICY.md`; defines current manifest fields, deterministic ordering, exclusions, and checksum rules |
 | SBOM/provenance plan | IMPLEMENTED MINIMAL LOCAL | `docs/SBOM_PROVENANCE_PLAN.md`; minimal local generators and artifacts exist; no dependencies, external services, CI, tags, signatures, or release publication |
@@ -430,6 +438,7 @@ Stage 0 current-main gap review basis:
 | release verification wrapper | IMPLEMENTED LOCAL | `scripts/run_release_verify.ps1` runs local verification, optional standalone eval, manifest/checksum generation, optional SBOM/provenance generation, final checksum regeneration, and artifact path reporting; no archive, CI, signing, publication, tag movement, application, or live-write behavior |
 | approved-corpus RAG planning | ADDED | `docs/APPROVED_CORPUS_RAG_PLAN.md` defines candidate safe corpus files, required metadata, forbidden corpus, and corpus-expansion approval checkpoints; no retrieval/index tooling added |
 | model and prompt change planning | ADDED | `docs/MODEL_CHANGE_POLICY.md` defines model, prompt template, eval run, corpus digest, side-effect class, and compare-before-adopt controls; no model comparison or capture tooling added |
+| optional release verification CI template | TEMPLATE ONLY | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md` and `templates/ci/github-actions-release-verify.yml.template` exist; no `.github/workflows`, required checks, artifact upload, publishing, signing, tag movement, deployment, application code, or live-write behavior |
 | Stage 1 change control policy | PRESENT | `docs/CHANGE_CONTROL.md`; documentation-only |
 | Stage 1 human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md`; documentation-only |
 | Stage 1 eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval exists; no dependencies, quality-gate integration, or CI integration |
@@ -489,6 +498,7 @@ Keep approved-corpus RAG implementation, retrieval/index generation, embeddings,
 model comparison tooling, prompt/model output capture, eval integration into
 `scripts/quality_gate.py`, CI integration, routine eval report generation, real
 audit session log generation, audit logging automation, broader release bundle
-or archive generation, SBOM/provenance expansion or publication, workflows,
-profiles, and application/device/live-write behavior deferred unless separately
-approved.
+or archive generation, SBOM/provenance expansion or publication, active
+workflows, required CI checks, CI artifact upload, release publication,
+signing, tag movement, deployment, profiles, and application/device/live-write
+behavior deferred unless separately approved.

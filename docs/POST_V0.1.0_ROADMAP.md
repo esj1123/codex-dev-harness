@@ -4,9 +4,10 @@
 
 Record the post-v0.1.0 operating direction for codex-dev-harness without starting new implementation work.
 
-This document is planning-only. It does not create an eval harness, CI workflow,
-SBOM, provenance bundle, RAG index, model comparison tool, new profile, example
-project, or application code.
+This document is planning-only. It does not create an active CI workflow,
+release publication path, eval harness expansion, SBOM/provenance expansion,
+RAG index, model comparison tool, new profile, example project, or application
+code.
 
 ## Current Baseline
 
@@ -81,6 +82,18 @@ storage, RAG dependencies, model comparison code, prompt capture, model output
 capture, external service calls, CI workflows, application code, or live-write
 behavior.
 
+Optional CI actualization decision and release verification template planning
+are present:
+
+- `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`
+- `templates/ci/github-actions-release-verify.yml.template`
+
+The decision keeps local-first verification as the baseline and treats CI as
+template-only support for downstream forks. The optional release verification
+template is not installed under `.github/workflows/`, requires no secrets, uses
+read-only permissions, does not upload artifacts, and does not publish, sign,
+tag, deploy, or write to live targets.
+
 ## Optional Improvement Sequence
 
 1. Release page decision.
@@ -94,7 +107,7 @@ behavior.
 9. SBOM/provenance implementation, if separately approved.
 10. Python runtime reproducibility.
 11. Approved-corpus RAG and model-change policy planning.
-12. Optional CI actualization.
+12. Optional CI actualization decision and template-only release verification.
 
 Each item is optional and should remain approval-gated. Planning a future capability does not authorize implementing it.
 
@@ -194,6 +207,24 @@ These policies are documentation-only. They do not implement retrieval, build
 an index, add dependencies, capture prompts or outputs, compare models, call
 external services, install CI, or add application/device/live-write behavior.
 
+## Optional CI Actualization
+
+Status: TEMPLATE-ONLY DECISION PRESENT.
+
+`docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md` records the current decision that
+local-first verification remains sufficient for the baseline and that
+`scripts/run_release_verify.ps1` covers current release verification needs.
+
+`templates/ci/github-actions-release-verify.yml.template` provides an optional
+manual workflow template for downstream forks. It is not installed under
+`.github/workflows/`, uses `workflow_dispatch`, uses read-only repository
+permissions, requires no secrets, and does not upload artifacts, publish
+releases, sign artifacts, create or move tags, deploy, or write to live targets.
+
+Actual workflow installation, required checks, artifact upload, release
+publication, signing, tag movement, or deployment requires separate owner
+approval.
+
 ## Profile Policy
 
 Do not add profiles casually.
@@ -224,6 +255,9 @@ The base template surfaces, especially `SOURCE_INDEX`, `PROJECT_BOUNDARY`, `DATA
 - Do not adopt model or prompt changes without eval and closeout evidence once
   an applicable eval harness exists.
 - Do not install GitHub Actions workflows.
+- Do not upload release evidence artifacts from CI without separate approval.
+- Do not make CI checks required without separate approval.
+- Do not publish, sign, tag, deploy, or write to live targets from optional CI.
 - Do not add a new profile.
 - Do not add `profiles/scenario_simulator`.
 - Do not add `examples/scenario_simulator_minimal`.
@@ -239,4 +273,6 @@ generation, SBOM/provenance implementation, CI, or any optional design-stage
 integration adds enough value to justify a follow-up task. Keep approved-corpus
 RAG implementation and model comparison tooling deferred until a separate owner
 approval names exact files, artifacts, dependencies, verification, and safety
-boundaries.
+boundaries. Keep optional CI workflow installation and CI artifact upload
+deferred until a separate owner approval names the workflow path, trigger
+policy, permissions, artifact retention, and publication/signing/tag exclusions.

@@ -1,0 +1,45 @@
+# Optional release verification workflow template.
+# This file is not active unless a user manually copies it to .github/workflows/.
+# The codex-dev-harness baseline is local-first and does not require GitHub Actions.
+# Review docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md before installing.
+#
+# Safety boundary:
+# - no secrets required
+# - read-only repository permissions
+# - no artifact upload
+# - no release publication
+# - no signing
+# - no tag creation or movement
+# - no deployment
+# - no live target writes
+
+name: Release Verify
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  release-verify:
+    runs-on: windows-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Show Python version
+        run: python --version
+
+      - name: Install development requirements
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Run local release verification wrapper
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run_release_verify.ps1

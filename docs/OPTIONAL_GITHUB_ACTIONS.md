@@ -8,25 +8,33 @@ GitHub Actions support is optional for codex-dev-harness. The baseline remains l
 
 - GitHub Actions are not required for the local-first baseline.
 - No workflow file is installed under `.github/workflows` by default.
-- The optional workflow template is documentation support, not an enabled CI system.
+- Optional workflow templates are documentation support, not an enabled CI system.
 - CI must not create real application code, PLC/device code, live target writes, secrets, or live config.
-- CI should only run tests, the quality gate, and render dry-runs.
+- CI should only run safe verification commands.
+- Release verification CI must not publish, upload artifacts, sign, tag, deploy,
+  or write to live targets.
 
-## Template
+## Templates
 
-Optional template path:
+Optional local verification template:
 
 `templates/ci/github-actions-local-verify.yml.template`
 
-To use it in a downstream fork or project, review it first and copy it manually to:
+Optional release verification template:
 
-`.github/workflows/local-verify.yml`
+`templates/ci/github-actions-release-verify.yml.template`
 
-Do not copy it automatically as part of this repository baseline.
+To use a template in a downstream fork or project, review it first and copy it
+manually to an appropriate path under:
+
+`.github/workflows/`
+
+Do not copy templates automatically as part of this repository baseline.
 
 ## Recommended Checks
 
-The optional workflow should run:
+The optional local verification workflow should run:
+
 - dependency installation from `requirements-dev.txt`
 - `python -m pytest`
 - `python scripts/quality_gate.py`
@@ -34,6 +42,26 @@ The optional workflow should run:
 - render dry-run for `examples/csharp_desktop_minimal`
 - render dry-run for `examples/plc_tool_minimal`
 
+The optional release verification workflow should run:
+
+- dependency installation from `requirements-dev.txt`
+- `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run_release_verify.ps1`
+
+The release verification template uses `workflow_dispatch` by default,
+read-only permissions, and no secrets. It does not upload generated release
+evidence artifacts.
+
+## Actualization Decision
+
+Current decision: template-only.
+
+`docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md` records why local-first
+verification remains sufficient, why `scripts/run_release_verify.ps1` covers
+current release verification needs, why no artifact upload is included by
+default, and why owner approval is required before workflow installation.
+
 ## Boundary
 
-The optional workflow is only a cloud equivalent of local verification. It is not a deployment workflow, release workflow, device workflow, or project generator.
+The optional workflows are cloud equivalents of local verification commands.
+They are not deployment workflows, publication workflows, signing workflows,
+device workflows, live-write workflows, or project generators.
