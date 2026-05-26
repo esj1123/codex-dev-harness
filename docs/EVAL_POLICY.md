@@ -2,9 +2,13 @@
 
 ## Purpose
 
-Define evaluation policy for future codex-dev-harness eval work while preserving the current documentation-first, local-first baseline.
+Define evaluation policy for codex-dev-harness eval work while preserving the
+current documentation-first, local-first baseline.
 
-This policy is documentation-only. It does not implement an eval harness, create eval fixtures, add dependencies, integrate gates, or install CI.
+This policy document is documentation-only. It records the current standalone
+local eval harness boundary and does not by itself add new eval code, create
+new fixture categories, add dependencies, integrate evals into quality gates,
+or install CI.
 
 ## Current State
 

@@ -18,15 +18,16 @@ application code, create device behavior, or enable live writes.
 | branch/ref at final artifact regeneration | PRESENT | `main` / `origin/main` |
 | repository commit before final evidence regeneration | PRESENT | `7e4208d4a29598cb95f9d94c9f79f11c8c971e83` |
 | source basis commit | PRESENT | `artifacts/release-manifest.json` records `7e4208d4a29598cb95f9d94c9f79f11c8c971e83` |
-| artifact-containing commit | PENDING UNTIL FINAL EVIDENCE COMMIT | Final regenerated artifacts and closeout updates are not yet committed |
+| artifact-containing commit | PRESENT / OBSERVED | Stage 0 read-only review observed `ab77ab0a0b44c2f1bd700820bfeb358c6ec1bbe7` as the commit containing the regenerated artifacts and closeout updates |
 | closeout alignment scope | DOCUMENTATION AND LOCAL EVIDENCE | This document, `STATUS.md`, `ACCEPTANCE_TRACE.md`, and local release evidence artifacts record closeout state |
 | artifacts regenerated in this task | YES | `scripts/run_release_verify.ps1` passed after explicit eval report generation |
 | generator behavior changed | NO | Generator code was not edited |
 | eval behavior changed | NO | Eval code and tests were not edited |
 | docs_gate coverage changed | NO | This closeout document is not added to `docs_gate` in this task |
 
-The final artifact-containing commit for this closeout will be known only after
-the regenerated artifacts and closeout record updates are committed.
+The artifact-containing commit above is the Stage 0 observed evidence commit.
+Later documentation-only commits may advance repository HEAD while the generated
+artifact source basis remains `7e4208d4a29598cb95f9d94c9f79f11c8c971e83`.
 
 ## Completed Stage Summary
 
@@ -106,7 +107,7 @@ This snapshot records the final post-Priority-4 local release evidence refresh.
 | basis branch/ref | PRESENT | `main` / `origin/main` |
 | current repository commit before final evidence regeneration | PRESENT | `7e4208d4a29598cb95f9d94c9f79f11c8c971e83` |
 | manifest source basis commit | PRESENT | `artifacts/release-manifest.json` records `7e4208d4a29598cb95f9d94c9f79f11c8c971e83` |
-| artifact-containing commit | PENDING UNTIL FINAL EVIDENCE COMMIT | Final regenerated artifacts and closeout updates are not yet committed |
+| artifact-containing commit | PRESENT / OBSERVED | Stage 0 read-only review observed `ab77ab0a0b44c2f1bd700820bfeb358c6ec1bbe7`; later documentation-only commits may advance HEAD while artifact source basis remains unchanged |
 | manifest generated timestamp | PRESENT | `2026-05-26T07:41:11Z` |
 | manifest files recorded | PRESENT | `211` |
 | checksum coverage | PRESENT | 5 entries: `artifacts/eval-report.json`, `artifacts/provenance.intoto.jsonl`, `artifacts/release-manifest.json`, `artifacts/sbom.cdx.json`, `artifacts/sbom.spdx.json` |
@@ -200,8 +201,10 @@ eval reports, and this closeout do not grant approval by themselves.
 
 - Release artifacts record a source basis commit earlier than the later
   artifact-containing commit once generated artifacts are committed.
-- The artifact-containing commit remains pending until the regenerated artifacts
-  and closeout record updates are committed.
+- Stage 0 read-only review observed artifact-containing commit
+  `ab77ab0a0b44c2f1bd700820bfeb358c6ec1bbe7`; later documentation-only commits
+  may advance repository HEAD while generated artifact source basis remains
+  unchanged.
 - `requirements-dev.lock` pins exact package versions but does not include
   wheel hashes.
 - SBOM and provenance are minimal local-first evidence, not full certification,
@@ -218,8 +221,8 @@ eval reports, and this closeout do not grant approval by themselves.
 
 ## Recommended Next Steps
 
-1. Commit the regenerated artifacts and closeout record updates as the final
-   local post-v0.1.0 evidence baseline.
+1. Keep the generated artifact source basis and artifact-containing commit
+   semantics explicit in future closeouts.
 2. Stop here as the final local evidence baseline unless a new approval expands
    scope.
 3. Optionally create a separate signed-release-evidence decision task.

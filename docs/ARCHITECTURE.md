@@ -121,9 +121,14 @@ Release evidence is tracked as documents:
 - `docs/LOCAL_DOWNSTREAM_ADOPTION_RUN_v0.1.0.md`
 - `docs/DOWNSTREAM_DOC_REVIEW_CHECKLIST_v0.1.0.md`
 - `docs/POST_V0.1.0_ROADMAP.md`
+- `docs/POST_V0.1.0_EVIDENCE_BASELINE_CLOSEOUT.md`
 - `docs/RELEASE_PAGE_DECISION.md`
 - `docs/LOCAL_PACKAGE_CHECKLIST.md`
 - `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`
+- `docs/MINIMAL_EVAL_HARNESS_DESIGN.md`
+- `docs/RELEASE_BUNDLE_POLICY.md`
+- `docs/RELEASE_MANIFEST_POLICY.md`
+- `docs/SBOM_PROVENANCE_PLAN.md`
 - `docs/LOCAL_TARGET_EXPERIMENT_python_cli_v0.1.0-rc1.md`
 
 Release records document what happened. They do not create tags, move tags, publish GitHub Releases, or enable CI.
@@ -134,9 +139,19 @@ Current release state:
 - Formal `v0.1.0` clean clone validation is recorded.
 - Formal GitHub Release draft exists, but the GitHub Release page is still NOT CREATED.
 - Downstream adoption run and downstream doc review checklist are recorded.
-- Post-v0.1.0 roadmap, release page decision, local package checklist, and optional eval harness plan are recorded.
+- Post-v0.1.0 roadmap, evidence baseline closeout, release page decision,
+  local package checklist, and optional eval harness plan are recorded.
+- Standalone local eval harness, eval gate wrapper, 14 named eval cases, and
+  explicit local eval report evidence exist; eval remains separate from
+  `scripts/quality_gate.py`, CI, and release blocking.
+- Local release manifest/checksum generation, generated release evidence
+  artifacts, minimal SBOM/provenance generation, and the local release
+  verification wrapper exist.
 - GitHub Actions workflow is still NOT INSTALLED.
-- Eval harness, SBOM, provenance, release manifest/checksum, and optional CI actualization remain future/optional work.
+- Optional CI actualization remains template-only and not installed.
+- Release publication, release archives, signing, tag movement, external
+  SBOM/provenance metadata, RAG/model tooling, real audit logs, and
+  application/device/live-write behavior remain deferred.
 
 ## Optional CI Plane
 

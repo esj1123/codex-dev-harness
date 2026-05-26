@@ -16,12 +16,17 @@ Record known limitations for the current codex-dev-harness baseline after the fo
 - PLC/device examples do not include polling, connection, tag maps, control actions, or live device write support.
 - The eval harness is minimal and standalone; it is not wired into `quality_gate.py`, CI, or release blocking.
 - GitHub Actions workflow is not installed.
-- Release manifest and checksum generation exists, but broader release bundle
-  generation and release verification wrapping are not implemented.
-- Generated manifest and checksum files are local evidence only; no release
-  archive is generated.
-- SBOM and provenance planning exists, but generators and artifacts are not
-  implemented.
+- Release manifest and full-bundle checksum generation exists as local-only
+  evidence; broader release archive, publication, signing, and upload behavior
+  is not implemented.
+- The release verification wrapper exists as a local-only command; it does not
+  create release archives, publish releases, sign artifacts, move tags, upload
+  artifacts, or install CI workflows.
+- Generated manifest, checksum, eval report, SBOM, and provenance files are
+  local evidence only; no release archive is generated.
+- SBOM and provenance generators and artifacts exist as minimal local evidence;
+  external metadata lookup, certification, signing, publication, and CI
+  attestation are not implemented.
 - Optional design-stage pack is manual-use-only.
 - Optional design-stage pack has no render integration.
 - Optional design-stage pack has no gate integration.
@@ -38,10 +43,10 @@ Record known limitations for the current codex-dev-harness baseline after the fo
 
 - Expand or integrate the eval harness only after explicit approval and
   concrete downstream failure modes.
-- Implement release verification wrapping or broader release bundle generation
+- Expand release verification into broader release bundle/archive generation
   only after explicit approval.
-- Implement SBOM/provenance generators only after explicit approval and a
-  concrete distribution, audit, or compliance need.
+- Expand SBOM/provenance beyond the minimal local generators only after
+  explicit approval and a concrete distribution, audit, or compliance need.
 - Actualize optional CI only if local-first verification is no longer enough.
 - Split `docs_gate` into baseline, release-record, and optional-document groups if the required-doc list becomes too release-specific.
 - Add stricter config schema validation if template config grows beyond scalar values.
@@ -53,7 +58,7 @@ Record known limitations for the current codex-dev-harness baseline after the fo
 
 - Do not add a GitHub Actions workflow as part of this limitation refresh.
 - Do not expand or integrate the eval harness as part of this limitation refresh.
-- Do not generate release bundles, release archives, SBOMs, or provenance
-  artifacts as part of this limitation refresh.
+- Do not generate release bundles, release archives, or refreshed release
+  evidence artifacts as part of this limitation refresh.
 - Do not add a new profile or downstream application implementation as part of this limitation refresh.
 - Do not implement optional design-stage render, gate, or example integration as part of this limitation refresh.

@@ -54,8 +54,9 @@ Local manifest/checksum generation is also present:
 - `artifacts/checksums.sha256`
 
 These generators are local-only and restricted to repo-relative `artifacts/`
-paths. They do not create release archives, tags, release publication, SBOM,
-provenance, or CI workflows.
+paths. By themselves they do not create release archives, tags, release
+publication, SBOM, provenance, or CI workflows. SBOM and provenance are handled
+by separate minimal local generators described below.
 
 SBOM/provenance planning and minimal local implementation are present:
 
@@ -124,7 +125,7 @@ CI, release, target render, application, device, or live-write behavior.
 6. Release bundle and manifest policy.
 7. Release manifest/checksum generator.
 8. SBOM/provenance planning.
-9. SBOM/provenance implementation, if separately approved.
+9. SBOM/provenance expansion, signing, or publication decision, if separately approved.
 10. Python runtime reproducibility.
 11. Approved-corpus RAG and model-change policy planning.
 12. Optional CI actualization decision and template-only release verification.
@@ -249,24 +250,28 @@ approval.
 
 ## Additional Local Target Experiment Planning
 
-Status: PLANNING ONLY.
+Status: PARTIAL EXECUTED.
 
-The `csharp_desktop` and `plc_or_device_tool` profile templates have
-documentation-only future experiment plans:
+The `csharp_desktop` and `plc_or_device_tool` profile templates have local
+target experiment plans:
 
 - `docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md`
 - `docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md`
 
 Each plan requires a separate temporary target, dry-run review first, docs-only
 expected output, safety checks, and explicit owner approval before any actual
-render write. The plans also define the evidence record to create after a future
-approved execution and how to record `NOT RUN`, `BLOCKED`, and
-`ENVIRONMENT BLOCKED` honestly.
+render write.
 
-These plans do not create target folders, execute render writes, add C# source,
-solution, project, XAML, build assets, PLC/device code, polling, connections,
-tag maps, control actions, live config, live-write behavior, CI workflows,
-release artifacts, or `scenario_simulator` profiles/examples.
+The `csharp_desktop` experiment has been executed once under explicit approval
+and is recorded in
+`docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md`. It generated
+Markdown documentation only in an outside-repo temporary target. It did not add
+C# source, solution, project, XAML, build assets, live configuration, secrets,
+private input, or live-write behavior.
+
+The `plc_or_device_tool` actual experiment remains deferred. Its plan defines
+the evidence record to create after a future approved execution and how to
+record `NOT RUN`, `BLOCKED`, and `ENVIRONMENT BLOCKED` honestly.
 
 ## Evidence Baseline Closeout
 
@@ -304,8 +309,8 @@ The base template surfaces, especially `SOURCE_INDEX`, `PROJECT_BOUNDARY`, `DATA
 - Do not generate release bundles or release archives without approval.
 - Do not regenerate release manifests or checksums outside an explicit release
   evidence task.
-- Do not create SBOM/provenance artifacts or generators without separate
-  approval.
+- Do not expand, sign, publish, externally enrich, or regenerate
+  SBOM/provenance evidence outside an explicit release evidence task.
 - Do not create retrieval indexes, embeddings, vector stores, or RAG tooling
   without separate approval.
 - Do not capture prompts, model outputs, private input, or tool-call bodies.
@@ -326,10 +331,11 @@ The base template surfaces, especially `SOURCE_INDEX`, `PROJECT_BOUNDARY`, `DATA
 Review downstream adoption feedback, the lightweight governance docs, and the
 standalone eval harness before deciding whether quality-gate integration,
 release page publication, local packaging, release bundle generation, audit log
-generation, SBOM/provenance implementation, CI, or any optional design-stage
-integration adds enough value to justify a follow-up task. Keep approved-corpus
-RAG implementation and model comparison tooling deferred until a separate owner
-approval names exact files, artifacts, dependencies, verification, and safety
-boundaries. Keep optional CI workflow installation and CI artifact upload
-deferred until a separate owner approval names the workflow path, trigger
-policy, permissions, artifact retention, and publication/signing/tag exclusions.
+generation, SBOM/provenance expansion or publication, CI, or any optional
+design-stage integration adds enough value to justify a follow-up task. Keep
+approved-corpus RAG implementation and model comparison tooling deferred until
+a separate owner approval names exact files, artifacts, dependencies,
+verification, and safety boundaries. Keep optional CI workflow installation and
+CI artifact upload deferred until a separate owner approval names the workflow
+path, trigger policy, permissions, artifact retention, and
+publication/signing/tag exclusions.

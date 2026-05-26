@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Final post-v0.1.0 evidence baseline refresh.
+Post-v0.1.0 evidence baseline current-state documentation sync.
 
 ## Current State
 
@@ -17,11 +17,12 @@ refresh and current verification status.
 |---|---|---|
 | basis branch/ref | PRESENT | `main` / `origin/main` |
 | current repository commit before final evidence regeneration | PRESENT | `7e4208d4a29598cb95f9d94c9f79f11c8c971e83` |
+| artifact-containing commit observed during Stage 0 read-only review | PRESENT | `ab77ab0a0b44c2f1bd700820bfeb358c6ec1bbe7` |
 | current repository commit before `csharp_desktop` experiment | PRESENT | `76d88b842852635c95adcd8f3534f95e8bdc3ff5` |
-| Priority 2 checksum coverage commit | PRESENT | `eaba8687b68051f490b6287ab7a629c82ae7c80d` (`보강 2순위 완료`) |
+| Priority 2 checksum coverage commit | PRESENT | `eaba8687b68051f490b6287ab7a629c82ae7c80d` |
 | current repository commit before Priority 3 edits | PRESENT | `eaba8687b68051f490b6287ab7a629c82ae7c80d` |
 | release manifest source basis commit | PRESENT | `artifacts/release-manifest.json` records `git_commit` as `7e4208d4a29598cb95f9d94c9f79f11c8c971e83` |
-| artifact-containing commit | PENDING UNTIL FINAL EVIDENCE COMMIT | Final regenerated artifacts and closeout alignment updates are not yet committed |
+| artifact-containing commit | PRESENT / OBSERVED | Stage 0 read-only review observed `ab77ab0a0b44c2f1bd700820bfeb358c6ec1bbe7`; later documentation-only commits may advance HEAD while artifact source basis remains unchanged |
 | manifest generated timestamp | PRESENT | `2026-05-26T07:41:11Z` |
 | manifest files recorded | PRESENT | `211` |
 | checksum coverage | PRESENT | `artifacts/checksums.sha256` records 5 entries: eval report, provenance, manifest, CycloneDX SBOM, and SPDX SBOM; checksum file self-reference excluded |
@@ -470,7 +471,7 @@ Stage 0 current-main gap review basis:
 | item | status | evidence |
 |---|---|---|
 | post-v0.1.0 roadmap | PRESENT | `docs/POST_V0.1.0_ROADMAP.md` |
-| post-v0.1.0 evidence baseline closeout | PRESENT | `docs/POST_V0.1.0_EVIDENCE_BASELINE_CLOSEOUT.md`; documents completed Stage 0-14 evidence surfaces, final verification status, deferred surfaces, approval boundaries, and final post-Priority-4 release evidence regeneration |
+| post-v0.1.0 evidence baseline closeout | PRESENT | `docs/POST_V0.1.0_EVIDENCE_BASELINE_CLOSEOUT.md`; documents completed Stage 0-14 evidence surfaces, final verification status, source-basis/artifact-containing commit semantics, deferred surfaces, approval boundaries, and final post-Priority-4 release evidence regeneration |
 | next priority | DOWNSTREAM FEEDBACK | Roadmap prioritizes downstream adoption feedback before automation |
 | release page decision | DEFERRED | `docs/RELEASE_PAGE_DECISION.md`; GitHub Release page not created |
 | local package checklist | PRESENT | `docs/LOCAL_PACKAGE_CHECKLIST.md`; no package archive generated |
@@ -499,7 +500,7 @@ Stage 0 current-main gap review basis:
 | approved-corpus RAG planning | ADDED | `docs/APPROVED_CORPUS_RAG_PLAN.md` defines candidate safe corpus files, required metadata, forbidden corpus, and corpus-expansion approval checkpoints; no retrieval/index tooling added |
 | model and prompt change planning | ADDED | `docs/MODEL_CHANGE_POLICY.md` defines model, prompt template, eval run, corpus digest, side-effect class, and compare-before-adopt controls; no model comparison or capture tooling added |
 | optional release verification CI template | TEMPLATE ONLY | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md` and `templates/ci/github-actions-release-verify.yml.template` exist; no `.github/workflows`, required checks, artifact upload, publishing, signing, tag movement, deployment, application code, or live-write behavior |
-| additional local target experiment plans | PLANNING ONLY | `docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md` and `docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md` define separate temporary target, dry-run first, docs-only output, safety checks, approval, future evidence, and honest NOT RUN/BLOCKED rules; no render write or target folder created |
+| additional local target experiment plans | PARTIAL EXECUTED | `docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md` was executed once with explicit approval and recorded in `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md`; `docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md` remains planning-only |
 | Stage 1 change control policy | PRESENT | `docs/CHANGE_CONTROL.md`; documentation-only |
 | Stage 1 human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md`; documentation-only |
 | Stage 1 eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval exists; no dependencies, quality-gate integration, or CI integration |
