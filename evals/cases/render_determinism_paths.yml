@@ -1,0 +1,35 @@
+{
+  "name": "render_determinism_paths",
+  "eval": "render_structure",
+  "description": "Verify render path planning is deterministic and matches the golden path list.",
+  "match_mode": "none",
+  "golden_paths_file": "evals/golden/render_structure_paths.txt",
+  "forbidden_suffixes": [
+    ".sln",
+    ".csproj",
+    ".xaml",
+    ".cs",
+    ".exe",
+    ".dll"
+  ],
+  "examples": [
+    {
+      "name": "python_cli_minimal",
+      "config": "examples/python_cli_minimal/template.config.yml",
+      "target": "examples/python_cli_minimal",
+      "expected_files": []
+    },
+    {
+      "name": "csharp_desktop_minimal",
+      "config": "examples/csharp_desktop_minimal/template.config.yml",
+      "target": "examples/csharp_desktop_minimal",
+      "expected_files": []
+    },
+    {
+      "name": "plc_tool_minimal",
+      "config": "examples/plc_tool_minimal/template.config.yml",
+      "target": "examples/plc_tool_minimal",
+      "expected_files": []
+    }
+  ]
+}

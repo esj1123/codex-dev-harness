@@ -1,0 +1,50 @@
+{
+  "name": "prompt_contract_completeness",
+  "eval": "policy_phrases",
+  "description": "Verify reusable prompt contract templates exist and preserve required sections.",
+  "checks": [
+    {
+      "path": "prompts/task_contract/task_contract.md",
+      "phrases": [
+        "## Goal",
+        "## Target Repo / Path",
+        "## Write Scope",
+        "## Allowed Files",
+        "## Forbidden Files / Actions",
+        "## Verification Commands",
+        "## Side-Effect Approval Boundary",
+        "## Completion Report Format"
+      ]
+    },
+    {
+      "path": "prompts/task_contract/critic_review.md",
+      "phrases": [
+        "## Review Mode",
+        "## Correctness Review",
+        "## Safety Review",
+        "## Scope Creep Review",
+        "## Missing Evidence Review"
+      ]
+    },
+    {
+      "path": "prompts/task_contract/verification_closeout.md",
+      "phrases": [
+        "## Changed Files",
+        "## Commands Run",
+        "## Evidence Paths",
+        "## Safety Checks",
+        "## Closeout Result"
+      ]
+    },
+    {
+      "path": "prompts/task_contract/release_summary.md",
+      "phrases": [
+        "## Release Target",
+        "## Manifest / Checksum",
+        "## SBOM / Provenance",
+        "## Eval Result",
+        "## Release Exclusions"
+      ]
+    }
+  ]
+}

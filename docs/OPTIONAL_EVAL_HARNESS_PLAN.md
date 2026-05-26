@@ -21,24 +21,33 @@ machine-readable cases, a golden path list, a standalone runner, a standalone
 gate wrapper, and tests. It does not integrate with `scripts/quality_gate.py` or
 CI by default.
 
-## Candidate Evals
+## Named Evals
 
-| eval | purpose | current state |
+The minimal standalone runner now uses expanded named local cases instead of a
+small set of broad case files.
+
+| eval case | purpose | current state |
 |---|---|---|
-| render structure eval | Check expected files, forbidden extensions, approved output roots, and deterministic output path order | implemented |
-| policy phrase eval | Check required safety phrases, approval boundary language, and NOT RUN honesty language | implemented |
-| forbidden artifact eval | Check for generated code, workflows, live configs, secrets, and prohibited files such as solution/project artifacts | implemented |
-| regression/determinism eval | Repeat the same input, compare expected output path lists, and detect drift | implemented |
-| downstream scaffold eval | Check whether downstream target docs remain design-only and source-index driven | planned only |
-| prompt/task contract eval | Check whether task prompts preserve no-touch zones and verification expectations | planned only |
+| `render_structure_base_docs` | Check base rendered docs for minimal examples | implemented |
+| `render_structure_profile_docs` | Check profile-specific rendered docs and safety docs | implemented |
+| `render_determinism_paths` | Compare deterministic render path planning against the golden list | implemented |
+| `policy_approval_boundary` | Check approval-gated side-effect language | implemented |
+| `policy_not_run_honesty` | Check PASS/FAIL/NOT RUN/ENVIRONMENT BLOCKED honesty language | implemented |
+| `policy_plc_safety` | Check PLC/device/live-write safety boundaries | implemented |
+| `forbidden_csharp_artifacts` | Check absence of C# solution/project/source/XAML/build artifacts | implemented |
+| `forbidden_live_config` | Check absence of live config, connection, tag-map, and device-target artifacts | implemented |
+| `forbidden_secret_patterns` | Check safe text surfaces for obvious token/key/password/private-value patterns | implemented |
+| `prompt_contract_completeness` | Check reusable prompt contract template completeness | implemented |
+| `release_manifest_shape` | Check local release manifest JSON shape | implemented |
+| `checksum_shape` | Check checksum format, ordering, coverage, and self-reference exclusion | implemented |
+| `sbom_shape` | Check minimal SPDX and CycloneDX JSON shapes | implemented |
+| `provenance_shape` | Check minimal local provenance JSONL shape | implemented |
 
 ## Proposed Future Files
 
 These paths exist in the minimal standalone implementation:
 
-- `evals/cases/render_structure.yml`
-- `evals/cases/policy_phrases.yml`
-- `evals/cases/forbidden_artifacts.yml`
+- named case files under `evals/cases/`
 - `evals/golden/`
 - `scripts/run_eval.py`
 - `scripts/gates/eval_gate.py`
@@ -51,8 +60,8 @@ Optional output:
 
 No report or `artifacts/` directory is created by default. `scripts/run_eval.py`
 can write this report only when called with `--report`. The report path must be
-a repo-internal relative path; absolute paths and parent traversal with `..` are
-rejected.
+a repo-internal relative path under `artifacts/`; absolute paths, parent
+traversal with `..`, and repo-internal non-artifact paths are rejected.
 
 ## Non-Goals
 

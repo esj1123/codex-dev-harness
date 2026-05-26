@@ -1,0 +1,25 @@
+{
+  "name": "provenance_shape",
+  "eval": "jsonl_shape",
+  "description": "Verify minimal local provenance JSONL shape and local-only predicate.",
+  "path": "artifacts/provenance.intoto.jsonl",
+  "required_top_level": [
+    "_type",
+    "subject",
+    "predicateType",
+    "predicate"
+  ],
+  "expected_predicate_type": "https://codex-dev-harness.local/provenance/v1",
+  "require_local_only": true,
+  "required_predicate_fields": [
+    "schema_version",
+    "local_only",
+    "builder",
+    "repo",
+    "python_version",
+    "commands",
+    "input_manifest",
+    "materials",
+    "products"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "checksum_shape",
+  "eval": "checksum_shape",
+  "description": "Verify checksums.sha256 covers required release evidence and excludes self-reference.",
+  "path": "artifacts/checksums.sha256",
+  "required_paths": [
+    "artifacts/provenance.intoto.jsonl",
+    "artifacts/release-manifest.json",
+    "artifacts/sbom.cdx.json",
+    "artifacts/sbom.spdx.json"
+  ],
+  "present_paths_must_be_included": [
+    "artifacts/eval-report.json"
+  ],
+  "forbidden_paths": [
+    "artifacts/checksums.sha256"
+  ]
+}

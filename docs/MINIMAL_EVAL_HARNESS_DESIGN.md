@@ -19,9 +19,7 @@ Status: MINIMAL STANDALONE IMPLEMENTATION PRESENT.
 
 The repository contains:
 
-- `evals/cases/render_structure.yml`
-- `evals/cases/policy_phrases.yml`
-- `evals/cases/forbidden_artifacts.yml`
+- expanded named case files under `evals/cases/`
 - `evals/golden/render_structure_paths.txt`
 - `scripts/run_eval.py`
 - `scripts/gates/eval_gate.py`
@@ -31,6 +29,10 @@ The repository contains:
 The harness remains separate from `scripts/quality_gate.py`. CI eval integration
 is not installed. No eval report is generated unless `scripts/run_eval.py` is
 called with `--report`.
+
+The default runner discovers `evals/cases/*.yml` in deterministic filename
+order. Each case must have a stable `name` so console output and optional JSON
+reports can be compared across runs.
 
 ## Design Principles
 
@@ -152,14 +154,31 @@ Implemented machine-readable fields:
 
 These files are present in the minimal standalone implementation:
 
-- `evals/cases/render_structure.yml`
-- `evals/cases/policy_phrases.yml`
-- `evals/cases/forbidden_artifacts.yml`
+- `evals/cases/render_structure_base_docs.yml`
+- `evals/cases/render_structure_profile_docs.yml`
+- `evals/cases/render_determinism_paths.yml`
+- `evals/cases/policy_approval_boundary.yml`
+- `evals/cases/policy_not_run_honesty.yml`
+- `evals/cases/policy_plc_safety.yml`
+- `evals/cases/forbidden_csharp_artifacts.yml`
+- `evals/cases/forbidden_live_config.yml`
+- `evals/cases/forbidden_secret_patterns.yml`
+- `evals/cases/prompt_contract_completeness.yml`
+- `evals/cases/release_manifest_shape.yml`
+- `evals/cases/checksum_shape.yml`
+- `evals/cases/sbom_shape.yml`
+- `evals/cases/provenance_shape.yml`
 - `evals/golden/render_structure_paths.txt`
 - `scripts/run_eval.py`
 - `scripts/gates/eval_gate.py`
 - `tests/test_run_eval.py`
 - `tests/test_eval_gate.py`
+
+The named cases cover base render docs, profile render docs, render path
+determinism, approval policy, NOT RUN honesty, PLC/device safety, forbidden C#
+artifacts, forbidden live config, forbidden secret patterns, prompt contract
+completeness, release manifest shape, checksum shape, SBOM shape, and
+provenance shape.
 
 ## Optional Output
 
@@ -169,20 +188,24 @@ Optional output:
 
 The report should be machine-readable and should record:
 
-- basis ref or commit
-- eval ids
-- command run
-- PASS, FAIL, PARTIAL, NOT RUN, or ENVIRONMENT BLOCKED result
-- evidence paths
-- forbidden-content check result
-- unresolved risks
+- `schema_version`
+- `generated_at_utc`
+- `total_cases`
+- `passed_cases`
+- `failed_cases`
+- per-case result objects with stable case names, pass/fail values, and
+  summarized messages
 
 The report is not written by default. It is produced only when
 `scripts/run_eval.py` is called with `--report`.
 
 The `--report` argument must be a repo-internal relative path, such as
-`artifacts/eval-report.json`. Absolute paths and parent traversal with `..` are
-rejected before any report file or parent directory is created.
+`artifacts/eval-report.json`, and must stay under `artifacts/`. Absolute paths,
+parent traversal with `..`, and repo-internal non-artifact paths are rejected
+before any report file or parent directory is created.
+
+The report must not include secrets, private input, raw prompts, raw source,
+tool-call bodies, model outputs, or machine/environment-sensitive details.
 
 ## Approval Rule
 

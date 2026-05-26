@@ -1,0 +1,46 @@
+{
+  "name": "sbom_shape",
+  "eval": "json_shape",
+  "description": "Verify minimal SPDX and CycloneDX SBOM artifacts have expected local fields.",
+  "files": [
+    {
+      "path": "artifacts/sbom.spdx.json",
+      "required_top_level": [
+        "spdxVersion",
+        "dataLicense",
+        "SPDXID",
+        "name",
+        "creationInfo",
+        "packages",
+        "files",
+        "relationships"
+      ],
+      "list_field": "packages",
+      "required_list_item_fields": [
+        "name",
+        "SPDXID",
+        "licenseConcluded",
+        "licenseDeclared"
+      ]
+    },
+    {
+      "path": "artifacts/sbom.cdx.json",
+      "required_top_level": [
+        "bomFormat",
+        "specVersion",
+        "version",
+        "metadata",
+        "components"
+      ],
+      "required_paths": [
+        "metadata.tools",
+        "metadata.component"
+      ],
+      "list_field": "components",
+      "required_list_item_fields": [
+        "type",
+        "name"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "policy_approval_boundary",
+  "eval": "policy_phrases",
+  "description": "Verify side-effect and human approval boundaries remain documented.",
+  "checks": [
+    {
+      "path": "AGENTS.md",
+      "phrases": [
+        "Default to read-only inspection first",
+        "explicit confirmation",
+        "No real application code"
+      ]
+    },
+    {
+      "path": "docs/CHANGE_CONTROL.md",
+      "phrases": [
+        "Separate explicit owner approval is required",
+        "installing `.github/workflows`",
+        "creating, moving, or signing tags"
+      ]
+    },
+    {
+      "path": "docs/HUMAN_APPROVALS.md",
+      "phrases": [
+        "Approval must be explicit, scoped, and tied to a concrete action",
+        "Separate explicit approval is required",
+        "Recording an `approval_id` does not grant new approval"
+      ]
+    }
+  ]
+}

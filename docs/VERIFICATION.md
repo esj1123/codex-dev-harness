@@ -101,6 +101,30 @@ Run:
 
 `python scripts/quality_gate.py`
 
+## Local Eval Flow
+
+Run the standalone local eval harness with:
+
+`python scripts/run_eval.py`
+
+The runner discovers named `evals/cases/*.yml` files in deterministic filename
+order. It is local-only, non-LLM, and not wired into `scripts/quality_gate.py`
+by default.
+
+To write an optional machine-readable report, run:
+
+`python scripts/run_eval.py --report artifacts/eval-report.json`
+
+The report path must remain under `artifacts/`. The report records
+`schema_version`, `generated_at_utc`, `total_cases`, `passed_cases`,
+`failed_cases`, and per-case results with stable case names. It must not contain
+secrets, private input, raw prompts, raw source, tool-call bodies, model
+outputs, or live target details.
+
+If `artifacts/eval-report.json` is present, the checksum policy treats it as a
+present optional release evidence artifact. Regenerate `artifacts/checksums.sha256`
+after creating the report when checksum coverage is being asserted.
+
 The quality gate includes:
 - Documentation presence.
 - Repository hygiene.

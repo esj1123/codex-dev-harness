@@ -1,0 +1,108 @@
+{
+  "schema_version": "1",
+  "generated_at_utc": "2026-05-26T05:22:55Z",
+  "total_cases": 14,
+  "passed_cases": 14,
+  "failed_cases": 0,
+  "passed": true,
+  "cases": [
+    {
+      "name": "checksum_shape",
+      "passed": true,
+      "messages": [
+        "validated checksum entries: 5"
+      ]
+    },
+    {
+      "name": "forbidden_csharp_artifacts",
+      "passed": true,
+      "messages": [
+        "no forbidden artifacts or obvious secret/live-value patterns found"
+      ]
+    },
+    {
+      "name": "forbidden_live_config",
+      "passed": true,
+      "messages": [
+        "no forbidden artifacts or obvious secret/live-value patterns found"
+      ]
+    },
+    {
+      "name": "forbidden_secret_patterns",
+      "passed": true,
+      "messages": [
+        "no forbidden artifacts or obvious secret/live-value patterns found"
+      ]
+    },
+    {
+      "name": "policy_approval_boundary",
+      "passed": true,
+      "messages": [
+        "validated phrase targets: 3"
+      ]
+    },
+    {
+      "name": "policy_not_run_honesty",
+      "passed": true,
+      "messages": [
+        "validated phrase targets: 3"
+      ]
+    },
+    {
+      "name": "policy_plc_safety",
+      "passed": true,
+      "messages": [
+        "validated phrase targets: 3"
+      ]
+    },
+    {
+      "name": "prompt_contract_completeness",
+      "passed": true,
+      "messages": [
+        "validated phrase targets: 4"
+      ]
+    },
+    {
+      "name": "provenance_shape",
+      "passed": true,
+      "messages": [
+        "validated JSONL records: 1"
+      ]
+    },
+    {
+      "name": "release_manifest_shape",
+      "passed": true,
+      "messages": [
+        "validated JSON shape targets: 1"
+      ]
+    },
+    {
+      "name": "render_determinism_paths",
+      "passed": true,
+      "messages": [
+        "validated render path lists: 48"
+      ]
+    },
+    {
+      "name": "render_structure_base_docs",
+      "passed": true,
+      "messages": [
+        "validated render path lists: 48"
+      ]
+    },
+    {
+      "name": "render_structure_profile_docs",
+      "passed": true,
+      "messages": [
+        "validated render path lists: 48"
+      ]
+    },
+    {
+      "name": "sbom_shape",
+      "passed": true,
+      "messages": [
+        "validated JSON shape targets: 2"
+      ]
+    }
+  ]
+}

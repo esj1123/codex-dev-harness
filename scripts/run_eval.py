@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+from datetime import datetime, timezone
 import fnmatch
 import json
 from pathlib import Path
@@ -26,11 +27,9 @@ except ModuleNotFoundError:
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CASE_DIR = REPO_ROOT / "evals" / "cases"
-DEFAULT_CASES = [
-    "render_structure.yml",
-    "policy_phrases.yml",
-    "forbidden_artifacts.yml",
-]
+CASE_PATTERN = "*.yml"
+ARTIFACTS_ROOT = "artifacts"
+REPORT_SCHEMA_VERSION = "1"
 
 SECRET_PATTERNS = [
     re.compile(r"-----BEGIN (?:RSA |OPENSSH |EC |DSA )?PRIVATE KEY-----"),
@@ -69,6 +68,15 @@ def load_case(path: Path) -> dict[str, Any]:
     return data
 
 
+def case_result_name(case: dict[str, Any], fallback: str) -> str:
+    value = case.get("name") or case.get("eval") or fallback
+    return str(value)
+
+
+def utc_now() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
 def planned_render_paths(repo_root: Path, config_path: Path, target: Path) -> list[str]:
     config = load_config(config_path)
     base_dir = repo_root / "templates" / "base"
@@ -81,9 +89,11 @@ def planned_render_paths(repo_root: Path, config_path: Path, target: Path) -> li
 
 
 def run_render_structure(repo_root: Path, case: dict[str, Any]) -> EvalResult:
+    name = case_result_name(case, "render_structure")
     findings: list[str] = []
     all_planned: list[str] = []
     forbidden_suffixes = {suffix.lower() for suffix in case.get("forbidden_suffixes", [])}
+    match_mode = str(case.get("match_mode", "exact"))
 
     for example in case.get("examples", []):
         name = example["name"]
@@ -97,8 +107,12 @@ def run_render_structure(repo_root: Path, case: dict[str, Any]) -> EvalResult:
 
         if planned_once != planned_twice:
             findings.append(f"{name}: render path order is not deterministic")
-        if planned_once != expected:
+        if match_mode == "exact" and expected and planned_once != expected:
             findings.append(f"{name}: planned output path list drifted")
+        if match_mode == "contains":
+            missing_planned = [path for path in expected if path not in planned_once]
+            if missing_planned:
+                findings.append(f"{name}: expected paths absent from render plan: {', '.join(missing_planned)}")
 
         for expected_path in expected:
             if not (repo_root / expected_path).is_file():
@@ -119,11 +133,12 @@ def run_render_structure(repo_root: Path, case: dict[str, Any]) -> EvalResult:
                 findings.append("render path list differs from evals/golden/render_structure_paths.txt")
 
     if findings:
-        return EvalResult("render_structure", False, findings)
-    return EvalResult("render_structure", True, [f"validated render path lists: {len(all_planned)}"])
+        return EvalResult(case_result_name(case, "render_structure"), False, findings)
+    return EvalResult(case_result_name(case, "render_structure"), True, [f"validated render path lists: {len(all_planned)}"])
 
 
 def run_policy_phrases(repo_root: Path, case: dict[str, Any]) -> EvalResult:
+    name = case_result_name(case, "policy_phrases")
     findings: list[str] = []
 
     for check in case.get("checks", []):
@@ -138,8 +153,8 @@ def run_policy_phrases(repo_root: Path, case: dict[str, Any]) -> EvalResult:
                 findings.append(f"{relative}: missing phrase: {phrase}")
 
     if findings:
-        return EvalResult("policy_phrases", False, findings)
-    return EvalResult("policy_phrases", True, [f"validated phrase targets: {len(case.get('checks', []))}"])
+        return EvalResult(name, False, findings)
+    return EvalResult(name, True, [f"validated phrase targets: {len(case.get('checks', []))}"])
 
 
 def iter_repo_files(repo_root: Path, ignored_root_parts: set[str]) -> list[Path]:
@@ -158,6 +173,7 @@ def matches_glob(relative: str, patterns: list[str]) -> bool:
 
 
 def run_forbidden_artifacts(repo_root: Path, case: dict[str, Any]) -> EvalResult:
+    name = case_result_name(case, "forbidden_artifacts")
     findings: list[str] = []
     ignored_root_parts = set(case.get("ignored_root_parts", []))
     forbidden_globs = list(case.get("forbidden_path_globs", []))
@@ -178,8 +194,158 @@ def run_forbidden_artifacts(repo_root: Path, case: dict[str, Any]) -> EvalResult
                     break
 
     if findings:
-        return EvalResult("forbidden_artifacts", False, findings)
-    return EvalResult("forbidden_artifacts", True, ["no forbidden artifacts or obvious secret/live-value patterns found"])
+        return EvalResult(name, False, findings)
+    return EvalResult(name, True, ["no forbidden artifacts or obvious secret/live-value patterns found"])
+
+
+def nested_value(data: Any, path: str) -> Any:
+    current = data
+    for part in path.split("."):
+        if isinstance(current, dict) and part in current:
+            current = current[part]
+        else:
+            raise KeyError(path)
+    return current
+
+
+def run_json_shape(repo_root: Path, case: dict[str, Any]) -> EvalResult:
+    name = case_result_name(case, "json_shape")
+    findings: list[str] = []
+
+    for file_case in case.get("files", []):
+        relative = file_case["path"]
+        path = repo_root / relative
+        if not path.is_file():
+            findings.append(f"missing JSON target: {relative}")
+            continue
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            findings.append(f"{relative}: invalid JSON: {exc}")
+            continue
+        if not isinstance(data, dict):
+            findings.append(f"{relative}: top-level JSON value must be an object")
+            continue
+
+        for field in file_case.get("required_top_level", []):
+            if field not in data:
+                findings.append(f"{relative}: missing top-level field: {field}")
+
+        for field_path in file_case.get("required_paths", []):
+            try:
+                nested_value(data, field_path)
+            except KeyError:
+                findings.append(f"{relative}: missing field path: {field_path}")
+
+        list_field = file_case.get("list_field")
+        required_item_fields = file_case.get("required_list_item_fields", [])
+        if list_field:
+            value = data.get(list_field)
+            if not isinstance(value, list) or not value:
+                findings.append(f"{relative}: field must be a non-empty list: {list_field}")
+            else:
+                for item in value:
+                    if not isinstance(item, dict):
+                        findings.append(f"{relative}: {list_field} item must be an object")
+                        continue
+                    for item_field in required_item_fields:
+                        if item_field not in item:
+                            findings.append(f"{relative}: {list_field} item missing field: {item_field}")
+                            break
+
+    if findings:
+        return EvalResult(name, False, findings)
+    return EvalResult(name, True, [f"validated JSON shape targets: {len(case.get('files', []))}"])
+
+
+def run_checksum_shape(repo_root: Path, case: dict[str, Any]) -> EvalResult:
+    name = case_result_name(case, "checksum_shape")
+    relative = case["path"]
+    path = repo_root / relative
+    findings: list[str] = []
+
+    if not path.is_file():
+        return EvalResult(name, False, [f"missing checksum target: {relative}"])
+
+    entries: list[tuple[str, str]] = []
+    for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        if not line.strip():
+            continue
+        if "  " not in line:
+            findings.append(f"{relative}:{line_number}: missing two-space separator")
+            continue
+        digest, artifact_path = line.split("  ", 1)
+        if not re.fullmatch(r"[0-9a-f]{64}", digest):
+            findings.append(f"{relative}:{line_number}: invalid sha256 digest")
+        if not artifact_path:
+            findings.append(f"{relative}:{line_number}: missing artifact path")
+        entries.append((digest, artifact_path))
+
+    paths = [artifact_path for _, artifact_path in entries]
+    if paths != sorted(paths):
+        findings.append(f"{relative}: checksum paths are not sorted")
+
+    for required_path in case.get("required_paths", []):
+        if required_path not in paths:
+            findings.append(f"{relative}: missing required checksum path: {required_path}")
+
+    for present_path in case.get("present_paths_must_be_included", []):
+        if (repo_root / present_path).is_file() and present_path not in paths:
+            findings.append(f"{relative}: present artifact is not checksummed: {present_path}")
+
+    for forbidden_path in case.get("forbidden_paths", []):
+        if forbidden_path in paths:
+            findings.append(f"{relative}: forbidden checksum path present: {forbidden_path}")
+
+    if findings:
+        return EvalResult(name, False, findings)
+    return EvalResult(name, True, [f"validated checksum entries: {len(entries)}"])
+
+
+def run_jsonl_shape(repo_root: Path, case: dict[str, Any]) -> EvalResult:
+    name = case_result_name(case, "jsonl_shape")
+    relative = case["path"]
+    path = repo_root / relative
+    findings: list[str] = []
+
+    if not path.is_file():
+        return EvalResult(name, False, [f"missing JSONL target: {relative}"])
+
+    rows: list[dict[str, Any]] = []
+    for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        if not line.strip():
+            continue
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError as exc:
+            findings.append(f"{relative}:{line_number}: invalid JSONL row: {exc}")
+            continue
+        if not isinstance(row, dict):
+            findings.append(f"{relative}:{line_number}: JSONL row must be an object")
+            continue
+        rows.append(row)
+
+    if not rows:
+        findings.append(f"{relative}: JSONL file has no records")
+
+    for row in rows:
+        for field in case.get("required_top_level", []):
+            if field not in row:
+                findings.append(f"{relative}: missing top-level field: {field}")
+        expected_predicate_type = case.get("expected_predicate_type")
+        if expected_predicate_type and row.get("predicateType") != expected_predicate_type:
+            findings.append(f"{relative}: unexpected predicateType: {row.get('predicateType')}")
+        predicate = row.get("predicate")
+        if case.get("require_local_only") and not (isinstance(predicate, dict) and predicate.get("local_only") is True):
+            findings.append(f"{relative}: predicate.local_only must be true")
+        if isinstance(predicate, dict):
+            for field in case.get("required_predicate_fields", []):
+                if field not in predicate:
+                    findings.append(f"{relative}: missing predicate field: {field}")
+
+    if findings:
+        return EvalResult(name, False, findings)
+    return EvalResult(name, True, [f"validated JSONL records: {len(rows)}"])
 
 
 def run_case(repo_root: Path, case_path: Path) -> EvalResult:
@@ -191,21 +357,39 @@ def run_case(repo_root: Path, case_path: Path) -> EvalResult:
         return run_policy_phrases(repo_root, case)
     if eval_name == "forbidden_artifacts":
         return run_forbidden_artifacts(repo_root, case)
-    return EvalResult(str(eval_name or case_path.name), False, [f"unknown eval type: {eval_name or 'missing'}"])
+    if eval_name == "json_shape":
+        return run_json_shape(repo_root, case)
+    if eval_name == "checksum_shape":
+        return run_checksum_shape(repo_root, case)
+    if eval_name == "jsonl_shape":
+        return run_jsonl_shape(repo_root, case)
+    return EvalResult(case_result_name(case, case_path.stem), False, [f"unknown eval type: {eval_name or 'missing'}"])
+
+
+def discover_case_paths(repo_root: Path) -> list[Path]:
+    case_dir = repo_root / "evals" / "cases"
+    return sorted(case_dir.glob(CASE_PATTERN), key=lambda path: path.name)
 
 
 def run_all(repo_root: Path = REPO_ROOT, case_paths: list[Path] | None = None) -> EvalSummary:
     repo_root = repo_root.resolve()
     if case_paths is None:
-        case_paths = [repo_root / "evals" / "cases" / name for name in DEFAULT_CASES]
+        case_paths = discover_case_paths(repo_root)
     results = [run_case(repo_root, path) for path in case_paths]
     return EvalSummary(all(result.passed for result in results), results)
 
 
-def summary_to_report(summary: EvalSummary) -> dict[str, Any]:
+def summary_to_report(summary: EvalSummary, generated_at_utc: str | None = None) -> dict[str, Any]:
+    passed_cases = sum(1 for result in summary.results if result.passed)
+    failed_cases = len(summary.results) - passed_cases
     return {
+        "schema_version": REPORT_SCHEMA_VERSION,
+        "generated_at_utc": generated_at_utc or utc_now(),
+        "total_cases": len(summary.results),
+        "passed_cases": passed_cases,
+        "failed_cases": failed_cases,
         "passed": summary.passed,
-        "results": [
+        "cases": [
             {
                 "name": result.name,
                 "passed": result.passed,
@@ -224,6 +408,8 @@ def resolve_report_path(repo_root: Path, report_arg: str) -> Path:
         raise ValueError("--report must name a report file")
     if any(part == ".." for part in raw_path.parts):
         raise ValueError("--report must not contain parent traversal")
+    if raw_path.parts[0] != ARTIFACTS_ROOT or len(raw_path.parts) < 2:
+        raise ValueError("--report must be under artifacts/")
 
     resolved_root = repo_root.resolve()
     report_path = (resolved_root / raw_path).resolve()

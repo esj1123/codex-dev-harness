@@ -1,0 +1,32 @@
+{
+  "name": "forbidden_csharp_artifacts",
+  "eval": "forbidden_artifacts",
+  "description": "Fail if C# solution, project, source, XAML, or build artifacts appear in the baseline.",
+  "ignored_root_parts": [
+    ".git",
+    ".pytest_cache",
+    "__pycache__",
+    "local"
+  ],
+  "forbidden_path_globs": [
+    "**/*.sln",
+    "**/*.csproj",
+    "**/*.fsproj",
+    "**/*.vbproj",
+    "**/*.cs",
+    "**/*.xaml",
+    "**/bin/**",
+    "**/obj/**"
+  ],
+  "forbidden_suffixes": [
+    ".sln",
+    ".csproj",
+    ".fsproj",
+    ".vbproj",
+    ".cs",
+    ".xaml",
+    ".exe",
+    ".dll"
+  ],
+  "text_suffixes": []
+}

@@ -1,0 +1,30 @@
+{
+  "name": "release_manifest_shape",
+  "eval": "json_shape",
+  "description": "Verify release-manifest.json has expected minimal top-level fields and file record shape.",
+  "files": [
+    {
+      "path": "artifacts/release-manifest.json",
+      "required_top_level": [
+        "schema_version",
+        "generated_at_utc",
+        "repository",
+        "git_ref",
+        "git_commit",
+        "python_version",
+        "included_roots",
+        "excluded_patterns",
+        "verification_commands",
+        "quality_gates",
+        "example_render_dry_runs",
+        "files"
+      ],
+      "list_field": "files",
+      "required_list_item_fields": [
+        "path",
+        "size_bytes",
+        "sha256"
+      ]
+    }
+  ]
+}

@@ -14,10 +14,18 @@ A minimal local-only eval harness is documented in
 `docs/MINIMAL_EVAL_HARNESS_DESIGN.md` and implemented as a standalone local
 runner.
 
-The current implementation includes `evals/cases/`, `evals/golden/`,
-`scripts/run_eval.py`, `scripts/gates/eval_gate.py`, and tests. It remains
-standalone: there is no eval integration in `scripts/quality_gate.py`, no CI
-integration, no external service call, and no LLM judge.
+The current implementation includes expanded named cases under `evals/cases/`,
+`evals/golden/`, `scripts/run_eval.py`, `scripts/gates/eval_gate.py`, and
+tests. It remains standalone: there is no eval integration in
+`scripts/quality_gate.py`, no CI integration, no external service call, and no
+LLM judge.
+
+The default local runner discovers all `evals/cases/*.yml` files in
+deterministic order. Current named cases cover render structure, render
+determinism, approval boundaries, NOT RUN honesty, PLC/device safety, forbidden
+C# artifacts, forbidden live config, forbidden secret patterns, prompt contract
+completeness, release manifest shape, checksum shape, SBOM shape, and
+provenance shape.
 
 ## Eval Principles
 
@@ -82,16 +90,21 @@ Future eval output should record:
 - NOT RUN reason when applicable
 - prohibited-content check
 
-A dedicated machine-readable eval output format is deferred until implementation is approved.
-
 The optional output path is `artifacts/eval-report.json`, as documented in
 `docs/MINIMAL_EVAL_HARNESS_DESIGN.md`. That output path is not created by
 default; it is produced only when `scripts/run_eval.py` is called with
 `--report`.
 
-The `--report` value must be a repo-internal relative path. Absolute paths and
-parent traversal with `..` are rejected so local eval evidence cannot be written
-outside the repository by the report option.
+The report format includes `schema_version`, `generated_at_utc`, `total_cases`,
+`passed_cases`, `failed_cases`, and per-case results with stable case names.
+The `--report` value must be a repo-internal relative path under `artifacts/`.
+Absolute paths, parent traversal with `..`, and repo-internal non-artifact
+paths are rejected so local eval evidence cannot be written outside the
+approved evidence directory by the report option.
+
+Generating an eval report remains explicit and optional. Making eval reports
+routine, release-blocking, CI-driven, or part of `scripts/quality_gate.py`
+requires separate approval.
 
 ## Non-Goals
 

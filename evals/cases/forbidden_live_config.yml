@@ -1,0 +1,31 @@
+{
+  "name": "forbidden_live_config",
+  "eval": "forbidden_artifacts",
+  "description": "Fail if live config, connection, tag-map, or device target artifacts appear in the baseline.",
+  "ignored_root_parts": [
+    ".git",
+    ".pytest_cache",
+    "__pycache__",
+    "evals",
+    "local"
+  ],
+  "forbidden_path_globs": [
+    "**/.env",
+    "**/*.env",
+    "**/*live-config*",
+    "**/*live_config*",
+    "**/*device-target*",
+    "**/*device_target*",
+    "**/*connection*",
+    "**/*tag-map*",
+    "**/*tag_map*",
+    "**/*live-parameter*",
+    "**/*live_parameter*"
+  ],
+  "forbidden_suffixes": [
+    ".pfx",
+    ".pem",
+    ".key"
+  ],
+  "text_suffixes": []
+}

@@ -1,0 +1,52 @@
+{
+  "name": "render_structure_profile_docs",
+  "eval": "render_structure",
+  "description": "Verify profile-specific rendered docs exist for all minimal examples.",
+  "match_mode": "contains",
+  "forbidden_suffixes": [
+    ".sln",
+    ".csproj",
+    ".xaml",
+    ".cs",
+    ".exe",
+    ".dll"
+  ],
+  "examples": [
+    {
+      "name": "python_cli_minimal",
+      "config": "examples/python_cli_minimal/template.config.yml",
+      "target": "examples/python_cli_minimal",
+      "expected_files": [
+        "examples/python_cli_minimal/AGENTS.override.md",
+        "examples/python_cli_minimal/README.profile.md",
+        "examples/python_cli_minimal/SAFETY_POLICY.profile.md",
+        "examples/python_cli_minimal/STATUS.profile.md",
+        "examples/python_cli_minimal/VERIFICATION.profile.md"
+      ]
+    },
+    {
+      "name": "csharp_desktop_minimal",
+      "config": "examples/csharp_desktop_minimal/template.config.yml",
+      "target": "examples/csharp_desktop_minimal",
+      "expected_files": [
+        "examples/csharp_desktop_minimal/AGENTS.override.md",
+        "examples/csharp_desktop_minimal/README.profile.md",
+        "examples/csharp_desktop_minimal/SAFETY_POLICY.profile.md",
+        "examples/csharp_desktop_minimal/STATUS.profile.md",
+        "examples/csharp_desktop_minimal/VERIFICATION.profile.md"
+      ]
+    },
+    {
+      "name": "plc_tool_minimal",
+      "config": "examples/plc_tool_minimal/template.config.yml",
+      "target": "examples/plc_tool_minimal",
+      "expected_files": [
+        "examples/plc_tool_minimal/AGENTS.override.md",
+        "examples/plc_tool_minimal/README.profile.md",
+        "examples/plc_tool_minimal/SAFETY_POLICY.profile.md",
+        "examples/plc_tool_minimal/STATUS.profile.md",
+        "examples/plc_tool_minimal/VERIFICATION.profile.md"
+      ]
+    }
+  ]
+}

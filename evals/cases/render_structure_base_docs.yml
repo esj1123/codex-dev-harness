@@ -1,7 +1,8 @@
 {
+  "name": "render_structure_base_docs",
   "eval": "render_structure",
-  "description": "Verify example render plans, required rendered docs, forbidden generated files, and deterministic output path order.",
-  "golden_paths_file": "evals/golden/render_structure_paths.txt",
+  "description": "Verify required base rendered docs exist for all minimal examples.",
+  "match_mode": "contains",
   "forbidden_suffixes": [
     ".sln",
     ".csproj",
@@ -30,12 +31,7 @@
         "examples/python_cli_minimal/PROJECT_BOUNDARY.md",
         "examples/python_cli_minimal/README.md",
         "examples/python_cli_minimal/SOURCE_INDEX.md",
-        "examples/python_cli_minimal/STATUS.md",
-        "examples/python_cli_minimal/AGENTS.override.md",
-        "examples/python_cli_minimal/README.profile.md",
-        "examples/python_cli_minimal/SAFETY_POLICY.profile.md",
-        "examples/python_cli_minimal/STATUS.profile.md",
-        "examples/python_cli_minimal/VERIFICATION.profile.md"
+        "examples/python_cli_minimal/STATUS.md"
       ]
     },
     {
@@ -53,12 +49,7 @@
         "examples/csharp_desktop_minimal/PROJECT_BOUNDARY.md",
         "examples/csharp_desktop_minimal/README.md",
         "examples/csharp_desktop_minimal/SOURCE_INDEX.md",
-        "examples/csharp_desktop_minimal/STATUS.md",
-        "examples/csharp_desktop_minimal/AGENTS.override.md",
-        "examples/csharp_desktop_minimal/README.profile.md",
-        "examples/csharp_desktop_minimal/SAFETY_POLICY.profile.md",
-        "examples/csharp_desktop_minimal/STATUS.profile.md",
-        "examples/csharp_desktop_minimal/VERIFICATION.profile.md"
+        "examples/csharp_desktop_minimal/STATUS.md"
       ]
     },
     {
@@ -76,12 +67,7 @@
         "examples/plc_tool_minimal/PROJECT_BOUNDARY.md",
         "examples/plc_tool_minimal/README.md",
         "examples/plc_tool_minimal/SOURCE_INDEX.md",
-        "examples/plc_tool_minimal/STATUS.md",
-        "examples/plc_tool_minimal/AGENTS.override.md",
-        "examples/plc_tool_minimal/README.profile.md",
-        "examples/plc_tool_minimal/SAFETY_POLICY.profile.md",
-        "examples/plc_tool_minimal/STATUS.profile.md",
-        "examples/plc_tool_minimal/VERIFICATION.profile.md"
+        "examples/plc_tool_minimal/STATUS.md"
       ]
     }
   ]

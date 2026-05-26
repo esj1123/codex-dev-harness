@@ -1,0 +1,28 @@
+{
+  "name": "policy_not_run_honesty",
+  "eval": "policy_phrases",
+  "description": "Verify honest PASS/FAIL/NOT RUN/ENVIRONMENT BLOCKED reporting language remains present.",
+  "checks": [
+    {
+      "path": "docs/VERIFICATION.md",
+      "phrases": [
+        "NOT RUN",
+        "Do not imply success for checks that were not run"
+      ]
+    },
+    {
+      "path": "prompts/task_contract/verification_closeout.md",
+      "phrases": [
+        "PASS / FAIL / NOT RUN / ENVIRONMENT BLOCKED",
+        "Unresolved Risks"
+      ]
+    },
+    {
+      "path": "STATUS.md",
+      "phrases": [
+        "ENVIRONMENT BLOCKED",
+        "NOT DONE"
+      ]
+    }
+  ]
+}

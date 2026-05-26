@@ -1,0 +1,31 @@
+{
+  "name": "policy_plc_safety",
+  "eval": "policy_phrases",
+  "description": "Verify PLC/device and live-write safety boundaries remain documented.",
+  "checks": [
+    {
+      "path": "examples/plc_tool_minimal/SAFETY_POLICY.profile.md",
+      "phrases": [
+        "Simulator/mock first",
+        "Live device write is prohibited",
+        "Explicit approval is required",
+        "Credentials, keys, or tokens"
+      ]
+    },
+    {
+      "path": "profiles/plc_or_device_tool/SAFETY_POLICY.profile.md.template",
+      "phrases": [
+        "Live device write prohibited by default",
+        "Read-only polling comes before any write concept",
+        "Any control action against a live device"
+      ]
+    },
+    {
+      "path": "docs/HUMAN_APPROVALS.md",
+      "phrases": [
+        "adding live target write behavior",
+        "adding PLC/device write, start, stop, reset, or mode-change behavior"
+      ]
+    }
+  ]
+}
