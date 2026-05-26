@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 expanded standalone eval coverage.
+Post v0.1.0 csharp_desktop local target experiment evidence.
 
 ## Current State
 
@@ -10,12 +10,13 @@ The repository contains documentation, base templates, profile templates, render
 
 ## Current Verification Snapshot
 
-Snapshot purpose: document expanded standalone non-LLM eval coverage and
-current verification status after Priority 2 checksum coverage.
+Snapshot purpose: document the approved `csharp_desktop` local target
+experiment and current verification status.
 
 | item | status | evidence |
 |---|---|---|
 | basis branch/ref | PRESENT | `main` / `origin/main` |
+| current repository commit before `csharp_desktop` experiment | PRESENT | `76d88b842852635c95adcd8f3534f95e8bdc3ff5` |
 | Priority 2 checksum coverage commit | PRESENT | `eaba8687b68051f490b6287ab7a629c82ae7c80d` (`보강 2순위 완료`) |
 | current repository commit before Priority 3 edits | PRESENT | `eaba8687b68051f490b6287ab7a629c82ae7c80d` |
 | current repository commit before artifact regeneration | PRESENT | `457c14abeb09149c06bb53c6e88f44a02995b411` |
@@ -25,13 +26,17 @@ current verification status after Priority 2 checksum coverage.
 | manifest files recorded | PRESENT | `199` |
 | checksum coverage | PRESENT | `artifacts/checksums.sha256` records 4 entries: manifest, SPDX SBOM, CycloneDX SBOM, and provenance; checksum file self-reference excluded |
 | standalone eval case count | PRESENT | `scripts/run_eval.py` discovers 14 named local-only non-LLM eval cases under `evals/cases/` |
+| `csharp_desktop` local target experiment | PASS | `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md` |
+| `csharp_desktop` dry-run render | PASS | 16 Markdown documentation outputs planned in an outside-repo temporary target |
+| `csharp_desktop` actual render | PASS | 16 Markdown documentation outputs generated in an outside-repo temporary target; temporary target not committed |
+| `csharp_desktop` prohibited artifact scan | PASS | No `.sln`, `.csproj`, `.cs`, `.xaml`, build assets, binaries, live config, secret assignment patterns, or IP-like values found in the temporary target |
 | optional eval report | PRESENT WHEN GENERATED | `artifacts/eval-report.json` is generated only by explicit `scripts/run_eval.py --report artifacts/eval-report.json`; routine report generation remains not enabled |
 | Python runtime used for verification | PRESENT | bundled Codex Python `3.12.13` |
 | bare `python.exe` | ENVIRONMENT BLOCKED | Windows logon session error in this Codex desktop shell |
-| bundled Python `python -m pytest` | PASS | 64 passed directly and through `scripts/run_release_verify.ps1` |
-| bundled Python `python scripts/quality_gate.py` | PASS | docs, hygiene, schema, examples, render drift, and secret scan passed through `scripts/run_release_verify.ps1` |
-| `scripts/run_local_verify.ps1` | PASS | Run by `scripts/run_release_verify.ps1`; pytest, quality gate, and three render dry-runs passed |
-| `scripts/run_eval.py` | PASS | Expanded named eval cases pass; standalone runner remains separate from `scripts/quality_gate.py` |
+| bundled Python `python -m pytest` | PASS | 72 passed before and after the local target experiment |
+| bundled Python `python scripts/quality_gate.py` | PASS | docs, hygiene, schema, examples, render drift, and secret scan passed before and after the local target experiment |
+| `scripts/run_local_verify.ps1` | PASS | pytest, quality gate, and three example render dry-runs passed after the local target experiment |
+| `scripts/run_eval.py` | PASS | 14 expanded named eval cases passed before and after the local target experiment; standalone runner remains separate from `scripts/quality_gate.py` |
 | `scripts/run_release_verify.ps1` | PASS | Regenerated manifest, bootstrap checksum, SBOM, provenance, and final strict full-bundle checksum artifacts |
 | CI workflow | NOT INSTALLED | `.github/workflows/` remains absent |
 | release publication, tag movement, archive creation, signing | NOT DONE | Local evidence regeneration only |
@@ -98,6 +103,7 @@ current verification status after Priority 2 checksum coverage.
   - `docs/LOCAL_TARGET_EXPERIMENT_python_cli_v0.1.0-rc1.md`
   - `docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md`
   - `docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md`
+  - `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md`
   - `docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md`
   - `docs/DOWNSTREAM_EXPERIMENT_scenario_simulator_design_base_template.md`
   - `docs/RC2_CANDIDATE_CLOSEOUT.md`
@@ -176,8 +182,7 @@ current verification status after Priority 2 checksum coverage.
   output capture.
 - SBOM/provenance external metadata resolution.
 - SBOM/provenance signing or publication.
-- Executed additional local target experiments for `csharp_desktop` or
-  `plc_or_device_tool`.
+- Executed additional local target experiment for `plc_or_device_tool`.
 
 ## Known Constraints
 
@@ -389,14 +394,16 @@ Stage 0 current-main gap review basis:
 
 | item | status | evidence |
 |---|---|---|
-| `csharp_desktop` plan | PRESENT / NOT RUN | `docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md` |
+| `csharp_desktop` plan | PRESENT / EXECUTED | `docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md`; execution record: `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md` |
 | `plc_or_device_tool` plan | PRESENT / NOT RUN | `docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md` |
 | separate temporary target requirement | PRESENT | Both plans require an approved disposable target before any render write |
 | dry-run first requirement | PRESENT | Both plans require dry-run review before actual render approval |
 | expected output | DOCS ONLY | Both plans list Markdown documentation outputs and forbid application/runtime artifacts |
-| approval before actual render | REQUIRED | Planning documents do not approve actual target writes |
-| actual render | NOT RUN | No target render was executed during this planning task |
-| downstream target folder | NOT CREATED | No separate target folder was created during this planning task |
+| approval before actual render | REQUIRED / SATISFIED FOR `csharp_desktop` ONLY | The current task explicitly approved one controlled `csharp_desktop` render into a separate temporary target after dry-run review |
+| `csharp_desktop` dry-run render | PASS | 16 Markdown documentation outputs planned; no C# project/source/build/live artifacts planned |
+| `csharp_desktop` actual render | PASS | 16 Markdown docs generated into an outside-repo temporary target; target not committed |
+| `plc_or_device_tool` actual render | NOT RUN | Remains deferred pending separate owner approval |
+| downstream target folder | TEMPORARY / NOT COMMITTED | `csharp_desktop` used an outside-repo temporary target; no downstream target folder was committed |
 | C#/PLC/device/live-write scope | ABSENT | No source, project, XAML, build asset, polling, connection, tag map, control action, live config, or live-write behavior added |
 
 ## RC2 Candidate

@@ -3,11 +3,23 @@
 ## Purpose
 
 Plan a future local target experiment for the `csharp_desktop` profile without
-executing a target render in this task.
+executing a target render in the planning task.
 
-This is documentation-only planning. It does not create a downstream target
-folder, C# source, solution files, project files, XAML, build assets, CI
-workflow, release artifact, or live-write behavior.
+This document was created as documentation-only planning. It did not create a
+downstream target folder, C# source, solution files, project files, XAML, build
+assets, CI workflow, release artifact, or live-write behavior.
+
+## Execution Record
+
+An approved controlled execution record now exists:
+
+- `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md`
+
+That execution used a separate outside-repo temporary target, performed dry-run
+review before actual render, generated Markdown documentation only, and did not
+add C# source, solution, project, XAML, build assets, PLC/device code, live
+configuration, CI workflow, release publication, tag movement, or live-write
+behavior.
 
 ## Target Profile
 
@@ -154,5 +166,6 @@ Use honest status language:
 - `PASS`: Use only when the named check actually ran and passed.
 - `FAIL`: Use when the named check ran and failed.
 
-This plan itself records the future experiment as `NOT RUN`.
-
+The original planning task recorded the future experiment as `NOT RUN`.
+The approved post-v0.1.0 execution is recorded separately in
+`docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md`.
