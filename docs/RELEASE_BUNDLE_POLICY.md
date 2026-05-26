@@ -139,19 +139,33 @@ include private input, secrets, local paths, or sensitive operational details.
 
 ## Checksum Policy
 
-Future bundle checksums must:
+Bundle checksums must:
 
 - use SHA-256
 - use deterministic file ordering
 - exclude volatile files
 - avoid self-reference problems by not hashing the checksum file into itself
-- clearly state whether the manifest is included in the checksum set
+- include `release-manifest.json`
+- include present local SBOM and provenance evidence artifacts
+- include optional `eval-report.json` only when it is explicitly generated and
+  present
 - be regenerated only after all included files are final
 
-The current checksum generator records `release-manifest.json` only. The local
-release verification wrapper regenerates `checksums.sha256` after manifest
-generation and again after optional SBOM/provenance generation. Expanding the
-checksum set beyond the manifest requires a separate approved generator change.
+The current checksum generator records the full present local release evidence
+bundle except the checksum file itself. The strict release evidence set requires:
+
+- `artifacts/release-manifest.json`
+- `artifacts/sbom.spdx.json`
+- `artifacts/sbom.cdx.json`
+- `artifacts/provenance.intoto.jsonl`
+
+`artifacts/eval-report.json` is included only if it is present. This policy does
+not make routine eval report generation part of the baseline.
+
+The local release verification wrapper may run an intermediate checksum
+generation step with explicit missing-artifact allowance after manifest
+generation. Its final checksum regeneration runs after SBOM and provenance
+generation and uses the strict full-bundle requirement.
 
 ## Local Artifact Path Boundary
 

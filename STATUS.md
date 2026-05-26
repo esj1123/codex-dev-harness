@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 fresh local release evidence regeneration.
+Post v0.1.0 full release evidence checksum coverage.
 
 ## Current State
 
@@ -10,24 +10,25 @@ The repository contains documentation, base templates, profile templates, render
 
 ## Current Verification Snapshot
 
-Snapshot purpose: document fresh local release evidence regeneration and
-post-v0.1.0 closeout alignment.
+Snapshot purpose: document full-bundle checksum coverage for local release
+evidence and current release verification status.
 
 | item | status | evidence |
 |---|---|---|
 | basis branch/ref | PRESENT | `main` / `origin/main` |
-| current repository commit before artifact regeneration | PRESENT | `87dd03a50332a6325a9ac1308ad922c4d8c029fb` |
-| release manifest source basis commit | PRESENT | `artifacts/release-manifest.json` records `git_commit` as `87dd03a50332a6325a9ac1308ad922c4d8c029fb` |
-| artifact-containing commit | PENDING UNTIL COMMIT | Generated artifacts and closeout updates are not yet committed |
-| manifest generated timestamp | PRESENT | `2026-05-26T03:43:02Z` |
+| current repository commit before artifact regeneration | PRESENT | `457c14abeb09149c06bb53c6e88f44a02995b411` |
+| release manifest source basis commit | PRESENT | `artifacts/release-manifest.json` records `git_commit` as `457c14abeb09149c06bb53c6e88f44a02995b411` |
+| artifact-containing commit | PENDING UNTIL COMMIT | Generated artifacts and checksum coverage updates are not yet committed |
+| manifest generated timestamp | PRESENT | Recorded in `artifacts/release-manifest.json`; not duplicated here to avoid source-basis churn |
 | manifest files recorded | PRESENT | `199` |
+| checksum coverage | PRESENT | `artifacts/checksums.sha256` records 4 entries: manifest, SPDX SBOM, CycloneDX SBOM, and provenance; checksum file self-reference excluded |
 | Python runtime used for verification | PRESENT | bundled Codex Python `3.12.13` |
 | bare `python.exe` | ENVIRONMENT BLOCKED | Windows logon session error in this Codex desktop shell |
-| bundled Python `python -m pytest` | PASS | 61 passed through `scripts/run_release_verify.ps1` |
+| bundled Python `python -m pytest` | PASS | 64 passed directly and through `scripts/run_release_verify.ps1` |
 | bundled Python `python scripts/quality_gate.py` | PASS | docs, hygiene, schema, examples, render drift, and secret scan passed through `scripts/run_release_verify.ps1` |
 | `scripts/run_local_verify.ps1` | PASS | Run by `scripts/run_release_verify.ps1`; pytest, quality gate, and three render dry-runs passed |
 | `scripts/run_eval.py` | PASS | Run by `scripts/run_release_verify.ps1`; render structure, policy phrase, and forbidden artifact evals passed |
-| `scripts/run_release_verify.ps1` | PASS | Regenerated manifest, checksum, SBOM, and provenance artifacts |
+| `scripts/run_release_verify.ps1` | PASS | Regenerated manifest, bootstrap checksum, SBOM, provenance, and final strict full-bundle checksum artifacts |
 | CI workflow | NOT INSTALLED | `.github/workflows/` remains absent |
 | release publication, tag movement, archive creation, signing | NOT DONE | Local evidence regeneration only |
 
@@ -119,7 +120,8 @@ post-v0.1.0 closeout alignment.
 - Eval golden path list under `evals/golden/`.
 - Generated local release evidence under `artifacts/`:
   - `artifacts/release-manifest.json`
-  - `artifacts/checksums.sha256`
+  - `artifacts/checksums.sha256` with full local release evidence bundle
+    coverage, excluding checksum self-reference
   - `artifacts/sbom.spdx.json`
   - `artifacts/sbom.cdx.json`
   - `artifacts/provenance.intoto.jsonl`
@@ -260,9 +262,9 @@ Stage 0 current-main gap review basis:
 | formal v0.1.0 criteria | SATISFIED | `docs/FORMAL_V0.1.0_CRITERIA.md` exists; formal tag created |
 | optional GitHub Actions guide | PRESENT | guide and local/release verification templates exist, but no workflow is installed |
 | Stage 0 current-main gap review basis | RECORDED | `origin/main` at `7add760e89b84106679461948e9db58223900e33`, checked `2026-05-24T15:45:55.4078343+09:00` |
-| release manifest/checksum generator | PRESENT | `scripts/generate_manifest.py` and `scripts/generate_checksums.py`; local-only, standard-library-only, and restricted to repo-relative `artifacts/` paths |
+| release manifest/checksum generator | PRESENT | `scripts/generate_manifest.py` and `scripts/generate_checksums.py`; local-only, standard-library-only, restricted to repo-relative `artifacts/` paths, and checksum coverage includes the full present release evidence bundle except the checksum file itself |
 | release manifest runtime reproducibility inventory | PRESENT | manifest file inventory includes `.python-version`, `requirements-dev.txt`, and `requirements-dev.lock` when present |
-| release manifest/checksum artifacts | PRESENT | `artifacts/release-manifest.json` and `artifacts/checksums.sha256`; no release archive, tag, release, or workflow generated |
+| release manifest/checksum artifacts | PRESENT | `artifacts/release-manifest.json` and `artifacts/checksums.sha256`; checksum entries cover manifest, SPDX SBOM, CycloneDX SBOM, and provenance; no release archive, tag, release, or workflow generated |
 | release evidence foundation | PARTIAL | Release records, clean clone validation, local package checklist, and release drafts exist |
 | optional CI local verify template | DONE | `templates/ci/github-actions-local-verify.yml.template` exists and no workflow is installed |
 | optional CI release verify template | PRESENT / OPTIONAL | `templates/ci/github-actions-release-verify.yml.template` exists and no workflow is installed |
@@ -477,9 +479,9 @@ Stage 0 current-main gap review basis:
 | prompt contract templates | ADDED | Four reusable Markdown prompt templates exist under `prompts/task_contract/`; they do not execute prompts or grant approval |
 | minimal eval harness | IMPLEMENTED | Standalone non-LLM local eval runner, cases, golden path list, gate wrapper, and tests added |
 | release bundle policy | PRESENT | `docs/RELEASE_BUNDLE_POLICY.md`; records local manifest/checksum generation boundary and future release evidence components |
-| release manifest/checksum generation | IMPLEMENTED | Local-only manifest and checksum scripts, path-boundary tests, runtime reproducibility inventory, and artifacts added; outputs and checksum inputs are restricted to repo-relative `artifacts/` paths; no archive, CI, tag, release, application, or live-write behavior |
+| release manifest/checksum generation | IMPLEMENTED | Local-only manifest and full-bundle checksum scripts, path-boundary tests, runtime reproducibility inventory, and artifacts added; outputs and checksum inputs are restricted to repo-relative `artifacts/` paths; final checksum coverage includes manifest, SBOM, and provenance evidence while excluding self-reference; no archive, CI, tag, release, application, or live-write behavior |
 | SBOM/provenance generation | IMPLEMENTED MINIMAL LOCAL | Standard-library-only SPDX, CycloneDX, and in-toto-style provenance generators and artifacts added; output paths reject release-evidence overlap; no external metadata lookup, signing, archive, CI, tag, release publication, application, or live-write behavior |
-| release verification wrapper | IMPLEMENTED LOCAL | `scripts/run_release_verify.ps1` runs local verification, optional standalone eval, manifest/checksum generation, optional SBOM/provenance generation, final checksum regeneration, and artifact path reporting; no archive, CI, signing, publication, tag movement, application, or live-write behavior |
+| release verification wrapper | IMPLEMENTED LOCAL | `scripts/run_release_verify.ps1` runs local verification, optional standalone eval, manifest generation, bootstrap checksum generation, optional SBOM/provenance generation, strict final full-bundle checksum regeneration, and artifact path reporting; no archive, CI, signing, publication, tag movement, application, or live-write behavior |
 | approved-corpus RAG planning | ADDED | `docs/APPROVED_CORPUS_RAG_PLAN.md` defines candidate safe corpus files, required metadata, forbidden corpus, and corpus-expansion approval checkpoints; no retrieval/index tooling added |
 | model and prompt change planning | ADDED | `docs/MODEL_CHANGE_POLICY.md` defines model, prompt template, eval run, corpus digest, side-effect class, and compare-before-adopt controls; no model comparison or capture tooling added |
 | optional release verification CI template | TEMPLATE ONLY | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md` and `templates/ci/github-actions-release-verify.yml.template` exist; no `.github/workflows`, required checks, artifact upload, publishing, signing, tag movement, deployment, application code, or live-write behavior |

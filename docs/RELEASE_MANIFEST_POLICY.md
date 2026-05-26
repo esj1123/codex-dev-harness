@@ -108,9 +108,14 @@ The manifest should avoid self-reference problems:
 
 - compute file hashes for bundle payload files before writing final checksums
 - do not include a checksum file in its own checksum input
-- define whether `release-manifest.json` is included in `checksums.txt`
-- if the manifest is checksummed, write the manifest first, then checksum it
-  from a final stable byte representation
+- include `release-manifest.json` in the local release evidence checksum set
+- write the manifest, SBOM, and provenance evidence first, then write
+  `checksums.sha256` from their final stable byte representation
+
+`checksums.sha256` covers the present local release evidence bundle and excludes
+itself. The release manifest file inventory still excludes generated artifacts
+under `artifacts/` by policy; artifact integrity is represented by the checksum
+file rather than by the manifest payload inventory.
 
 ## Path Boundary
 

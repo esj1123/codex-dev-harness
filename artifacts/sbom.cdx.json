@@ -3,7 +3,7 @@
   "specVersion": "1.5",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-05-26T03:43:03Z",
+    "timestamp": "2026-05-26T04:30:32Z",
     "tools": {
       "components": [
         {
@@ -16,7 +16,7 @@
     "component": {
       "type": "application",
       "name": "esj1123/codex-dev-harness",
-      "version": "87dd03a50332a6325a9ac1308ad922c4d8c029fb",
+      "version": "457c14abeb09149c06bb53c6e88f44a02995b411",
       "properties": [
         {
           "name": "git_ref",
@@ -28,11 +28,11 @@
         },
         {
           "name": "manifest_sha256",
-          "value": "e04ad0c65c19282729cbbae6bb1fcac93f91902f51edca24f04fd3b6a7a78d5d"
+          "value": "9ccb6f608505276bdd11baa03482cd17069866e7d1cb817f742b808676c5851e"
         },
         {
           "name": "checksum_entries",
-          "value": "1"
+          "value": "4"
         }
       ]
     }
@@ -60,13 +60,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "55716fde9304be71236397af9db5061cbd9f62b380a946994f44db4069f4fc71"
+          "content": "995bba4c0de68a802951885a73ed84eedd08d482c6547f6b65dd290a53751ebc"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "48109"
+          "value": "50384"
         }
       ]
     },
@@ -156,13 +156,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "ff301454bbf2b00253937a11d9a2ba0270cd6c2a7b1206c54cffa605024a4e3c"
+          "content": "afad170f47f0451492a4636fe8dbc265323b29a67a95cf880541a0f247448346"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "40164"
+          "value": "41282"
         }
       ]
     },
@@ -892,13 +892,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "4997a09e5af0a770b2590278e04951a5365fd04cbe9f30a4ca7ca61bb7d712b8"
+          "content": "9b1cd6e400e1c77387b37d7c6c60328fd7015b747171cbf18985ebbed0a33405"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "12968"
+          "value": "14867"
         }
       ]
     },
@@ -988,13 +988,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "0908cce4281ebf25da83ab6f641b5659814f23f1361500ae55c9d3a38f16a73b"
+          "content": "9a20ab3641eaa8b4433e4e0113d37d5ef18efe1221619ef7bcefd77cdff338ea"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "7516"
+          "value": "8012"
         }
       ]
     },
@@ -1020,13 +1020,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "db66c8d5d1f0da29609e543421cdc32d873fc95cac661354903d7907e508dd81"
+          "content": "33b147c1bfe3754a3952b1023e9d5f0a8fe8091eeb572257b3854716e9e3c6e8"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "6090"
+          "value": "6397"
         }
       ]
     },
@@ -1212,13 +1212,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "24fd291b0ed6e4f2a1b40a1a71e9cb42e1eeb059c46e0e775202d705e98dcab1"
+          "content": "e91697e4d0458d828abcf1c838741f1e50de4c7c735195541c72ac627b9d6ecd"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "4888"
+          "value": "5471"
         }
       ]
     },
@@ -2620,13 +2620,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "7c4ece5307590a0d348279a8198e98bb41d0c011c7b1c004cbfe925a4fc23601"
+          "content": "2ad725711b392c5cc5c1edc314f2160100988b643217bcef088ee17679f6831b"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "3710"
+          "value": "5695"
         }
       ]
     },
@@ -2748,13 +2748,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "d116e833eb4ae4ce9eaa824f3677b1a9bc24f26b785f613add4f2333c525a17f"
+          "content": "6e0461f1c64824837ffaff8340c1acf18ae5c799e66b89e01d021875c2bd8de2"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "5484"
+          "value": "5497"
         }
       ]
     },
@@ -3116,13 +3116,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "71935c2fb4b373266af85436a23d67cc5cffc1d121ae6ab9b2cb50c0814bf426"
+          "content": "a2a7068c42628d9a78b9e1cea3d3f87abd8d9c6a02a5760f30231b7df46e6728"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "3050"
+          "value": "5582"
         }
       ]
     },

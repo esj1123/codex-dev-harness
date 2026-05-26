@@ -12,6 +12,15 @@ sys.dont_write_bytecode = True
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS_ROOT = "artifacts"
+REQUIRED_RELEASE_ARTIFACTS = (
+    "artifacts/release-manifest.json",
+    "artifacts/sbom.spdx.json",
+    "artifacts/sbom.cdx.json",
+    "artifacts/provenance.intoto.jsonl",
+)
+OPTIONAL_RELEASE_ARTIFACTS = (
+    "artifacts/eval-report.json",
+)
 
 
 def relpath(path: Path, repo_root: Path) -> str:
@@ -47,18 +56,76 @@ def resolve_repo_path(repo_root: Path, path_arg: str, flag_name: str) -> Path:
     return resolved_path
 
 
-def build_checksum_lines(repo_root: Path, manifest_path: Path, output_path: Path) -> list[str]:
+def dedupe_paths(paths: list[Path]) -> list[Path]:
+    seen = set()
+    unique_paths = []
+    for path in paths:
+        if path in seen:
+            continue
+        seen.add(path)
+        unique_paths.append(path)
+    return unique_paths
+
+
+def release_artifact_path(repo_root: Path, relative_path: str) -> Path:
+    return (repo_root / relative_path).resolve()
+
+
+def collect_release_artifacts(
+    repo_root: Path,
+    manifest_path: Path,
+    output_path: Path,
+    allow_missing: bool = False,
+) -> list[Path]:
+    reserved_paths = {
+        release_artifact_path(repo_root, relative_path)
+        for relative_path in REQUIRED_RELEASE_ARTIFACTS + OPTIONAL_RELEASE_ARTIFACTS
+    }
+    if output_path in reserved_paths or output_path == manifest_path:
+        raise ValueError("--output must not overwrite a release evidence artifact")
+
+    required_paths = [manifest_path]
+    required_paths.extend(
+        release_artifact_path(repo_root, relative_path)
+        for relative_path in REQUIRED_RELEASE_ARTIFACTS
+    )
+    required_paths = dedupe_paths(required_paths)
+
+    artifacts = []
+    missing = []
+    for path in required_paths:
+        if path.is_file():
+            artifacts.append(path)
+        elif allow_missing:
+            continue
+        else:
+            missing.append(relpath(path, repo_root))
+
+    if missing:
+        raise FileNotFoundError(
+            "required release evidence artifact(s) not found: " + ", ".join(missing)
+        )
+
+    for relative_path in OPTIONAL_RELEASE_ARTIFACTS:
+        path = release_artifact_path(repo_root, relative_path)
+        if path.is_file():
+            artifacts.append(path)
+
+    return sorted(dedupe_paths(artifacts), key=lambda item: relpath(item, repo_root))
+
+
+def build_checksum_lines(
+    repo_root: Path,
+    manifest_path: Path,
+    output_path: Path,
+    allow_missing: bool = False,
+) -> list[str]:
     repo_root = repo_root.resolve()
     manifest_path = manifest_path.resolve()
     output_path = output_path.resolve()
-    if manifest_path == output_path:
-        raise ValueError("--output must not overwrite --manifest")
-    if not manifest_path.is_file():
-        raise FileNotFoundError(f"manifest not found: {relpath(manifest_path, repo_root)}")
-
-    artifacts = [manifest_path]
+    artifacts = collect_release_artifacts(repo_root, manifest_path, output_path, allow_missing)
     lines = []
-    for path in sorted(artifacts, key=lambda item: relpath(item, repo_root)):
+    for path in artifacts:
         if path == output_path:
             continue
         lines.append(f"{sha256_file(path)}  {relpath(path, repo_root)}")
@@ -75,6 +142,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--repo-root", default=str(REPO_ROOT), help="Repository root")
     parser.add_argument("--manifest", required=True, help="Repo-internal relative manifest path")
     parser.add_argument("--output", default="artifacts/checksums.sha256", help="Repo-internal relative output path")
+    parser.add_argument(
+        "--allow-missing",
+        action="store_true",
+        help="Skip missing release evidence artifacts instead of failing",
+    )
     return parser
 
 
@@ -85,7 +157,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         manifest_path = resolve_repo_path(repo_root, args.manifest, "--manifest")
         output_path = resolve_repo_path(repo_root, args.output, "--output")
-        lines = build_checksum_lines(repo_root, manifest_path, output_path)
+        lines = build_checksum_lines(repo_root, manifest_path, output_path, args.allow_missing)
     except (ValueError, FileNotFoundError) as exc:
         parser.error(str(exc))
 

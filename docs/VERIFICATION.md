@@ -40,10 +40,19 @@ The release wrapper is local-only. It runs, in order:
 1. `scripts/run_local_verify.ps1`
 2. `scripts/run_eval.py`, if present
 3. `scripts/generate_manifest.py`
-4. `scripts/generate_checksums.py`
+4. `scripts/generate_checksums.py` as an intermediate bootstrap checksum
 5. `scripts/generate_sbom.py`, if present
 6. `scripts/generate_provenance.py`, if present
-7. final checksum regeneration using the current checksum policy
+7. final checksum regeneration using the current full-bundle checksum policy
+
+The intermediate checksum step may allow missing optional later evidence while
+the bundle is still being produced. The final checksum step is strict for the
+current local release evidence bundle and covers all present release evidence
+artifacts except `artifacts/checksums.sha256` itself. The expected strict set is
+`artifacts/release-manifest.json`, `artifacts/sbom.spdx.json`,
+`artifacts/sbom.cdx.json`, and `artifacts/provenance.intoto.jsonl`.
+`artifacts/eval-report.json` is included only if it was explicitly generated
+and is present.
 
 Optional steps are reported as `SKIPPED` with a reason when their scripts are
 absent. The wrapper prints generated artifact paths and a PASS/FAIL/SKIPPED
