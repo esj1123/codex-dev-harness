@@ -1,9 +1,9 @@
 {
   "schema_version": "1",
-  "generated_at_utc": "2026-05-25T05:34:23Z",
+  "generated_at_utc": "2026-05-26T03:43:02Z",
   "repository": "esj1123/codex-dev-harness",
   "git_ref": "main",
-  "git_commit": "1b2e430f2a5df4dff9cc6e5a4008095e732a5a55",
+  "git_commit": "87dd03a50332a6325a9ac1308ad922c4d8c029fb",
   "git_tag": null,
   "python_version": "3.12.13",
   "included_roots": [
@@ -129,8 +129,8 @@
     },
     {
       "path": "ACCEPTANCE_TRACE.md",
-      "size_bytes": 46328,
-      "sha256": "2a6f76b34a77307747058c5ab2704020422904abb5b9fea4e40114cc48ef61a4"
+      "size_bytes": 48109,
+      "sha256": "55716fde9304be71236397af9db5061cbd9f62b380a946994f44db4069f4fc71"
     },
     {
       "path": "AGENTS.md",
@@ -159,8 +159,8 @@
     },
     {
       "path": "STATUS.md",
-      "size_bytes": 36805,
-      "sha256": "0e2f11427b8535bd2c69d3c03f3e68dcca20636fd0a31804a4cd73bd39758741"
+      "size_bytes": 40164,
+      "sha256": "ff301454bbf2b00253937a11d9a2ba0270cd6c2a7b1206c54cffa605024a4e3c"
     },
     {
       "path": "audits/audit-log.schema.json",
@@ -298,6 +298,16 @@
       "sha256": "1ce793791cb979ec4aeb7a6ef33681dffdff05335f02afc833387570c1bad1f0"
     },
     {
+      "path": "docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md",
+      "size_bytes": 5043,
+      "sha256": "cc66c398df45f581d2bace14b6162fd8d7778c5a25fd471e7ca2fae38c286210"
+    },
+    {
+      "path": "docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md",
+      "size_bytes": 5349,
+      "sha256": "efc813d9f7bce74336006b3e804f1ab8e94a6d8171eb7c118011a1f5d58e11dc"
+    },
+    {
       "path": "docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md",
       "size_bytes": 3454,
       "sha256": "6d607dd517985ba630e1c2e0773ba1be17df3cb12d9a33d8a8ea80959ce1371a"
@@ -378,9 +388,14 @@
       "sha256": "d1411ad920d76369d94c9037f285edd9250c01135a847ad74c6d69eee32d4312"
     },
     {
+      "path": "docs/POST_V0.1.0_EVIDENCE_BASELINE_CLOSEOUT.md",
+      "size_bytes": 12968,
+      "sha256": "4997a09e5af0a770b2590278e04951a5365fd04cbe9f30a4ca7ca61bb7d712b8"
+    },
+    {
       "path": "docs/POST_V0.1.0_ROADMAP.md",
-      "size_bytes": 12047,
-      "sha256": "5b90c92c812cc30cd99ea3e8ca785c4bb40290e72013efee6a7f16d4fc086967"
+      "size_bytes": 14602,
+      "sha256": "c4aacf5631f9f74d60e97f5829647a9ef748e80b46848a9088796c13b0fe4233"
     },
     {
       "path": "docs/PROFILE_MATRIX.md",
@@ -404,8 +419,8 @@
     },
     {
       "path": "docs/RELEASE_BUNDLE_POLICY.md",
-      "size_bytes": 6725,
-      "sha256": "461b16ea5e4bf4f3046236f7ef255e8b08fd532ee2260bb5cf5bc3ee0bb8b502"
+      "size_bytes": 7516,
+      "sha256": "0908cce4281ebf25da83ab6f641b5659814f23f1361500ae55c9d3a38f16a73b"
     },
     {
       "path": "docs/RELEASE_CHECKLIST.md",
@@ -414,8 +429,8 @@
     },
     {
       "path": "docs/RELEASE_MANIFEST_POLICY.md",
-      "size_bytes": 4895,
-      "sha256": "250d47f25291e7a026c086252ea66f2bb8a3631dd283a93709b5f735bdf60b47"
+      "size_bytes": 6090,
+      "sha256": "db66c8d5d1f0da29609e543421cdc32d873fc95cac661354903d7907e508dd81"
     },
     {
       "path": "docs/RELEASE_NOTES_v0.1.0-rc1.md",
@@ -474,8 +489,8 @@
     },
     {
       "path": "docs/VERIFICATION.md",
-      "size_bytes": 4276,
-      "sha256": "e1d65d81a9e7504729d94b83d0a8039dd3ab717b9eae718722a8287b2e12e4d2"
+      "size_bytes": 4888,
+      "sha256": "24fd291b0ed6e4f2a1b40a1a71e9cb42e1eeb059c46e0e775202d705e98dcab1"
     },
     {
       "path": "docs/adr/ADR-0001-local-first.md",

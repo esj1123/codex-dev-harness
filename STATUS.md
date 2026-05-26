@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 evidence baseline closeout.
+Post v0.1.0 fresh local release evidence regeneration.
 
 ## Current State
 
@@ -10,23 +10,26 @@ The repository contains documentation, base templates, profile templates, render
 
 ## Current Verification Snapshot
 
-Snapshot purpose: document the post-v0.1.0 evidence baseline closeout without
-regenerating release artifacts.
+Snapshot purpose: document fresh local release evidence regeneration and
+post-v0.1.0 closeout alignment.
 
 | item | status | evidence |
 |---|---|---|
 | basis branch/ref | PRESENT | `main` / `origin/main` |
-| current repository commit at closeout drafting | PRESENT | `03161f7d26ef70b5bdc4db90026d49479926cf97` |
-| release manifest source basis commit | PRESENT | `artifacts/release-manifest.json` records `git_commit` as `1b2e430f2a5df4dff9cc6e5a4008095e732a5a55` |
-| manifest generated timestamp | PRESENT | `2026-05-25T05:34:23Z` |
+| current repository commit before artifact regeneration | PRESENT | `87dd03a50332a6325a9ac1308ad922c4d8c029fb` |
+| release manifest source basis commit | PRESENT | `artifacts/release-manifest.json` records `git_commit` as `87dd03a50332a6325a9ac1308ad922c4d8c029fb` |
+| artifact-containing commit | PENDING UNTIL COMMIT | Generated artifacts and closeout updates are not yet committed |
+| manifest generated timestamp | PRESENT | `2026-05-26T03:43:02Z` |
+| manifest files recorded | PRESENT | `199` |
 | Python runtime used for verification | PRESENT | bundled Codex Python `3.12.13` |
 | bare `python.exe` | ENVIRONMENT BLOCKED | Windows logon session error in this Codex desktop shell |
-| bundled Python `python -m pytest` | PASS | 61 passed in this closeout verification |
-| bundled Python `python scripts/quality_gate.py` | PASS | docs, hygiene, schema, examples, render drift, and secret scan passed in this closeout verification |
-| `scripts/run_local_verify.ps1` | NOT RUN | Optional and not re-run in this documentation-only closeout task |
-| `scripts/run_release_verify.ps1` | NOT RUN | Not re-run in this documentation-only task because it regenerates artifacts |
+| bundled Python `python -m pytest` | PASS | 61 passed through `scripts/run_release_verify.ps1` |
+| bundled Python `python scripts/quality_gate.py` | PASS | docs, hygiene, schema, examples, render drift, and secret scan passed through `scripts/run_release_verify.ps1` |
+| `scripts/run_local_verify.ps1` | PASS | Run by `scripts/run_release_verify.ps1`; pytest, quality gate, and three render dry-runs passed |
+| `scripts/run_eval.py` | PASS | Run by `scripts/run_release_verify.ps1`; render structure, policy phrase, and forbidden artifact evals passed |
+| `scripts/run_release_verify.ps1` | PASS | Regenerated manifest, checksum, SBOM, and provenance artifacts |
 | CI workflow | NOT INSTALLED | `.github/workflows/` remains absent |
-| release publication, tag movement, archive creation, signing | NOT DONE | Documentation-only task |
+| release publication, tag movement, archive creation, signing | NOT DONE | Local evidence regeneration only |
 
 ## What Exists
 

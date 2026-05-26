@@ -14,17 +14,18 @@ does not implement new behavior.
 | item | status | evidence |
 |---|---|---|
 | repository | PRESENT | `esj1123/codex-dev-harness` |
-| branch/ref at closeout drafting | PRESENT | `main` / `origin/main` |
-| repository commit at closeout drafting | PRESENT | `03161f7d26ef70b5bdc4db90026d49479926cf97` |
-| closeout scope | DOCUMENTATION ONLY | This document, `STATUS.md`, and `ACCEPTANCE_TRACE.md` record closeout state |
-| artifacts regenerated in this task | NO | `scripts/run_release_verify.ps1` was not run |
+| branch/ref at artifact regeneration | PRESENT | `main` / `origin/main` |
+| repository commit before artifact regeneration | PRESENT | `87dd03a50332a6325a9ac1308ad922c4d8c029fb` |
+| source basis commit | PRESENT | `artifacts/release-manifest.json` records `87dd03a50332a6325a9ac1308ad922c4d8c029fb` |
+| artifact-containing commit | PENDING UNTIL COMMIT | Generated artifacts and closeout updates are not yet committed |
+| closeout alignment scope | DOCUMENTATION AND LOCAL EVIDENCE | This document, `STATUS.md`, `ACCEPTANCE_TRACE.md`, and local release evidence artifacts record closeout state |
+| artifacts regenerated in this task | YES | `scripts/run_release_verify.ps1` passed |
 | generator behavior changed | NO | Generator code was not edited |
 | eval behavior changed | NO | Eval code and tests were not edited |
 | docs_gate coverage changed | NO | The closeout document is not added to `docs_gate` in this task |
 
-The closeout document itself is created after the commit above. The final
-artifact-containing commit for this closeout will be known only after the
-closeout changes are committed.
+The final artifact-containing commit for this closeout will be known only after
+the generated artifacts and closeout record updates are committed.
 
 ## Completed Stage Summary
 
@@ -96,25 +97,42 @@ implemented here.
 
 ## Current Verification Snapshot
 
-This snapshot uses known values from the repository state and `STATUS.md`.
-No release evidence artifacts were regenerated for this closeout.
+This snapshot records the fresh local release evidence regeneration performed
+for this closeout alignment.
 
 | item | status | evidence |
 |---|---|---|
 | basis branch/ref | PRESENT | `main` / `origin/main` |
-| current repository commit at closeout drafting | PRESENT | `03161f7d26ef70b5bdc4db90026d49479926cf97` |
-| manifest source basis commit | PRESENT | `artifacts/release-manifest.json` records `1b2e430f2a5df4dff9cc6e5a4008095e732a5a55` |
-| manifest generated timestamp | PRESENT | `2026-05-25T05:34:23Z` |
+| current repository commit before artifact regeneration | PRESENT | `87dd03a50332a6325a9ac1308ad922c4d8c029fb` |
+| manifest source basis commit | PRESENT | `artifacts/release-manifest.json` records `87dd03a50332a6325a9ac1308ad922c4d8c029fb` |
+| artifact-containing commit | PENDING UNTIL COMMIT | Generated artifacts and closeout updates are not yet committed |
+| manifest generated timestamp | PRESENT | `2026-05-26T03:43:02Z` |
+| manifest files recorded | PRESENT | `199` |
 | Python runtime used for verification | PRESENT | bundled Codex Python `3.12.13` |
 | bare `python.exe` | ENVIRONMENT BLOCKED | Existing Windows logon session error in this Codex desktop shell |
-| bundled Python `python -m pytest` | PASS | 61 passed in this closeout verification |
-| bundled Python `python scripts/quality_gate.py` | PASS | docs, hygiene, schema, examples, render drift, and secret scan passed in this closeout verification |
-| `scripts/run_local_verify.ps1` | NOT RUN | Optional for this documentation-only closeout |
-| `scripts/run_release_verify.ps1` | NOT RUN | Not run because it regenerates artifacts |
+| bundled Python `python -m pytest` | PASS | 61 passed through `scripts/run_release_verify.ps1` |
+| bundled Python `python scripts/quality_gate.py` | PASS | docs, hygiene, schema, examples, render drift, and secret scan passed through `scripts/run_release_verify.ps1` |
+| `scripts/run_local_verify.ps1` | PASS | Run by `scripts/run_release_verify.ps1`; pytest, quality gate, and three render dry-runs passed |
+| `scripts/run_eval.py` | PASS | Run by `scripts/run_release_verify.ps1`; render structure, policy phrase, and forbidden artifact evals passed |
+| `scripts/run_release_verify.ps1` | PASS | Manifest, checksum, SBOM, and provenance artifacts regenerated |
 | CI workflow | NOT INSTALLED | `.github/workflows/` remains absent |
+| eval report | NOT GENERATED | `artifacts/eval-report.json` was not requested |
 | release publication | NOT DONE | No GitHub Release publication in this task |
 | tag movement/signing | NOT DONE | No tag created, moved, or signed in this task |
 | release archive | NOT DONE | No archive created in this task |
+
+## Closeout Verification Commands
+
+| command | result | notes |
+|---|---|---|
+| `powershell -ExecutionPolicy Bypass -File scripts/run_release_verify.ps1` | PASS | Local verification, standalone eval, manifest/checksum generation, SBOM/provenance generation, and final checksum regeneration passed |
+| `python -m pytest` | ENVIRONMENT BLOCKED | Bare `python.exe` failed with the existing Windows logon session error |
+| `python scripts/quality_gate.py` | ENVIRONMENT BLOCKED | Bare `python.exe` failed with the existing Windows logon session error |
+| `python scripts/run_eval.py` | ENVIRONMENT BLOCKED | Bare `python.exe` failed with the existing Windows logon session error |
+| bundled Python `python -m pytest` | PASS | 61 passed |
+| bundled Python `python scripts/quality_gate.py` | PASS | docs, hygiene, schema, examples, render drift, and secret scan passed |
+| bundled Python `python scripts/run_eval.py` | PASS | render structure, policy phrase, and forbidden artifact evals passed |
+| `git diff --check` | PASS | LF-to-CRLF warnings only |
 
 ## Deferred / Not Implemented Surfaces
 
@@ -177,16 +195,17 @@ and this closeout do not grant approval by themselves.
 - Stage 14 target experiments are planning-only and do not prove actual
   separate target render behavior.
 - This closeout document is not currently required by `docs_gate`.
+- The artifact-containing commit remains pending until the regenerated
+  artifacts and closeout record updates are committed.
 
 ## Recommended Next Steps
 
-1. Commit this closeout document with the related `STATUS.md` and
-   `ACCEPTANCE_TRACE.md` updates.
+1. Commit the regenerated artifacts and closeout record updates.
 2. Optionally add this closeout document to `docs_gate` in a separate or
    explicitly approved gate-alignment step.
-3. Decide whether formal release evidence should be regenerated after the final
-   commit.
-4. If formal baseline evidence is desired, run `scripts/run_release_verify.ps1`
-   in a separate artifact-regeneration task.
+3. Decide whether Priority 2 should expand checksum bundle coverage beyond the
+   current manifest-only checksum policy.
+4. If Priority 2 changes checksum coverage, regenerate local release evidence
+   again after that approved change.
 5. Otherwise, stop here and treat the repository as a post-v0.1.0 evidence
-   baseline.
+   baseline after commit.

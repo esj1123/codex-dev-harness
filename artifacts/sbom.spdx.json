@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "esj1123/codex-dev-harness local release SBOM",
-  "documentNamespace": "https://example.invalid/codex-dev-harness/spdx/cae1e363ec545582abf0af4c71605549739b8e417fc7a76708db0d24dd7eb293",
+  "documentNamespace": "https://example.invalid/codex-dev-harness/spdx/e04ad0c65c19282729cbbae6bb1fcac93f91902f51edca24f04fd3b6a7a78d5d",
   "creationInfo": {
-    "created": "2026-05-25T05:34:24Z",
+    "created": "2026-05-26T03:43:03Z",
     "creators": [
       "Tool: codex-dev-harness generate_sbom.py"
     ]
@@ -20,7 +20,7 @@
       "licenseConcluded": "UNKNOWN",
       "licenseDeclared": "UNKNOWN",
       "copyrightText": "UNKNOWN",
-      "versionInfo": "1b2e430f2a5df4dff9cc6e5a4008095e732a5a55"
+      "versionInfo": "87dd03a50332a6325a9ac1308ad922c4d8c029fb"
     },
     {
       "name": "pytest",
@@ -53,7 +53,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "2a6f76b34a77307747058c5ab2704020422904abb5b9fea4e40114cc48ef61a4"
+          "checksumValue": "55716fde9304be71236397af9db5061cbd9f62b380a946994f44db4069f4fc71"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -125,7 +125,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "0e2f11427b8535bd2c69d3c03f3e68dcca20636fd0a31804a4cd73bd39758741"
+          "checksumValue": "ff301454bbf2b00253937a11d9a2ba0270cd6c2a7b1206c54cffa605024a4e3c"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -456,6 +456,30 @@
       "copyrightText": "UNKNOWN"
     },
     {
+      "fileName": "docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md",
+      "SPDXID": "SPDXRef-File-docs-LOCAL-TARGET-EXPERIMENT-PLAN-csharp-desktop.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "cc66c398df45f581d2bace14b6162fd8d7778c5a25fd471e7ca2fae38c286210"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md",
+      "SPDXID": "SPDXRef-File-docs-LOCAL-TARGET-EXPERIMENT-PLAN-plc-tool.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "efc813d9f7bce74336006b3e804f1ab8e94a6d8171eb7c118011a1f5d58e11dc"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
       "fileName": "docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md",
       "SPDXID": "SPDXRef-File-docs-LOCAL-TARGET-EXPERIMENT-base-template-v0.1.0-rc2-candidate.md",
       "checksums": [
@@ -648,12 +672,24 @@
       "copyrightText": "UNKNOWN"
     },
     {
+      "fileName": "docs/POST_V0.1.0_EVIDENCE_BASELINE_CLOSEOUT.md",
+      "SPDXID": "SPDXRef-File-docs-POST-V0.1.0-EVIDENCE-BASELINE-CLOSEOUT.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "4997a09e5af0a770b2590278e04951a5365fd04cbe9f30a4ca7ca61bb7d712b8"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
       "fileName": "docs/POST_V0.1.0_ROADMAP.md",
       "SPDXID": "SPDXRef-File-docs-POST-V0.1.0-ROADMAP.md",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5b90c92c812cc30cd99ea3e8ca785c4bb40290e72013efee6a7f16d4fc086967"
+          "checksumValue": "c4aacf5631f9f74d60e97f5829647a9ef748e80b46848a9088796c13b0fe4233"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -713,7 +749,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "461b16ea5e4bf4f3046236f7ef255e8b08fd532ee2260bb5cf5bc3ee0bb8b502"
+          "checksumValue": "0908cce4281ebf25da83ab6f641b5659814f23f1361500ae55c9d3a38f16a73b"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -737,7 +773,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "250d47f25291e7a026c086252ea66f2bb8a3631dd283a93709b5f735bdf60b47"
+          "checksumValue": "db66c8d5d1f0da29609e543421cdc32d873fc95cac661354903d7907e508dd81"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -881,7 +917,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "e1d65d81a9e7504729d94b83d0a8039dd3ab717b9eae718722a8287b2e12e4d2"
+          "checksumValue": "24fd291b0ed6e4f2a1b40a1a71e9cb42e1eeb059c46e0e775202d705e98dcab1"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -2572,6 +2608,16 @@
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-LOCAL-TARGET-EXPERIMENT-PLAN-csharp-desktop.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-LOCAL-TARGET-EXPERIMENT-PLAN-plc-tool.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-docs-LOCAL-TARGET-EXPERIMENT-base-template-v0.1.0-rc2-candidate.md"
     },
     {
@@ -2648,6 +2694,11 @@
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-docs-P6-RELEASE-CLOSEOUT.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-POST-V0.1.0-EVIDENCE-BASELINE-CLOSEOUT.md"
     },
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
@@ -3378,10 +3429,10 @@
   "externalDocumentRefs": [],
   "annotations": [
     {
-      "annotationDate": "2026-05-25T05:34:24Z",
+      "annotationDate": "2026-05-26T03:43:03Z",
       "annotationType": "OTHER",
       "annotator": "Tool: codex-dev-harness generate_sbom.py",
-      "comment": "manifest=artifacts/release-manifest.json sha256=cae1e363ec545582abf0af4c71605549739b8e417fc7a76708db0d24dd7eb293; checksum_entries=1"
+      "comment": "manifest=artifacts/release-manifest.json sha256=e04ad0c65c19282729cbbae6bb1fcac93f91902f51edca24f04fd3b6a7a78d5d; checksum_entries=1"
     }
   ]
 }

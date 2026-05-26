@@ -3,7 +3,7 @@
   "specVersion": "1.5",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-05-25T05:34:24Z",
+    "timestamp": "2026-05-26T03:43:03Z",
     "tools": {
       "components": [
         {
@@ -16,7 +16,7 @@
     "component": {
       "type": "application",
       "name": "esj1123/codex-dev-harness",
-      "version": "1b2e430f2a5df4dff9cc6e5a4008095e732a5a55",
+      "version": "87dd03a50332a6325a9ac1308ad922c4d8c029fb",
       "properties": [
         {
           "name": "git_ref",
@@ -28,7 +28,7 @@
         },
         {
           "name": "manifest_sha256",
-          "value": "cae1e363ec545582abf0af4c71605549739b8e417fc7a76708db0d24dd7eb293"
+          "value": "e04ad0c65c19282729cbbae6bb1fcac93f91902f51edca24f04fd3b6a7a78d5d"
         },
         {
           "name": "checksum_entries",
@@ -60,13 +60,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "2a6f76b34a77307747058c5ab2704020422904abb5b9fea4e40114cc48ef61a4"
+          "content": "55716fde9304be71236397af9db5061cbd9f62b380a946994f44db4069f4fc71"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "46328"
+          "value": "48109"
         }
       ]
     },
@@ -156,13 +156,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "0e2f11427b8535bd2c69d3c03f3e68dcca20636fd0a31804a4cd73bd39758741"
+          "content": "ff301454bbf2b00253937a11d9a2ba0270cd6c2a7b1206c54cffa605024a4e3c"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "36805"
+          "value": "40164"
         }
       ]
     },
@@ -600,6 +600,38 @@
     },
     {
       "type": "file",
+      "name": "docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "cc66c398df45f581d2bace14b6162fd8d7778c5a25fd471e7ca2fae38c286210"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "5043"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "efc813d9f7bce74336006b3e804f1ab8e94a6d8171eb7c118011a1f5d58e11dc"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "5349"
+        }
+      ]
+    },
+    {
+      "type": "file",
       "name": "docs/LOCAL_TARGET_EXPERIMENT_base_template_v0.1.0-rc2-candidate.md",
       "hashes": [
         {
@@ -856,17 +888,33 @@
     },
     {
       "type": "file",
-      "name": "docs/POST_V0.1.0_ROADMAP.md",
+      "name": "docs/POST_V0.1.0_EVIDENCE_BASELINE_CLOSEOUT.md",
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "5b90c92c812cc30cd99ea3e8ca785c4bb40290e72013efee6a7f16d4fc086967"
+          "content": "4997a09e5af0a770b2590278e04951a5365fd04cbe9f30a4ca7ca61bb7d712b8"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "12047"
+          "value": "12968"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/POST_V0.1.0_ROADMAP.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c4aacf5631f9f74d60e97f5829647a9ef748e80b46848a9088796c13b0fe4233"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "14602"
         }
       ]
     },
@@ -940,13 +988,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "461b16ea5e4bf4f3046236f7ef255e8b08fd532ee2260bb5cf5bc3ee0bb8b502"
+          "content": "0908cce4281ebf25da83ab6f641b5659814f23f1361500ae55c9d3a38f16a73b"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "6725"
+          "value": "7516"
         }
       ]
     },
@@ -972,13 +1020,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "250d47f25291e7a026c086252ea66f2bb8a3631dd283a93709b5f735bdf60b47"
+          "content": "db66c8d5d1f0da29609e543421cdc32d873fc95cac661354903d7907e508dd81"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "4895"
+          "value": "6090"
         }
       ]
     },
@@ -1164,13 +1212,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "e1d65d81a9e7504729d94b83d0a8039dd3ab717b9eae718722a8287b2e12e4d2"
+          "content": "24fd291b0ed6e4f2a1b40a1a71e9cb42e1eeb059c46e0e775202d705e98dcab1"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "4276"
+          "value": "4888"
         }
       ]
     },
