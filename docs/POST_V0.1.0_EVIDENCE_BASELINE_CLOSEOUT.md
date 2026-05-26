@@ -16,18 +16,20 @@ application code, create device behavior, or enable live writes.
 |---|---|---|
 | repository | PRESENT | `esj1123/codex-dev-harness` |
 | branch/ref at final artifact regeneration | PRESENT | `main` / `origin/main` |
-| repository commit before final evidence regeneration | PRESENT | `7e4208d4a29598cb95f9d94c9f79f11c8c971e83` |
-| source basis commit | PRESENT | `artifacts/release-manifest.json` records `7e4208d4a29598cb95f9d94c9f79f11c8c971e83` |
-| artifact-containing commit | PRESENT / OBSERVED | Stage 0 read-only review observed `ab77ab0a0b44c2f1bd700820bfeb358c6ec1bbe7` as the commit containing the regenerated artifacts and closeout updates |
+| repository commit before Stage 2 evidence regeneration | PRESENT | `9ae69c5fbf65953db2b0efb82b4904098f8a7581` |
+| source basis commit | PRESENT | `artifacts/release-manifest.json` records `9ae69c5fbf65953db2b0efb82b4904098f8a7581` |
+| artifact-containing commit | PENDING UNTIL STAGE 2 EVIDENCE COMMIT | Regenerated artifacts and closeout updates are modified in the working tree and not yet committed |
 | closeout alignment scope | DOCUMENTATION AND LOCAL EVIDENCE | This document, `STATUS.md`, `ACCEPTANCE_TRACE.md`, and local release evidence artifacts record closeout state |
-| artifacts regenerated in this task | YES | `scripts/run_release_verify.ps1` passed after explicit eval report generation |
+| artifacts regenerated in this task | YES | `scripts/run_release_verify.ps1` passed after explicit eval report generation; generated local evidence only, not release publication |
 | generator behavior changed | NO | Generator code was not edited |
 | eval behavior changed | NO | Eval code and tests were not edited |
 | docs_gate coverage changed | NO | This closeout document is not added to `docs_gate` in this task |
 
-The artifact-containing commit above is the Stage 0 observed evidence commit.
-Later documentation-only commits may advance repository HEAD while the generated
-artifact source basis remains `7e4208d4a29598cb95f9d94c9f79f11c8c971e83`.
+The artifact-containing commit for this Stage 2 refresh is not knowable until
+the regenerated artifacts and closeout updates are committed. The previous
+Stage 0 read-only review observed artifact-containing commit
+`ab77ab0a0b44c2f1bd700820bfeb358c6ec1bbe7`, but the current regenerated
+artifact source basis is `9ae69c5fbf65953db2b0efb82b4904098f8a7581`.
 
 ## Completed Stage Summary
 
@@ -82,7 +84,7 @@ Additional Priority 1-4 tightening now reflected in this baseline:
 
 `artifacts/release-manifest.json` records `git_commit` as the source basis
 commit at generation time. In this final refresh, that value is
-`7e4208d4a29598cb95f9d94c9f79f11c8c971e83`.
+`9ae69c5fbf65953db2b0efb82b4904098f8a7581`.
 
 When generated artifacts are committed, the artifact-containing commit may be
 newer than the manifest `git_commit`. That difference is expected for committed
@@ -100,20 +102,21 @@ implemented here.
 
 ## Current Verification Snapshot
 
-This snapshot records the final post-Priority-4 local release evidence refresh.
+This snapshot records the Stage 2 final local post-v0.1.0 evidence baseline
+refresh after the Stage 1 documentation drift cleanup.
 
 | item | status | evidence |
 |---|---|---|
 | basis branch/ref | PRESENT | `main` / `origin/main` |
-| current repository commit before final evidence regeneration | PRESENT | `7e4208d4a29598cb95f9d94c9f79f11c8c971e83` |
-| manifest source basis commit | PRESENT | `artifacts/release-manifest.json` records `7e4208d4a29598cb95f9d94c9f79f11c8c971e83` |
-| artifact-containing commit | PRESENT / OBSERVED | Stage 0 read-only review observed `ab77ab0a0b44c2f1bd700820bfeb358c6ec1bbe7`; later documentation-only commits may advance HEAD while artifact source basis remains unchanged |
-| manifest generated timestamp | PRESENT | `2026-05-26T07:41:11Z` |
+| current repository commit before Stage 2 evidence regeneration | PRESENT | `9ae69c5fbf65953db2b0efb82b4904098f8a7581` |
+| manifest source basis commit | PRESENT | `artifacts/release-manifest.json` records `9ae69c5fbf65953db2b0efb82b4904098f8a7581` |
+| artifact-containing commit | PENDING UNTIL STAGE 2 EVIDENCE COMMIT | Regenerated artifacts and closeout updates are modified in the working tree and not yet committed |
+| manifest generated timestamp | PRESENT | `2026-05-26T23:51:44Z` |
 | manifest files recorded | PRESENT | `211` |
 | checksum coverage | PRESENT | 5 entries: `artifacts/eval-report.json`, `artifacts/provenance.intoto.jsonl`, `artifacts/release-manifest.json`, `artifacts/sbom.cdx.json`, `artifacts/sbom.spdx.json` |
 | checksum self-reference | ABSENT | `artifacts/checksums.sha256` does not list itself |
 | eval case count | PRESENT | 14 named local-only non-LLM cases |
-| eval report | GENERATED | `artifacts/eval-report.json` records 14 passed, 0 failed |
+| eval report | GENERATED | `artifacts/eval-report.json` was generated explicitly at `2026-05-26T23:51:23Z` and records 14 passed, 0 failed |
 | `csharp_desktop` target experiment | PASS | `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md` |
 | `plc_or_device_tool` target experiment | DEFERRED | Separate approval required |
 | Python runtime used for verification | PRESENT | bundled Codex Python `3.12.13` |
@@ -124,7 +127,7 @@ This snapshot records the final post-Priority-4 local release evidence refresh.
 | bundled Python `python scripts/run_eval.py --report artifacts/eval-report.json` | PASS | report generated explicitly |
 | bundled Python `python scripts/gates/eval_gate.py` | PASS | standalone eval gate passed |
 | `scripts/run_local_verify.ps1` | PASS | Run by `scripts/run_release_verify.ps1`; pytest, quality gate, and three render dry-runs passed |
-| `scripts/run_release_verify.ps1` | PASS | Manifest, checksum, SBOM, provenance artifacts regenerated with final checksum coverage |
+| `scripts/run_release_verify.ps1` | PASS | Manifest, checksum, SBOM, provenance artifacts regenerated with final checksum coverage; no release publication occurred |
 | CI workflow | NOT INSTALLED | `.github/workflows/` remains absent |
 | release publication | NOT DONE | No GitHub Release publication in this task |
 | tag movement/signing | NOT DONE | No tag created, moved, rewritten, or signed in this task |
@@ -199,12 +202,13 @@ eval reports, and this closeout do not grant approval by themselves.
 
 ## Known Limitations
 
-- Release artifacts record a source basis commit earlier than the later
-  artifact-containing commit once generated artifacts are committed.
-- Stage 0 read-only review observed artifact-containing commit
-  `ab77ab0a0b44c2f1bd700820bfeb358c6ec1bbe7`; later documentation-only commits
-  may advance repository HEAD while generated artifact source basis remains
-  unchanged.
+- Release artifacts record source basis commit
+  `9ae69c5fbf65953db2b0efb82b4904098f8a7581`; the artifact-containing commit
+  for this Stage 2 refresh remains pending until the regenerated artifacts and
+  closeout updates are committed.
+- Stage 0 read-only review previously observed artifact-containing commit
+  `ab77ab0a0b44c2f1bd700820bfeb358c6ec1bbe7`; that is historical evidence,
+  not the current Stage 2 artifact-containing commit.
 - `requirements-dev.lock` pins exact package versions but does not include
   wheel hashes.
 - SBOM and provenance are minimal local-first evidence, not full certification,

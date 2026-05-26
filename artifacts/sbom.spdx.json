@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "esj1123/codex-dev-harness local release SBOM",
-  "documentNamespace": "https://example.invalid/codex-dev-harness/spdx/591bf9148986d84c2b50faca63d18226679a4eda46f3bbb9f3b2fc2c9077817b",
+  "documentNamespace": "https://example.invalid/codex-dev-harness/spdx/ecb9eae80aca6758993747a90ea05d036a4ac00ebec566fba91457d0e13949e5",
   "creationInfo": {
-    "created": "2026-05-26T07:41:11Z",
+    "created": "2026-05-26T23:51:45Z",
     "creators": [
       "Tool: codex-dev-harness generate_sbom.py"
     ]
@@ -20,7 +20,7 @@
       "licenseConcluded": "UNKNOWN",
       "licenseDeclared": "UNKNOWN",
       "copyrightText": "UNKNOWN",
-      "versionInfo": "7e4208d4a29598cb95f9d94c9f79f11c8c971e83"
+      "versionInfo": "9ae69c5fbf65953db2b0efb82b4904098f8a7581"
     },
     {
       "name": "pytest",
@@ -53,7 +53,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "e01e3c0f0dbc85832351e14aacab2d7dba4825d0aba0d5acc04431fa1e809c6d"
+          "checksumValue": "1b304402f9bfdf7472af7c1c29d6cd73357b9e52e8898387c4a929a8f258941b"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -125,7 +125,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "48f919112df12a197f16a7cfff165759cc6e89ec826fbaa4fe737dbde4198063"
+          "checksumValue": "0f09e53d7cbecc3c745b176c2d9521e04c7176acd5ada6338b685657e531e07d"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -161,7 +161,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "4107b3481d1fc76316ef73d38e102fbff10f88295b92269ba8f8ba4fba419b97"
+          "checksumValue": "8cc86c6d8c4d9eef0e663bb0bc0497e50ecc552540839fb4f4f0141fb118bf35"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -185,7 +185,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "ebb7e5376cfb6daa328266f27c25cb64ff263874b9df62403e0509a737c1ce62"
+          "checksumValue": "e3ebdb23b63a43454ae8fc612cb2ff60370bbb9511302dbcf8fa9b0e198aa072"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -329,7 +329,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "eff711628c5a282fbb805319f806978216a03bcf7e8625d214cdd32461965f61"
+          "checksumValue": "95b2764441b5d07b186da539b7aa3e6aba1cf3e9441475ab1cc1839f1eeb3d9e"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -401,7 +401,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "c947a179313988fd5277416224b1b3678b6ea18292742726df30af06885d00c9"
+          "checksumValue": "4c0e9d5cfce3ebf123c4a5716552b499f02dd5748a78df88403d77d1fda22750"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -689,7 +689,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "9b1cd6e400e1c77387b37d7c6c60328fd7015b747171cbf18985ebbed0a33405"
+          "checksumValue": "041c827ddbc24888c734afb9bcecd754110836488b13080a41101e5181c1d936"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -701,7 +701,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "c4aacf5631f9f74d60e97f5829647a9ef748e80b46848a9088796c13b0fe4233"
+          "checksumValue": "c5bcb934ad1540ddb35e1f4752cc6048aaef88a706ee7297a5cf278d52f598a4"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -3633,10 +3633,10 @@
   "externalDocumentRefs": [],
   "annotations": [
     {
-      "annotationDate": "2026-05-26T07:41:11Z",
+      "annotationDate": "2026-05-26T23:51:45Z",
       "annotationType": "OTHER",
       "annotator": "Tool: codex-dev-harness generate_sbom.py",
-      "comment": "manifest=artifacts/release-manifest.json sha256=591bf9148986d84c2b50faca63d18226679a4eda46f3bbb9f3b2fc2c9077817b; checksum_entries=5"
+      "comment": "manifest=artifacts/release-manifest.json sha256=ecb9eae80aca6758993747a90ea05d036a4ac00ebec566fba91457d0e13949e5; checksum_entries=5"
     }
   ]
 }

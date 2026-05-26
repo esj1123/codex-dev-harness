@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post-v0.1.0 evidence baseline current-state documentation sync.
+Final local post-v0.1.0 evidence baseline closeout.
 
 ## Current State
 
@@ -10,20 +10,20 @@ The repository contains documentation, base templates, profile templates, render
 
 ## Current Verification Snapshot
 
-Snapshot purpose: document the final post-Priority-4 local release evidence
-refresh and current verification status.
+Snapshot purpose: document the Stage 2 final local post-v0.1.0 evidence
+baseline refresh after the Stage 1 documentation drift cleanup.
 
 | item | status | evidence |
 |---|---|---|
 | basis branch/ref | PRESENT | `main` / `origin/main` |
-| current repository commit before final evidence regeneration | PRESENT | `7e4208d4a29598cb95f9d94c9f79f11c8c971e83` |
-| artifact-containing commit observed during Stage 0 read-only review | PRESENT | `ab77ab0a0b44c2f1bd700820bfeb358c6ec1bbe7` |
+| current repository commit before Stage 2 evidence regeneration | PRESENT | `9ae69c5fbf65953db2b0efb82b4904098f8a7581` |
+| previous artifact-containing commit observed during Stage 0 read-only review | HISTORICAL | `ab77ab0a0b44c2f1bd700820bfeb358c6ec1bbe7` |
 | current repository commit before `csharp_desktop` experiment | PRESENT | `76d88b842852635c95adcd8f3534f95e8bdc3ff5` |
 | Priority 2 checksum coverage commit | PRESENT | `eaba8687b68051f490b6287ab7a629c82ae7c80d` |
 | current repository commit before Priority 3 edits | PRESENT | `eaba8687b68051f490b6287ab7a629c82ae7c80d` |
-| release manifest source basis commit | PRESENT | `artifacts/release-manifest.json` records `git_commit` as `7e4208d4a29598cb95f9d94c9f79f11c8c971e83` |
-| artifact-containing commit | PRESENT / OBSERVED | Stage 0 read-only review observed `ab77ab0a0b44c2f1bd700820bfeb358c6ec1bbe7`; later documentation-only commits may advance HEAD while artifact source basis remains unchanged |
-| manifest generated timestamp | PRESENT | `2026-05-26T07:41:11Z` |
+| release manifest source basis commit | PRESENT | `artifacts/release-manifest.json` records `git_commit` as `9ae69c5fbf65953db2b0efb82b4904098f8a7581` |
+| artifact-containing commit | PENDING UNTIL STAGE 2 EVIDENCE COMMIT | Regenerated artifacts and closeout updates are modified in the working tree and not yet committed |
+| manifest generated timestamp | PRESENT | `2026-05-26T23:51:44Z` |
 | manifest files recorded | PRESENT | `211` |
 | checksum coverage | PRESENT | `artifacts/checksums.sha256` records 5 entries: eval report, provenance, manifest, CycloneDX SBOM, and SPDX SBOM; checksum file self-reference excluded |
 | standalone eval case count | PRESENT | `scripts/run_eval.py` discovers 14 named local-only non-LLM eval cases under `evals/cases/` |
@@ -31,17 +31,17 @@ refresh and current verification status.
 | `csharp_desktop` dry-run render | PASS | 16 Markdown documentation outputs planned in an outside-repo temporary target |
 | `csharp_desktop` actual render | PASS | 16 Markdown documentation outputs generated in an outside-repo temporary target; temporary target not committed |
 | `csharp_desktop` prohibited artifact scan | PASS | No `.sln`, `.csproj`, `.cs`, `.xaml`, build assets, binaries, live config, secret assignment patterns, or IP-like values found in the temporary target |
-| optional eval report | PRESENT / EXPLICITLY GENERATED | `artifacts/eval-report.json` records 14 passed cases and is included in `artifacts/checksums.sha256`; routine report generation remains not enabled |
+| optional eval report | PRESENT / EXPLICITLY GENERATED | `artifacts/eval-report.json` was generated in Stage 2 at `2026-05-26T23:51:23Z`, records 14 passed cases, and is included in `artifacts/checksums.sha256`; routine report generation remains not enabled |
 | Python runtime used for verification | PRESENT | bundled Codex Python `3.12.13` |
 | bare `python.exe` | ENVIRONMENT BLOCKED | Windows logon session error in this Codex desktop shell |
-| bundled Python `python -m pytest` | PASS | 72 passed before and after the local target experiment |
-| bundled Python `python scripts/quality_gate.py` | PASS | docs, hygiene, schema, examples, render drift, and secret scan passed before and after the local target experiment |
-| `scripts/run_local_verify.ps1` | PASS | pytest, quality gate, and three example render dry-runs passed after the local target experiment |
-| `scripts/run_eval.py` | PASS | 14 expanded named eval cases passed before and after the local target experiment; standalone runner remains separate from `scripts/quality_gate.py` |
-| `scripts/run_release_verify.ps1` | PASS | Regenerated manifest, bootstrap checksum, SBOM, provenance, and final strict full-bundle checksum artifacts after Priority 4 |
+| bundled Python `python -m pytest` | PASS | 72 passed through `scripts/run_release_verify.ps1`; direct bundled command also passed in Stage 2 verification |
+| bundled Python `python scripts/quality_gate.py` | PASS | docs, hygiene, schema, examples, render drift, and secret scan passed through `scripts/run_release_verify.ps1`; direct bundled command also passed in Stage 2 verification |
+| `scripts/run_local_verify.ps1` | PASS | pytest, quality gate, and three example render dry-runs passed through `scripts/run_release_verify.ps1` |
+| `scripts/run_eval.py` | PASS | 14 expanded named eval cases passed through the explicit report run and release wrapper; standalone runner remains separate from `scripts/quality_gate.py` |
+| `scripts/run_release_verify.ps1` | PASS | Regenerated manifest, bootstrap checksum, SBOM, provenance, and final strict full-bundle checksum artifacts after Stage 1 documentation drift cleanup |
 | `scripts/gates/eval_gate.py` | PASS | Standalone eval gate passed and remains separate from `scripts/quality_gate.py` |
 | CI workflow | NOT INSTALLED | `.github/workflows/` remains absent |
-| release publication, tag movement, archive creation, signing | NOT DONE | Final local evidence regeneration only |
+| release publication, tag movement, archive creation, signing | NOT DONE | Stage 2 performed local evidence regeneration only; this is not release publication |
 
 ## What Exists
 
@@ -471,7 +471,7 @@ Stage 0 current-main gap review basis:
 | item | status | evidence |
 |---|---|---|
 | post-v0.1.0 roadmap | PRESENT | `docs/POST_V0.1.0_ROADMAP.md` |
-| post-v0.1.0 evidence baseline closeout | PRESENT | `docs/POST_V0.1.0_EVIDENCE_BASELINE_CLOSEOUT.md`; documents completed Stage 0-14 evidence surfaces, final verification status, source-basis/artifact-containing commit semantics, deferred surfaces, approval boundaries, and final post-Priority-4 release evidence regeneration |
+| post-v0.1.0 evidence baseline closeout | PRESENT | `docs/POST_V0.1.0_EVIDENCE_BASELINE_CLOSEOUT.md`; documents completed Stage 0-14 evidence surfaces, final verification status, source-basis/artifact-containing commit semantics, deferred surfaces, approval boundaries, and Stage 2 final local evidence regeneration |
 | next priority | DOWNSTREAM FEEDBACK | Roadmap prioritizes downstream adoption feedback before automation |
 | release page decision | DEFERRED | `docs/RELEASE_PAGE_DECISION.md`; GitHub Release page not created |
 | local package checklist | PRESENT | `docs/LOCAL_PACKAGE_CHECKLIST.md`; no package archive generated |

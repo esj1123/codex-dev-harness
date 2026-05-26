@@ -1,9 +1,9 @@
 {
   "schema_version": "1",
-  "generated_at_utc": "2026-05-26T07:41:11Z",
+  "generated_at_utc": "2026-05-26T23:51:44Z",
   "repository": "esj1123/codex-dev-harness",
   "git_ref": "main",
-  "git_commit": "7e4208d4a29598cb95f9d94c9f79f11c8c971e83",
+  "git_commit": "9ae69c5fbf65953db2b0efb82b4904098f8a7581",
   "git_tag": null,
   "python_version": "3.12.13",
   "included_roots": [
@@ -129,8 +129,8 @@
     },
     {
       "path": "ACCEPTANCE_TRACE.md",
-      "size_bytes": 52578,
-      "sha256": "e01e3c0f0dbc85832351e14aacab2d7dba4825d0aba0d5acc04431fa1e809c6d"
+      "size_bytes": 54416,
+      "sha256": "1b304402f9bfdf7472af7c1c29d6cd73357b9e52e8898387c4a929a8f258941b"
     },
     {
       "path": "AGENTS.md",
@@ -159,8 +159,8 @@
     },
     {
       "path": "STATUS.md",
-      "size_bytes": 43394,
-      "sha256": "48f919112df12a197f16a7cfff165759cc6e89ec826fbaa4fe737dbde4198063"
+      "size_bytes": 43746,
+      "sha256": "0f09e53d7cbecc3c745b176c2d9521e04c7176acd5ada6338b685657e531e07d"
     },
     {
       "path": "audits/audit-log.schema.json",
@@ -174,8 +174,8 @@
     },
     {
       "path": "docs/AI_HANDOFF.md",
-      "size_bytes": 3057,
-      "sha256": "4107b3481d1fc76316ef73d38e102fbff10f88295b92269ba8f8ba4fba419b97"
+      "size_bytes": 3981,
+      "sha256": "8cc86c6d8c4d9eef0e663bb0bc0497e50ecc552540839fb4f4f0141fb118bf35"
     },
     {
       "path": "docs/APPROVED_CORPUS_RAG_PLAN.md",
@@ -184,8 +184,8 @@
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "size_bytes": 6582,
-      "sha256": "ebb7e5376cfb6daa328266f27c25cb64ff263874b9df62403e0509a737c1ce62"
+      "size_bytes": 7321,
+      "sha256": "e3ebdb23b63a43454ae8fc612cb2ff60370bbb9511302dbcf8fa9b0e198aa072"
     },
     {
       "path": "docs/AUDIT_LOG_POLICY.md",
@@ -244,8 +244,8 @@
     },
     {
       "path": "docs/EVAL_POLICY.md",
-      "size_bytes": 3923,
-      "sha256": "eff711628c5a282fbb805319f806978216a03bcf7e8625d214cdd32461965f61"
+      "size_bytes": 4015,
+      "sha256": "95b2764441b5d07b186da539b7aa3e6aba1cf3e9441475ab1cc1839f1eeb3d9e"
     },
     {
       "path": "docs/FORMAL_V0.1.0_CRITERIA.md",
@@ -274,8 +274,8 @@
     },
     {
       "path": "docs/KNOWN_LIMITATIONS.md",
-      "size_bytes": 3507,
-      "sha256": "c947a179313988fd5277416224b1b3678b6ea18292742726df30af06885d00c9"
+      "size_bytes": 3890,
+      "sha256": "4c0e9d5cfce3ebf123c4a5716552b499f02dd5748a78df88403d77d1fda22750"
     },
     {
       "path": "docs/LOCAL_DOWNSTREAM_ADOPTION_PLAN.md",
@@ -394,13 +394,13 @@
     },
     {
       "path": "docs/POST_V0.1.0_EVIDENCE_BASELINE_CLOSEOUT.md",
-      "size_bytes": 14867,
-      "sha256": "9b1cd6e400e1c77387b37d7c6c60328fd7015b747171cbf18985ebbed0a33405"
+      "size_bytes": 17156,
+      "sha256": "041c827ddbc24888c734afb9bcecd754110836488b13080a41101e5181c1d936"
     },
     {
       "path": "docs/POST_V0.1.0_ROADMAP.md",
-      "size_bytes": 14602,
-      "sha256": "c4aacf5631f9f74d60e97f5829647a9ef748e80b46848a9088796c13b0fe4233"
+      "size_bytes": 14914,
+      "sha256": "c5bcb934ad1540ddb35e1f4752cc6048aaef88a706ee7297a5cf278d52f598a4"
     },
     {
       "path": "docs/PROFILE_MATRIX.md",
