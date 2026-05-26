@@ -3,7 +3,7 @@
   "specVersion": "1.5",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-05-26T04:30:32Z",
+    "timestamp": "2026-05-26T07:41:11Z",
     "tools": {
       "components": [
         {
@@ -16,7 +16,7 @@
     "component": {
       "type": "application",
       "name": "esj1123/codex-dev-harness",
-      "version": "457c14abeb09149c06bb53c6e88f44a02995b411",
+      "version": "7e4208d4a29598cb95f9d94c9f79f11c8c971e83",
       "properties": [
         {
           "name": "git_ref",
@@ -28,11 +28,11 @@
         },
         {
           "name": "manifest_sha256",
-          "value": "9ccb6f608505276bdd11baa03482cd17069866e7d1cb817f742b808676c5851e"
+          "value": "591bf9148986d84c2b50faca63d18226679a4eda46f3bbb9f3b2fc2c9077817b"
         },
         {
           "name": "checksum_entries",
-          "value": "4"
+          "value": "5"
         }
       ]
     }
@@ -60,13 +60,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "995bba4c0de68a802951885a73ed84eedd08d482c6547f6b65dd290a53751ebc"
+          "content": "e01e3c0f0dbc85832351e14aacab2d7dba4825d0aba0d5acc04431fa1e809c6d"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "50384"
+          "value": "52578"
         }
       ]
     },
@@ -156,13 +156,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "afad170f47f0451492a4636fe8dbc265323b29a67a95cf880541a0f247448346"
+          "content": "48f919112df12a197f16a7cfff165759cc6e89ec826fbaa4fe737dbde4198063"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "41282"
+          "value": "43394"
         }
       ]
     },
@@ -428,13 +428,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "5d83f591fe99a465c80368ce5b4cbb73efacdbc31ab3a9d35e109354362ef031"
+          "content": "eff711628c5a282fbb805319f806978216a03bcf7e8625d214cdd32461965f61"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "3207"
+          "value": "3923"
         }
       ]
     },
@@ -604,13 +604,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "cc66c398df45f581d2bace14b6162fd8d7778c5a25fd471e7ca2fae38c286210"
+          "content": "21cdb4ffb1cf488acd380cd0f57b8995b2f677978992b53c7c234852c644bd84"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "5043"
+          "value": "5666"
         }
       ]
     },
@@ -643,6 +643,22 @@
         {
           "name": "size_bytes",
           "value": "3454"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "64d49c2bb2502a156872a9a7b9692175a1d5d1e107d4e6f22f0e64356efc1920"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "5817"
         }
       ]
     },
@@ -684,13 +700,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "b1df84b37b7cc613ea35a33a01129d8bafc225a958e39344d035dac00affc890"
+          "content": "9d97af77e7c023d3c0b07676a02010a7b5f34a062d1bc4cf1c6728e3e44b4b8a"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "6684"
+          "value": "7806"
         }
       ]
     },
@@ -844,13 +860,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "c315bf6271b611797b8faf275c5f6ff7ba695177ec7550c30e1d6faa46bb9307"
+          "content": "70d76ca1cb4f519e09b18c52aabd0f883a7b429f0230264b8588c7c9cf00cdae"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "3470"
+          "value": "4149"
         }
       ]
     },
@@ -1212,13 +1228,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "e91697e4d0458d828abcf1c838741f1e50de4c7c735195541c72ac627b9d6ecd"
+          "content": "ec0cdb2c5399c34cc3e76a05fb83e2d370785fa131e48f0adbec6b8d248648d9"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "5471"
+          "value": "6408"
         }
       ]
     },
@@ -1272,49 +1288,225 @@
     },
     {
       "type": "file",
-      "name": "evals/cases/forbidden_artifacts.yml",
+      "name": "evals/cases/checksum_shape.yml",
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "4d600e2839d577e8ecccac1b692568c607c44babdf6c95375926b9ef2f464de4"
+          "content": "bf4f5799194ac4d3d21a2705e9f3d4f8a82ad6aaa112e4b0f5617f07a27a92d4"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "987"
+          "value": "511"
         }
       ]
     },
     {
       "type": "file",
-      "name": "evals/cases/policy_phrases.yml",
+      "name": "evals/cases/forbidden_csharp_artifacts.yml",
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "12453b624cfc110a0a406205ae6a90bbf9b1aacd07f970593c0018bc51f5d9b5"
+          "content": "92c55333ac5969d178f92df63cc49e508fc6ce974501a83429a897c3b1408cc7"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "1284"
+          "value": "607"
         }
       ]
     },
     {
       "type": "file",
-      "name": "evals/cases/render_structure.yml",
+      "name": "evals/cases/forbidden_live_config.yml",
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "2aa8f00dad9c6ee6ea01a67e11cf70bf844f6ba67637844e034c4627440a01e9"
+          "content": "c1578a1131f3f74918270d5d6a4ea8ee772159af5ac8c07ba5692d689419b960"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "3658"
+          "value": "661"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "evals/cases/forbidden_secret_patterns.yml",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "6fcaadb2e6b43184469583ed811d88c5bb9756880ca64cacdaee87d6014db5b1"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "508"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "evals/cases/policy_approval_boundary.yml",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e3fa34955169917b3f2cbed080159ad3f0b6e1004c51a12ded9ab3f316ca3cc9"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "853"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "evals/cases/policy_not_run_honesty.yml",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "5288013ef2b2036f73f4f4b0b85d2b3d8855c517566a43641ddbaf3767c71e2e"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "653"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "evals/cases/policy_plc_safety.yml",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b85e1f1b8e92d2911bd072b69250b85dfc09e6d6a6d168bba6e0d0a46941aa9f"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "919"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "evals/cases/prompt_contract_completeness.yml",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "86d28bc6309662a95137b5cd428242247c1322bfe51841c84a574bee6faf6baa"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "1300"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "evals/cases/provenance_shape.yml",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f023d35f4e175397d67e2e8ecede39a6d428cfa31db7f3385d9aa28d702f68f3"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "596"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "evals/cases/release_manifest_shape.yml",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "fd58854c9917fa49f4fca8466258e72a7192056a348c160dda0b83f3df7f10c0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "727"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "evals/cases/render_determinism_paths.yml",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b4134a5f9b66d1fee5925894c104aeda827c4774d9a62b5e36ce4a1b8eda2179"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "961"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "evals/cases/render_structure_base_docs.yml",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "cb59874f243e0addb7140513357347667ac321a5739c94fee324fc05fa1555b3"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "2703"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "evals/cases/render_structure_profile_docs.yml",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "9871287cd4da442c539eae456d114f53146de46d5f24c1ceb22428b29c69dee1"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "1820"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "evals/cases/sbom_shape.yml",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "1629cc0c20855570c8daf27f9f58bf6a8126c4772cd0d885b6da0befd20776e3"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "986"
         }
       ]
     },
@@ -2716,13 +2908,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "706f7d6db72145bc521e0b388ebb161a84a032278bce3d3daad6db61981283ad"
+          "content": "e479a76d12d15b4a145d7b4741f917c9b1d9c78d52447334a5b8b2b4ab651d36"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "11011"
+          "value": "19011"
         }
       ]
     },
@@ -3212,13 +3404,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "16240e6cf33f168f418a231cb5e8ccaa7321a9fca6927215b739ebaae6ed4bea"
+          "content": "a44741e35dafea44e13f65705e6a5ef8d385ff750e72f7f9d7c23a40e8da1a3a"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "4642"
+          "value": "9524"
         }
       ]
     },

@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Post v0.1.0 csharp_desktop local target experiment evidence.
+Final post-v0.1.0 evidence baseline refresh.
 
 ## Current State
 
@@ -10,36 +10,37 @@ The repository contains documentation, base templates, profile templates, render
 
 ## Current Verification Snapshot
 
-Snapshot purpose: document the approved `csharp_desktop` local target
-experiment and current verification status.
+Snapshot purpose: document the final post-Priority-4 local release evidence
+refresh and current verification status.
 
 | item | status | evidence |
 |---|---|---|
 | basis branch/ref | PRESENT | `main` / `origin/main` |
+| current repository commit before final evidence regeneration | PRESENT | `7e4208d4a29598cb95f9d94c9f79f11c8c971e83` |
 | current repository commit before `csharp_desktop` experiment | PRESENT | `76d88b842852635c95adcd8f3534f95e8bdc3ff5` |
 | Priority 2 checksum coverage commit | PRESENT | `eaba8687b68051f490b6287ab7a629c82ae7c80d` (`보강 2순위 완료`) |
 | current repository commit before Priority 3 edits | PRESENT | `eaba8687b68051f490b6287ab7a629c82ae7c80d` |
-| current repository commit before artifact regeneration | PRESENT | `457c14abeb09149c06bb53c6e88f44a02995b411` |
-| release manifest source basis commit | PRESENT | `artifacts/release-manifest.json` records `git_commit` as `457c14abeb09149c06bb53c6e88f44a02995b411` |
-| artifact-containing commit | PENDING UNTIL COMMIT | Generated artifacts and checksum coverage updates are not yet committed |
-| manifest generated timestamp | PRESENT | Recorded in `artifacts/release-manifest.json`; not duplicated here to avoid source-basis churn |
-| manifest files recorded | PRESENT | `199` |
-| checksum coverage | PRESENT | `artifacts/checksums.sha256` records 4 entries: manifest, SPDX SBOM, CycloneDX SBOM, and provenance; checksum file self-reference excluded |
+| release manifest source basis commit | PRESENT | `artifacts/release-manifest.json` records `git_commit` as `7e4208d4a29598cb95f9d94c9f79f11c8c971e83` |
+| artifact-containing commit | PENDING UNTIL FINAL EVIDENCE COMMIT | Final regenerated artifacts and closeout alignment updates are not yet committed |
+| manifest generated timestamp | PRESENT | `2026-05-26T07:41:11Z` |
+| manifest files recorded | PRESENT | `211` |
+| checksum coverage | PRESENT | `artifacts/checksums.sha256` records 5 entries: eval report, provenance, manifest, CycloneDX SBOM, and SPDX SBOM; checksum file self-reference excluded |
 | standalone eval case count | PRESENT | `scripts/run_eval.py` discovers 14 named local-only non-LLM eval cases under `evals/cases/` |
 | `csharp_desktop` local target experiment | PASS | `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md` |
 | `csharp_desktop` dry-run render | PASS | 16 Markdown documentation outputs planned in an outside-repo temporary target |
 | `csharp_desktop` actual render | PASS | 16 Markdown documentation outputs generated in an outside-repo temporary target; temporary target not committed |
 | `csharp_desktop` prohibited artifact scan | PASS | No `.sln`, `.csproj`, `.cs`, `.xaml`, build assets, binaries, live config, secret assignment patterns, or IP-like values found in the temporary target |
-| optional eval report | PRESENT WHEN GENERATED | `artifacts/eval-report.json` is generated only by explicit `scripts/run_eval.py --report artifacts/eval-report.json`; routine report generation remains not enabled |
+| optional eval report | PRESENT / EXPLICITLY GENERATED | `artifacts/eval-report.json` records 14 passed cases and is included in `artifacts/checksums.sha256`; routine report generation remains not enabled |
 | Python runtime used for verification | PRESENT | bundled Codex Python `3.12.13` |
 | bare `python.exe` | ENVIRONMENT BLOCKED | Windows logon session error in this Codex desktop shell |
 | bundled Python `python -m pytest` | PASS | 72 passed before and after the local target experiment |
 | bundled Python `python scripts/quality_gate.py` | PASS | docs, hygiene, schema, examples, render drift, and secret scan passed before and after the local target experiment |
 | `scripts/run_local_verify.ps1` | PASS | pytest, quality gate, and three example render dry-runs passed after the local target experiment |
 | `scripts/run_eval.py` | PASS | 14 expanded named eval cases passed before and after the local target experiment; standalone runner remains separate from `scripts/quality_gate.py` |
-| `scripts/run_release_verify.ps1` | PASS | Regenerated manifest, bootstrap checksum, SBOM, provenance, and final strict full-bundle checksum artifacts |
+| `scripts/run_release_verify.ps1` | PASS | Regenerated manifest, bootstrap checksum, SBOM, provenance, and final strict full-bundle checksum artifacts after Priority 4 |
+| `scripts/gates/eval_gate.py` | PASS | Standalone eval gate passed and remains separate from `scripts/quality_gate.py` |
 | CI workflow | NOT INSTALLED | `.github/workflows/` remains absent |
-| release publication, tag movement, archive creation, signing | NOT DONE | Local evidence regeneration only |
+| release publication, tag movement, archive creation, signing | NOT DONE | Final local evidence regeneration only |
 
 ## What Exists
 
@@ -275,7 +276,7 @@ Stage 0 current-main gap review basis:
 | Stage 0 current-main gap review basis | RECORDED | `origin/main` at `7add760e89b84106679461948e9db58223900e33`, checked `2026-05-24T15:45:55.4078343+09:00` |
 | release manifest/checksum generator | PRESENT | `scripts/generate_manifest.py` and `scripts/generate_checksums.py`; local-only, standard-library-only, restricted to repo-relative `artifacts/` paths, and checksum coverage includes the full present release evidence bundle except the checksum file itself |
 | release manifest runtime reproducibility inventory | PRESENT | manifest file inventory includes `.python-version`, `requirements-dev.txt`, and `requirements-dev.lock` when present |
-| release manifest/checksum artifacts | PRESENT | `artifacts/release-manifest.json` and `artifacts/checksums.sha256`; checksum entries cover manifest, SPDX SBOM, CycloneDX SBOM, and provenance; no release archive, tag, release, or workflow generated |
+| release manifest/checksum artifacts | PRESENT | `artifacts/release-manifest.json` and `artifacts/checksums.sha256`; checksum entries cover eval report when present, manifest, SPDX SBOM, CycloneDX SBOM, and provenance; no release archive, tag, release, or workflow generated |
 | release evidence foundation | PARTIAL | Release records, clean clone validation, local package checklist, and release drafts exist |
 | optional CI local verify template | DONE | `templates/ci/github-actions-local-verify.yml.template` exists and no workflow is installed |
 | optional CI release verify template | PRESENT / OPTIONAL | `templates/ci/github-actions-release-verify.yml.template` exists and no workflow is installed |
@@ -469,7 +470,7 @@ Stage 0 current-main gap review basis:
 | item | status | evidence |
 |---|---|---|
 | post-v0.1.0 roadmap | PRESENT | `docs/POST_V0.1.0_ROADMAP.md` |
-| post-v0.1.0 evidence baseline closeout | PRESENT | `docs/POST_V0.1.0_EVIDENCE_BASELINE_CLOSEOUT.md`; documents completed Stage 0-14 evidence surfaces, verification status, deferred surfaces, and approval boundaries without regenerating artifacts |
+| post-v0.1.0 evidence baseline closeout | PRESENT | `docs/POST_V0.1.0_EVIDENCE_BASELINE_CLOSEOUT.md`; documents completed Stage 0-14 evidence surfaces, final verification status, deferred surfaces, approval boundaries, and final post-Priority-4 release evidence regeneration |
 | next priority | DOWNSTREAM FEEDBACK | Roadmap prioritizes downstream adoption feedback before automation |
 | release page decision | DEFERRED | `docs/RELEASE_PAGE_DECISION.md`; GitHub Release page not created |
 | local package checklist | PRESENT | `docs/LOCAL_PACKAGE_CHECKLIST.md`; no package archive generated |
