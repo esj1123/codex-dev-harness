@@ -10,13 +10,24 @@ Reusable local-first template for governed AI/Codex development workflows.
 
 ## Current Phase
 
-Post-v0.1.0 evidence baseline current-state documentation sync.
+Stage 5A downstream transition cleanup.
 
 The historical P0 docs-only baseline is complete. The repository now includes
 documentation, base templates, profile templates, render tooling, quality gates,
 tests, minimal example skeletons, standalone local eval tooling, local release
 evidence generators, generated local release evidence artifacts, and
 documentation-only governance policies.
+
+Stages 1-4 are complete:
+
+- Stage 1 documentation drift cleanup.
+- Stage 2 local post-v0.1.0 evidence baseline.
+- Stage 3 eval integration decision: keep standalone.
+- Stage 4 optional CI decision: keep deferred and template-only.
+
+The current direction is to keep this harness stable and transition next to
+Scenario-Simulator P1 planning unless a small harness refinement is separately
+justified.
 
 ## Source of Truth
 
@@ -71,6 +82,11 @@ Current baseline surface includes:
 - Optional design-stage pack remains manual-use-only and is not integrated into render, gate, or examples.
 - Examples are skeletons only and intentionally contain no real application code.
 - GitHub Actions workflow is not installed; CI remains optional.
+- `plc_or_device_tool` actual target execution remains deferred and is not the
+  next default stage.
+- Scenario-Simulator remains a downstream application candidate; do not add
+  `profiles/scenario_simulator` or `examples/scenario_simulator_minimal` by
+  default.
 
 ## Verification Status
 
@@ -95,17 +111,19 @@ root-level local staging workspace, not the repository source of truth.
 
 ## Next Recommended Step
 
-Keep current evidence surfaces local-only unless a separate owner approval
-explicitly opens an integration, publication, signing, archive, workflow,
-target render/write, or runtime implementation surface.
+Use `docs/NEXT_DIRECTION_DECISION.md` as the current handoff. The recommended
+next work is Scenario-Simulator P1 planning in the Scenario-Simulator
+repository, not `plc_or_device_tool` target execution.
 
 Practical next candidates:
 
-- keep `AI_HANDOFF`, `STATUS`, and `ACCEPTANCE_TRACE` aligned after evidence
-  baseline changes
+- create a Scenario-Simulator P1 WPF/MVVM shell implementation plan and
+  acceptance contract without production code
+- keep `AI_HANDOFF`, `STATUS`, and `ACCEPTANCE_TRACE` aligned after any future
+  evidence baseline changes
 - preserve generated artifact source-basis versus artifact-containing commit
   semantics when documentation-only commits advance HEAD
 - defer quality-gate eval integration, routine eval reports, audit log
   automation, release archives, signing, publication, workflows, new profiles,
-  new examples, RAG/model tooling, and live-write behavior until separately
-  approved
+  new examples, RAG/model tooling, optional CI installation, and live-write
+  behavior until separately approved

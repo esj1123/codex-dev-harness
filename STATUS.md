@@ -2,11 +2,23 @@
 
 ## Current Phase
 
-Stage 4 optional CI decision refresh.
+Stage 5A downstream transition cleanup.
 
 ## Current State
 
 The repository contains documentation, base templates, profile templates, render tooling, quality gates, tests, and minimal example skeletons.
+
+Stages 1-4 are complete:
+
+- Stage 1 documentation drift cleanup.
+- Stage 2 local post-v0.1.0 evidence baseline.
+- Stage 3 eval integration decision: keep standalone.
+- Stage 4 optional CI decision: keep deferred and template-only.
+
+The next strategic direction is either small harness refinement or transition
+to Scenario-Simulator downstream implementation planning. The
+`plc_or_device_tool` actual target experiment remains deferred and is not the
+next default stage.
 
 ## Current Verification Snapshot
 
@@ -42,6 +54,9 @@ baseline refresh after the Stage 1 documentation drift cleanup.
 | `scripts/run_release_verify.ps1` | PASS | Regenerated manifest, bootstrap checksum, SBOM, provenance, and final strict full-bundle checksum artifacts after Stage 1 documentation drift cleanup |
 | `scripts/gates/eval_gate.py` | PASS | Standalone eval gate passed and remains separate from `scripts/quality_gate.py` |
 | CI decision | KEEP DEFERRED / TEMPLATE-ONLY | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`; future manual read-only workflow installation requires separate owner approval |
+| Stage 5A direction decision | TRANSITION RECOMMENDED | `docs/NEXT_DIRECTION_DECISION.md`; minimal harness closeout cleanup, then Scenario-Simulator P1 planning |
+| Scenario-Simulator treatment | DOWNSTREAM CANDIDATE | No `profiles/scenario_simulator` or `examples/scenario_simulator_minimal`; use Scenario-Simulator repo-local planning docs |
+| `plc_or_device_tool` actual experiment | DEFERRED / NOT NEXT DEFAULT | Separate owner approval required; not the current strategic priority |
 | CI workflow | NOT INSTALLED | `.github/workflows/` remains absent |
 | release publication, tag movement, archive creation, signing | NOT DONE | Stage 2 performed local evidence regeneration only; this is not release publication |
 
@@ -114,6 +129,7 @@ baseline refresh after the Stage 1 documentation drift cleanup.
   - `docs/RC2_CANDIDATE_CLOSEOUT.md`
   - `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`
   - `docs/OPTIONAL_GITHUB_ACTIONS.md`
+  - `docs/NEXT_DIRECTION_DECISION.md`
 - Base markdown templates, including source index, project boundary, data scope, phase plan, and approvals templates.
 - Experimental optional design-stage Markdown template pack under `templates/optional/design_stage/`.
 - Profile templates for `python_cli`, `csharp_desktop`, and `plc_or_device_tool`.
@@ -401,14 +417,14 @@ Stage 0 current-main gap review basis:
 | item | status | evidence |
 |---|---|---|
 | `csharp_desktop` plan | PRESENT / EXECUTED | `docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md`; execution record: `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md` |
-| `plc_or_device_tool` plan | PRESENT / NOT RUN | `docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md` |
+| `plc_or_device_tool` plan | PRESENT / DEFERRED | `docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md`; not the next default stage |
 | separate temporary target requirement | PRESENT | Both plans require an approved disposable target before any render write |
 | dry-run first requirement | PRESENT | Both plans require dry-run review before actual render approval |
 | expected output | DOCS ONLY | Both plans list Markdown documentation outputs and forbid application/runtime artifacts |
 | approval before actual render | REQUIRED / SATISFIED FOR `csharp_desktop` ONLY | The current task explicitly approved one controlled `csharp_desktop` render into a separate temporary target after dry-run review |
 | `csharp_desktop` dry-run render | PASS | 16 Markdown documentation outputs planned; no C# project/source/build/live artifacts planned |
 | `csharp_desktop` actual render | PASS | 16 Markdown docs generated into an outside-repo temporary target; target not committed |
-| `plc_or_device_tool` actual render | NOT RUN | Remains deferred pending separate owner approval |
+| `plc_or_device_tool` actual render | NOT RUN / NOT NEXT DEFAULT | Remains deferred pending separate owner approval and is not the current strategic priority |
 | downstream target folder | TEMPORARY / NOT COMMITTED | `csharp_desktop` used an outside-repo temporary target; no downstream target folder was committed |
 | C#/PLC/device/live-write scope | ABSENT | No source, project, XAML, build asset, polling, connection, tag map, control action, live config, or live-write behavior added |
 
@@ -506,6 +522,7 @@ Stage 0 current-main gap review basis:
 | model and prompt change planning | ADDED | `docs/MODEL_CHANGE_POLICY.md` defines model, prompt template, eval run, corpus digest, side-effect class, and compare-before-adopt controls; no model comparison or capture tooling added |
 | optional release verification CI template | TEMPLATE ONLY / DEFERRED | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`, `docs/OPTIONAL_GITHUB_ACTIONS.md`, and `templates/ci/*.template` exist; no `.github/workflows`, required checks, artifact upload, publishing, signing, tag movement, deployment, application code, or live-write behavior |
 | additional local target experiment plans | PARTIAL EXECUTED | `docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md` was executed once with explicit approval and recorded in `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md`; `docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md` remains planning-only |
+| Stage 5A next direction decision | PRESENT | `docs/NEXT_DIRECTION_DECISION.md`; recommends freezing the harness as the current governed baseline after minimal cleanup and moving to Scenario-Simulator P1 planning |
 | Stage 1 change control policy | PRESENT | `docs/CHANGE_CONTROL.md`; documentation-only |
 | Stage 1 human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md`; documentation-only |
 | Stage 1 eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval exists; no dependencies, quality-gate integration, or CI integration |
@@ -561,11 +578,18 @@ Stage 0 current-main gap review basis:
 
 ## Next Recommended Step
 
-Keep approved-corpus RAG implementation, retrieval/index generation, embeddings,
-model comparison tooling, prompt/model output capture, eval integration into
-`scripts/quality_gate.py`, CI integration, routine eval report generation, real
-audit session log generation, audit logging automation, broader release bundle
-or archive generation, SBOM/provenance expansion or publication, active
-workflows, required CI checks, CI artifact upload, release publication,
-signing, tag movement, deployment, profiles, and application/device/live-write
-behavior deferred unless separately approved.
+Use `docs/NEXT_DIRECTION_DECISION.md` as the current handoff: keep
+`codex-dev-harness` stable as the local-first governed template baseline, make
+only small harness refinements when justified, and transition next to
+Scenario-Simulator P1 planning.
+
+Do not treat `plc_or_device_tool` actual target execution as the next default
+stage. Keep approved-corpus RAG implementation, retrieval/index generation,
+embeddings, model comparison tooling, prompt/model output capture, eval
+integration into `scripts/quality_gate.py`, CI integration, routine eval report
+generation, real audit session log generation, audit logging automation,
+broader release bundle or archive generation, SBOM/provenance expansion or
+publication, active workflows, required CI checks, CI artifact upload, release
+publication, signing, tag movement, deployment, new profiles, new examples,
+and application/device/live-write behavior deferred unless separately
+approved.

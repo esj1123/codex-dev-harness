@@ -31,6 +31,24 @@ Stage 0 read-only review observed artifact-containing commit
 `ab77ab0a0b44c2f1bd700820bfeb358c6ec1bbe7`, but the current regenerated
 artifact source basis is `9ae69c5fbf65953db2b0efb82b4904098f8a7581`.
 
+## Stage 5A Transition Position
+
+Stages 1-4 after the evidence baseline are complete:
+
+- Stage 1 documentation drift cleanup.
+- Stage 2 local post-v0.1.0 evidence baseline.
+- Stage 3 eval integration decision: keep standalone.
+- Stage 4 optional CI decision: keep deferred and template-only.
+
+The current direction is to keep `codex-dev-harness` stable as the local-first
+governed template baseline, perform only small harness refinements when
+justified, and transition next to Scenario-Simulator P1 planning in the
+downstream repository.
+
+The `plc_or_device_tool` actual target experiment remains deferred and is not
+the next default stage. Scenario-Simulator remains a downstream application
+candidate, not a built-in harness profile or example.
+
 ## Completed Stage Summary
 
 | Stage | Area | Outcome | Main evidence files | Implementation status | Deferred surfaces |
@@ -220,16 +238,20 @@ eval reports, and this closeout do not grant approval by themselves.
 - The `csharp_desktop` target experiment proves docs-only render behavior for
   one approved temporary target; it does not create or validate a real C#
   desktop application.
-- The `plc_or_device_tool` actual target experiment remains deferred.
+- The `plc_or_device_tool` actual target experiment remains deferred and is
+  not the next default stage.
 - This closeout document is not currently required by `docs_gate`.
 
 ## Recommended Next Steps
 
 1. Keep the generated artifact source basis and artifact-containing commit
    semantics explicit in future closeouts.
-2. Stop here as the final local evidence baseline unless a new approval expands
-   scope.
-3. Optionally create a separate signed-release-evidence decision task.
-4. Keep GitHub Release publication, active CI workflow installation, tag
-   movement/signing, real audit logs, RAG/model tooling, and
-   `plc_or_device_tool` actual render deferred unless separately approved.
+2. Treat `docs/NEXT_DIRECTION_DECISION.md` as the current transition handoff.
+3. Move next to Scenario-Simulator P1 planning unless a specific small harness
+   refinement is separately justified.
+4. Do not add `profiles/scenario_simulator` or
+   `examples/scenario_simulator_minimal`.
+5. Keep GitHub Release publication, active CI workflow installation, tag
+   movement/signing, real audit logs, RAG/model tooling, release signing or
+   archives, eval integration, audit automation, and `plc_or_device_tool`
+   actual render deferred unless separately approved.

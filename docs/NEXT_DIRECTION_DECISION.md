@@ -104,6 +104,18 @@ The minimal harness closeout cleanup for this stage is this decision document.
 No further codex-dev-harness optimization is required before using the harness
 as downstream governance evidence.
 
+Stage 5A transition cleanup confirms that Stages 1-4 are complete:
+
+- Stage 1 documentation drift cleanup.
+- Stage 2 local post-v0.1.0 evidence baseline.
+- Stage 3 eval integration decision: keep standalone.
+- Stage 4 optional CI decision: keep deferred and template-only.
+
+The next strategic decision is now limited to small harness refinement when
+justified or transition to Scenario-Simulator downstream implementation
+planning. `plc_or_device_tool` actual target execution remains deferred and is
+not the next default stage.
+
 ## Rationale
 
 The harness has reached the intended local-first governed template baseline.

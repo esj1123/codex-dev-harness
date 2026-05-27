@@ -17,9 +17,22 @@ The formal v0.1.0 baseline is a local-first governed template for downstream pro
 
 ## Next Priority
 
-Next priority: downstream feedback or small governance refinements.
+Next priority: small harness refinement only when justified, otherwise
+transition to Scenario-Simulator downstream P1 planning.
 
 The most useful post-v0.1.0 signal is how the base template behaves when applied to real downstream planning targets. Feedback should focus on documentation clarity, safety boundaries, approval gates, source indexing, and render ergonomics before adding new automation.
+
+Stages 1-4 after the evidence baseline are complete:
+
+- Stage 1 documentation drift cleanup.
+- Stage 2 local post-v0.1.0 evidence baseline.
+- Stage 3 eval integration decision: keep standalone.
+- Stage 4 optional CI decision: keep deferred and template-only.
+
+The Stage 5A direction decision is to keep `codex-dev-harness` stable as the
+current local-first governed template baseline and move the next strategic work
+to Scenario-Simulator P1 planning. The `plc_or_device_tool` actual target
+experiment remains deferred and is not the next default stage.
 
 The optional design-stage pack is now a closed manual-use-only baseline. Its templates can be copied, merged, skipped, or used for review-only downstream work, but they are not part of the base render path.
 
@@ -139,6 +152,8 @@ CI, release, target render, application, device, or live-write behavior.
 13. Additional local target experiment planning for existing profiles.
 14. Post-v0.1.0 evidence baseline closeout.
 15. Eval integration decision.
+16. Optional CI decision refresh.
+17. Stage 5A downstream transition decision.
 
 Each item is optional and should remain approval-gated. Planning a future capability does not authorize implementing it.
 
@@ -287,7 +302,9 @@ private input, or live-write behavior.
 
 The `plc_or_device_tool` actual experiment remains deferred. Its plan defines
 the evidence record to create after a future approved execution and how to
-record `NOT RUN`, `BLOCKED`, and `ENVIRONMENT BLOCKED` honestly.
+record `NOT RUN`, `BLOCKED`, and `ENVIRONMENT BLOCKED` honestly. It is not the
+next default stage and should not displace Scenario-Simulator P1 planning
+without a separate owner decision.
 
 ## Evidence Baseline Closeout
 
@@ -314,6 +331,11 @@ A new profile should require repeated downstream reuse evidence, a stable tool/r
 Scenario simulator remains a downstream application candidate, not a built-in profile.
 
 The base template surfaces, especially `SOURCE_INDEX`, `PROJECT_BOUNDARY`, `DATA_SCOPE`, `PHASE_PLAN`, and `APPROVALS`, are the intended mechanism for adapting to complex downstream projects without creating a dedicated profile for each domain.
+
+Do not add `profiles/scenario_simulator` or
+`examples/scenario_simulator_minimal` by default. The next Scenario-Simulator
+work should happen in the Scenario-Simulator repository as downstream planning
+or implementation work under that repository's own rules.
 
 ## Non-Goals
 
@@ -344,14 +366,14 @@ The base template surfaces, especially `SOURCE_INDEX`, `PROJECT_BOUNDARY`, `DATA
 
 ## Next Review
 
-Review downstream adoption feedback, the lightweight governance docs, and the
-standalone eval harness before deciding whether quality-gate integration,
-release page publication, local packaging, release bundle generation, audit log
-generation, SBOM/provenance expansion or publication, CI, or any optional
-design-stage integration adds enough value to justify a follow-up task. Keep
-approved-corpus RAG implementation and model comparison tooling deferred until
-a separate owner approval names exact files, artifacts, dependencies,
-verification, and safety boundaries. Keep optional CI workflow installation and
-CI artifact upload deferred until a separate owner approval names the workflow
-path, trigger policy, permissions, artifact retention, and
+Use `docs/NEXT_DIRECTION_DECISION.md` for the current transition handoff.
+Review downstream Scenario-Simulator P1 planning before deciding whether any
+additional harness work is justified. Keep quality-gate eval integration,
+release page publication, local packaging, release bundle expansion, audit log
+generation, SBOM/provenance expansion or publication, CI, optional design-stage
+integration, approved-corpus RAG implementation, and model comparison tooling
+deferred until a separate owner approval names exact files, artifacts,
+dependencies, verification, and safety boundaries. Keep optional CI workflow
+installation and CI artifact upload deferred until a separate owner approval
+names the workflow path, trigger policy, permissions, artifact retention, and
 publication/signing/tag exclusions.
