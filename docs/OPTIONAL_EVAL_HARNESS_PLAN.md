@@ -21,6 +21,11 @@ machine-readable cases, a golden path list, a standalone runner, a standalone
 gate wrapper, and tests. It does not integrate with `scripts/quality_gate.py` or
 CI by default.
 
+The Stage 3 integration decision is documented in
+`docs/EVAL_INTEGRATION_DECISION.md`. The decision keeps the standalone baseline
+and does not approve routine eval report generation, `scripts/quality_gate.py`
+integration, release-blocking evals, or CI integration.
+
 ## Named Evals
 
 The minimal standalone runner now uses expanded named local cases instead of a
@@ -92,3 +97,5 @@ Keep `eval_gate.py` standalone until repeated local use proves it should become
 part of `scripts/quality_gate.py`. Treat quality-gate integration, CI
 integration, extra dependencies, report generation in routine checks, and
 release-blocking evals as separate approval decisions.
+
+Stage 3 confirms that recommendation as the current baseline decision.

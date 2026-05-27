@@ -31,6 +31,24 @@ C# artifacts, forbidden live config, forbidden secret patterns, prompt contract
 completeness, release manifest shape, checksum shape, SBOM shape, and
 provenance shape.
 
+## Integration Decision
+
+The current integration decision is recorded in
+`docs/EVAL_INTEGRATION_DECISION.md`.
+
+Decision: keep the eval harness standalone.
+
+The current approved state is:
+
+- `scripts/run_eval.py` remains the primary local eval command.
+- `scripts/gates/eval_gate.py` remains standalone.
+- `scripts/run_release_verify.ps1` may continue running console-only evals as
+  part of explicit local release verification.
+- routine eval report generation is not approved.
+- `scripts/quality_gate.py` integration is not approved.
+- CI integration is not approved.
+- release-blocking eval semantics are not approved.
+
 ## Eval Principles
 
 Eval work should be:
@@ -79,6 +97,7 @@ Separate explicit owner approval is required before:
 - wiring evals into `quality_gate.py`
 - adding evals to CI
 - making evals release-blocking
+- changing the Stage 3 standalone integration decision
 
 ## Eval Output
 

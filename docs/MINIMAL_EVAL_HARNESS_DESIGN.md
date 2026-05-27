@@ -34,6 +34,12 @@ The default runner discovers `evals/cases/*.yml` in deterministic filename
 order. Each case must have a stable `name` so console output and optional JSON
 reports can be compared across runs.
 
+The Stage 3 integration decision is recorded in
+`docs/EVAL_INTEGRATION_DECISION.md`. The decision keeps the eval harness
+standalone, keeps `scripts/gates/eval_gate.py` separate from
+`scripts/quality_gate.py`, and does not approve routine report generation, CI
+integration, or release-blocking eval behavior.
+
 ## Design Principles
 
 - Local-only by default.
@@ -224,6 +230,8 @@ Without that approval, the eval harness remains standalone and local-only.
 ## Future Boundary
 
 The recommended next boundary is a promotion decision, not automatic expansion.
+
+The current promotion decision is KEEP STANDALONE BASELINE.
 
 Before approving any expansion, decide:
 

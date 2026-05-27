@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Final local post-v0.1.0 evidence baseline closeout.
+Stage 4 optional CI decision refresh.
 
 ## Current State
 
@@ -27,6 +27,7 @@ baseline refresh after the Stage 1 documentation drift cleanup.
 | manifest files recorded | PRESENT | `211` |
 | checksum coverage | PRESENT | `artifacts/checksums.sha256` records 5 entries: eval report, provenance, manifest, CycloneDX SBOM, and SPDX SBOM; checksum file self-reference excluded |
 | standalone eval case count | PRESENT | `scripts/run_eval.py` discovers 14 named local-only non-LLM eval cases under `evals/cases/` |
+| eval integration decision | KEEP STANDALONE | `docs/EVAL_INTEGRATION_DECISION.md`; release wrapper console-only eval use may continue, but routine eval reports, `quality_gate.py` integration, release-blocking behavior, and CI integration are not approved |
 | `csharp_desktop` local target experiment | PASS | `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md` |
 | `csharp_desktop` dry-run render | PASS | 16 Markdown documentation outputs planned in an outside-repo temporary target |
 | `csharp_desktop` actual render | PASS | 16 Markdown documentation outputs generated in an outside-repo temporary target; temporary target not committed |
@@ -40,6 +41,7 @@ baseline refresh after the Stage 1 documentation drift cleanup.
 | `scripts/run_eval.py` | PASS | 14 expanded named eval cases passed through the explicit report run and release wrapper; standalone runner remains separate from `scripts/quality_gate.py` |
 | `scripts/run_release_verify.ps1` | PASS | Regenerated manifest, bootstrap checksum, SBOM, provenance, and final strict full-bundle checksum artifacts after Stage 1 documentation drift cleanup |
 | `scripts/gates/eval_gate.py` | PASS | Standalone eval gate passed and remains separate from `scripts/quality_gate.py` |
+| CI decision | KEEP DEFERRED / TEMPLATE-ONLY | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`; future manual read-only workflow installation requires separate owner approval |
 | CI workflow | NOT INSTALLED | `.github/workflows/` remains absent |
 | release publication, tag movement, archive creation, signing | NOT DONE | Stage 2 performed local evidence regeneration only; this is not release publication |
 
@@ -86,6 +88,7 @@ baseline refresh after the Stage 1 documentation drift cleanup.
   - `docs/MODEL_CHANGE_POLICY.md`
   - `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`
   - `docs/MINIMAL_EVAL_HARNESS_DESIGN.md`
+  - `docs/EVAL_INTEGRATION_DECISION.md`
   - `docs/CHANGE_CONTROL.md`
   - `docs/HUMAN_APPROVALS.md`
   - `docs/EVAL_POLICY.md`
@@ -280,8 +283,9 @@ Stage 0 current-main gap review basis:
 | release manifest/checksum artifacts | PRESENT | `artifacts/release-manifest.json` and `artifacts/checksums.sha256`; checksum entries cover eval report when present, manifest, SPDX SBOM, CycloneDX SBOM, and provenance; no release archive, tag, release, or workflow generated |
 | release evidence foundation | PARTIAL | Release records, clean clone validation, local package checklist, and release drafts exist |
 | optional CI local verify template | DONE | `templates/ci/github-actions-local-verify.yml.template` exists and no workflow is installed |
+| optional CI local verify template | PRESENT / OPTIONAL | `templates/ci/github-actions-local-verify.yml.template` exists and no workflow is installed |
 | optional CI release verify template | PRESENT / OPTIONAL | `templates/ci/github-actions-release-verify.yml.template` exists and no workflow is installed |
-| optional CI actualization decision | PRESENT | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md` records template-only decision, no artifact upload, and owner-approval boundary |
+| optional CI actualization decision | KEEP DEFERRED / TEMPLATE-ONLY | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md` records local-first sufficiency, template-only decision, no artifact upload, and owner-approval boundary before workflow installation |
 | release bundle policy | PRESENT | `docs/RELEASE_BUNDLE_POLICY.md`; records the local manifest/checksum generator boundary and future release evidence exclusions |
 | release manifest policy | PRESENT | `docs/RELEASE_MANIFEST_POLICY.md`; defines current manifest fields, deterministic ordering, exclusions, and checksum rules |
 | SBOM/provenance plan | IMPLEMENTED MINIMAL LOCAL | `docs/SBOM_PROVENANCE_PLAN.md`; minimal local generators and artifacts exist; no dependencies, external services, CI, tags, signatures, or release publication |
@@ -476,6 +480,7 @@ Stage 0 current-main gap review basis:
 | release page decision | DEFERRED | `docs/RELEASE_PAGE_DECISION.md`; GitHub Release page not created |
 | local package checklist | PRESENT | `docs/LOCAL_PACKAGE_CHECKLIST.md`; no package archive generated |
 | optional eval harness | EXPANDED STANDALONE IMPLEMENTED | `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`; `scripts/run_eval.py`, `scripts/gates/eval_gate.py`, 14 named `evals/cases/`, and `evals/golden/` exist |
+| eval integration decision | KEEP STANDALONE | `docs/EVAL_INTEGRATION_DECISION.md`; no default quality-gate integration, CI integration, routine eval report generation, or release-blocking eval semantics approved |
 | known limitations | REFRESHED | `docs/KNOWN_LIMITATIONS.md` no longer lists completed CI policy or release tagging guidance as future work |
 | architecture release/record plane | REFRESHED | `docs/ARCHITECTURE.md` lists current v0.1.0 and post-v0.1.0 evidence |
 | architecture optional pack plane | REFRESHED | Optional design-stage pack is documented as manual-use-only, not profile, and not base render |
@@ -499,7 +504,7 @@ Stage 0 current-main gap review basis:
 | release verification wrapper | IMPLEMENTED LOCAL | `scripts/run_release_verify.ps1` runs local verification, optional standalone eval, manifest generation, bootstrap checksum generation, optional SBOM/provenance generation, strict final full-bundle checksum regeneration, and artifact path reporting; no archive, CI, signing, publication, tag movement, application, or live-write behavior |
 | approved-corpus RAG planning | ADDED | `docs/APPROVED_CORPUS_RAG_PLAN.md` defines candidate safe corpus files, required metadata, forbidden corpus, and corpus-expansion approval checkpoints; no retrieval/index tooling added |
 | model and prompt change planning | ADDED | `docs/MODEL_CHANGE_POLICY.md` defines model, prompt template, eval run, corpus digest, side-effect class, and compare-before-adopt controls; no model comparison or capture tooling added |
-| optional release verification CI template | TEMPLATE ONLY | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md` and `templates/ci/github-actions-release-verify.yml.template` exist; no `.github/workflows`, required checks, artifact upload, publishing, signing, tag movement, deployment, application code, or live-write behavior |
+| optional release verification CI template | TEMPLATE ONLY / DEFERRED | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`, `docs/OPTIONAL_GITHUB_ACTIONS.md`, and `templates/ci/*.template` exist; no `.github/workflows`, required checks, artifact upload, publishing, signing, tag movement, deployment, application code, or live-write behavior |
 | additional local target experiment plans | PARTIAL EXECUTED | `docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md` was executed once with explicit approval and recorded in `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md`; `docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md` remains planning-only |
 | Stage 1 change control policy | PRESENT | `docs/CHANGE_CONTROL.md`; documentation-only |
 | Stage 1 human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md`; documentation-only |

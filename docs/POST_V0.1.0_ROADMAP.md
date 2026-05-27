@@ -32,6 +32,7 @@ The first lightweight governance docs are present:
 The minimal local-only eval harness is present:
 
 - `docs/MINIMAL_EVAL_HARNESS_DESIGN.md`
+- `docs/EVAL_INTEGRATION_DECISION.md`
 - `scripts/run_eval.py`
 - `scripts/gates/eval_gate.py`
 - `evals/cases/`
@@ -40,6 +41,11 @@ The minimal local-only eval harness is present:
 This is a standalone local implementation. It does not use an LLM judge, call
 external services, install CI, generate reports by default, or join
 `scripts/quality_gate.py`.
+
+The Stage 3 eval integration decision keeps this standalone baseline. The
+release verification wrapper may continue running console-only evals, but
+routine report generation, `scripts/quality_gate.py` integration,
+release-blocking evals, and CI integration remain unapproved.
 
 Release bundle and manifest policy is present:
 
@@ -89,11 +95,11 @@ are present:
 - `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`
 - `templates/ci/github-actions-release-verify.yml.template`
 
-The decision keeps local-first verification as the baseline and treats CI as
-template-only support for downstream forks. The optional release verification
-template is not installed under `.github/workflows/`, requires no secrets, uses
-read-only permissions, does not upload artifacts, and does not publish, sign,
-tag, deploy, or write to live targets.
+The Stage 4 decision keeps local-first verification as the baseline and keeps
+CI deferred and template-only. The optional local and release verification
+templates are not installed under `.github/workflows/`, require no secrets, use
+read-only permissions, do not upload artifacts, and do not publish, sign, tag,
+deploy, or write to live targets.
 
 Additional local target experiment plans are present:
 
@@ -128,9 +134,11 @@ CI, release, target render, application, device, or live-write behavior.
 9. SBOM/provenance expansion, signing, or publication decision, if separately approved.
 10. Python runtime reproducibility.
 11. Approved-corpus RAG and model-change policy planning.
-12. Optional CI actualization decision and template-only release verification.
+12. Optional CI actualization decision and template-only local/release
+    verification.
 13. Additional local target experiment planning for existing profiles.
 14. Post-v0.1.0 evidence baseline closeout.
+15. Eval integration decision.
 
 Each item is optional and should remain approval-gated. Planning a future capability does not authorize implementing it.
 
@@ -166,6 +174,10 @@ Status: MINIMAL STANDALONE IMPLEMENTATION PRESENT.
 
 `docs/MINIMAL_EVAL_HARNESS_DESIGN.md` defines the local-only eval harness for
 machine-readable verification of template safety and regression behavior.
+
+`docs/EVAL_INTEGRATION_DECISION.md` records the current decision to keep evals
+standalone. No default quality-gate integration, CI integration, routine eval
+report generation, or release-blocking behavior is approved.
 
 The implementation covers:
 
@@ -232,7 +244,7 @@ external services, install CI, or add application/device/live-write behavior.
 
 ## Optional CI Actualization
 
-Status: TEMPLATE-ONLY DECISION PRESENT.
+Status: DEFERRED / TEMPLATE-ONLY DECISION PRESENT.
 
 `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md` records the current decision that
 local-first verification remains sufficient for the baseline and that
@@ -243,6 +255,10 @@ manual workflow template for downstream forks. It is not installed under
 `.github/workflows/`, uses `workflow_dispatch`, uses read-only repository
 permissions, requires no secrets, and does not upload artifacts, publish
 releases, sign artifacts, create or move tags, deploy, or write to live targets.
+
+`templates/ci/github-actions-local-verify.yml.template` provides an optional
+manual workflow template for local verification checks. It is also not
+installed under `.github/workflows/`.
 
 Actual workflow installation, required checks, artifact upload, release
 publication, signing, tag movement, or deployment requires separate owner
