@@ -101,6 +101,44 @@ Run:
 
 `python scripts/quality_gate.py`
 
+If bare `python.exe` is blocked in a Codex desktop Windows shell, use the
+documented local verification runtime selected by `scripts/run_local_verify.ps1`.
+In the current Codex desktop environment this is typically:
+
+`$HOME\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe`
+
+Report the bare Python command as ENVIRONMENT BLOCKED when this fallback is
+needed.
+
+## AI Readiness Scanner Flow
+
+Focused scanner tests:
+
+`python -m pytest tests/test_ai_readiness_scanner.py`
+
+Full tests:
+
+`python -m pytest`
+
+Scanner Markdown output:
+
+`python scripts/ai_readiness_scanner.py .`
+
+Scanner JSON output:
+
+`python scripts/ai_readiness_scanner.py --json .`
+
+Quality gate:
+
+`python scripts/quality_gate.py`
+
+The scanner is standalone and local read-only. It is not wired into
+`scripts/quality_gate.py`, does not create generated reports by default, does
+not run target repository commands, and must not be used to authorize writes.
+Scanner output is a readiness signal, not proof that secrets, private data, or
+live configuration are absent. Domain risk flags are conservative path-level
+indicators that require review.
+
 ## Local Eval Flow
 
 Run the standalone local eval harness with:

@@ -14,9 +14,10 @@ Stage 5A downstream transition cleanup.
 
 The historical P0 docs-only baseline is complete. The repository now includes
 documentation, base templates, profile templates, render tooling, quality gates,
-tests, minimal example skeletons, standalone local eval tooling, local release
-evidence generators, generated local release evidence artifacts, and
-documentation-only governance policies.
+tests, minimal example skeletons, standalone local eval tooling, a standalone
+local read-only AI readiness scanner, local release evidence generators,
+generated local release evidence artifacts, and documentation-only governance
+policies.
 
 Stages 1-4 are complete:
 
@@ -60,8 +61,11 @@ Current baseline surface includes:
 - `scripts/generate_sbom.py`
 - `scripts/generate_provenance.py`
 - `scripts/run_release_verify.ps1`
+- `docs/AI_READINESS_SCANNER_v0.md`
+- `scripts/ai_readiness_scanner.py`
 - regression examples under `examples/`
 - pytest tests under `tests/`
+  - includes `tests/test_ai_readiness_scanner.py`
 - generated local release evidence under `artifacts/`
 - Stage 1 governance policy docs:
   - `docs/CHANGE_CONTROL.md`
@@ -87,6 +91,9 @@ Current baseline surface includes:
 - Scenario-Simulator remains a downstream application candidate; do not add
   `profiles/scenario_simulator` or `examples/scenario_simulator_minimal` by
   default.
+- AI readiness scanner integration into `scripts/quality_gate.py`, generated
+  report artifacts, and sibling repository scans remain deferred unless
+  separately approved.
 
 ## Verification Status
 
@@ -108,6 +115,19 @@ snapshot copies, and other untracked working artifacts do not affect collection.
 `python -m pytest` runs.
 The hygiene and secret-scan gates also ignore `local/` because that folder is a
 root-level local staging workspace, not the repository source of truth.
+
+The AI readiness scanner is for readiness inspection only:
+
+- Use `scripts/ai_readiness_scanner.py` for local read-only readiness review.
+- Do not use scanner output to authorize writes or broaden task scope.
+- Do not scan sibling repositories without explicit target-path approval.
+- Do not treat domain flags as failures without review; they are conservative
+  path-level indicators.
+- Do not print private values, raw source excerpts, secrets, live config,
+  customer data, broker data, mail bodies, IPs, ports, or equipment values.
+- Keep scanner integration with `scripts/quality_gate.py`, CI, generated
+  reports, RAG/model tooling, and release gates deferred unless separately
+  approved.
 
 ## Next Recommended Step
 

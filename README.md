@@ -117,3 +117,25 @@ The intended baseline workflow is local-first:
 See `docs/LOCAL_USAGE.md` for the full local usage flow and `docs/LOCAL_RELEASE_PACKAGE.md` for local package boundaries.
 
 CI remains optional and is not a baseline requirement.
+
+## AI Readiness Scanner
+
+`AI_Readiness_Scanner_v0` is a standalone local read-only scanner for checking
+whether a repository has enough purpose, AI operating rules, safety boundaries,
+verification, evidence discipline, and next-action clarity for AI-assisted
+work.
+
+Run from the repository root:
+
+- `python scripts/ai_readiness_scanner.py .`
+- `python scripts/ai_readiness_scanner.py --json .`
+
+If bare `python.exe` is blocked in a Codex desktop Windows shell, use the
+documented local verification runtime selected by `scripts/run_local_verify.ps1`
+and recorded in `docs/PYTHON_RUNTIME_POLICY.md`.
+
+The scanner prints Markdown by default and JSON with `--json`. It is not wired
+into `scripts/quality_gate.py`, does not write generated reports, does not run
+target repository scripts, and does not authorize implementation work. Domain
+risk flags are conservative path-level indicators for review; they are not
+automatic failures.
