@@ -12,6 +12,8 @@
 
 현재 로컬에서 실제로 스캔된 저장소는 `.` 하나뿐이다. 승인된 두 sibling
 경로는 로컬에 없어서 not found로 기록했다.
+`INSUFFICIENT_EVIDENCE`는 로컬 경로 부재로 인한 증거 부족 상태이며,
+해당 repo 자체의 실패 판정이 아니다.
 
 이 결과는 AI-assisted work 준비도 신호일 뿐이다. 비밀정보 부재 증명,
 쓰기 승인, 구현 승인, CI/배포 승인, RAG/모델 도입 승인, live target 작업
