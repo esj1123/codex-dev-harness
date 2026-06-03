@@ -2,8 +2,8 @@
 
 ## Purpose
 
-`AI_Readiness_Scanner_v0` is a planned local-first scanner for checking whether
-a repository is ready for AI-assisted work.
+`AI_Readiness_Scanner_v0` is a standalone local-first scanner for checking
+whether a repository is ready for AI-assisted work.
 
 The scanner is intended to support future onboarding and review of repositories
 such as:
@@ -18,6 +18,11 @@ The v0 scanner is read-only by design. Its job is to summarize readiness,
 risks, missing governance surfaces, and next actions before an AI/Codex worker
 starts implementation work.
 
+Stage 5B may use scanner thinking for target-repo selection, but this document
+does not execute a sibling-repository scan. The current Stage 5B handoff selects
+`stock` as the first practical probe candidate and treats it as a broker/finance
+risk target requiring stricter no-live-action boundaries.
+
 ## Non-goals
 
 `AI_Readiness_Scanner_v0` does not include:
@@ -29,10 +34,11 @@ starts implementation work.
 - CI workflow creation or installation
 - RAG implementation
 - vector databases, embeddings, model calls, or external service calls
-- scanning sibling repositories in v0
+- approval-free sibling repository scans
 
-This document is a specification only. It does not create scanner code, tests,
-fixtures, generated reports, CI workflows, retrieval indexes, or model tooling.
+This document records scanner scope and boundaries. It does not authorize new
+scanner code, generated reports, CI workflows, retrieval indexes, model tooling,
+target writes, target command execution, or downstream implementation.
 
 ## Read-only boundary
 
@@ -221,27 +227,33 @@ template:
 Reports must summarize evidence without copying sensitive values or private
 source excerpts.
 
-## Future implementation plan
+## Implementation status and future phases
 
-Later phases only:
+Current status:
 
-- Phase 3: implement `scripts/ai_readiness_scanner.py`
-- Phase 3: add `tests/test_ai_readiness_scanner.py`
-- Phase 3: use synthetic fixture repositories only
-- Phase 4: consider optional local verification integration
-- Phase 5: perform read-only scans of explicitly provided sibling repository
-  paths
+- `scripts/ai_readiness_scanner.py` exists as standalone local tooling.
+- `tests/test_ai_readiness_scanner.py` exists and uses synthetic fixture
+  repositories.
+- Scanner output is stdout-only Markdown or JSON.
+- The scanner is not wired into `scripts/quality_gate.py`, CI, release gates,
+  RAG tooling, or model tooling.
 
-Phase 4 integration must remain optional unless separately approved. The
-scanner should not be wired into `scripts/quality_gate.py`, CI, release gates,
-RAG tooling, or model tooling by default.
+Future phases remain approval-gated:
 
-## Acceptance criteria for this documentation phase
+- optional local verification integration
+- read-only scans of explicitly provided sibling repository paths
+- optional generated reports outside the scanned target repository
+
+Sibling repository scanning must be explicit, read-only, and path-specific.
+Stage 5B target selection names `stock`, but does not itself run the scanner
+against `stock`.
+
+## Acceptance criteria for current scanner scope
 
 - The spec exists.
 - It clearly states read-only behavior.
 - It defines score dimensions.
 - It defines forbidden data and forbidden actions.
-- It defers implementation.
-- It uses synthetic examples only.
-
+- It uses synthetic examples for tests.
+- It preserves standalone operation.
+- It does not authorize target writes or downstream implementation.

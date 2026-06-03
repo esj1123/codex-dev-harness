@@ -10,7 +10,7 @@ Reusable local-first template for governed AI/Codex development workflows.
 
 ## Current Phase
 
-Stage 5A downstream transition cleanup.
+Stage 5B target repo selection and practical probe handoff.
 
 The historical P0 docs-only baseline is complete. The repository now includes
 documentation, base templates, profile templates, render tooling, quality gates,
@@ -19,16 +19,24 @@ local read-only AI readiness scanner, local release evidence generators,
 generated local release evidence artifacts, and documentation-only governance
 policies.
 
-Stages 1-4 are complete:
+Stages 1-5A are complete:
 
 - Stage 1 documentation drift cleanup.
 - Stage 2 local post-v0.1.0 evidence baseline.
 - Stage 3 eval integration decision: keep standalone.
 - Stage 4 optional CI decision: keep deferred and template-only.
+- Stage 5A downstream transition decision.
 
-The current direction is to keep this harness stable and transition next to
-Scenario-Simulator P1 planning unless a small harness refinement is separately
-justified.
+The current direction is to keep `codex-dev-harness` frozen as the
+local-first governed baseline and move practical evidence to the Stage 5B
+stock-first flow:
+
+1. target repository selection
+2. `stock` practical probe
+3. probe closeout review
+
+Scenario-Simulator remains an architecture/planning candidate, but it is not
+the default practical probe target.
 
 ## Source of Truth
 
@@ -88,9 +96,13 @@ Current baseline surface includes:
 - GitHub Actions workflow is not installed; CI remains optional.
 - `plc_or_device_tool` actual target execution remains deferred and is not the
   next default stage.
-- Scenario-Simulator remains a downstream application candidate; do not add
-  `profiles/scenario_simulator` or `examples/scenario_simulator_minimal` by
-  default.
+- Scenario-Simulator remains a downstream architecture/planning candidate; do
+  not add `profiles/scenario_simulator` or
+  `examples/scenario_simulator_minimal` by default.
+- The `stock` practical probe is selected but not executed by this harness
+  handoff. It must remain test-only/dry-run, synthetic-data-only, and separate
+  from live broker, vault, account, order, market-data, network, or private
+  data work.
 - AI readiness scanner integration into `scripts/quality_gate.py`, generated
   report artifacts, and sibling repository scans remain deferred unless
   separately approved.
@@ -131,19 +143,37 @@ The AI readiness scanner is for readiness inspection only:
 
 ## Next Recommended Step
 
-Use `docs/NEXT_DIRECTION_DECISION.md` as the current handoff. The recommended
-next work is Scenario-Simulator P1 planning in the Scenario-Simulator
-repository, not `plc_or_device_tool` target execution.
+Use `docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md` and
+`docs/NEXT_DIRECTION_DECISION.md` as the current handoff. The recommended next
+work is the Stage 5B stock-first practical probe flow:
+
+1. confirm target repository selection
+2. run a narrow `stock` practical probe under the `stock` repository rules
+3. review the probe closeout before adding any new harness automation
 
 Practical next candidates:
 
-- create a Scenario-Simulator P1 WPF/MVVM shell implementation plan and
-  acceptance contract without production code
+- run or review the next `stock` test-only/dry-run evidence path safety probe
+  without live broker/account/order/network behavior, vault writes, private
+  data, runtime code, or production behavior
+- keep Scenario-Simulator as a deferred architecture/planning candidate for a
+  separate task selected under that repository's own rules
 - keep `AI_HANDOFF`, `STATUS`, and `ACCEPTANCE_TRACE` aligned after any future
   evidence baseline changes
 - preserve generated artifact source-basis versus artifact-containing commit
   semantics when documentation-only commits advance HEAD
 - defer quality-gate eval integration, routine eval reports, audit log
-  automation, release archives, signing, publication, workflows, new profiles,
-  new examples, RAG/model tooling, optional CI installation, and live-write
-  behavior until separately approved
+  automation, release archives, signing, publication, workflows, artifact
+  upload, required CI checks, new profiles, new examples, RAG/index/vector
+  store or model tooling, optional CI installation, and runtime, application,
+  device, or live-write behavior until separately approved
+
+## Historical / Deferred Candidate
+
+Scenario-Simulator was previously evaluated as a downstream candidate and may
+still be useful for architecture or P1 planning. It is deferred from the active
+Stage 5B practical probe path because its next useful work is WPF/MVVM and
+RSID-adjacent planning with a larger approval boundary. Do not treat
+Scenario-Simulator production implementation, profile creation, example
+creation, WPF shell work, project-file creation, UI work, simulation behavior,
+or RSID behavior as approved by this handoff.

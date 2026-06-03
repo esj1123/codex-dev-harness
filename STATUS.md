@@ -2,23 +2,27 @@
 
 ## Current Phase
 
-Stage 5A downstream transition cleanup.
+Stage 5B target repo selection and practical probe planning.
 
 ## Current State
 
 The repository contains documentation, base templates, profile templates, render tooling, quality gates, tests, minimal example skeletons, and a standalone local read-only AI readiness scanner.
 
-Stages 1-4 are complete:
+Stages 1-5A are complete:
 
 - Stage 1 documentation drift cleanup.
 - Stage 2 local post-v0.1.0 evidence baseline.
 - Stage 3 eval integration decision: keep standalone.
 - Stage 4 optional CI decision: keep deferred and template-only.
+- Stage 5A downstream transition decision.
 
-The next strategic direction is either small harness refinement or transition
-to Scenario-Simulator downstream implementation planning. The
-`plc_or_device_tool` actual target experiment remains deferred and is not the
-next default stage.
+The current Stage 5B direction is to freeze `codex-dev-harness` as the
+local-first governed baseline and move the next evidence to target-repo
+selection followed by a low-risk practical probe. `stock` is selected as the
+first practical probe candidate, limited to test-only/dry-run evidence path
+safety coverage. Scenario-Simulator remains deferred as an architecture and
+planning candidate, and the `plc_or_device_tool` actual target experiment
+remains deferred and is not the next default stage.
 
 ## Current Verification Snapshot
 
@@ -60,8 +64,10 @@ baseline refresh after the Stage 1 documentation drift cleanup.
 | quality gate after scanner | PASS | docs, hygiene, schema, examples, render drift, and secret scan passed with documented local Python runtime |
 | bare `python.exe` after scanner | ENVIRONMENT BLOCKED | Existing Windows logon session error remains; documented local runtime was used for verification |
 | CI decision | KEEP DEFERRED / TEMPLATE-ONLY | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`; future manual read-only workflow installation requires separate owner approval |
-| Stage 5A direction decision | TRANSITION RECOMMENDED | `docs/NEXT_DIRECTION_DECISION.md`; minimal harness closeout cleanup, then Scenario-Simulator P1 planning |
-| Scenario-Simulator treatment | DOWNSTREAM CANDIDATE | No `profiles/scenario_simulator` or `examples/scenario_simulator_minimal`; use Scenario-Simulator repo-local planning docs |
+| Stage 5A direction decision | SUPERSEDED BY STAGE 5B HANDOFF | `docs/NEXT_DIRECTION_DECISION.md`; Stage 5A remains historical evidence, while Stage 5B selects `stock` as the first practical probe |
+| Stage 5B target repo selection and probe plan | PRESENT | `docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md`; freeze harness, defer Scenario-Simulator implementation, select `stock`, and define test-only/dry-run safety coverage |
+| Scenario-Simulator treatment | DEFERRED ARCHITECTURE / PLANNING CANDIDATE | No `profiles/scenario_simulator` or `examples/scenario_simulator_minimal`; use Scenario-Simulator repo-local planning docs only when separately selected |
+| stock first practical probe | SELECTED / NOT RUN | Future target-repo task should cover test-only/dry-run evidence path safety; no stock repo scan, write, runtime code, or live broker behavior was performed in this harness task |
 | `plc_or_device_tool` actual experiment | DEFERRED / NOT NEXT DEFAULT | Separate owner approval required; not the current strategic priority |
 | CI workflow | NOT INSTALLED | `.github/workflows/` remains absent |
 | release publication, tag movement, archive creation, signing | NOT DONE | Stage 2 performed local evidence regeneration only; this is not release publication |
@@ -136,6 +142,7 @@ baseline refresh after the Stage 1 documentation drift cleanup.
   - `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`
   - `docs/OPTIONAL_GITHUB_ACTIONS.md`
   - `docs/NEXT_DIRECTION_DECISION.md`
+  - `docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md`
 - Base markdown templates, including source index, project boundary, data scope, phase plan, and approvals templates.
 - Experimental optional design-stage Markdown template pack under `templates/optional/design_stage/`.
 - Profile templates for `python_cli`, `csharp_desktop`, and `plc_or_device_tool`.
@@ -211,6 +218,9 @@ baseline refresh after the Stage 1 documentation drift cleanup.
 - AI readiness scanner integration into `scripts/quality_gate.py`.
 - Routine generated AI readiness reports.
 - Read-only AI readiness scans of sibling repositories.
+- Executed `stock` practical probe.
+- `stock` target repository writes, reports, tests, or generated artifacts from
+  this harness repository.
 - Retrieval indexes, embeddings, vector stores, or RAG tooling.
 - Model comparison code, model observability tooling, prompt capture, or model
   output capture.
@@ -535,7 +545,8 @@ Stage 0 current-main gap review basis:
 | model and prompt change planning | ADDED | `docs/MODEL_CHANGE_POLICY.md` defines model, prompt template, eval run, corpus digest, side-effect class, and compare-before-adopt controls; no model comparison or capture tooling added |
 | optional release verification CI template | TEMPLATE ONLY / DEFERRED | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`, `docs/OPTIONAL_GITHUB_ACTIONS.md`, and `templates/ci/*.template` exist; no `.github/workflows`, required checks, artifact upload, publishing, signing, tag movement, deployment, application code, or live-write behavior |
 | additional local target experiment plans | PARTIAL EXECUTED | `docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md` was executed once with explicit approval and recorded in `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md`; `docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md` remains planning-only |
-| Stage 5A next direction decision | PRESENT | `docs/NEXT_DIRECTION_DECISION.md`; recommends freezing the harness as the current governed baseline after minimal cleanup and moving to Scenario-Simulator P1 planning |
+| Stage 5A next direction decision | PRESENT / HISTORICAL | `docs/NEXT_DIRECTION_DECISION.md`; originally recommended freezing the harness after minimal cleanup and moving to Scenario-Simulator P1 planning |
+| Stage 5B target repo selection and practical probe plan | PRESENT | `docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md`; current handoff freezes the harness, defers Scenario-Simulator implementation, selects `stock`, and constrains the first probe to test-only/dry-run safety coverage |
 | Stage 1 change control policy | PRESENT | `docs/CHANGE_CONTROL.md`; documentation-only |
 | Stage 1 human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md`; documentation-only |
 | Stage 1 eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval exists; no dependencies, quality-gate integration, or CI integration |
@@ -544,7 +555,7 @@ Stage 0 current-main gap review basis:
 | local staging verification compatibility | PRESENT | `pytest.ini` and `scripts/run_local_verify.ps1` scope pytest to `tests`; hygiene and secret-scan gates ignore root `local/` |
 | Stage 4/Priority 3 implementation boundary | PRESERVED | Standalone eval code, 14 named cases, golden path list, gate wrapper, optional report output, and tests are present; report paths are repo-internal relative under `artifacts/`; no eval report generated by default, quality-gate integration, CI, workflows, tags, releases, profiles, application code, C# source/project, PLC/device code, or live-write behavior added |
 | AI readiness scanner | IMPLEMENTED STANDALONE | `docs/AI_READINESS_SCANNER_v0.md`, `scripts/ai_readiness_scanner.py`, and `tests/test_ai_readiness_scanner.py`; Markdown and JSON stdout output, synthetic tests, forbidden-folder skipping, and conservative domain risk flags are present; no generated reports, quality-gate integration, CI, sibling repo scan, RAG/model tooling, target writes, or target command execution added |
-| scenario simulator treatment | DOWNSTREAM CANDIDATE | Remains downstream candidate, not a built-in profile |
+| scenario simulator treatment | DEFERRED ARCHITECTURE / PLANNING CANDIDATE | Remains downstream candidate, not a built-in profile or first practical probe |
 
 ## Formal v0.1.0 GitHub Release Draft
 
@@ -592,18 +603,20 @@ Stage 0 current-main gap review basis:
 
 ## Next Recommended Step
 
-Use `docs/NEXT_DIRECTION_DECISION.md` as the current handoff: keep
-`codex-dev-harness` stable as the local-first governed template baseline, make
-only small harness refinements when justified, and transition next to
-Scenario-Simulator P1 planning.
+Use `docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md` as the current
+handoff: keep `codex-dev-harness` frozen as the local-first governed template
+baseline, defer Scenario-Simulator as an architecture/planning candidate, and
+run the next practical evidence task in `stock` as a test-only/dry-run safety
+coverage probe.
 
 Do not treat `plc_or_device_tool` actual target execution as the next default
-stage. Keep approved-corpus RAG implementation, retrieval/index generation,
-embeddings, model comparison tooling, prompt/model output capture, eval
-integration into `scripts/quality_gate.py`, CI integration, routine eval report
-generation, real audit session log generation, audit logging automation,
-broader release bundle or archive generation, SBOM/provenance expansion or
-publication, active workflows, required CI checks, CI artifact upload, release
-publication, signing, tag movement, deployment, new profiles, new examples,
-and application/device/live-write behavior deferred unless separately
-approved.
+stage. Keep Scenario-Simulator production implementation, approved-corpus RAG
+implementation, retrieval/index generation, embeddings, model comparison
+tooling, prompt/model output capture, eval integration into
+`scripts/quality_gate.py`, CI integration, routine eval report generation, real
+audit session log generation, audit logging automation, broader release bundle
+or archive generation, SBOM/provenance expansion or publication, active
+workflows, required CI checks, CI artifact upload, release publication,
+signing, tag movement, deployment, new profiles, new examples, stock runtime or
+live broker behavior, and application/device/live-write behavior deferred
+unless separately approved.

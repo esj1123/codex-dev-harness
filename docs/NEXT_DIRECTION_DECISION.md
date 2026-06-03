@@ -2,13 +2,16 @@
 
 ## Purpose
 
-Decide whether post-v0.1.0 work should continue optimizing
-`codex-dev-harness` or transition to the downstream Scenario-Simulator
-repository for P1 implementation planning.
+Record the post-v0.1.0 direction decision and its Stage 5B update.
+
+Stage 5A established that `codex-dev-harness` is complete enough as a
+local-first governed template baseline. Stage 5B keeps that baseline frozen,
+defers Scenario-Simulator as an architecture/planning candidate, and selects
+`stock` as the first practical probe candidate.
 
 This is a decision document. It does not add a new profile, create an example,
 install CI, publish release evidence, modify Scenario-Simulator production
-code, or execute any target render/write.
+code, modify `stock`, or execute any target render/write.
 
 ## Inputs Reviewed
 
@@ -21,6 +24,7 @@ code, or execute any target render/write.
 - `docs/EVAL_INTEGRATION_DECISION.md`
 - `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`
 - `docs/DOWNSTREAM_EXPERIMENT_scenario_simulator_design_base_template.md`
+- `docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md`
 
 Scenario-Simulator inputs:
 
@@ -97,12 +101,16 @@ explicitly approves local ignored artifact handling.
 
 ## Decision
 
-Decision: Option C, do minimal codex-dev-harness closeout cleanup, then move
-to Scenario-Simulator P1 planning.
+Stage 5A decision: do minimal `codex-dev-harness` closeout cleanup and treat
+the harness as sufficiently complete for downstream governance evidence.
 
-The minimal harness closeout cleanup for this stage is this decision document.
-No further codex-dev-harness optimization is required before using the harness
-as downstream governance evidence.
+Stage 5B update: keep `codex-dev-harness` frozen as the current local-first
+governed baseline, defer Scenario-Simulator as an architecture/planning
+candidate, and select `stock` as the first practical probe candidate.
+
+The first stock probe is limited to test-only/dry-run evidence path safety
+coverage. It is not a production implementation, broker/API integration,
+trading, scheduling, CI, release, RAG, audit, or runtime-code task.
 
 Stage 5A transition cleanup confirms that Stages 1-4 are complete:
 
@@ -111,10 +119,10 @@ Stage 5A transition cleanup confirms that Stages 1-4 are complete:
 - Stage 3 eval integration decision: keep standalone.
 - Stage 4 optional CI decision: keep deferred and template-only.
 
-The next strategic decision is now limited to small harness refinement when
-justified or transition to Scenario-Simulator downstream implementation
-planning. `plc_or_device_tool` actual target execution remains deferred and is
-not the next default stage.
+The next strategic decision is now limited to the future `stock` probe or small
+harness refinement only if the stock probe exposes a concrete harness
+documentation gap. `plc_or_device_tool` actual target execution remains
+deferred and is not the next default stage.
 
 ## Rationale
 
@@ -124,14 +132,17 @@ deferred surfaces such as CI installation, eval integration, release
 publication, RAG/model tooling, audit automation, or more target experiments.
 Those are not current strategic priorities.
 
-Scenario-Simulator is the more useful next work area because:
+Scenario-Simulator remains useful, but as an architecture/planning candidate.
+It is not the first practical probe because its next useful work is WPF/MVVM
+and RSID-adjacent planning with a larger approval boundary.
 
-- it has a clear P0.5 to P1 transition point
-- it already carries local safety and Codex workflow rules
-- it has no production code yet, so P1 scope can be planned cleanly
-- the harness downstream experiment already showed that the base template is
-  sufficient without creating a dedicated Scenario-Simulator profile
-- P1 can be planned without copying raw design documents or sensitive values
+`stock` is the better first practical probe because:
+
+- the first task can be constrained to tests or dry-run behavior
+- evidence-path safety can be tested without runtime implementation
+- broker/finance risk gives useful signal for no-live-action governance
+- synthetic fixtures and no-network expectations can be made explicit
+- failure can be recorded as `BLOCKED` without adding production code
 
 ## Question Answers
 
@@ -139,13 +150,13 @@ Scenario-Simulator is the more useful next work area because:
 |---|---|
 | Is `codex-dev-harness` sufficiently complete as a local-first governed template baseline? | Yes. It is sufficient for downstream development harness use. |
 | Are there blocking cleanup tasks before using it downstream? | No blocking harness cleanup was found. Commit this decision document with the existing Stage 1-4 decisions as the closeout step. |
-| Should the next phase move to Scenario-Simulator P1? | Yes, move to Scenario-Simulator P1 planning, not immediate production implementation. |
-| What is the first safe P1 task? | Create a P1 WPF/MVVM shell implementation plan and acceptance contract in Scenario-Simulator without adding `.sln`, `.csproj`, `.xaml`, `.cs`, production code, RSID behavior, or sensitive input. |
+| Should the next phase move to Scenario-Simulator P1? | Not by default. Scenario-Simulator is deferred as an architecture/planning candidate. |
+| What is the first safe practical task? | In the future `stock` target repo, create a test-only/dry-run evidence path safety probe without runtime code, broker/API/order/account/network behavior, secrets, or private data. |
 | What must remain out of scope? | See explicit non-goals below. |
 | What harness evidence should be carried forward? | Read-order discipline, task contracts, safety policy, dry-run/approval boundaries, local verification closeout, standalone eval decision, template-only CI decision, and source-basis evidence semantics. |
-| Should a harness profile or example be added? | No. Current evidence supports using base templates and Scenario-Simulator repo-local planning docs, not adding `profiles/scenario_simulator` or `examples/scenario_simulator_minimal`. |
+| Should a harness profile or example be added? | No. Current evidence supports target-repo-local planning and probe work, not adding `profiles/scenario_simulator`, `examples/scenario_simulator_minimal`, or a new `stock` profile/example. |
 
-## Evidence To Carry Into Scenario-Simulator
+## Evidence To Carry Into Stock
 
 Carry these practices forward, not repository-specific artifacts:
 
@@ -161,7 +172,7 @@ Carry these practices forward, not repository-specific artifacts:
 - standalone eval as optional evidence, not default quality-gate integration
 - CI as deferred/template-only unless separately approved
 - release evidence source-basis versus artifact-containing commit semantics if
-  Scenario-Simulator later creates generated evidence
+  `stock` later creates generated evidence
 
 ## Explicit Non-Goals
 
@@ -190,73 +201,74 @@ This decision does not approve:
   live-write behavior
 - copying raw design documents, private source, IP, equipment details, IP/port
   values, tags, live parameters, or sensitive requirement text
+- stock runtime or application code changes in this decision task
+- broker API integration, order placement, order modification, cancellation,
+  scheduling, account mutation, live market data fetching, or network calls
+- stock target repository writes, tests, reports, or generated artifacts from
+  this harness decision task
 
 ## First Next Task Prompt
 
-Use this as the next task in Scenario-Simulator:
+Use this as the next task in `stock`:
 
 ```text
 Repository:
-C:\Users\KSLV-II\codex_projects\ScenarioSimulator
+stock
 
 Task:
-Create a P1 WPF/MVVM shell implementation plan and acceptance contract.
+Create a test-only/dry-run evidence path safety probe.
 
 Read first:
 - AGENTS.md
 - README.md
 - STATUS.md
-- docs/CODEX_WORKFLOW.md
-- docs/PROJECT_STRUCTURE.md
-- docs/HARNESS.md
-- docs/SECRETS_RULES.md
+- available safety, verification, and test documentation
 
 Goal:
-Plan P1 WPF/MVVM shell implementation without creating production code yet.
+Verify that the stock repository can prove dry-run evidence path safety without
+live broker/account/order/network behavior.
 
 Allowed files:
-- docs/P1_WPF_MVVM_SHELL_PLAN.md
-- STATUS.md
+- target-repo test files only, if explicitly approved by that future task
+- target-repo documentation only, if needed to record NOT RUN/BLOCKED evidence
 
 Forbidden actions:
-- Do not create `.sln`, `.csproj`, `.xaml`, `.cs`, or build assets.
-- Do not implement WPF UI, MainWindow, Views, ViewModels, Commands, or bootstrapper code.
-- Do not implement ScenarioStep, Excel parsing, XML serialization, simulation engine, RSID UDP communication, mock RSID runtime behavior, polling, connections, tag maps, control actions, live config, or live-write behavior.
-- Do not copy raw design documents, private source, secrets, equipment details, IPs, ports, tags, or live parameter values.
-- Do not modify Obsidian vault files.
+- Do not add runtime or production code.
+- Do not add broker API integration, order behavior, account mutation, live
+  market data fetching, scheduling, or network calls.
+- Do not use credentials, private account data, secrets, tokens, or live config.
+- Do not install CI, generate release artifacts, add RAG, add audit automation,
+  or deploy anything.
 
 Plan requirements:
-- define P1 scope and non-goals
-- propose solution/project/file layout for a later approved implementation task
-- define acceptance criteria for app launch, visible shell window, one command, and ObservableCollection binding
-- define verification commands and expected results
-- identify approval boundary before actual code/project creation
-- record risks and NOT RUN items honestly
+- inspect existing tests and safety boundaries first
+- identify a dry-run/evidence path that can be tested with synthetic data
+- add or propose only tests/docs within the approved target scope
+- prove no live broker/account/order/network behavior is required
+- record BLOCKED if no testable dry-run path exists without production changes
 
 Verification:
-- scripts/build.ps1
-- scripts/test.ps1
-- scripts/smoke.ps1
-- scripts/quality_gate.ps1
+- use stock repository local verification commands after reading its docs
+- record NOT RUN or BLOCKED honestly if no safe command exists
 ```
 
 ## Verification Status
 
 | repository | command | result | notes |
 |---|---|---|---|
-| `codex-dev-harness` | `python scripts\quality_gate.py` | ENVIRONMENT BLOCKED | Bare `python.exe` failed in this Codex desktop shell with the existing Windows logon session error |
+| `codex-dev-harness` | `python -m pytest` | ENVIRONMENT BLOCKED | Bare `python.exe` failed in this Codex desktop shell with the existing Windows logon session error |
+| `codex-dev-harness` | `python scripts\quality_gate.py` | ENVIRONMENT BLOCKED | Bare `python.exe` failed with the same environment error |
 | `codex-dev-harness` | `python scripts\run_eval.py` | ENVIRONMENT BLOCKED | Bare `python.exe` failed with the same environment error |
 | `codex-dev-harness` | bundled Python `scripts\quality_gate.py` | PASS | docs, hygiene, schema, examples, render drift, and secret scan passed |
 | `codex-dev-harness` | bundled Python `scripts\run_eval.py` | PASS | 14 named local eval cases passed |
-| `codex-dev-harness` | `powershell -ExecutionPolicy Bypass -File scripts\run_local_verify.ps1` | PASS | pytest 72 passed, quality gate passed, and three example render dry-runs passed |
-| `codex-dev-harness` | `git diff --check` | PASS | no whitespace errors reported |
-| Scenario-Simulator | `scripts\build.ps1` | PASS | placeholder P0.5 check exited 0; no solution found, expected |
-| Scenario-Simulator | `scripts\test.ps1` | PASS | placeholder P0.5 check exited 0; no solution found, expected |
-| Scenario-Simulator | `scripts\smoke.ps1` | PASS | placeholder P0.5 check exited 0; no solution found, expected |
-| Scenario-Simulator | `scripts\quality_gate.ps1` | PASS | ran build, test, and smoke placeholders; no solution found, expected |
+| `codex-dev-harness` | bundled Python `-m pytest` | BLOCKED | bundled runtime is available but currently has no `pytest` module installed |
+| `codex-dev-harness` | `powershell -ExecutionPolicy Bypass -File scripts\run_local_verify.ps1` | BLOCKED | wrapper stops at pytest because the bundled runtime has no `pytest` module installed |
+| `codex-dev-harness` | `git diff --check` | PASS | no whitespace errors; Git reported LF-to-CRLF working-copy warnings |
 
 No release artifacts were regenerated. No target render/write was executed.
-No Scenario-Simulator production files were modified.
+No Scenario-Simulator production files were modified. No `stock` repository
+scan, write, test run, report, generated artifact, runtime code, or live broker
+behavior was performed by this decision task.
 
 ## Safety Checks
 
@@ -271,6 +283,8 @@ This decision keeps all of the following unchanged:
 - no RAG/model tooling
 - no audit automation
 - no Scenario-Simulator production code changes
+- no stock repository writes, test runs, reports, generated artifacts, runtime
+  code, broker/API/order/account/network behavior, or live market behavior
 - no C# solution/project/source/XAML/build assets
 - no PLC/device code
 - no live config or live-write behavior
