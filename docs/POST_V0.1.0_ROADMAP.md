@@ -18,8 +18,7 @@ The formal v0.1.0 baseline is a local-first governed template for downstream pro
 ## Next Priority
 
 Next priority: keep `codex-dev-harness` frozen as the current governed
-baseline, then move practical evidence to target-repo selection followed by a
-low-risk stock probe.
+baseline after the completed Stage 5B stock practical probe closeout.
 
 The most useful post-v0.1.0 signal is how the base template behaves when applied to real downstream planning targets. Feedback should focus on documentation clarity, safety boundaries, approval gates, source indexing, and render ergonomics before adding new automation.
 
@@ -32,12 +31,16 @@ Stages 1-5A after the evidence baseline are complete:
 - Stage 5A downstream transition decision.
 
 The Stage 5A direction decision is to keep `codex-dev-harness` stable as the
-current local-first governed template baseline. Stage 5B supersedes the default
-next step: Scenario-Simulator is deferred as an architecture/planning
-candidate, and `stock` is selected as the first practical probe candidate. The
-first stock probe must be test-only/dry-run evidence path safety coverage. The
-`plc_or_device_tool` actual target experiment remains deferred and is not the
-next default stage.
+current local-first governed template baseline. Stage 5B superseded the default
+next step by selecting `stock` as the first practical probe candidate, and the
+Probe #1-#5 sequence is now closed out in
+`docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md`. Scenario-Simulator remains
+deferred as an architecture/planning candidate. The `plc_or_device_tool` actual
+target experiment remains deferred and is not the next default stage.
+
+The next default is not another `stock` probe. The next default is a small
+review-only decision on whether the Probe #1-#5 evidence justifies a minimal
+Code Simplicity Addendum or whether no harness change is needed.
 
 The optional design-stage pack is now a closed manual-use-only baseline. Its templates can be copied, merged, skipped, or used for review-only downstream work, but they are not part of the base render path.
 
@@ -160,6 +163,7 @@ CI, release, target render, application, device, or live-write behavior.
 16. Optional CI decision refresh.
 17. Stage 5A downstream transition decision.
 18. Stage 5B target repo selection and practical probe plan.
+19. Stage 5B stock practical probe closeout.
 
 Each item is optional and should remain approval-gated. Planning a future capability does not authorize implementing it.
 
@@ -314,7 +318,7 @@ separate owner decision.
 
 ## Stage 5B Target Repo Selection
 
-Status: PRESENT.
+Status: CLOSED OUT.
 
 `docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md` records the current
 handoff. It freezes `codex-dev-harness` as the local-first governed baseline,
@@ -322,10 +326,16 @@ defers Scenario-Simulator as an architecture/planning candidate, selects
 `stock` as the first practical probe candidate, and constrains that first probe
 to test-only/dry-run evidence path safety coverage.
 
-The plan is documentation-only. It does not scan or modify `stock`, run a
-target probe, add runtime code, install CI, generate release artifacts, create
-RAG/index tooling, add audit automation, or start Scenario-Simulator
-implementation.
+`docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md` records the completed
+Probe #1-#5 evidence and decision implications. The closeout supports keeping
+the harness frozen and does not justify immediate CI, RAG, audit automation,
+release automation, eval quality-gate integration, new profiles, new examples,
+or runtime expansion.
+
+The plan and closeout are documentation-only. They do not scan or modify
+`stock` from this repository, run another target probe, add runtime code,
+install CI, generate release artifacts, create RAG/index tooling, add audit
+automation, or start Scenario-Simulator implementation.
 
 ## Evidence Baseline Closeout
 
@@ -384,8 +394,8 @@ task selects architecture or planning work under that repository's own rules.
 - Do not add `profiles/scenario_simulator`.
 - Do not add `examples/scenario_simulator_minimal`.
 - Do not add optional design-stage render, gate, or example integration without separate approval.
-- Do not run or implement the stock practical probe from this harness planning
-  task.
+- Do not start Probe #6 or run further stock practical probes by default from
+  this harness planning task.
 - Do not add stock runtime, broker, order, account, scheduler, live market, or
   network behavior.
 - Do not start Scenario-Simulator production implementation from this roadmap.
@@ -393,9 +403,10 @@ task selects architecture or planning work under that repository's own rules.
 
 ## Next Review
 
-Use `docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md` for the current
-transition handoff. Review the future stock test-only/dry-run safety probe
-before deciding whether any additional harness work is justified. Keep
+Use `docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md` for the current
+transition handoff. The next default is a review-only decision on whether the
+Probe #1-#5 evidence justifies a minimal Code Simplicity Addendum or whether no
+harness change is needed. Keep
 Scenario-Simulator production implementation, quality-gate eval integration,
 release page publication, local packaging, release bundle expansion, audit log
 generation, SBOM/provenance expansion or publication, CI, optional design-stage

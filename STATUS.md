@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Stage 5B target repo selection and practical probe planning.
+Stage 5B stock practical probe closeout.
 
 ## Current State
 
@@ -16,13 +16,16 @@ Stages 1-5A are complete:
 - Stage 4 optional CI decision: keep deferred and template-only.
 - Stage 5A downstream transition decision.
 
-The current Stage 5B direction is to freeze `codex-dev-harness` as the
-local-first governed baseline and move the next evidence to target-repo
-selection followed by a low-risk practical probe. `stock` is selected as the
-first practical probe candidate, limited to test-only/dry-run evidence path
-safety coverage. Scenario-Simulator remains deferred as an architecture and
-planning candidate, and the `plc_or_device_tool` actual target experiment
-remains deferred and is not the next default stage.
+The Stage 5B stock practical probe sequence is complete and documented in
+`docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md`. The result supports keeping
+`codex-dev-harness` frozen as the current local-first governed baseline. No
+further `stock` probes are the default next step. The next default is a
+review-only decision on whether the Probe #1-#5 evidence justifies a minimal
+Code Simplicity Addendum or whether no harness change is needed.
+
+Scenario-Simulator remains deferred as an architecture and planning candidate,
+and the `plc_or_device_tool` actual target experiment remains deferred and is
+not the next default stage.
 
 ## Current Verification Snapshot
 
@@ -66,8 +69,9 @@ baseline refresh after the Stage 1 documentation drift cleanup.
 | CI decision | KEEP DEFERRED / TEMPLATE-ONLY | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`; future manual read-only workflow installation requires separate owner approval |
 | Stage 5A direction decision | SUPERSEDED BY STAGE 5B HANDOFF | `docs/NEXT_DIRECTION_DECISION.md`; Stage 5A remains historical evidence, while Stage 5B selects `stock` as the first practical probe |
 | Stage 5B target repo selection and probe plan | PRESENT | `docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md`; freeze harness, defer Scenario-Simulator implementation, select `stock`, and define test-only/dry-run safety coverage |
+| Stage 5B stock practical probe closeout | PRESENT | `docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md`; Probe #1-#5 evidence supports current local-first discipline, no default Probe #6, and no immediate harness automation expansion |
 | Scenario-Simulator treatment | DEFERRED ARCHITECTURE / PLANNING CANDIDATE | No `profiles/scenario_simulator` or `examples/scenario_simulator_minimal`; use Scenario-Simulator repo-local planning docs only when separately selected |
-| stock first practical probe | SELECTED / NOT RUN | Future target-repo task should cover test-only/dry-run evidence path safety; no stock repo scan, write, runtime code, or live broker behavior was performed in this harness task |
+| stock practical probe sequence | COMPLETE / CLOSEOUT RECORDED | Probe #1-#5 were completed in `stock` under separate target-repo tasks; this harness task records privacy-safe evidence summaries only and does not write to `stock` |
 | `plc_or_device_tool` actual experiment | DEFERRED / NOT NEXT DEFAULT | Separate owner approval required; not the current strategic priority |
 | CI workflow | NOT INSTALLED | `.github/workflows/` remains absent |
 | release publication, tag movement, archive creation, signing | NOT DONE | Stage 2 performed local evidence regeneration only; this is not release publication |
@@ -143,6 +147,7 @@ baseline refresh after the Stage 1 documentation drift cleanup.
   - `docs/OPTIONAL_GITHUB_ACTIONS.md`
   - `docs/NEXT_DIRECTION_DECISION.md`
   - `docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md`
+  - `docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md`
 - Base markdown templates, including source index, project boundary, data scope, phase plan, and approvals templates.
 - Experimental optional design-stage Markdown template pack under `templates/optional/design_stage/`.
 - Profile templates for `python_cli`, `csharp_desktop`, and `plc_or_device_tool`.
@@ -218,7 +223,7 @@ baseline refresh after the Stage 1 documentation drift cleanup.
 - AI readiness scanner integration into `scripts/quality_gate.py`.
 - Routine generated AI readiness reports.
 - Read-only AI readiness scans of sibling repositories.
-- Executed `stock` practical probe.
+- Further `stock` probes by default.
 - `stock` target repository writes, reports, tests, or generated artifacts from
   this harness repository.
 - Retrieval indexes, embeddings, vector stores, or RAG tooling.
@@ -547,6 +552,7 @@ Stage 0 current-main gap review basis:
 | additional local target experiment plans | PARTIAL EXECUTED | `docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md` was executed once with explicit approval and recorded in `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md`; `docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md` remains planning-only |
 | Stage 5A next direction decision | PRESENT / HISTORICAL | `docs/NEXT_DIRECTION_DECISION.md`; originally recommended freezing the harness after minimal cleanup and moving to Scenario-Simulator P1 planning |
 | Stage 5B target repo selection and practical probe plan | PRESENT | `docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md`; current handoff freezes the harness, defers Scenario-Simulator implementation, selects `stock`, and constrains the first probe to test-only/dry-run safety coverage |
+| Stage 5B stock practical probe closeout | PRESENT | `docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md`; Probe #1-#5 support the current local-first discipline and do not justify immediate CI, RAG, audit, release, eval quality-gate, profile, example, or runtime expansion |
 | Stage 1 change control policy | PRESENT | `docs/CHANGE_CONTROL.md`; documentation-only |
 | Stage 1 human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md`; documentation-only |
 | Stage 1 eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval exists; no dependencies, quality-gate integration, or CI integration |
@@ -603,11 +609,12 @@ Stage 0 current-main gap review basis:
 
 ## Next Recommended Step
 
-Use `docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md` as the current
-handoff: keep `codex-dev-harness` frozen as the local-first governed template
-baseline, defer Scenario-Simulator as an architecture/planning candidate, and
-run the next practical evidence task in `stock` as a test-only/dry-run safety
-coverage probe.
+Use `docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md` as the current handoff:
+keep `codex-dev-harness` frozen as the local-first governed template baseline,
+defer Scenario-Simulator as an architecture/planning candidate, and do not
+start another `stock` probe by default. The next default is a review-only
+decision on whether Probe #1-#5 justifies a minimal Code Simplicity Addendum or
+whether no harness change is needed.
 
 Do not treat `plc_or_device_tool` actual target execution as the next default
 stage. Keep Scenario-Simulator production implementation, approved-corpus RAG

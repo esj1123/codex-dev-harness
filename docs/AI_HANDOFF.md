@@ -10,7 +10,7 @@ Reusable local-first template for governed AI/Codex development workflows.
 
 ## Current Phase
 
-Stage 5B target repo selection and practical probe handoff.
+Stage 5B stock practical probe closeout handoff.
 
 The historical P0 docs-only baseline is complete. The repository now includes
 documentation, base templates, profile templates, render tooling, quality gates,
@@ -28,11 +28,10 @@ Stages 1-5A are complete:
 - Stage 5A downstream transition decision.
 
 The current direction is to keep `codex-dev-harness` frozen as the
-local-first governed baseline and move practical evidence to the Stage 5B
-stock-first flow:
+local-first governed baseline after completing the Stage 5B stock-first flow:
 
 1. target repository selection
-2. `stock` practical probe
+2. `stock` practical probes #1-#5
 3. probe closeout review
 
 Scenario-Simulator remains an architecture/planning candidate, but it is not
@@ -99,10 +98,9 @@ Current baseline surface includes:
 - Scenario-Simulator remains a downstream architecture/planning candidate; do
   not add `profiles/scenario_simulator` or
   `examples/scenario_simulator_minimal` by default.
-- The `stock` practical probe is selected but not executed by this harness
-  handoff. It must remain test-only/dry-run, synthetic-data-only, and separate
-  from live broker, vault, account, order, market-data, network, or private
-  data work.
+- The `stock` practical probe sequence is closed out. Probe #1-#5 evidence
+  supports current task-contract discipline but does not justify another stock
+  probe by default or immediate harness automation expansion.
 - AI readiness scanner integration into `scripts/quality_gate.py`, generated
   report artifacts, and sibling repository scans remain deferred unless
   separately approved.
@@ -143,19 +141,16 @@ The AI readiness scanner is for readiness inspection only:
 
 ## Next Recommended Step
 
-Use `docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md` and
+Use `docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md`,
+`docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md`, and
 `docs/NEXT_DIRECTION_DECISION.md` as the current handoff. The recommended next
-work is the Stage 5B stock-first practical probe flow:
-
-1. confirm target repository selection
-2. run a narrow `stock` practical probe under the `stock` repository rules
-3. review the probe closeout before adding any new harness automation
+work is a review-only decision on whether Probe #1-#5 justifies a minimal Code
+Simplicity Addendum or whether no harness change is needed.
 
 Practical next candidates:
 
-- run or review the next `stock` test-only/dry-run evidence path safety probe
-  without live broker/account/order/network behavior, vault writes, private
-  data, runtime code, or production behavior
+- decide whether to add a minimal Code Simplicity Addendum or no harness change
+  after reviewing Probe #1-#5 evidence
 - keep Scenario-Simulator as a deferred architecture/planning candidate for a
   separate task selected under that repository's own rules
 - keep `AI_HANDOFF`, `STATUS`, and `ACCEPTANCE_TRACE` aligned after any future
@@ -167,6 +162,7 @@ Practical next candidates:
   upload, required CI checks, new profiles, new examples, RAG/index/vector
   store or model tooling, optional CI installation, and runtime, application,
   device, or live-write behavior until separately approved
+- do not start Probe #6 by default
 
 ## Historical / Deferred Candidate
 
