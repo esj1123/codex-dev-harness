@@ -40,6 +40,27 @@ A well-scoped Codex task should state:
 - completion report format
 - side-effect approval boundary
 
+## Coding Simplicity Clause
+
+For coding tasks, include this clause when scope risk is non-trivial:
+
+```text
+Coding simplicity:
+- Prefer the nearest existing module, symbol, helper, test, or documented pattern.
+- Do not add a new file, shared utility, package, gate, profile, example,
+  workflow, or automation unless it is required for this task and explicitly
+  approved.
+- Keep documentation-only, test-only, cleanup-only, and runtime behavior changes
+  separate when practical.
+- Use focused verification that matches the changed surface.
+- Do not weaken safety, private-data, approval, or live-write boundaries.
+```
+
+This clause is task-contract guidance only. It does not authorize code changes,
+side effects, workflow installation, eval quality-gate integration, RAG/index
+tooling, audit automation, release artifact generation, profiles, examples, or
+downstream writes.
+
 ## Pattern: Implementation Task
 
 Use only when implementation is explicitly approved.

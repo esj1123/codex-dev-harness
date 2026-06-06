@@ -66,6 +66,29 @@ Any new surface may require:
 
 If the burden is not justified, simplify or defer.
 
+## Code Simplicity Addendum
+
+Decision: add a minimal documentation-only addendum.
+
+Stage 5B `stock` Probe #1-#5 evidence supports keeping
+`codex-dev-harness` frozen as the current local-first governed baseline. The
+evidence supports coding restraint, not new automation or new repo surface.
+
+For future coding tasks:
+
+- Prefer the nearest existing file, symbol, helper, test, or documented pattern.
+- Add a new file, shared utility, package, gate, profile, example, workflow, or
+  automation only when repeated evidence and explicit owner approval justify it.
+- Keep documentation-only, test-only, cleanup-only, and runtime behavior changes
+  separate when practical.
+- Use focused verification that matches the changed surface.
+- Do not use simplicity as a reason to weaken safety, private-data, approval, or
+  live-write boundaries.
+
+This addendum does not add runtime code, render behavior, quality-gate
+integration, eval integration, CI, RAG/index tooling, audit automation, release
+artifact generation, profiles, examples, downstream writes, or stock Probe #6.
+
 ## Conclusion Options
 
 | option | meaning |

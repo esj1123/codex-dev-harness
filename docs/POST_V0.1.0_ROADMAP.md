@@ -38,9 +38,15 @@ Probe #1-#5 sequence is now closed out in
 deferred as an architecture/planning candidate. The `plc_or_device_tool` actual
 target experiment remains deferred and is not the next default stage.
 
-The next default is not another `stock` probe. The next default is a small
-review-only decision on whether the Probe #1-#5 evidence justifies a minimal
-Code Simplicity Addendum or whether no harness change is needed.
+The Stage 5B follow-up Code Simplicity decision is complete. The decision added
+a minimal documentation-only Code Simplicity Addendum in
+`docs/SIMPLIFICATION_CHECKLIST.md` and a short Coding Simplicity Clause in
+`docs/PROMPT_PATTERNS.md`.
+
+The next default is not another `stock` probe, not stock Probe #6, and not
+harness automation expansion. Keep `codex-dev-harness` frozen as the current
+local-first governed baseline unless a separate owner-approved task changes the
+scope.
 
 The optional design-stage pack is now a closed manual-use-only baseline. Its templates can be copied, merged, skipped, or used for review-only downstream work, but they are not part of the base render path.
 
@@ -404,9 +410,10 @@ task selects architecture or planning work under that repository's own rules.
 ## Next Review
 
 Use `docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md` for the current
-transition handoff. The next default is a review-only decision on whether the
-Probe #1-#5 evidence justifies a minimal Code Simplicity Addendum or whether no
-harness change is needed. Keep
+transition handoff. The Stage 5B follow-up Code Simplicity decision is
+complete as a minimal documentation-only addendum and prompt-contract clause.
+Keep `codex-dev-harness` frozen as the current local-first governed baseline,
+and do not start stock Probe #6 by default. Keep
 Scenario-Simulator production implementation, quality-gate eval integration,
 release page publication, local packaging, release bundle expansion, audit log
 generation, SBOM/provenance expansion or publication, CI, optional design-stage

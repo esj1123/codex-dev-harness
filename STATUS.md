@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Stage 5B stock practical probe closeout.
+Post-Stage-5B documentation alignment and Code Simplicity decision.
 
 ## Current State
 
@@ -19,9 +19,13 @@ Stages 1-5A are complete:
 The Stage 5B stock practical probe sequence is complete and documented in
 `docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md`. The result supports keeping
 `codex-dev-harness` frozen as the current local-first governed baseline. No
-further `stock` probes are the default next step. The next default is a
-review-only decision on whether the Probe #1-#5 evidence justifies a minimal
-Code Simplicity Addendum or whether no harness change is needed.
+further `stock` probes are the default next step. The review-only Code
+Simplicity decision is to add a minimal documentation-only addendum in
+`docs/SIMPLIFICATION_CHECKLIST.md` and a short prompt-contract clause in
+`docs/PROMPT_PATTERNS.md`. This does not change runtime code, render behavior,
+quality gates, eval integration, CI, RAG/index tooling, audit automation,
+release artifacts, profiles, examples, downstream repositories, or live
+behavior.
 
 Scenario-Simulator remains deferred as an architecture and planning candidate,
 and the `plc_or_device_tool` actual target experiment remains deferred and is
@@ -612,9 +616,9 @@ Stage 0 current-main gap review basis:
 Use `docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md` as the current handoff:
 keep `codex-dev-harness` frozen as the local-first governed template baseline,
 defer Scenario-Simulator as an architecture/planning candidate, and do not
-start another `stock` probe by default. The next default is a review-only
-decision on whether Probe #1-#5 justifies a minimal Code Simplicity Addendum or
-whether no harness change is needed.
+start another `stock` probe by default. Use the minimal Code Simplicity
+Addendum in `docs/SIMPLIFICATION_CHECKLIST.md` and the Coding Simplicity Clause
+in `docs/PROMPT_PATTERNS.md` as task-contract guidance for future coding work.
 
 Do not treat `plc_or_device_tool` actual target execution as the next default
 stage. Keep Scenario-Simulator production implementation, approved-corpus RAG

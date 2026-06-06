@@ -1,6 +1,16 @@
 # ROADMAP.md
 
-## Phase Status
+## Historical Notice
+
+This root roadmap is the historical P0-P6 roadmap. It no longer describes the
+current active operating plan.
+
+Current readers should use:
+
+- `STATUS.md`
+- `docs/POST_V0.1.0_ROADMAP.md`
+
+## Historical Phase Status
 
 | phase | status | summary |
 |---|---|---|
@@ -8,9 +18,9 @@
 | P1: Profile Templates | completed | Added `python_cli`, `csharp_desktop`, and `plc_or_device_tool` profile templates |
 | P2: Render and Base Quality Gate | completed | Added config-driven renderer and base quality gates |
 | P3: Example Skeletons | completed | Added minimal docs-only examples for three profiles |
-| P4: Example Gate Validation | in progress | Add example-specific gate coverage and render target guard hardening |
-| P5: Release Readiness | in progress | Define test dependency, release checklist, known limitations, and example config validation |
-| P6: Release | not started | Tag a reusable baseline and document known limitations |
+| P4: Example Gate Validation | completed | Added example-specific gate coverage and render target guard hardening |
+| P5: Release Readiness | completed | Defined test dependency, release checklist, known limitations, and example config validation |
+| P6: Release | completed | Tagged and documented the reusable local-first baseline |
 
 ## P0: Docs Only
 
@@ -54,7 +64,7 @@ Done:
 
 Goal: include example skeletons in the quality gate.
 
-Done when:
+Done:
 - `scripts/gates/example_gate.py` validates required example files.
 - Profile-specific safety phrases are checked.
 - Renderer allows only `examples/<name>` as repo-internal target.
@@ -63,16 +73,21 @@ Done when:
 
 Goal: prepare the repository for reusable baseline release.
 
-In progress:
+Done:
 - `requirements-dev.txt` defines test dependencies.
 - `docs/RELEASE_CHECKLIST.md` defines release checks.
 - `docs/KNOWN_LIMITATIONS.md` records current constraints.
 - Example config validation is part of `example_gate`.
-
-Still pending:
-- CI policy decision.
-- Release tag decision.
+- CI policy and optional CI decisions are documented outside this historical
+  roadmap.
+- Release records and current release state are documented outside this
+  historical roadmap.
 
 ## P6: Release
 
 Goal: tag a reusable baseline and document known limitations.
+
+Done:
+- Formal `v0.1.0` local-first baseline was tagged and documented.
+- Current release and post-v0.1.0 state are tracked in `STATUS.md` and
+  `docs/POST_V0.1.0_ROADMAP.md`.
