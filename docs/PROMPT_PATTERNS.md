@@ -178,6 +178,78 @@ Completion report:
 4. template-level recommendation
 ```
 
+## Pattern: Downstream Practical Probe Retrospective
+
+Use after a downstream repository practical probe. Default mode is review-only.
+The purpose is to decide whether completed downstream probe evidence justifies
+no `codex-dev-harness` change, a minimal docs-only improvement, or deferral
+until more downstream evidence exists.
+
+This pattern does not collect downstream domain evidence, approve
+implementation, or add automation. Target repositories remain governed by their
+own `AGENTS.md` or equivalent repo-local rules. `codex-dev-harness` remains
+frozen unless repeated downstream evidence justifies a small documentation-only
+change.
+
+```text
+Goal:
+Review completed downstream practical probe results and decide whether they
+justify a minimal codex-dev-harness improvement, no change, or deferral.
+
+Source:
+- downstream repository name
+- probe commit hashes or closeout records
+- changed files summary
+- verification and safety results
+- any friction or failure patterns
+
+Write scope:
+Read-only by default. Do not edit files unless a separate docs-only patch is
+explicitly approved.
+
+Review criteria:
+- Did the task contract work?
+- Did read-order and repo-local rules work?
+- Did allowed-file and forbidden-action scoping prevent drift?
+- Did verification reporting work?
+- Did closeout evidence capture safety boundaries?
+- Did Code Simplicity guidance help keep the probe small?
+- Was any friction repeated enough to justify a small harness change?
+- Is no change the better outcome?
+
+Improvement options:
+- no change
+- minimal docs-only prompt/policy wording
+- defer until another downstream probe
+- reject automation/profile/example expansion unless separately justified
+
+Forbidden actions:
+- no downstream repo edits
+- no downstream domain evidence collection
+- no runtime code
+- no CI workflow
+- no RAG/index/vector store
+- no audit automation
+- no eval quality-gate integration
+- no release artifact generation
+- no tag movement
+- no new profile or example
+- no implementation approval
+- no Hermes/MCP/runtime-agent expansion
+
+Completion report:
+1. PASS/PASS WITH NOTES/BLOCKED summary
+2. downstream probe summary
+3. what worked
+4. friction observed
+5. harness implications
+6. improvement options considered
+7. recommendation: no change / minimal docs-only patch / defer
+8. exact allowed files for any future patch
+9. forbidden actions
+10. next step
+```
+
 ## Pattern: Release/Closeout Task
 
 Use when recording release or phase evidence.
