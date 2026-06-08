@@ -1,0 +1,542 @@
+# Capability Implementation Roadmap
+
+## 1. Purpose
+
+Record the owner intent that the deferred capability surfaces are final
+implementation targets, and define the order needed to implement them safely.
+
+The question is no longer whether CI, RAG, audit, eval integration, MCP,
+Hermes, release automation, provenance, and downstream application are
+justified at all. The question is what must come first so later capability
+work has a verified source of truth, explicit approval boundary, redaction
+model, and local-first safety basis.
+
+This roadmap is documentation-only. It does not create workflows, install CI,
+implement RAG, create embeddings, create a vector database, create retrieval or
+index folders, automate audit logging, implement MCP, implement Hermes,
+integrate evals into the quality gate, generate release artifacts, regenerate
+artifacts, tag, push, publish, or edit downstream repositories.
+
+## 2. Owner implementation intent
+
+The owner intent is to eventually implement these capabilities in
+`codex-dev-harness` and downstream repositories:
+
+- CI.
+- RAG.
+- Audit / trace / receipt schema.
+- Eval integration.
+- MCP tool boundary.
+- Hermes sidecar.
+- Release automation / provenance.
+- Downstream repo application.
+
+Previous documents that deferred or rejected immediate implementation are not
+permanent blockers. They are historical risk evidence, safety boundary
+evidence, and sequencing evidence.
+
+The intended implementation posture is:
+
+- source-of-truth cleanup before automation;
+- local-first by default;
+- read-only review before side effects;
+- exact-file and exact-artifact approvals;
+- schema and metadata before automation;
+- digest before retrieval;
+- MCP boundary before sidecar behavior;
+- release and downstream integration only after the earlier evidence chain is
+  stable.
+
+## 3. Historical decision records and reinterpretation
+
+| record | historical decision | reinterpretation for implementation |
+|---|---|---|
+| `docs/OPTIONAL_RAG_PILOT_DECISION.md` | Do not start a RAG pilot at that time. | Not a permanent RAG blocker. It means RAG must start from approved corpus boundary, redaction, metadata, source digest, and local-first retrieval. |
+| `docs/AUDIT_RECEIPT_PILOT_REVIEW.md` | Audit automation was not justified at that time. | Not a permanent audit blocker. It means audit automation must start schema-first, with redaction rules and no prompt or raw private-data capture. |
+| `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md` | Keep CI deferred and template-only at that time. | Not a permanent CI blocker. It means CI must start as a read-only local verification mirror with no secrets, artifact upload, release, tag, deploy, or live write. |
+| `docs/APPROVED_CORPUS_RAG_PLAN.md` | Plan approved-corpus retrieval without implementing it. | The corpus boundary is the precondition for digest and retrieval work. Candidate status does not authorize indexing. |
+| `docs/EVAL_INTEGRATION_DECISION.md` | Keep evals standalone. | Eval output can become future evidence only after audit / trace / receipt fields are stable and integration scope is explicitly approved. |
+| `docs/AUDIT_LOG_POLICY.md` | Define optional future audit fields without real logs or automation. | The schema is the natural starting point for trace and receipt work, but implementation must preserve redaction and identifier-first evidence. |
+| `docs/PROMPT_PATTERNS.md` | Task contracts and closeout patterns are documentation-only. | Future implementation prompts should keep side-effect approval explicit and avoid bundling unrelated capabilities. |
+| `docs/SIMPLIFICATION_CHECKLIST.md` | Add durable repo surface only with repeated evidence and approval. | Capability implementation should be phased, minimal, and nearest-surface first, not broad automation in one task. |
+| `docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md` | Stock probe evidence did not justify immediate automation. | Stock practical sprint evidence is not a CI blocker. It is input for verification hygiene, docs-only verification policy, and temp-output policy. |
+
+These records should be cited as a hazard log. They identify risks to control,
+not capabilities to abandon.
+
+## 4. Capability inventory
+
+| capability | current state | target state | main dependency |
+|---|---|---|---|
+| Source of truth cleanup / repo state confirmation | Current and historical docs both exist; some docs still describe deferred defaults. | Confirm branch, local changes, upstream state, source docs, and owner-intent shift before implementation work. | None. |
+| Capability Implementation Roadmap | This document. | Durable owner-intent and sequencing record. | Source of truth cleanup. |
+| Read-only CI + verification hygiene | CI policy and inert templates exist; no workflow is installed. | Read-only verification mirror for existing local checks, with no secrets, uploads, release, tag, deploy, or live write. | Roadmap and source-of-truth confirmation. |
+| Audit / trace / receipt schema | Audit schema and manual receipt review exist; no automation. | Stable schema, redaction rules, receipt fields, validation plan, and manual examples before automation. | Read-only verification hygiene. |
+| Eval/report integration | Standalone local eval runner exists; no quality-gate or CI integration by default. | Evidence-aligned report integration that can cite audit and receipt identifiers. | Audit / trace / receipt schema. |
+| Approved corpus digest | Approved-corpus plan exists; no digest or index. | Exact allow-list, metadata, redaction checks, encoding checks, and digest contract. | Eval/report and audit identifiers. |
+| Local RAG | Planning only. | Local-first retrieval over the approved corpus, with retrieval output treated as advisory context. | Approved corpus digest. |
+| MCP tool boundary | No implementation. | Explicit allowed tool classes, input/output rules, approval boundaries, redaction rules, and audit hooks. | Local RAG and audit rules. |
+| Hermes sidecar | No implementation. | Local sidecar constrained by the MCP boundary, audit model, eval evidence, and approval rules. | MCP tool boundary. |
+| Release automation / provenance | Local evidence generators and release wrapper exist; no release automation or publication. | Approval-gated release automation and provenance flow after earlier evidence surfaces are stable. | CI, audit, eval, digest, RAG, MCP, and Hermes stability. |
+| Downstream product integration | Downstream adoption and probe records exist; no downstream edit in this task. | Product-specific integration under downstream repo rules and separate approvals. | Release automation / provenance readiness. |
+
+## 5. Dependency order
+
+Required implementation order:
+
+1. Source of truth cleanup / repo state confirmation.
+2. Capability Implementation Roadmap.
+3. Read-only CI + verification hygiene.
+4. Audit / trace / receipt schema.
+5. Eval/report integration.
+6. Approved corpus digest.
+7. Local RAG.
+8. MCP tool boundary.
+9. Hermes sidecar.
+10. Release automation / provenance.
+11. Downstream product integration.
+
+Steps 1 and 2 are governance preparation. The first implementation target after
+this roadmap is read-only CI + verification hygiene.
+
+The order matters:
+
+- source-of-truth cleanup prevents stale deferred docs from being misread as
+  current owner intent;
+- the roadmap records the new owner intent before implementation starts;
+- CI hygiene gives future phases a repeatable verification mirror;
+- audit / trace / receipt schema defines what evidence future phases can cite;
+- eval/report integration should not precede the receipt fields it needs;
+- approved corpus digest must precede retrieval;
+- local RAG must precede tool-facing context integration;
+- MCP tool boundaries must precede Hermes;
+- release automation and downstream product integration come last because they
+  carry the highest publication, retention, and product-coupling risks.
+
+## 6. Phase plan
+
+### Phase 1: source of truth cleanup / repo state confirmation
+
+Goal:
+
+- Confirm branch, upstream, local changes, staged state, and untracked state.
+- Identify docs that still describe historical deferral.
+- Record whether local commits are pushed, unpushed, or absent.
+- Avoid treating `main` and `origin/main` as equivalent without checking.
+
+Gate:
+
+- `git status --short --branch` or equivalent is recorded.
+- Any existing local changes are classified.
+- No source-of-truth update broadens implementation approval by itself.
+
+### Phase 2: Capability Implementation Roadmap
+
+Goal:
+
+- Create this document as the owner-intent and sequencing record.
+- Reinterpret historical optional decisions as risk evidence.
+- Define the first implementation target and later dependency order.
+
+Gate:
+
+- Only this roadmap changes unless a direct contradiction forces another docs
+  edit.
+- Required safety scans pass or policy-only matches are explained.
+- Release verification and artifact regeneration remain `NOT RUN` by scope.
+
+### Phase 3: read-only CI + verification hygiene
+
+Goal:
+
+- Implement the first capability target after this roadmap.
+- Mirror existing local verification in a read-only CI or CI-adjacent hygiene
+  path.
+- Keep manual or explicitly approved triggers at first.
+
+Must not include by default:
+
+- secrets;
+- artifact upload;
+- release publication;
+- signing;
+- tag creation or movement;
+- deployment;
+- downstream repo access;
+- RAG;
+- audit automation;
+- eval quality-gate integration;
+- MCP or Hermes;
+- live write.
+
+Gate:
+
+- Workflow or hygiene path is explicitly approved.
+- Permissions, triggers, commands, and no-publication boundaries are recorded.
+- CI output is treated as verification evidence, not release publication.
+
+### Phase 4: audit / trace / receipt schema
+
+Goal:
+
+- Stabilize schema fields for task id, actor, repo basis, local/remote state,
+  approval reference, files changed, commands run, verification result, safety
+  exclusions, redaction status, eval run id, corpus digest, and side-effect
+  class.
+- Preserve manual receipt precision before any automation.
+
+Must not include by default:
+
+- raw prompt capture;
+- raw private data capture;
+- raw source bundles;
+- unredacted tool-call bodies;
+- command-output bulk capture;
+- automatic audit logging.
+
+Gate:
+
+- Schema and examples use repo-relative paths, identifiers, summaries, and
+  hashes.
+- PASS, PASS WITH NOTES, BLOCKED, NOT RUN, and ENVIRONMENT BLOCKED semantics
+  are explicit.
+- Local commit, local branch-ahead, push, tag, and release states are
+  distinguished.
+
+### Phase 5: eval/report integration
+
+Goal:
+
+- Connect standalone eval results to durable evidence after receipt fields are
+  stable.
+- Decide whether the first integration is report-only, opt-in gate, CI use, or
+  another scoped mode.
+
+Must not include by default:
+
+- default quality-gate integration;
+- release-blocking semantics;
+- external services;
+- LLM judge;
+- routine report generation;
+- CI integration beyond the approved phase.
+
+Gate:
+
+- Report fields align with audit / trace / receipt schema.
+- False-positive and false-negative risks are documented.
+- Default local eval behavior remains unchanged unless explicitly approved.
+
+### Phase 6: approved corpus digest
+
+Goal:
+
+- Define exact corpus files or patterns, exclusions, metadata, risk labels,
+  redaction checks, encoding checks, and digest format.
+- Produce a digest contract before retrieval or indexing.
+
+Must not include by default:
+
+- private raw data;
+- prompt/session transcripts;
+- model outputs;
+- downstream generated output;
+- live configuration;
+- sensitive values;
+- retrieval/index folder;
+- embeddings;
+- vector database.
+
+Gate:
+
+- Owner approves the exact allow-list and forbidden corpus list.
+- Digest input is repo-relative and release-safe.
+- Historical records receive risk labels so deferred plans are not treated as
+  approval.
+
+### Phase 7: local RAG
+
+Goal:
+
+- Add local-first retrieval only after approved corpus digest discipline is
+  proven.
+- Treat retrieval output as advisory context, not approval.
+
+Must not include by default:
+
+- external retrieval services;
+- broad corpus ingestion;
+- private or downstream raw data;
+- approval bypass;
+- live target permissions.
+
+Gate:
+
+- Retrieval uses only the approved corpus basis.
+- Generated indexes or dependencies are exact-file and exact-command approved.
+- Retrieval output cannot broaden the current task contract.
+
+### Phase 8: MCP tool boundary
+
+Goal:
+
+- Define allowed MCP tool classes, forbidden calls, input/output redaction,
+  audit references, approval rules, and failure handling.
+- Separate boundary definition from runtime implementation.
+
+Must not include by default:
+
+- unknown executable execution;
+- installer, driver, DLL, or binary execution;
+- live endpoint calls;
+- downstream mutation;
+- release publication;
+- approval-free side effects.
+
+Gate:
+
+- Read-only inspection, local generation, approval-gated side effects, and
+  forbidden live behavior are distinct classes.
+- Tool-call evidence avoids raw prompts, private data, raw source, live values,
+  and secrets by default.
+- Downstream repo rules remain authoritative for downstream work.
+
+### Phase 9: Hermes sidecar
+
+Goal:
+
+- Implement the sidecar only after the MCP tool boundary is explicit and tested.
+- Keep sidecar behavior local-first and approval-gated.
+
+Must not include by default:
+
+- product mutation;
+- external sends;
+- release publication;
+- live target action;
+- unapproved device behavior;
+- unapproved downstream writes.
+
+Gate:
+
+- Sidecar inputs, outputs, logs, and evidence follow the audit and corpus
+  rules.
+- Failure modes are documented and tested.
+- No sidecar behavior bypasses task contracts, approval records, or safety
+  invariants.
+
+### Phase 10: release automation / provenance
+
+Goal:
+
+- Automate approved release evidence and provenance steps only after CI,
+  audit, eval, digest, RAG, MCP, and Hermes surfaces are stable.
+
+Must not include by default:
+
+- publication;
+- signing;
+- tag movement;
+- artifact upload;
+- archive generation;
+- downstream product release.
+
+Gate:
+
+- Exact artifacts, retention, signing, publication, tag behavior, rollback, and
+  verification commands are approved.
+- Local source-basis commit, artifact-containing commit, push, tag, and release
+  states are distinguished.
+
+### Phase 11: downstream product integration
+
+Goal:
+
+- Apply the governed capability chain to downstream repositories under each
+  downstream repository's rules.
+
+Must not include by default:
+
+- downstream edits from this roadmap task;
+- downstream private data capture;
+- live endpoint, broker, account, device, or equipment values;
+- bypass of downstream approval records.
+
+Gate:
+
+- Downstream task contract names allowed files, forbidden actions, verification,
+  and closeout requirements.
+- Downstream evidence is summarized safely and does not copy raw sensitive
+  content into `codex-dev-harness`.
+
+## 7. Safety invariants
+
+All phases preserve these invariants:
+
+- local-first by default;
+- read-only review first;
+- explicit side-effect boundary;
+- no unapproved live write;
+- no private raw data;
+- no secrets, tokens, credentials, account identifiers, or real config values;
+- no real IP, port, device value, live endpoint, broker/account value, or
+  equipment parameter in repo-facing text;
+- no unknown executable, installer, driver, DLL, or binary execution;
+- no broad refactor;
+- no implementation without phase decision;
+- do not mark unrun verification as PASS;
+- report PASS, PASS WITH NOTES, BLOCKED, NOT RUN, and ENVIRONMENT BLOCKED
+  honestly;
+- distinguish local commit from remote push;
+- distinguish source-basis commit from artifact-containing commit when release
+  evidence is involved;
+- do not let historical records silently grant approval for current side
+  effects.
+
+## 8. Approval boundaries
+
+Each implementation phase requires a separate owner approval.
+
+Approval must identify:
+
+- target phase and capability;
+- exact files, directories, workflows, scripts, schemas, artifacts, or
+  downstream repositories in scope;
+- side-effect class;
+- allowed commands;
+- forbidden commands and forbidden actions;
+- whether generated artifacts may be created or committed;
+- whether network, cloud CI, external services, MCP calls, or sidecars are
+  allowed;
+- whether reports, audit entries, corpus digests, indexes, retrieval outputs,
+  or release evidence may be generated;
+- verification commands;
+- closeout criteria;
+- explicit exclusions for private data, secrets, live targets, publication,
+  tags, pushes, release artifacts, and downstream edits.
+
+Broad approval to improve automation, context, quality, reliability, release
+confidence, or agent integration is not enough to cross these boundaries.
+
+## 9. First implementation target
+
+The first implementation target after this roadmap is:
+
+- read-only CI + verification hygiene.
+
+The next targets are:
+
+- second: audit / trace / receipt schema;
+- third: eval/report integration;
+- fourth: approved corpus digest;
+- fifth: local RAG;
+- sixth: MCP tool boundary;
+- seventh: Hermes sidecar;
+- later: release automation and downstream product integration.
+
+The first target should verify current repository hygiene without adding
+release behavior. It should mirror local checks, keep permissions read-only,
+avoid secrets, avoid artifact upload, avoid tags, avoid deployment, and avoid
+live write. It should also improve closeout precision by reporting local and
+remote state clearly.
+
+## 10. Per-capability success criteria
+
+| capability | success criteria |
+|---|---|
+| Source of truth cleanup / repo state confirmation | Branch, upstream, local changes, staged state, untracked state, and local-vs-remote status are reported before implementation. Historical deferral docs are classified as historical risk evidence. |
+| Capability Implementation Roadmap | This document exists, records owner intent, lists the dependency order, and sets read-only CI + verification hygiene as the first implementation target. |
+| Read-only CI + verification hygiene | Approved verification path runs existing local checks in read-only mode, with no secrets, artifact upload, release, tag, deploy, downstream edit, or live write. |
+| Audit / trace / receipt schema | Schema and manual examples capture outcome, git state, approvals, files, commands, verification, safety exclusions, redaction status, and NOT RUN reasons without raw private data. |
+| Eval/report integration | Eval reports cite stable receipt fields, remain non-LLM and local unless separately approved, and do not become default gate or release-blocking behavior without explicit approval. |
+| Approved corpus digest | Exact safe corpus allow-list, forbidden corpus list, metadata, risk labels, redaction checks, encoding checks, and digest format are approved and verified. |
+| Local RAG | Retrieval is local-first, limited to the approved corpus basis, advisory only, and unable to broaden approval or side-effect permissions. |
+| MCP tool boundary | Tool classes, inputs, outputs, logs, redaction, approvals, and forbidden behavior are documented and tested before sidecar implementation. |
+| Hermes sidecar | Sidecar behavior is local-first, constrained by MCP boundary and audit rules, has tested failure modes, and cannot bypass task or downstream repo contracts. |
+| Release automation / provenance | Automation names exact artifacts and publication-adjacent behavior, distinguishes local commit from push/tag/release, and does not publish or move tags without explicit approval. |
+| Downstream product integration | Downstream repo work uses repo-local rules, safe summaries, explicit approvals, and no private raw data or live values in harness-facing records. |
+
+## 11. Closeout criteria
+
+Every phase closeout must report:
+
+- PASS, PASS WITH NOTES, BLOCKED, NOT RUN, or ENVIRONMENT BLOCKED where
+  applicable;
+- changed files and files intentionally not touched;
+- commands run and command-by-command results;
+- commands intentionally not run and reasons;
+- generated artifacts, or confirmation that none were generated;
+- local commit state, push state, tag state, and release state when relevant;
+- safety exclusions checked;
+- approval basis;
+- unresolved risks or assumptions;
+- next recommended task.
+
+For this roadmap task, closeout must confirm:
+
+- only `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` changed;
+- no `.github/workflows` creation occurred;
+- no CI installation occurred;
+- no RAG code, embeddings, vector database, retrieval/index folder, audit
+  automation, MCP implementation, Hermes implementation, or eval quality-gate
+  integration was added;
+- no release artifacts were created or regenerated;
+- no release verification was run;
+- no tag, push, release publication, commit, or downstream repo edit occurred
+  unless separately requested and approved;
+- path, sensitive-term, and IP-like scans were run and results were reported
+  honestly.
+
+## 12. Next task prompt
+
+```text
+Repository:
+esj1123/codex-dev-harness
+
+Task:
+Implement Phase 3: read-only CI + verification hygiene.
+
+Goal:
+Create the smallest approved read-only verification hygiene path after the
+Capability Implementation Roadmap. Mirror existing local verification without
+release behavior.
+
+Read first:
+- AGENTS.md
+- STATUS.md
+- docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md
+- docs/CI_POLICY.md
+- docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md
+- docs/VERIFICATION.md
+- docs/AUDIT_RECEIPT_PILOT_REVIEW.md
+
+Before editing:
+- report branch and local/remote state
+- report existing working-tree changes
+- identify expected touch files
+- identify forbidden actions
+- identify verification commands
+
+Required boundaries:
+- read-only verification only
+- no secrets
+- no artifact upload
+- no release publication
+- no signing
+- no tag creation or movement
+- no deployment
+- no downstream repo edit
+- no RAG, embeddings, vector DB, or retrieval/index folder
+- no audit automation
+- no eval quality-gate integration
+- no MCP or Hermes implementation
+- no live write
+
+Closeout:
+- PASS / PASS WITH NOTES / BLOCKED
+- changed files
+- verification results command by command
+- safety exclusions
+- whether local commit, push, tag, release, or artifact generation occurred
+- next recommended task
+```
