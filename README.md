@@ -15,6 +15,9 @@ The repository has moved beyond the historical P0 docs-only baseline. It current
 - A base quality gate.
 - Minimal example skeletons under `examples/`.
 - Tests for render and gate behavior.
+- A capability implementation roadmap that records CI, RAG, audit/trace,
+  eval integration, MCP/Hermes, release automation, provenance, and downstream
+  application as final implementation targets.
 
 No real application code, PLC/device code, live target configuration, secrets, or private raw input is included.
 
@@ -43,11 +46,12 @@ Those items are no longer described as current absence. Render script, quality g
 2. PRODUCT.md
 3. MVP.md
 4. STATUS.md
-5. ACCEPTANCE_TRACE.md
-6. docs/SAFETY_POLICY.md
-7. docs/VERIFICATION.md
-8. docs/PROFILE_MATRIX.md
-9. docs/AI_HANDOFF.md
+5. docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md
+6. ACCEPTANCE_TRACE.md
+7. docs/SAFETY_POLICY.md
+8. docs/VERIFICATION.md
+9. docs/PROFILE_MATRIX.md
+10. docs/AI_HANDOFF.md
 
 ## Repository Structure
 
@@ -58,6 +62,7 @@ Those items are no longer described as current absence. Render script, quality g
 - ROADMAP.md
 - STATUS.md
 - ACCEPTANCE_TRACE.md
+- docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md
 - code_review.md
 - docs/
 - templates/base/
@@ -102,7 +107,7 @@ Python runtime and dependency reproducibility are documented in
 `requirements-dev.txt`, and exact local verification pins are recorded in
 `requirements-dev.lock`.
 
-CI policy is documented in `docs/CI_POLICY.md`. No workflow is included in the current baseline.
+CI policy is documented in `docs/CI_POLICY.md`. No workflow is included in the current baseline. Per `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`, the first implementation target after the roadmap is read-only CI and verification hygiene.
 
 ## Local-First Usage
 
@@ -116,7 +121,7 @@ The intended baseline workflow is local-first:
 
 See `docs/LOCAL_USAGE.md` for the full local usage flow and `docs/LOCAL_RELEASE_PACKAGE.md` for local package boundaries.
 
-CI remains optional and is not a baseline requirement.
+CI remains approval-gated and is not a baseline runtime requirement. The next planned CI step is a read-only verification hygiene path, not release publication or deployment.
 
 ## AI Readiness Scanner
 

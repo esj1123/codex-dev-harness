@@ -12,7 +12,9 @@ The repository is not currently configured with active CI. Release readiness is
 verified locally with documented commands, local release evidence, and recorded
 closeout evidence.
 
-Current decision: KEEP CI DEFERRED AND TEMPLATE-ONLY.
+Current implementation sequence: read-only CI + verification hygiene is the
+first implementation target after `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`.
+No active workflow is installed by this policy.
 
 The current local evidence baseline includes:
 
@@ -23,14 +25,17 @@ The current local evidence baseline includes:
 - local release manifest, checksum, SBOM, provenance, and optional eval report
   artifacts
 
-These local surfaces are sufficient for the baseline. Active GitHub Actions
-workflows remain deferred.
+These local surfaces are sufficient for the current baseline and are the checks
+that a first CI hygiene phase should mirror. Active GitHub Actions workflows
+remain uninstalled until a separate owner-approved implementation task names
+the workflow path, triggers, permissions, commands, and exclusions.
 
-## Future Optional CI
+## First CI Implementation Target
 
-GitHub Actions may be added in a future phase, but it is optional and requires
-separate owner approval. If CI is introduced, it should start as a manual,
-read-only workflow that only runs repository validation checks:
+GitHub Actions may be added in a future phase only with separate owner
+approval. Per the capability implementation roadmap, CI should start as a
+manual or otherwise approval-gated read-only workflow that only runs repository
+validation checks:
 
 - `python -m pytest`
 - `python scripts/quality_gate.py`

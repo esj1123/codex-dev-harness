@@ -10,15 +10,18 @@ This file defines the operating rules for AI/Codex work in this repository.
 2. PRODUCT.md
 3. MVP.md
 4. STATUS.md
-5. ACCEPTANCE_TRACE.md
-6. docs/SAFETY_POLICY.md
-7. docs/VERIFICATION.md
-8. docs/PROFILE_MATRIX.md
-9. docs/AI_HANDOFF.md
+5. docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md
+6. ACCEPTANCE_TRACE.md
+7. docs/SAFETY_POLICY.md
+8. docs/VERIFICATION.md
+9. docs/PROFILE_MATRIX.md
+10. docs/AI_HANDOFF.md
 
 ## Current Phase Rule
 
-The historical P0 docs-only baseline is complete. The repository now includes documentation, profile templates, render tooling, quality gates, and minimal example skeletons.
+The historical P0 docs-only baseline and Stage 5B stock practical probe closeout are complete. The repository now includes documentation, profile templates, render tooling, quality gates, minimal example skeletons, and a capability implementation roadmap.
+
+The current implementation sequencing source of truth is `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`. Historical optional/deferred decisions remain risk evidence and approval-boundary evidence, not permanent blockers to the roadmap targets.
 
 Allowed:
 - Edit documentation, markdown templates, profiles, examples, tests, and quality gate scripts within the requested scope.

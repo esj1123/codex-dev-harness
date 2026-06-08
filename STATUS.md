@@ -2,34 +2,38 @@
 
 ## Current Phase
 
-Post-Stage-5B documentation alignment and Code Simplicity decision.
+Capability implementation sequencing after roadmap creation.
 
 ## Current State
 
-The repository contains documentation, base templates, profile templates, render tooling, quality gates, tests, minimal example skeletons, and a standalone local read-only AI readiness scanner.
+The repository contains documentation, base templates, profile templates, render tooling, quality gates, tests, minimal example skeletons, a standalone local read-only AI readiness scanner, local release evidence tooling, and a capability implementation roadmap.
 
 Stages 1-5A are complete:
 
 - Stage 1 documentation drift cleanup.
 - Stage 2 local post-v0.1.0 evidence baseline.
 - Stage 3 eval integration decision: keep standalone.
-- Stage 4 optional CI decision: keep deferred and template-only.
+- Stage 4 optional CI decision: historical template-only risk evidence.
 - Stage 5A downstream transition decision.
 
 The Stage 5B stock practical probe sequence is complete and documented in
-`docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md`. The result supports keeping
-`codex-dev-harness` frozen as the current local-first governed baseline. No
-further `stock` probes are the default next step. The review-only Code
-Simplicity decision is to add a minimal documentation-only addendum in
-`docs/SIMPLIFICATION_CHECKLIST.md` and a short prompt-contract clause in
-`docs/PROMPT_PATTERNS.md`. This does not change runtime code, render behavior,
-quality gates, eval integration, CI, RAG/index tooling, audit automation,
-release artifacts, profiles, examples, downstream repositories, or live
-behavior.
+`docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md`. That closeout remains
+historical risk and operating-discipline evidence. It is no longer the current
+implementation handoff.
 
 Scenario-Simulator remains deferred as an architecture and planning candidate,
 and the `plc_or_device_tool` actual target experiment remains deferred and is
 not the next default stage.
+
+Current implementation sequencing is defined by
+`docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`. The owner intent is to eventually
+implement CI, RAG, audit / trace / receipt schema, eval/report integration,
+MCP tool boundary, Hermes sidecar, release automation / provenance, and
+downstream product integration. The first implementation target after the
+roadmap is read-only CI + verification hygiene. The next targets are audit /
+trace / receipt schema, eval/report integration, approved corpus digest, local
+RAG, MCP tool boundary, Hermes sidecar, and later release automation /
+provenance plus downstream product integration.
 
 ## Current Verification Snapshot
 
@@ -39,6 +43,8 @@ baseline refresh after the Stage 1 documentation drift cleanup.
 | item | status | evidence |
 |---|---|---|
 | basis branch/ref | PRESENT | `main` / `origin/main` |
+| capability implementation roadmap | PRESENT / CURRENT SEQUENCING SOURCE | `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`; historical optional/deferred decisions are risk evidence, not permanent blockers |
+| first implementation target | DECIDED | Read-only CI + verification hygiene; no workflow is installed by this status record |
 | current repository commit before Stage 2 evidence regeneration | PRESENT | `9ae69c5fbf65953db2b0efb82b4904098f8a7581` |
 | previous artifact-containing commit observed during Stage 0 read-only review | HISTORICAL | `ab77ab0a0b44c2f1bd700820bfeb358c6ec1bbe7` |
 | current repository commit before `csharp_desktop` experiment | PRESENT | `76d88b842852635c95adcd8f3534f95e8bdc3ff5` |
@@ -70,10 +76,10 @@ baseline refresh after the Stage 1 documentation drift cleanup.
 | full pytest after scanner | PASS | 81 tests passed with documented local Python runtime |
 | quality gate after scanner | PASS | docs, hygiene, schema, examples, render drift, and secret scan passed with documented local Python runtime |
 | bare `python.exe` after scanner | ENVIRONMENT BLOCKED | Existing Windows logon session error remains; documented local runtime was used for verification |
-| CI decision | KEEP DEFERRED / TEMPLATE-ONLY | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`; future manual read-only workflow installation requires separate owner approval |
+| CI decision | FIRST TARGET / APPROVAL-GATED | `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` supersedes the optional CI decision for sequencing; first implementation target is read-only CI + verification hygiene, while workflow installation still requires separate owner approval |
 | Stage 5A direction decision | SUPERSEDED BY STAGE 5B HANDOFF | `docs/NEXT_DIRECTION_DECISION.md`; Stage 5A remains historical evidence, while Stage 5B selects `stock` as the first practical probe |
-| Stage 5B target repo selection and probe plan | PRESENT | `docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md`; freeze harness, defer Scenario-Simulator implementation, select `stock`, and define test-only/dry-run safety coverage |
-| Stage 5B stock practical probe closeout | PRESENT | `docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md`; Probe #1-#5 evidence supports current local-first discipline, no default Probe #6, and no immediate harness automation expansion |
+| Stage 5B target repo selection and probe plan | PRESENT / HISTORICAL HANDOFF | `docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md`; remains historical probe-selection evidence, superseded for implementation sequencing by the capability roadmap |
+| Stage 5B stock practical probe closeout | PRESENT / HISTORICAL RISK EVIDENCE | `docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md`; Probe #1-#5 evidence supports current local-first discipline and informs verification hygiene, but is not a blocker to roadmap targets |
 | Scenario-Simulator treatment | DEFERRED ARCHITECTURE / PLANNING CANDIDATE | No `profiles/scenario_simulator` or `examples/scenario_simulator_minimal`; use Scenario-Simulator repo-local planning docs only when separately selected |
 | stock practical probe sequence | COMPLETE / CLOSEOUT RECORDED | Probe #1-#5 were completed in `stock` under separate target-repo tasks; this harness task records privacy-safe evidence summaries only and does not write to `stock` |
 | `plc_or_device_tool` actual experiment | DEFERRED / NOT NEXT DEFAULT | Separate owner approval required; not the current strategic priority |
@@ -112,6 +118,7 @@ baseline refresh after the Stage 1 documentation drift cleanup.
   - `docs/BUG_REVIEW_TEMPLATE.md`
   - `docs/SIMPLIFICATION_CHECKLIST.md`
   - `docs/POST_V0.1.0_ROADMAP.md`
+  - `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`
   - `docs/POST_V0.1.0_EVIDENCE_BASELINE_CLOSEOUT.md`
   - `docs/RELEASE_PAGE_DECISION.md`
   - `docs/LOCAL_PACKAGE_CHECKLIST.md`
@@ -191,6 +198,8 @@ baseline refresh after the Stage 1 documentation drift cleanup.
   `templates/ci/github-actions-release-verify.yml.template`.
 - Optional CI actualization decision:
   `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`.
+- Capability implementation roadmap:
+  `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`.
 - Reusable prompt contract templates under `prompts/task_contract/`.
 - Minimal local-only eval harness design and expanded implementation: `docs/MINIMAL_EVAL_HARNESS_DESIGN.md`, `scripts/run_eval.py`, `scripts/gates/eval_gate.py`, and 14 named cases under `evals/cases/`.
 - Audit log schema for future optional evidence: `audits/audit-log.schema.json`.
@@ -333,7 +342,7 @@ Stage 0 current-main gap review basis:
 | optional CI local verify template | DONE | `templates/ci/github-actions-local-verify.yml.template` exists and no workflow is installed |
 | optional CI local verify template | PRESENT / OPTIONAL | `templates/ci/github-actions-local-verify.yml.template` exists and no workflow is installed |
 | optional CI release verify template | PRESENT / OPTIONAL | `templates/ci/github-actions-release-verify.yml.template` exists and no workflow is installed |
-| optional CI actualization decision | KEEP DEFERRED / TEMPLATE-ONLY | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md` records local-first sufficiency, template-only decision, no artifact upload, and owner-approval boundary before workflow installation |
+| optional CI actualization decision | HISTORICAL RISK EVIDENCE | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md` records local-first sufficiency, template-only decision, no artifact upload, and owner-approval boundary before workflow installation; superseded for implementation sequencing by `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` |
 | release bundle policy | PRESENT | `docs/RELEASE_BUNDLE_POLICY.md`; records the local manifest/checksum generator boundary and future release evidence exclusions |
 | release manifest policy | PRESENT | `docs/RELEASE_MANIFEST_POLICY.md`; defines current manifest fields, deterministic ordering, exclusions, and checksum rules |
 | SBOM/provenance plan | IMPLEMENTED MINIMAL LOCAL | `docs/SBOM_PROVENANCE_PLAN.md`; minimal local generators and artifacts exist; no dependencies, external services, CI, tags, signatures, or release publication |
@@ -555,8 +564,8 @@ Stage 0 current-main gap review basis:
 | optional release verification CI template | TEMPLATE ONLY / DEFERRED | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`, `docs/OPTIONAL_GITHUB_ACTIONS.md`, and `templates/ci/*.template` exist; no `.github/workflows`, required checks, artifact upload, publishing, signing, tag movement, deployment, application code, or live-write behavior |
 | additional local target experiment plans | PARTIAL EXECUTED | `docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md` was executed once with explicit approval and recorded in `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md`; `docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md` remains planning-only |
 | Stage 5A next direction decision | PRESENT / HISTORICAL | `docs/NEXT_DIRECTION_DECISION.md`; originally recommended freezing the harness after minimal cleanup and moving to Scenario-Simulator P1 planning |
-| Stage 5B target repo selection and practical probe plan | PRESENT | `docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md`; current handoff freezes the harness, defers Scenario-Simulator implementation, selects `stock`, and constrains the first probe to test-only/dry-run safety coverage |
-| Stage 5B stock practical probe closeout | PRESENT | `docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md`; Probe #1-#5 support the current local-first discipline and do not justify immediate CI, RAG, audit, release, eval quality-gate, profile, example, or runtime expansion |
+| Stage 5B target repo selection and practical probe plan | PRESENT / HISTORICAL HANDOFF | `docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md`; historical handoff froze the harness, deferred Scenario-Simulator implementation, selected `stock`, and constrained the first probe to test-only/dry-run safety coverage |
+| Stage 5B stock practical probe closeout | PRESENT / HISTORICAL RISK EVIDENCE | `docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md`; Probe #1-#5 support the current local-first discipline and inform verification hygiene, docs-only verification policy, and temp-output policy; superseded for implementation sequencing by the capability roadmap |
 | Stage 1 change control policy | PRESENT | `docs/CHANGE_CONTROL.md`; documentation-only |
 | Stage 1 human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md`; documentation-only |
 | Stage 1 eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval exists; no dependencies, quality-gate integration, or CI integration |
@@ -613,21 +622,16 @@ Stage 0 current-main gap review basis:
 
 ## Next Recommended Step
 
-Use `docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md` as the current handoff:
-keep `codex-dev-harness` frozen as the local-first governed template baseline,
-defer Scenario-Simulator as an architecture/planning candidate, and do not
-start another `stock` probe by default. Use the minimal Code Simplicity
-Addendum in `docs/SIMPLIFICATION_CHECKLIST.md` and the Coding Simplicity Clause
-in `docs/PROMPT_PATTERNS.md` as task-contract guidance for future coding work.
+Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
+sequencing handoff.
 
-Do not treat `plc_or_device_tool` actual target execution as the next default
-stage. Keep Scenario-Simulator production implementation, approved-corpus RAG
-implementation, retrieval/index generation, embeddings, model comparison
-tooling, prompt/model output capture, eval integration into
-`scripts/quality_gate.py`, CI integration, routine eval report generation, real
-audit session log generation, audit logging automation, broader release bundle
-or archive generation, SBOM/provenance expansion or publication, active
-workflows, required CI checks, CI artifact upload, release publication,
-signing, tag movement, deployment, new profiles, new examples, stock runtime or
-live broker behavior, and application/device/live-write behavior deferred
-unless separately approved.
+The next recommended task is Phase 3: read-only CI + verification hygiene. The
+task should mirror existing local verification in a read-only, approval-gated
+path and must not add secrets, artifact upload, release publication, signing,
+tag movement, deployment, downstream edits, RAG/index tooling, audit
+automation, eval quality-gate integration, MCP/Hermes implementation, or live
+write behavior.
+
+Treat Stage 5B stock probe records, optional CI/RAG/audit decisions, and the
+post-v0.1.0 evidence baseline as historical risk evidence for the roadmap, not
+as permanent blockers to the final implementation targets.

@@ -4,6 +4,10 @@
 
 Record the post-v0.1.0 operating direction for codex-dev-harness without starting new implementation work.
 
+This document is now historical operating context for the completed
+post-v0.1.0 and Stage 5B baseline. Current capability implementation
+sequencing is defined by `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`.
+
 This document is planning-only. It does not create an active CI workflow,
 release publication path, eval harness expansion, SBOM/provenance expansion,
 RAG index, model comparison tool, new profile, example project, or application
@@ -17,8 +21,17 @@ The formal v0.1.0 baseline is a local-first governed template for downstream pro
 
 ## Next Priority
 
-Next priority: keep `codex-dev-harness` frozen as the current governed
-baseline after the completed Stage 5B stock practical probe closeout.
+Next priority: follow `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`.
+
+The first implementation target after the capability roadmap is read-only CI +
+verification hygiene. The following targets are audit / trace / receipt schema,
+eval/report integration, approved corpus digest, local RAG, MCP tool boundary,
+Hermes sidecar, and later release automation / provenance plus downstream
+product integration.
+
+The earlier Stage 5B direction to keep `codex-dev-harness` frozen remains
+historical risk evidence for avoiding broad or immediate automation. It is not
+a permanent blocker to the roadmap targets.
 
 The most useful post-v0.1.0 signal is how the base template behaves when applied to real downstream planning targets. Feedback should focus on documentation clarity, safety boundaries, approval gates, source indexing, and render ergonomics before adding new automation.
 
@@ -30,10 +43,10 @@ Stages 1-5A after the evidence baseline are complete:
 - Stage 4 optional CI decision: keep deferred and template-only.
 - Stage 5A downstream transition decision.
 
-The Stage 5A direction decision is to keep `codex-dev-harness` stable as the
-current local-first governed template baseline. Stage 5B superseded the default
+The Stage 5A direction decision kept `codex-dev-harness` stable as the
+local-first governed template baseline. Stage 5B superseded that default
 next step by selecting `stock` as the first practical probe candidate, and the
-Probe #1-#5 sequence is now closed out in
+Probe #1-#5 sequence is closed out in
 `docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md`. Scenario-Simulator remains
 deferred as an architecture/planning candidate. The `plc_or_device_tool` actual
 target experiment remains deferred and is not the next default stage.
@@ -43,10 +56,10 @@ a minimal documentation-only Code Simplicity Addendum in
 `docs/SIMPLIFICATION_CHECKLIST.md` and a short Coding Simplicity Clause in
 `docs/PROMPT_PATTERNS.md`.
 
-The next default is not another `stock` probe, not stock Probe #6, and not
-harness automation expansion. Keep `codex-dev-harness` frozen as the current
-local-first governed baseline unless a separate owner-approved task changes the
-scope.
+The next default is not another `stock` probe and not stock Probe #6. The
+current harness implementation sequence is now the capability roadmap. Each
+implementation phase still requires a separate owner-approved task with exact
+files, artifacts, dependencies, verification, and safety boundaries.
 
 The optional design-stage pack is now a closed manual-use-only baseline. Its templates can be copied, merged, skipped, or used for review-only downstream work, but they are not part of the base render path.
 
@@ -170,8 +183,34 @@ CI, release, target render, application, device, or live-write behavior.
 17. Stage 5A downstream transition decision.
 18. Stage 5B target repo selection and practical probe plan.
 19. Stage 5B stock practical probe closeout.
+20. Capability implementation roadmap.
 
-Each item is optional and should remain approval-gated. Planning a future capability does not authorize implementing it.
+Each historical item was optional and approval-gated. The capability
+implementation roadmap records the owner-intent shift from indefinite deferral
+to ordered implementation targets. Planning a future capability still does not
+authorize implementing it without a phase decision.
+
+## Current Capability Implementation Sequence
+
+The current sequence is:
+
+1. Source of truth cleanup / repo state confirmation.
+2. Capability Implementation Roadmap.
+3. Read-only CI + verification hygiene.
+4. Audit / trace / receipt schema.
+5. Eval/report integration.
+6. Approved corpus digest.
+7. Local RAG.
+8. MCP tool boundary.
+9. Hermes sidecar.
+10. Release automation / provenance.
+11. Downstream product integration.
+
+The first implementation target after the roadmap is read-only CI +
+verification hygiene. It must not include secrets, artifact upload, release
+publication, signing, tag movement, deployment, downstream edits, RAG/index
+tooling, audit automation, eval quality-gate integration, MCP/Hermes
+implementation, or live write.
 
 ## Optional Design-Stage Pack Status
 
@@ -275,11 +314,14 @@ external services, install CI, or add application/device/live-write behavior.
 
 ## Optional CI Actualization
 
-Status: DEFERRED / TEMPLATE-ONLY DECISION PRESENT.
+Status: HISTORICAL TEMPLATE-ONLY DECISION / FIRST ROADMAP TARGET.
 
-`docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md` records the current decision that
-local-first verification remains sufficient for the baseline and that
-`scripts/run_release_verify.ps1` covers current release verification needs.
+`docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md` records the historical decision
+that local-first verification was sufficient for the baseline and that
+`scripts/run_release_verify.ps1` covered release verification needs. Under the
+capability implementation roadmap, this decision is risk evidence: CI should
+start as a read-only local verification mirror, not as artifact upload,
+publication, signing, tag movement, deployment, or live write.
 
 `templates/ci/github-actions-release-verify.yml.template` provides an optional
 manual workflow template for downstream forks. It is not installed under
@@ -292,7 +334,7 @@ manual workflow template for local verification checks. It is also not
 installed under `.github/workflows/`.
 
 Actual workflow installation, required checks, artifact upload, release
-publication, signing, tag movement, or deployment requires separate owner
+publication, signing, tag movement, or deployment still requires separate owner
 approval.
 
 ## Additional Local Target Experiment Planning
@@ -326,17 +368,18 @@ separate owner decision.
 
 Status: CLOSED OUT.
 
-`docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md` records the current
-handoff. It freezes `codex-dev-harness` as the local-first governed baseline,
-defers Scenario-Simulator as an architecture/planning candidate, selects
-`stock` as the first practical probe candidate, and constrains that first probe
-to test-only/dry-run evidence path safety coverage.
+`docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md` records the historical
+Stage 5B handoff. It froze `codex-dev-harness` as the local-first governed
+baseline, deferred Scenario-Simulator as an architecture/planning candidate,
+selected `stock` as the first practical probe candidate, and constrained that
+first probe to test-only/dry-run evidence path safety coverage.
 
 `docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md` records the completed
-Probe #1-#5 evidence and decision implications. The closeout supports keeping
-the harness frozen and does not justify immediate CI, RAG, audit automation,
-release automation, eval quality-gate integration, new profiles, new examples,
-or runtime expansion.
+Probe #1-#5 evidence and decision implications. The closeout remains risk
+evidence for small phases, verification hygiene, docs-only verification policy,
+and temporary-output policy. It is not a permanent blocker to CI, RAG, audit
+automation, release automation, eval integration, MCP/Hermes, or downstream
+integration when those phases are separately approved.
 
 The plan and closeout are documentation-only. They do not scan or modify
 `stock` from this repository, run another target probe, add runtime code,
@@ -409,17 +452,16 @@ task selects architecture or planning work under that repository's own rules.
 
 ## Next Review
 
-Use `docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md` for the current
-transition handoff. The Stage 5B follow-up Code Simplicity decision is
-complete as a minimal documentation-only addendum and prompt-contract clause.
-Keep `codex-dev-harness` frozen as the current local-first governed baseline,
-and do not start stock Probe #6 by default. Keep
+Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` for the current
+implementation handoff. The Stage 5B follow-up Code Simplicity decision remains
+valid as a restraint principle, and stock Probe #6 is still not the next
+default.
+
+The next recommended task is read-only CI + verification hygiene. Keep
 Scenario-Simulator production implementation, quality-gate eval integration,
 release page publication, local packaging, release bundle expansion, audit log
-generation, SBOM/provenance expansion or publication, CI, optional design-stage
-integration, approved-corpus RAG implementation, and model comparison tooling
-deferred until a separate owner approval names exact files, artifacts,
-dependencies, verification, and safety boundaries. Keep optional CI workflow
-installation and CI artifact upload deferred until a separate owner approval
-names the workflow path, trigger policy, permissions, artifact retention, and
-publication/signing/tag exclusions.
+generation, SBOM/provenance expansion or publication, optional design-stage
+integration, approved-corpus RAG implementation, model comparison tooling,
+MCP/Hermes implementation, and downstream product integration out of that task
+unless the owner separately approves exact files, artifacts, dependencies,
+verification, and safety boundaries.

@@ -10,7 +10,7 @@ Reusable local-first template for governed AI/Codex development workflows.
 
 ## Current Phase
 
-Stage 5B stock practical probe closeout handoff.
+Capability implementation roadmap handoff.
 
 The historical P0 docs-only baseline is complete. The repository now includes
 documentation, base templates, profile templates, render tooling, quality gates,
@@ -24,18 +24,22 @@ Stages 1-5A are complete:
 - Stage 1 documentation drift cleanup.
 - Stage 2 local post-v0.1.0 evidence baseline.
 - Stage 3 eval integration decision: keep standalone.
-- Stage 4 optional CI decision: keep deferred and template-only.
+- Stage 4 optional CI decision: historical template-only risk evidence.
 - Stage 5A downstream transition decision.
 
-The current direction is to keep `codex-dev-harness` frozen as the
-local-first governed baseline after completing the Stage 5B stock-first flow:
+The current implementation direction is defined by
+`docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`. The owner intent is to eventually
+implement CI, RAG, audit / trace / receipt schema, eval/report integration,
+MCP tool boundary, Hermes sidecar, release automation / provenance, and
+downstream product integration.
 
-1. target repository selection
-2. `stock` practical probes #1-#5
-3. probe closeout review
+The first implementation target after the roadmap is read-only CI +
+verification hygiene. Historical optional/deferred decisions and the Stage 5B
+stock practical probe records remain risk evidence and sequencing evidence,
+not permanent blockers.
 
 Scenario-Simulator remains an architecture/planning candidate, but it is not
-the default practical probe target.
+the default implementation target.
 
 ## Source of Truth
 
@@ -44,11 +48,12 @@ Read in this order:
 2. PRODUCT.md
 3. MVP.md
 4. STATUS.md
-5. ACCEPTANCE_TRACE.md
-6. docs/SAFETY_POLICY.md
-7. docs/VERIFICATION.md
-8. docs/PROFILE_MATRIX.md
-9. docs/AI_HANDOFF.md
+5. docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md
+6. ACCEPTANCE_TRACE.md
+7. docs/SAFETY_POLICY.md
+8. docs/VERIFICATION.md
+9. docs/PROFILE_MATRIX.md
+10. docs/AI_HANDOFF.md
 
 ## Changed Files
 
@@ -79,28 +84,33 @@ Current baseline surface includes:
   - `docs/HUMAN_APPROVALS.md`
   - `docs/EVAL_POLICY.md`
   - `docs/AUDIT_LOG_POLICY.md`
+- Capability implementation roadmap:
+  - `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`
 
 ## Pending Risks
 
-- Eval harness integration into `scripts/quality_gate.py`, CI, or release
-  blocking remains deferred; the standalone local eval runner, eval gate
-  wrapper, cases, tests, and explicit eval report evidence exist.
-- Real audit log generation, validators, and automation remain deferred; the
-  audit schema and policy exist.
-- Release archive creation, publication, signing, tag movement, upload, and CI
-  installation remain deferred; the local release verification wrapper,
+- Eval/report integration is a roadmap target after audit / trace / receipt
+  schema. The standalone local eval runner, eval gate wrapper, cases, tests,
+  and explicit eval report evidence exist.
+- Audit / trace / receipt schema is the second roadmap implementation target.
+  Real audit log generation, validators, and automation still require separate
+  phase approval.
+- Release automation / provenance is a later roadmap target. Release archive
+  creation, publication, signing, tag movement, upload, and CI release behavior
+  still require separate approval; the local release verification wrapper,
   manifest/checksum artifacts, minimal SBOM, and provenance evidence exist.
 - Optional design-stage pack remains manual-use-only and is not integrated into render, gate, or examples.
 - Examples are skeletons only and intentionally contain no real application code.
-- GitHub Actions workflow is not installed; CI remains optional.
+- GitHub Actions workflow is not installed. Read-only CI + verification hygiene
+  is the first implementation target and remains approval-gated.
 - `plc_or_device_tool` actual target execution remains deferred and is not the
   next default stage.
 - Scenario-Simulator remains a downstream architecture/planning candidate; do
   not add `profiles/scenario_simulator` or
   `examples/scenario_simulator_minimal` by default.
 - The `stock` practical probe sequence is closed out. Probe #1-#5 evidence
-  supports current task-contract discipline but does not justify another stock
-  probe by default or immediate harness automation expansion.
+  supports current task-contract discipline and informs verification hygiene;
+  it is not a permanent blocker to the roadmap targets.
 - AI readiness scanner integration into `scripts/quality_gate.py`, generated
   report artifacts, and sibling repository scans remain deferred unless
   separately approved.
@@ -135,33 +145,32 @@ The AI readiness scanner is for readiness inspection only:
   path-level indicators.
 - Do not print private values, raw source excerpts, secrets, live config,
   customer data, broker data, mail bodies, IPs, ports, or equipment values.
-- Keep scanner integration with `scripts/quality_gate.py`, CI, generated
-  reports, RAG/model tooling, and release gates deferred unless separately
-  approved.
+- Keep scanner integration with `scripts/quality_gate.py`, generated reports,
+  RAG/model tooling, and release gates out of the first CI hygiene task unless
+  separately approved.
 
 ## Next Recommended Step
 
-Use `docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md`,
-`docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md`, and
-`docs/NEXT_DIRECTION_DECISION.md` as the current handoff. The recommended next
-work is a review-only decision on whether Probe #1-#5 justifies a minimal Code
-Simplicity Addendum or whether no harness change is needed.
+Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
+handoff. The recommended next work is Phase 3: read-only CI + verification
+hygiene.
 
 Practical next candidates:
 
-- decide whether to add a minimal Code Simplicity Addendum or no harness change
-  after reviewing Probe #1-#5 evidence
+- create the smallest approved read-only CI or CI-adjacent verification hygiene
+  path that mirrors existing local verification
 - keep Scenario-Simulator as a deferred architecture/planning candidate for a
   separate task selected under that repository's own rules
 - keep `AI_HANDOFF`, `STATUS`, and `ACCEPTANCE_TRACE` aligned after any future
   evidence baseline changes
 - preserve generated artifact source-basis versus artifact-containing commit
   semantics when documentation-only commits advance HEAD
-- defer quality-gate eval integration, routine eval reports, audit log
-  automation, release archives, signing, publication, workflows, artifact
-  upload, required CI checks, new profiles, new examples, RAG/index/vector
-  store or model tooling, optional CI installation, and runtime, application,
-  device, or live-write behavior until separately approved
+- keep audit automation, eval quality-gate integration, routine eval reports,
+  release archives, signing, publication, artifact upload, required CI checks,
+  new profiles, new examples, RAG/index/vector store or model tooling,
+  MCP/Hermes implementation, downstream product integration, and runtime,
+  application, device, or live-write behavior out of the CI hygiene task unless
+  separately approved
 - do not start Probe #6 by default
 
 ## Historical / Deferred Candidate
