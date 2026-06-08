@@ -9,6 +9,14 @@ This is a decision document only. It does not modify eval code, quality gate
 code, tests, CI workflows, release artifacts, application code, device code, or
 live-write behavior.
 
+Current sequencing note: this record is historical eval-integration risk
+evidence. It is superseded for implementation sequencing by
+`docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`, which makes eval / report
+integration the third implementation target after read-only CI + verification
+hygiene and audit / trace / receipt schema. The standalone baseline recorded
+here remains the safe current runtime state until that approved implementation
+phase begins.
+
 ## Current Eval State
 
 Current status: KEEP STANDALONE BASELINE.

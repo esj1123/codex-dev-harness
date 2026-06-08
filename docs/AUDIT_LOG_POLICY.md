@@ -10,6 +10,12 @@ real audit session logs, capture tool calls, store prompts, add logging
 automation, create an audit database, or make audit logging required for the
 current local-first baseline.
 
+Current sequencing note: audit / trace / receipt schema is the second
+implementation target in `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`, after
+read-only CI + verification hygiene. This policy remains schema and boundary
+guidance only; real audit log generation and automation still require a
+separate approved implementation phase.
+
 ## Current Related Evidence
 
 The repository already records audit-adjacent evidence in:

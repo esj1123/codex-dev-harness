@@ -39,8 +39,8 @@ Stages 1-5A after the evidence baseline are complete:
 
 - Stage 1 documentation drift cleanup.
 - Stage 2 local post-v0.1.0 evidence baseline.
-- Stage 3 eval integration decision: keep standalone.
-- Stage 4 optional CI decision: keep deferred and template-only.
+- Stage 3 eval integration decision: historical standalone runtime baseline.
+- Stage 4 optional CI decision: historical template-only risk evidence.
 - Stage 5A downstream transition decision.
 
 The Stage 5A direction decision kept `codex-dev-harness` stable as the
@@ -245,9 +245,12 @@ Status: MINIMAL STANDALONE IMPLEMENTATION PRESENT.
 `docs/MINIMAL_EVAL_HARNESS_DESIGN.md` defines the local-only eval harness for
 machine-readable verification of template safety and regression behavior.
 
-`docs/EVAL_INTEGRATION_DECISION.md` records the current decision to keep evals
-standalone. No default quality-gate integration, CI integration, routine eval
-report generation, or release-blocking behavior is approved.
+`docs/EVAL_INTEGRATION_DECISION.md` records the historical standalone baseline
+and current runtime boundary. Per
+`docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`, eval / report integration is the
+third implementation target after audit / trace / receipt schema. No default
+quality-gate integration, CI integration, routine eval report generation, or
+release-blocking behavior is active now.
 
 The implementation covers:
 

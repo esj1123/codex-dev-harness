@@ -6,6 +6,13 @@ Review whether recent task closeouts are consistent enough for the current
 local-first `codex-dev-harness` baseline, and decide whether an audit receipt
 pilot or audit automation is justified.
 
+Current sequencing note: this record is historical audit risk evidence. It is
+superseded for implementation sequencing by
+`docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`, which makes audit / trace /
+receipt schema the second implementation target after read-only CI +
+verification hygiene while preserving the no raw prompt and no raw private-data
+capture boundaries recorded here.
+
 This review is documentation-only. It does not create audit automation,
 JSONL logging, scripts, CI integration, RAG/index/retrieval tooling, MCP or
 runtime-agent changes, release artifacts, tags, pushes, downstream edits, or
@@ -150,7 +157,7 @@ regeneration when artifacts were not regenerated.
 
 ## 9. Automation decision
 
-Decision: audit automation is not justified now.
+Historical decision at that time: audit automation was not justified.
 
 The observed friction is minor and can be handled by a lightweight manual
 receipt checklist. Adding audit automation would create new surface area,

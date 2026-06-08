@@ -6,6 +6,13 @@ Record a future optional eval harness direction without implementing it.
 
 This document is planning-only. It does not create `scripts/run_eval.py`, an `evals/` directory, grader code, test fixtures, or automation.
 
+Current sequencing note: this plan is historical eval-planning evidence. The
+current implementation sequence is defined by
+`docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`, where eval / report integration is
+the third implementation target after read-only CI + verification hygiene and
+audit / trace / receipt schema. The standalone runner remains the current
+runtime boundary until that approved phase begins.
+
 ## Current State
 
 Eval harness status: MINIMAL STANDALONE IMPLEMENTATION PRESENT.

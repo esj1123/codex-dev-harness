@@ -71,8 +71,10 @@ If the burden is not justified, simplify or defer.
 Decision: add a minimal documentation-only addendum.
 
 Stage 5B `stock` Probe #1-#5 evidence supports keeping
-`codex-dev-harness` frozen as the current local-first governed baseline. The
-evidence supports coding restraint, not new automation or new repo surface.
+`codex-dev-harness` stable as a local-first governed baseline at that point in
+the project. Under `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`, this evidence
+supports coding restraint and phase gates, not a permanent freeze on the
+roadmap targets.
 
 For future coding tasks:
 

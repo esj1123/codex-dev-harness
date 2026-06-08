@@ -10,6 +10,12 @@ embeddings, vector storage, external-service calls, model observability,
 prompt/output capture, CI workflows, application code, device code, or
 live-write behavior.
 
+Current sequencing note: this plan is roadmap input, not authorization to index
+or retrieve. `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` makes approved corpus
+digest the fourth implementation target and local RAG the fifth implementation
+target, after read-only CI, audit / trace / receipt schema, and eval / report
+integration.
+
 ## Intended Use
 
 An approved-corpus local RAG layer, if separately approved later, would help an

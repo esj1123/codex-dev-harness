@@ -13,11 +13,14 @@ The control plane defines the project contract and operating rules:
 - `PRODUCT.md`
 - `MVP.md`
 - `ROADMAP.md`
+- `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`
 - `STATUS.md`
 - `ACCEPTANCE_TRACE.md`
 - `code_review.md`
 
-These files tell an agent what the project is, what is in scope, what is out of scope, what evidence is required, and how closeout should be recorded.
+These files tell an agent what the project is, what is in scope, what is out of
+scope, what implementation sequence is current, what evidence is required, and
+how closeout should be recorded.
 
 ## Template Plane
 
@@ -121,6 +124,7 @@ Release evidence is tracked as documents:
 - `docs/LOCAL_DOWNSTREAM_ADOPTION_RUN_v0.1.0.md`
 - `docs/DOWNSTREAM_DOC_REVIEW_CHECKLIST_v0.1.0.md`
 - `docs/POST_V0.1.0_ROADMAP.md`
+- `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`
 - `docs/POST_V0.1.0_EVIDENCE_BASELINE_CLOSEOUT.md`
 - `docs/RELEASE_PAGE_DECISION.md`
 - `docs/LOCAL_PACKAGE_CHECKLIST.md`
@@ -148,16 +152,25 @@ Current release state:
   artifacts, minimal SBOM/provenance generation, and the local release
   verification wrapper exist.
 - GitHub Actions workflow is still NOT INSTALLED.
-- Optional CI actualization remains template-only and not installed.
+- Optional CI actualization remains not installed, but read-only CI +
+  verification hygiene is the first implementation target in the capability
+  implementation roadmap.
 - Release publication, release archives, signing, tag movement, external
-  SBOM/provenance metadata, RAG/model tooling, real audit logs, and
-  application/device/live-write behavior remain deferred.
+  SBOM/provenance metadata, RAG/model tooling, real audit logs, MCP/Hermes,
+  and application/device/live-write behavior remain approval-gated roadmap
+  targets.
 
 ## Optional CI Plane
 
-GitHub Actions are optional. The repository includes a disabled template under `templates/ci/`, but no `.github/workflows` file is installed by default.
+GitHub Actions are approval-gated. The repository includes disabled templates
+under `templates/ci/`, but no `.github/workflows` file is installed by
+default.
 
-CI, if adopted later, should only run tests, quality gates, and render dry-runs. It must not deploy, create runtime code, connect to live targets, or perform release actions without explicit approval.
+Per `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`, the first implementation
+target is read-only CI + verification hygiene. The first CI phase should only
+mirror local verification checks. It must not deploy, create runtime code,
+connect to live targets, upload artifacts, publish releases, move tags, or
+perform release actions without explicit approval.
 
 ## Downstream Application Boundary
 

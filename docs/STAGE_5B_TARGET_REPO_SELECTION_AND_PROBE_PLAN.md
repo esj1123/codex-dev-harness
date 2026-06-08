@@ -4,10 +4,16 @@
 
 Define the next post-v0.1.0 step without expanding `codex-dev-harness`.
 
-Stage 5B keeps this repository frozen as the current local-first governed
-baseline, selects `stock` as the first practical probe candidate, and defines a
-low-risk test-only/dry-run evidence path safety probe to run later in the target
-repository under that repository's own rules.
+Current sequencing note: this record is historical Stage 5B handoff evidence.
+It is superseded for implementation sequencing by
+`docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`. Its freeze decision remains useful
+risk evidence for small scoped phases, but it is not a permanent blocker to the
+roadmap targets.
+
+Stage 5B recorded this repository as stable at the then-current local-first
+governed baseline, selected `stock` as the first practical probe candidate, and
+defined a low-risk test-only/dry-run evidence path safety probe to run later in
+the target repository under that repository's own rules.
 
 This is a planning document. It does not scan `stock`, modify any downstream
 repository, generate release evidence, install CI, add runtime code, add RAG or
@@ -15,11 +21,11 @@ audit automation, or start Scenario-Simulator production implementation.
 
 ## Decision
 
-Decision: keep `codex-dev-harness` frozen as the local-first governed
-baseline, select `stock` as the first practical probe candidate, and defer
-Scenario-Simulator to architecture/planning work.
+Stage 5B decision: keep `codex-dev-harness` stable as the then-current
+local-first governed baseline, select `stock` as the first practical probe
+candidate, and defer Scenario-Simulator to architecture/planning work.
 
-The active Stage 5B flow is:
+The Stage 5B flow was:
 
 1. target repository selection
 2. `stock` practical probe
@@ -29,9 +35,9 @@ This decision does not approve harness automation expansion. Repeated practical
 probe evidence is required before adding new harness code, gates, profiles,
 examples, CI, RAG/index tooling, audit automation, or release automation.
 
-## Current Harness Position
+## Stage 5B Harness Position
 
-`codex-dev-harness` remains frozen because it already contains the current
+`codex-dev-harness` was treated as stable because it already contained the
 baseline surfaces needed for governed AI/Codex work:
 
 - read-order and task-contract rules

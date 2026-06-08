@@ -4,13 +4,21 @@
 
 Record the current decision for optional GitHub Actions release verification.
 
+## Current sequencing note
+
+This record is historical risk evidence. It is superseded for implementation
+sequencing by `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`, which makes
+read-only CI + verification hygiene the first implementation target while
+preserving the no-secret, no-upload, no-release, no-tag, no-deploy, and no-live
+write boundaries recorded here.
+
 This document is planning and decision evidence. It does not install a workflow,
 enable required checks, upload artifacts, publish releases, create or move tags,
 deploy anything, or add application/device/live-write behavior.
 
 ## Decision
 
-Decision: keep CI deferred and template-only.
+Historical decision at that time: keep CI deferred and template-only.
 
 Existing optional templates are:
 
@@ -22,7 +30,7 @@ They are not active. A template must be manually reviewed and copied into
 
 This decision confirms:
 
-1. Keep CI deferred and template-only for the repository baseline.
+1. Keep CI deferred and template-only for the repository baseline at that time.
 2. A future manual read-only workflow installation may be proposed only as a
    separate owner-approved task.
 3. Future artifact upload, release publication, signing, tag movement, or

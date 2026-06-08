@@ -5,6 +5,13 @@
 This document is the documentation-only closeout for the Stage 5B `stock`
 practical probe sequence.
 
+Current sequencing note: this record is historical risk evidence. It is
+superseded for implementation sequencing by
+`docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`. Probe #1-#5 evidence informs
+read-only CI + verification hygiene, docs-only verification policy, and
+temporary-output policy, but it is not a permanent blocker to the roadmap
+targets.
+
 It records what the completed downstream practical probes showed about the
 current `codex-dev-harness` operating discipline. It does not add automation,
 runtime behavior, downstream implementation, CI, RAG, audit tooling, release
@@ -71,10 +78,11 @@ rules. This harness closeout records decision implications only.
 
 ## Decision
 
-Decision: Stage 5B stock practical probe sequence is sufficient to validate the
-current local-first AI-development operating discipline.
+Decision: Stage 5B stock practical probe sequence was sufficient to validate
+the then-current local-first AI-development operating discipline.
 
-Keep `codex-dev-harness` frozen as the current governed baseline.
+At Stage 5B closeout, keep `codex-dev-harness` stable as the then-current
+governed baseline.
 
 Do not add CI, RAG, audit automation, release automation, eval quality-gate
 integration, or new profiles based only on Probe #1-#5.
@@ -127,8 +135,8 @@ Expected and actual verification for this documentation-only closeout:
 | `git diff --check` | PASS | PASS WITH NOTES | No whitespace errors; Git reported LF-to-CRLF working-copy warnings. |
 | `python scripts/quality_gate.py` | PASS or ENVIRONMENT BLOCKED | ENVIRONMENT BLOCKED | Bare `python.exe` failed in this Codex desktop shell with the existing Windows logon-session error. |
 | `python scripts/run_eval.py` | PASS or ENVIRONMENT BLOCKED | ENVIRONMENT BLOCKED | Bare `python.exe` failed with the same Windows logon-session error. |
-| `C:\Users\KSLV-II\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe scripts/quality_gate.py` | PASS | PASS | docs, hygiene, schema, examples, render drift, and secret scan passed. |
-| `C:\Users\KSLV-II\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe scripts/run_eval.py` | PASS | PASS | 14 named local eval cases passed. |
+| bundled Codex Python `scripts/quality_gate.py` | PASS | PASS | docs, hygiene, schema, examples, render drift, and secret scan passed. |
+| bundled Codex Python `scripts/run_eval.py` | PASS | PASS | 14 named local eval cases passed. |
 
 Optional broader verification can remain `NOT RUN` unless separately requested:
 

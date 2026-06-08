@@ -4,6 +4,11 @@
 
 Record the post-v0.1.0 direction decision and its Stage 5B update.
 
+Current sequencing note: this record is historical transition evidence. It is
+superseded for implementation sequencing by
+`docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`, which sets read-only CI +
+verification hygiene as the first implementation target.
+
 Stage 5A established that `codex-dev-harness` is complete enough as a
 local-first governed template baseline. Stage 5B keeps that baseline frozen,
 defers Scenario-Simulator as an architecture/planning candidate, and selects
@@ -71,7 +76,7 @@ example surfaces.
 
 Scenario-Simulator repository inspected:
 
-- path: `C:\Users\KSLV-II\codex_projects\ScenarioSimulator`
+- path: local Scenario-Simulator checkout; absolute path intentionally omitted
 - branch/ref at inspection: `main` / `origin/main`
 - commit at inspection: `a5b8da2ed7ba7a0c156e97c6356aed21341480c6`
 - current phase: P0.5 Coding Infrastructure
@@ -104,9 +109,10 @@ explicitly approves local ignored artifact handling.
 Stage 5A decision: do minimal `codex-dev-harness` closeout cleanup and treat
 the harness as sufficiently complete for downstream governance evidence.
 
-Stage 5B update: keep `codex-dev-harness` frozen as the current local-first
-governed baseline, defer Scenario-Simulator as an architecture/planning
-candidate, and select `stock` as the first practical probe candidate.
+Stage 5B historical update: keep `codex-dev-harness` stable as the
+then-current local-first governed baseline, defer Scenario-Simulator as an
+architecture/planning candidate, and select `stock` as the first practical
+probe candidate.
 
 The first stock probe is limited to test-only/dry-run evidence path safety
 coverage. It is not a production implementation, broker/API integration,
@@ -116,8 +122,8 @@ Stage 5A transition cleanup confirms that Stages 1-4 are complete:
 
 - Stage 1 documentation drift cleanup.
 - Stage 2 local post-v0.1.0 evidence baseline.
-- Stage 3 eval integration decision: keep standalone.
-- Stage 4 optional CI decision: keep deferred and template-only.
+- Stage 3 eval integration decision: historical standalone runtime baseline.
+- Stage 4 optional CI decision: historical template-only risk evidence.
 
 The next strategic decision is now limited to the future `stock` probe or small
 harness refinement only if the stock probe exposes a concrete harness

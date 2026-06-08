@@ -5,6 +5,12 @@
 Determine whether an optional approved-corpus RAG pilot is justified and safe for
 `codex-dev-harness`.
 
+Current sequencing note: this record is historical RAG risk evidence. It is
+superseded for implementation sequencing by
+`docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`, which makes approved corpus digest
+the required predecessor to local RAG and keeps retrieval local-first,
+redaction-aware, metadata-backed, and approval-gated.
+
 This record is documentation-only. It does not approve or implement retrieval,
 indexing, embeddings, vector storage, an external RAG service, runtime code,
 CI/audit/MCP integration, release evidence generation, downstream evidence
@@ -160,12 +166,13 @@ bodies into a corpus.
 
 ## 9. Decision
 
-Decision: do not implement or start an optional RAG pilot now.
+Historical decision at that time: do not implement or start an optional RAG
+pilot.
 
-An optional RAG pilot is not justified today because manual retrieval answered
-the readiness questions, the existing plan already defines the safe candidate
-and forbidden corpus boundary, and the current repository direction is to keep
-the harness frozen as a local-first governed baseline.
+An optional RAG pilot was not justified at that time because manual retrieval
+answered the readiness questions, the existing plan already defined the safe
+candidate and forbidden corpus boundary, and the then-current repository
+direction was to keep the harness stable as a local-first governed baseline.
 
 A future pilot may be reconsidered only if repeated tasks show material manual
 retrieval failure. Any future approval must be exact-file, local-only,

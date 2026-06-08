@@ -23,7 +23,7 @@ Stages 1-5A are complete:
 
 - Stage 1 documentation drift cleanup.
 - Stage 2 local post-v0.1.0 evidence baseline.
-- Stage 3 eval integration decision: keep standalone.
+- Stage 3 eval integration decision: historical standalone runtime baseline.
 - Stage 4 optional CI decision: historical template-only risk evidence.
 - Stage 5A downstream transition decision.
 

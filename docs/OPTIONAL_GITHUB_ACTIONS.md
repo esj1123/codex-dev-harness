@@ -4,12 +4,20 @@
 
 GitHub Actions support is optional for codex-dev-harness. The baseline remains local-first: users should be able to clone the repository, install requirements, run tests, run the quality gate, and dry-run renders without cloud CI.
 
+## Current sequencing note
+
+This record is historical CI policy evidence. It is superseded for
+implementation sequencing by `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`, which
+makes read-only CI + verification hygiene the first implementation target while
+preserving the no-secret, no-upload, no-release, no-tag, no-deploy, and no-live
+write boundaries recorded here.
+
 ## Policy
 
 - GitHub Actions are not required for the local-first baseline.
 - No workflow file is installed under `.github/workflows` by default.
 - Optional workflow templates are documentation support, not an enabled CI system.
-- Current decision: keep CI deferred and template-only.
+- Historical decision at that time: keep CI deferred and template-only.
 - CI must not create real application code, PLC/device code, live target writes, secrets, or live config.
 - CI should only run safe verification commands.
 - Release verification CI must not publish, upload artifacts, sign, tag, deploy,
@@ -57,7 +65,7 @@ secrets. They do not upload generated release evidence artifacts.
 
 ## Actualization Decision
 
-Current decision: keep CI deferred and template-only.
+Historical decision at that time: keep CI deferred and template-only.
 
 `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md` records why local-first
 verification remains sufficient, why `scripts/run_release_verify.ps1` covers

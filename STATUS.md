@@ -12,7 +12,7 @@ Stages 1-5A are complete:
 
 - Stage 1 documentation drift cleanup.
 - Stage 2 local post-v0.1.0 evidence baseline.
-- Stage 3 eval integration decision: keep standalone.
+- Stage 3 eval integration decision: historical standalone runtime baseline.
 - Stage 4 optional CI decision: historical template-only risk evidence.
 - Stage 5A downstream transition decision.
 
@@ -56,7 +56,7 @@ baseline refresh after the Stage 1 documentation drift cleanup.
 | manifest files recorded | PRESENT | `211` |
 | checksum coverage | PRESENT | `artifacts/checksums.sha256` records 5 entries: eval report, provenance, manifest, CycloneDX SBOM, and SPDX SBOM; checksum file self-reference excluded |
 | standalone eval case count | PRESENT | `scripts/run_eval.py` discovers 14 named local-only non-LLM eval cases under `evals/cases/` |
-| eval integration decision | KEEP STANDALONE | `docs/EVAL_INTEGRATION_DECISION.md`; release wrapper console-only eval use may continue, but routine eval reports, `quality_gate.py` integration, release-blocking behavior, and CI integration are not approved |
+| eval / report integration | ROADMAP TARGET / CURRENTLY STANDALONE | `docs/EVAL_INTEGRATION_DECISION.md` and `docs/EVAL_POLICY.md`; third implementation target after audit / trace / receipt schema, while the current runtime boundary keeps evals standalone and local-only |
 | `csharp_desktop` local target experiment | PASS | `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md` |
 | `csharp_desktop` dry-run render | PASS | 16 Markdown documentation outputs planned in an outside-repo temporary target |
 | `csharp_desktop` actual render | PASS | 16 Markdown documentation outputs generated in an outside-repo temporary target; temporary target not committed |
@@ -77,7 +77,7 @@ baseline refresh after the Stage 1 documentation drift cleanup.
 | quality gate after scanner | PASS | docs, hygiene, schema, examples, render drift, and secret scan passed with documented local Python runtime |
 | bare `python.exe` after scanner | ENVIRONMENT BLOCKED | Existing Windows logon session error remains; documented local runtime was used for verification |
 | CI decision | FIRST TARGET / APPROVAL-GATED | `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` supersedes the optional CI decision for sequencing; first implementation target is read-only CI + verification hygiene, while workflow installation still requires separate owner approval |
-| Stage 5A direction decision | SUPERSEDED BY STAGE 5B HANDOFF | `docs/NEXT_DIRECTION_DECISION.md`; Stage 5A remains historical evidence, while Stage 5B selects `stock` as the first practical probe |
+| Stage 5A / Stage 5B direction decision | HISTORICAL TRANSITION EVIDENCE | `docs/NEXT_DIRECTION_DECISION.md`; superseded for implementation sequencing by `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`, while Stage 5B remains probe-selection history |
 | Stage 5B target repo selection and probe plan | PRESENT / HISTORICAL HANDOFF | `docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md`; remains historical probe-selection evidence, superseded for implementation sequencing by the capability roadmap |
 | Stage 5B stock practical probe closeout | PRESENT / HISTORICAL RISK EVIDENCE | `docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md`; Probe #1-#5 evidence supports current local-first discipline and informs verification hygiene, but is not a blocker to roadmap targets |
 | Scenario-Simulator treatment | DEFERRED ARCHITECTURE / PLANNING CANDIDATE | No `profiles/scenario_simulator` or `examples/scenario_simulator_minimal`; use Scenario-Simulator repo-local planning docs only when separately selected |
@@ -537,7 +537,7 @@ Stage 0 current-main gap review basis:
 | release page decision | DEFERRED | `docs/RELEASE_PAGE_DECISION.md`; GitHub Release page not created |
 | local package checklist | PRESENT | `docs/LOCAL_PACKAGE_CHECKLIST.md`; no package archive generated |
 | optional eval harness | EXPANDED STANDALONE IMPLEMENTED | `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`; `scripts/run_eval.py`, `scripts/gates/eval_gate.py`, 14 named `evals/cases/`, and `evals/golden/` exist |
-| eval integration decision | KEEP STANDALONE | `docs/EVAL_INTEGRATION_DECISION.md`; no default quality-gate integration, CI integration, routine eval report generation, or release-blocking eval semantics approved |
+| eval / report integration | ROADMAP TARGET / CURRENTLY STANDALONE | `docs/EVAL_INTEGRATION_DECISION.md`; future integration is third in the capability roadmap, while no default quality-gate integration, CI integration, routine eval report generation, or release-blocking eval semantics are active now |
 | known limitations | REFRESHED | `docs/KNOWN_LIMITATIONS.md` no longer lists completed CI policy or release tagging guidance as future work |
 | architecture release/record plane | REFRESHED | `docs/ARCHITECTURE.md` lists current v0.1.0 and post-v0.1.0 evidence |
 | architecture optional pack plane | REFRESHED | Optional design-stage pack is documented as manual-use-only, not profile, and not base render |

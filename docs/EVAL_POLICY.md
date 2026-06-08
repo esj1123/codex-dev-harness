@@ -10,6 +10,11 @@ local eval harness boundary and does not by itself add new eval code, create
 new fixture categories, add dependencies, integrate evals into quality gates,
 or install CI.
 
+Current sequencing note: eval / report integration is the third implementation
+target in `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`, after read-only CI +
+verification hygiene and audit / trace / receipt schema. Until that approved
+phase starts, the current runtime policy remains standalone and local-only.
+
 ## Current State
 
 Eval planning is present in `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`.
@@ -36,7 +41,8 @@ provenance shape.
 The current integration decision is recorded in
 `docs/EVAL_INTEGRATION_DECISION.md`.
 
-Decision: keep the eval harness standalone.
+Decision: keep the eval harness standalone until a separately approved roadmap
+implementation phase changes the integration boundary.
 
 The current approved state is:
 

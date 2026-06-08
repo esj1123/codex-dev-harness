@@ -10,6 +10,11 @@ approval after the Priority 1-4 evidence tightening work. It is a durable
 closeout record. It does not install CI, publish a release, move tags, add
 application code, create device behavior, or enable live writes.
 
+Current sequencing note: this closeout is historical evidence for the
+post-v0.1.0 baseline. It no longer defines the active implementation sequence.
+Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` for the current owner intent,
+dependency order, phase gates, and first implementation target.
+
 ## Baseline Status
 
 | item | status | evidence |
@@ -37,13 +42,15 @@ Stages 1-4 after the evidence baseline are complete:
 
 - Stage 1 documentation drift cleanup.
 - Stage 2 local post-v0.1.0 evidence baseline.
-- Stage 3 eval integration decision: keep standalone.
-- Stage 4 optional CI decision: keep deferred and template-only.
+- Stage 3 eval integration decision: historical standalone runtime baseline.
+- Stage 4 optional CI decision: historical template-only risk evidence.
 
-The current direction is to keep `codex-dev-harness` stable as the local-first
-governed template baseline, perform only small harness refinements when
-justified, and transition next to Scenario-Simulator P1 planning in the
-downstream repository.
+The Stage 5A direction was to keep `codex-dev-harness` stable as the
+local-first governed template baseline, perform only small harness refinements
+when justified, and transition next to Scenario-Simulator P1 planning in the
+downstream repository. That direction is now historical transition evidence.
+The current implementation sequence is defined by
+`docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`.
 
 The `plc_or_device_tool` actual target experiment remains deferred and is not
 the next default stage. Scenario-Simulator remains a downstream application
@@ -246,9 +253,9 @@ eval reports, and this closeout do not grant approval by themselves.
 
 1. Keep the generated artifact source basis and artifact-containing commit
    semantics explicit in future closeouts.
-2. Treat `docs/NEXT_DIRECTION_DECISION.md` as the current transition handoff.
-3. Move next to Scenario-Simulator P1 planning unless a specific small harness
-   refinement is separately justified.
+2. Treat `docs/NEXT_DIRECTION_DECISION.md` as historical transition evidence.
+3. Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current
+   implementation handoff.
 4. Do not add `profiles/scenario_simulator` or
    `examples/scenario_simulator_minimal`.
 5. Keep GitHub Release publication, active CI workflow installation, tag
