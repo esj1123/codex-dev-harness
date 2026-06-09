@@ -6,7 +6,11 @@ Capability implementation sequencing after roadmap creation.
 
 ## Current State
 
-The repository contains documentation, base templates, profile templates, render tooling, quality gates, tests, minimal example skeletons, a standalone local read-only AI readiness scanner, local release evidence tooling, and a capability implementation roadmap.
+The repository contains documentation, base templates, profile templates, render
+tooling, quality gates, tests, minimal example skeletons, a standalone local
+read-only AI readiness scanner, local release evidence tooling, a capability
+implementation roadmap, and an owner-approved manual read-only GitHub Actions
+local verification workflow.
 
 Stages 1-5A are complete:
 
@@ -30,21 +34,23 @@ Current implementation sequencing is defined by
 implement CI, RAG, audit / trace / receipt schema, eval/report integration,
 MCP tool boundary, Hermes sidecar, release automation / provenance, and
 downstream product integration. The first implementation target after the
-roadmap is read-only CI + verification hygiene. The next targets are audit /
-trace / receipt schema, eval/report integration, approved corpus digest, local
-RAG, MCP tool boundary, Hermes sidecar, and later release automation /
-provenance plus downstream product integration.
+roadmap, read-only CI + verification hygiene, is implemented as
+`.github/workflows/local-verify.yml`. The next targets are audit / trace /
+receipt schema, eval/report integration, approved corpus digest, local RAG, MCP
+tool boundary, Hermes sidecar, and later release automation / provenance plus
+downstream product integration.
 
 ## Current Verification Snapshot
 
 Snapshot purpose: document the Stage 2 final local post-v0.1.0 evidence
-baseline refresh after the Stage 1 documentation drift cleanup.
+baseline refresh after the Stage 1 documentation drift cleanup and the current
+Phase 3 read-only CI + verification hygiene state.
 
 | item | status | evidence |
 |---|---|---|
 | basis branch/ref | PRESENT | `main` / `origin/main` |
 | capability implementation roadmap | PRESENT / CURRENT SEQUENCING SOURCE | `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`; historical optional/deferred decisions are risk evidence, not permanent blockers |
-| first implementation target | DECIDED | Read-only CI + verification hygiene; no workflow is installed by this status record |
+| first implementation target | IMPLEMENTED | Read-only CI + verification hygiene is installed as manual `workflow_dispatch` workflow `.github/workflows/local-verify.yml` |
 | current repository commit before Stage 2 evidence regeneration | PRESENT | `9ae69c5fbf65953db2b0efb82b4904098f8a7581` |
 | previous artifact-containing commit observed during Stage 0 read-only review | HISTORICAL | `ab77ab0a0b44c2f1bd700820bfeb358c6ec1bbe7` |
 | current repository commit before `csharp_desktop` experiment | PRESENT | `76d88b842852635c95adcd8f3534f95e8bdc3ff5` |
@@ -76,14 +82,14 @@ baseline refresh after the Stage 1 documentation drift cleanup.
 | full pytest after scanner | PASS | 81 tests passed with documented local Python runtime |
 | quality gate after scanner | PASS | docs, hygiene, schema, examples, render drift, and secret scan passed with documented local Python runtime |
 | bare `python.exe` after scanner | ENVIRONMENT BLOCKED | Existing Windows logon session error remains; documented local runtime was used for verification |
-| CI decision | FIRST TARGET / APPROVAL-GATED | `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` supersedes the optional CI decision for sequencing; first implementation target is read-only CI + verification hygiene, while workflow installation still requires separate owner approval |
+| CI decision | FIRST TARGET IMPLEMENTED / ADDITIONAL CI APPROVAL-GATED | `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` supersedes the optional CI decision for sequencing; first implementation target is read-only CI + verification hygiene, while release CI, artifact upload, required checks, and additional workflows require separate owner approval |
 | Stage 5A / Stage 5B direction decision | HISTORICAL TRANSITION EVIDENCE | `docs/NEXT_DIRECTION_DECISION.md`; superseded for implementation sequencing by `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`, while Stage 5B remains probe-selection history |
 | Stage 5B target repo selection and probe plan | PRESENT / HISTORICAL HANDOFF | `docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md`; remains historical probe-selection evidence, superseded for implementation sequencing by the capability roadmap |
 | Stage 5B stock practical probe closeout | PRESENT / HISTORICAL RISK EVIDENCE | `docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md`; Probe #1-#5 evidence supports current local-first discipline and informs verification hygiene, but is not a blocker to roadmap targets |
 | Scenario-Simulator treatment | DEFERRED ARCHITECTURE / PLANNING CANDIDATE | No `profiles/scenario_simulator` or `examples/scenario_simulator_minimal`; use Scenario-Simulator repo-local planning docs only when separately selected |
 | stock practical probe sequence | COMPLETE / CLOSEOUT RECORDED | Probe #1-#5 were completed in `stock` under separate target-repo tasks; this harness task records privacy-safe evidence summaries only and does not write to `stock` |
 | `plc_or_device_tool` actual experiment | DEFERRED / NOT NEXT DEFAULT | Separate owner approval required; not the current strategic priority |
-| CI workflow | NOT INSTALLED | `.github/workflows/` remains absent |
+| CI workflow | PRESENT / MANUAL READ-ONLY | `.github/workflows/local-verify.yml`; runs tests, quality gate, and three render dry-runs only |
 | release publication, tag movement, archive creation, signing | NOT DONE | Stage 2 performed local evidence regeneration only; this is not release publication |
 
 ## What Exists
@@ -193,6 +199,8 @@ baseline refresh after the Stage 1 documentation drift cleanup.
   - `examples/plc_tool_minimal`
 - Tests under `tests/`.
 - Local verification wrapper: `scripts/run_local_verify.ps1`.
+- Manual read-only GitHub Actions local verification workflow:
+  `.github/workflows/local-verify.yml`.
 - Optional GitHub Actions template: `templates/ci/github-actions-local-verify.yml.template`.
 - Optional release verification GitHub Actions template:
   `templates/ci/github-actions-release-verify.yml.template`.
@@ -216,7 +224,6 @@ baseline refresh after the Stage 1 documentation drift cleanup.
 - Real PLC/device code.
 - Live target write behavior.
 - Real secret/config files.
-- CI workflow.
 - Active release verification GitHub Actions workflow.
 - CI artifact upload.
 - Required CI checks.
@@ -287,7 +294,7 @@ Stage 0 current-main gap review basis:
 | python_cli render dry-run | PASS | `examples/python_cli_minimal` dry-run succeeded |
 | csharp_desktop render dry-run | PASS | `examples/csharp_desktop_minimal` dry-run succeeded |
 | plc_tool render dry-run | PASS | `examples/plc_tool_minimal` dry-run succeeded |
-| CI workflow | NOT RUN | Not included in this repository baseline |
+| CI workflow | PRESENT / NOT RUN | Manual read-only `.github/workflows/local-verify.yml` is installed; it was not executed in this historical verification snapshot |
 | rc1 release tag | CREATED | `v0.1.0-rc1` points to `10bccadd15be9401847620eba61d3c8c4117962d` |
 | rc2 release tag | CREATED | `v0.1.0-rc2` points to `67ead73628c8ff7b15e91d2ba608efbdbb8de81e` |
 | formal v0.1.0 tag | CREATED | `v0.1.0` points to `43bbf001e1d2770466b41d5b8366f289b972a00b` |
@@ -333,19 +340,19 @@ Stage 0 current-main gap review basis:
 | post-v0.1.0 roadmap optional pack refresh | PRESENT | `docs/POST_V0.1.0_ROADMAP.md` records closed manual-use-only baseline and deferred integration |
 | template extension policy | REFRESHED | downstream feedback promotion and optional-pack placement criteria are documented |
 | formal v0.1.0 criteria | SATISFIED | `docs/FORMAL_V0.1.0_CRITERIA.md` exists; formal tag created |
-| optional GitHub Actions guide | PRESENT | guide and local/release verification templates exist, but no workflow is installed |
+| optional GitHub Actions guide | PRESENT | guide, local/release verification templates, and the installed manual read-only local verification workflow are documented |
 | Stage 0 current-main gap review basis | RECORDED | `origin/main` at `7add760e89b84106679461948e9db58223900e33`, checked `2026-05-24T15:45:55.4078343+09:00` |
 | release manifest/checksum generator | PRESENT | `scripts/generate_manifest.py` and `scripts/generate_checksums.py`; local-only, standard-library-only, restricted to repo-relative `artifacts/` paths, and checksum coverage includes the full present release evidence bundle except the checksum file itself |
 | release manifest runtime reproducibility inventory | PRESENT | manifest file inventory includes `.python-version`, `requirements-dev.txt`, and `requirements-dev.lock` when present |
-| release manifest/checksum artifacts | PRESENT | `artifacts/release-manifest.json` and `artifacts/checksums.sha256`; checksum entries cover eval report when present, manifest, SPDX SBOM, CycloneDX SBOM, and provenance; no release archive, tag, release, or workflow generated |
+| release manifest/checksum artifacts | PRESENT | `artifacts/release-manifest.json` and `artifacts/checksums.sha256`; checksum entries cover eval report when present, manifest, SPDX SBOM, CycloneDX SBOM, and provenance; no release archive, tag, release, or release workflow generated |
 | release evidence foundation | PARTIAL | Release records, clean clone validation, local package checklist, and release drafts exist |
-| optional CI local verify template | DONE | `templates/ci/github-actions-local-verify.yml.template` exists and no workflow is installed |
-| optional CI local verify template | PRESENT / OPTIONAL | `templates/ci/github-actions-local-verify.yml.template` exists and no workflow is installed |
-| optional CI release verify template | PRESENT / OPTIONAL | `templates/ci/github-actions-release-verify.yml.template` exists and no workflow is installed |
-| optional CI actualization decision | HISTORICAL RISK EVIDENCE | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md` records local-first sufficiency, template-only decision, no artifact upload, and owner-approval boundary before workflow installation; superseded for implementation sequencing by `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` |
+| optional CI local verify template | ACTUALIZED FOR FIRST TARGET | `templates/ci/github-actions-local-verify.yml.template` remains as reference evidence; `.github/workflows/local-verify.yml` is the installed manual read-only workflow |
+| optional CI local verify template | PRESENT / HISTORICAL TEMPLATE | `templates/ci/github-actions-local-verify.yml.template` exists; first-target installation is limited to `.github/workflows/local-verify.yml` |
+| optional CI release verify template | PRESENT / OPTIONAL | `templates/ci/github-actions-release-verify.yml.template` exists and no release verification workflow is installed |
+| optional CI actualization decision | HISTORICAL RISK EVIDENCE | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md` records local-first sufficiency, template-only decision, no artifact upload, and owner-approval boundary; superseded for implementation sequencing by `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` and preserved as evidence for additional CI approvals |
 | release bundle policy | PRESENT | `docs/RELEASE_BUNDLE_POLICY.md`; records the local manifest/checksum generator boundary and future release evidence exclusions |
 | release manifest policy | PRESENT | `docs/RELEASE_MANIFEST_POLICY.md`; defines current manifest fields, deterministic ordering, exclusions, and checksum rules |
-| SBOM/provenance plan | IMPLEMENTED MINIMAL LOCAL | `docs/SBOM_PROVENANCE_PLAN.md`; minimal local generators and artifacts exist; no dependencies, external services, CI, tags, signatures, or release publication |
+| SBOM/provenance plan | IMPLEMENTED MINIMAL LOCAL | `docs/SBOM_PROVENANCE_PLAN.md`; minimal local generators and artifacts exist; no dependencies, external services, CI-based generation, tags, signatures, or release publication |
 | SBOM/provenance generators | PRESENT | `scripts/generate_sbom.py` and `scripts/generate_provenance.py`; standard-library-only, local-only, restricted to repo-relative `artifacts/` paths, and reject overlapping release-evidence output paths |
 | SBOM/provenance artifacts | PRESENT | `artifacts/sbom.spdx.json`, `artifacts/sbom.cdx.json`, and `artifacts/provenance.intoto.jsonl`; no signing, publication, tag movement, release archive, workflow, application code, or live-write behavior |
 | release verification wrapper | PRESENT | `scripts/run_release_verify.ps1`; local-only wrapper for local verification, standalone eval, manifest/checksum, SBOM, and provenance generation |
@@ -556,12 +563,12 @@ Stage 0 current-main gap review basis:
 | prompt contract templates | ADDED | Four reusable Markdown prompt templates exist under `prompts/task_contract/`; they do not execute prompts or grant approval |
 | minimal eval harness | EXPANDED | Standalone non-LLM local eval runner, 14 named cases, golden path list, gate wrapper, optional report output, and tests are present |
 | release bundle policy | PRESENT | `docs/RELEASE_BUNDLE_POLICY.md`; records local manifest/checksum generation boundary and future release evidence components |
-| release manifest/checksum generation | IMPLEMENTED | Local-only manifest and full-bundle checksum scripts, path-boundary tests, runtime reproducibility inventory, and artifacts added; outputs and checksum inputs are restricted to repo-relative `artifacts/` paths; final checksum coverage includes manifest, SBOM, and provenance evidence while excluding self-reference; no archive, CI, tag, release, application, or live-write behavior |
-| SBOM/provenance generation | IMPLEMENTED MINIMAL LOCAL | Standard-library-only SPDX, CycloneDX, and in-toto-style provenance generators and artifacts added; output paths reject release-evidence overlap; no external metadata lookup, signing, archive, CI, tag, release publication, application, or live-write behavior |
-| release verification wrapper | IMPLEMENTED LOCAL | `scripts/run_release_verify.ps1` runs local verification, optional standalone eval, manifest generation, bootstrap checksum generation, optional SBOM/provenance generation, strict final full-bundle checksum regeneration, and artifact path reporting; no archive, CI, signing, publication, tag movement, application, or live-write behavior |
+| release manifest/checksum generation | IMPLEMENTED | Local-only manifest and full-bundle checksum scripts, path-boundary tests, runtime reproducibility inventory, and artifacts added; outputs and checksum inputs are restricted to repo-relative `artifacts/` paths; final checksum coverage includes manifest, SBOM, and provenance evidence while excluding self-reference; no archive, release CI artifact generation, tag, release, application, or live-write behavior |
+| SBOM/provenance generation | IMPLEMENTED MINIMAL LOCAL | Standard-library-only SPDX, CycloneDX, and in-toto-style provenance generators and artifacts added; output paths reject release-evidence overlap; no external metadata lookup, signing, archive, CI-based generation, tag, release publication, application, or live-write behavior |
+| release verification wrapper | IMPLEMENTED LOCAL | `scripts/run_release_verify.ps1` runs local verification, optional standalone eval, manifest generation, bootstrap checksum generation, optional SBOM/provenance generation, strict final full-bundle checksum regeneration, and artifact path reporting; no archive, release CI workflow, signing, publication, tag movement, application, or live-write behavior |
 | approved-corpus RAG planning | ADDED | `docs/APPROVED_CORPUS_RAG_PLAN.md` defines candidate safe corpus files, required metadata, forbidden corpus, and corpus-expansion approval checkpoints; no retrieval/index tooling added |
 | model and prompt change planning | ADDED | `docs/MODEL_CHANGE_POLICY.md` defines model, prompt template, eval run, corpus digest, side-effect class, and compare-before-adopt controls; no model comparison or capture tooling added |
-| optional release verification CI template | TEMPLATE ONLY / DEFERRED | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`, `docs/OPTIONAL_GITHUB_ACTIONS.md`, and `templates/ci/*.template` exist; no `.github/workflows`, required checks, artifact upload, publishing, signing, tag movement, deployment, application code, or live-write behavior |
+| optional release verification CI template | TEMPLATE ONLY / DEFERRED | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`, `docs/OPTIONAL_GITHUB_ACTIONS.md`, and `templates/ci/*.template` exist; no release verification workflow, required checks, artifact upload, publishing, signing, tag movement, deployment, application code, or live-write behavior |
 | additional local target experiment plans | PARTIAL EXECUTED | `docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md` was executed once with explicit approval and recorded in `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md`; `docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md` remains planning-only |
 | Stage 5A next direction decision | PRESENT / HISTORICAL | `docs/NEXT_DIRECTION_DECISION.md`; originally recommended freezing the harness after minimal cleanup and moving to Scenario-Simulator P1 planning |
 | Stage 5B target repo selection and practical probe plan | PRESENT / HISTORICAL HANDOFF | `docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md`; historical handoff froze the harness, deferred Scenario-Simulator implementation, selected `stock`, and constrained the first probe to test-only/dry-run safety coverage |
@@ -572,8 +579,8 @@ Stage 0 current-main gap review basis:
 | audit log schema | PRESENT | `audits/audit-log.schema.json`; optional future evidence contract only, no real session logs or automation |
 | docs gate alignment | PRESENT | `docs_gate` includes Stage 1 policy docs and current post-v0.1.0 governance/release-evidence docs as required documentation |
 | local staging verification compatibility | PRESENT | `pytest.ini` and `scripts/run_local_verify.ps1` scope pytest to `tests`; hygiene and secret-scan gates ignore root `local/` |
-| Stage 4/Priority 3 implementation boundary | PRESERVED | Standalone eval code, 14 named cases, golden path list, gate wrapper, optional report output, and tests are present; report paths are repo-internal relative under `artifacts/`; no eval report generated by default, quality-gate integration, CI, workflows, tags, releases, profiles, application code, C# source/project, PLC/device code, or live-write behavior added |
-| AI readiness scanner | IMPLEMENTED STANDALONE | `docs/AI_READINESS_SCANNER_v0.md`, `scripts/ai_readiness_scanner.py`, and `tests/test_ai_readiness_scanner.py`; Markdown and JSON stdout output, synthetic tests, forbidden-folder skipping, and conservative domain risk flags are present; no generated reports, quality-gate integration, CI, sibling repo scan, RAG/model tooling, target writes, or target command execution added |
+| Stage 4/Priority 3 implementation boundary | PRESERVED | Standalone eval code, 14 named cases, golden path list, gate wrapper, optional report output, and tests are present; report paths are repo-internal relative under `artifacts/`; no eval report generated by default, quality-gate integration, eval CI integration, eval workflow, tags, releases, profiles, application code, C# source/project, PLC/device code, or live-write behavior added |
+| AI readiness scanner | IMPLEMENTED STANDALONE | `docs/AI_READINESS_SCANNER_v0.md`, `scripts/ai_readiness_scanner.py`, and `tests/test_ai_readiness_scanner.py`; Markdown and JSON stdout output, synthetic tests, forbidden-folder skipping, and conservative domain risk flags are present; no generated reports, quality-gate integration, scanner CI integration, sibling repo scan, RAG/model tooling, target writes, or target command execution added |
 | scenario simulator treatment | DEFERRED ARCHITECTURE / PLANNING CANDIDATE | Remains downstream candidate, not a built-in profile or first practical probe |
 
 ## Formal v0.1.0 GitHub Release Draft
@@ -625,12 +632,12 @@ Stage 0 current-main gap review basis:
 Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
 sequencing handoff.
 
-The next recommended task is Phase 3: read-only CI + verification hygiene. The
-task should mirror existing local verification in a read-only, approval-gated
-path and must not add secrets, artifact upload, release publication, signing,
-tag movement, deployment, downstream edits, RAG/index tooling, audit
-automation, eval quality-gate integration, MCP/Hermes implementation, or live
-write behavior.
+The next recommended task is Phase 4: audit / trace / receipt schema. The task
+should define the schema boundary before automation and must not add audit
+logging automation, prompt capture, tool-call body capture, RAG/index tooling,
+eval quality-gate integration, MCP/Hermes implementation, release automation,
+artifact upload, release publication, signing, tag movement, deployment,
+downstream edits, or live-write behavior.
 
 Treat Stage 5B stock probe records, optional CI/RAG/audit decisions, and the
 post-v0.1.0 evidence baseline as historical risk evidence for the roadmap, not

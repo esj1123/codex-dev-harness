@@ -2,19 +2,22 @@
 
 ## Purpose
 
-Define the current CI policy for codex-dev-harness without creating a GitHub Actions workflow.
+Define the current CI policy for codex-dev-harness after installing the
+owner-approved read-only local verification GitHub Actions workflow.
 
 ## Current Policy
 
-Local verification first.
+Local verification first, with one manual read-only GitHub Actions mirror.
 
-The repository is not currently configured with active CI. Release readiness is
-verified locally with documented commands, local release evidence, and recorded
-closeout evidence.
+The repository now includes the owner-approved first implementation target:
+`.github/workflows/local-verify.yml`. It is a manual `workflow_dispatch`
+workflow with repository read-only permissions and no artifact upload,
+publication, signing, tag movement, deployment, downstream checkout, or live
+target behavior.
 
-Current implementation sequence: read-only CI + verification hygiene is the
-first implementation target after `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`.
-No active workflow is installed by this policy.
+Release readiness remains verified locally with documented commands, local
+release evidence, and recorded closeout evidence. The installed workflow is a
+verification hygiene mirror, not release automation.
 
 The current local evidence baseline includes:
 
@@ -25,30 +28,34 @@ The current local evidence baseline includes:
 - local release manifest, checksum, SBOM, provenance, and optional eval report
   artifacts
 
-These local surfaces are sufficient for the current baseline and are the checks
-that a first CI hygiene phase should mirror. Active GitHub Actions workflows
-remain uninstalled until a separate owner-approved implementation task names
-the workflow path, triggers, permissions, commands, and exclusions.
+These local surfaces are the baseline that CI must mirror when approved. The
+installed workflow mirrors only the non-release local verification subset.
+Additional workflows, triggers, permissions, required-check policies, artifact
+upload, release verification CI, signing, tag movement, deployment, downstream
+integration, or live behavior require a separate owner-approved implementation
+task.
 
 ## First CI Implementation Target
 
-GitHub Actions may be added in a future phase only with separate owner
-approval. Per the capability implementation roadmap, CI should start as a
-manual or otherwise approval-gated read-only workflow that only runs repository
-validation checks:
+The first CI implementation target is now implemented as
+`.github/workflows/local-verify.yml`. Per the capability implementation roadmap,
+CI starts as a manual read-only workflow that only runs repository validation
+checks:
 
-- `python -m pytest`
+- `python -m pytest tests`
 - `python scripts/quality_gate.py`
 - `python scripts/render_template.py --config examples/python_cli_minimal/template.config.yml --target examples/python_cli_minimal --dry-run`
 - `python scripts/render_template.py --config examples/csharp_desktop_minimal/template.config.yml --target examples/csharp_desktop_minimal --dry-run`
 - `python scripts/render_template.py --config examples/plc_tool_minimal/template.config.yml --target examples/plc_tool_minimal --dry-run`
 
-Release verification may use:
+The workflow also installs development requirements from `requirements-dev.txt`
+and reads the Python version from `.python-version`.
+
+Release verification remains local-only unless separately approved and may use:
 
 - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run_release_verify.ps1`
 
-Installing any workflow under `.github/workflows/` is not approved by this
-policy.
+The installed local verification workflow does not run release verification.
 
 ## CI Boundaries
 
@@ -63,6 +70,31 @@ CI must not introduce:
 - Artifact upload without a separate release-publication decision.
 - Release publication, signing, tag creation, or tag movement.
 - Deployment behavior.
+- RAG, retrieval index, embeddings, or vector database behavior.
+- Audit logging automation or audit receipt generation.
+- Eval quality-gate integration, eval CI integration, or routine eval report
+  generation.
+- MCP tool server, Hermes sidecar, or downstream product integration behavior.
+
+## Verification Hygiene
+
+Verification closeouts must distinguish:
+
+- source checks that were run locally
+- manual CI checks that were run through `.github/workflows/local-verify.yml`
+- checks that were not run
+- generated artifacts that were intentionally regenerated
+- release evidence that was intentionally not regenerated
+
+Documentation-only or policy-only changes may use focused verification when
+the omitted checks are marked `NOT RUN` with a reason. Tasks that touch
+generated output, release evidence, render behavior, quality gates, examples,
+or scripts should run broader local verification unless the task explicitly
+excludes it.
+
+Line-ending warnings, if any, should be recorded as repository hygiene notes
+unless they affect executable behavior or generated artifact content. A local
+commit is not a push, tag, release, artifact upload, deployment, or publication.
 
 ## Release Relationship
 

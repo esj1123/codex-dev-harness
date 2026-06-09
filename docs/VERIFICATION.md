@@ -29,6 +29,30 @@ Recommended local command:
 
 The wrapper runs tests, quality gate, and all three example render dry-runs. It does not write rendered files and does not use `--force`.
 
+## Read-Only CI Verification Flow
+
+The owner-approved first CI implementation target is installed at:
+
+`.github/workflows/local-verify.yml`
+
+The workflow is manual-only through `workflow_dispatch` and uses
+`permissions: contents: read`. It mirrors the non-release local verification
+subset:
+
+- `python -m pytest tests`
+- `python scripts/quality_gate.py`
+- `python scripts/render_template.py --config examples/python_cli_minimal/template.config.yml --target examples/python_cli_minimal --dry-run`
+- `python scripts/render_template.py --config examples/csharp_desktop_minimal/template.config.yml --target examples/csharp_desktop_minimal --dry-run`
+- `python scripts/render_template.py --config examples/plc_tool_minimal/template.config.yml --target examples/plc_tool_minimal --dry-run`
+
+It also installs development requirements from `requirements-dev.txt` and uses
+the Python runtime declared in `.python-version`.
+
+The workflow does not run release verification, generate release artifacts,
+upload artifacts, publish releases, sign artifacts, move tags, deploy, check out
+downstream repositories, run eval/report integration, run RAG/index tooling,
+run audit automation, run MCP/Hermes code, or perform live-write behavior.
+
 ## Local Release Verification Flow
 
 Recommended release evidence command:
@@ -200,7 +224,30 @@ Use `docs/RELEASE_CHECKLIST.md` before tagging a reusable baseline. Known gaps a
 
 Local package boundaries are documented in `docs/LOCAL_RELEASE_PACKAGE.md`.
 
-CI policy is documented in `docs/CI_POLICY.md`. The current baseline is local verification first and does not include a GitHub Actions workflow.
+CI policy is documented in `docs/CI_POLICY.md`. The current CI surface is a
+manual read-only local verification workflow. It is not a release workflow,
+required-check policy, artifact upload policy, signing policy, deployment
+policy, tag policy, or publication mechanism.
+
+## Verification Hygiene
+
+Verification reports must state exactly what was run, what was not run, and why.
+Focused verification is acceptable for narrow documentation or policy changes
+when broader checks are explicitly out of scope and marked `NOT RUN`.
+
+Generated-output-sensitive work must distinguish:
+
+- temporary output produced outside the repository
+- committed generated artifacts under `artifacts/`
+- generated release evidence that was intentionally regenerated
+- release evidence that was intentionally not regenerated
+
+Do not imply that release verification passed unless `scripts/run_release_verify.ps1`
+or an explicitly equivalent approved release verification flow was run.
+
+Line-ending warnings, if present, should be reported as hygiene notes unless
+they affect executable behavior or generated artifact content. A local commit is
+not a push, tag, release, publication, artifact upload, or deployment.
 
 ## NOT RUN Principle
 
