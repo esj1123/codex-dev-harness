@@ -218,6 +218,22 @@ Current and future verification layers may include:
 - Example validation.
 - Audit evidence.
 
+## Audit / Trace / Receipt Evidence
+
+Use `docs/AUDIT_TRACE_SCHEMA.md` as the field reference when a closeout needs a
+structured audit-style receipt. Receipt evidence should summarize repository
+state, changed files, approvals, side effects, commands run, commands not run,
+verification result, safety exclusions, CI run evidence, artifact upload
+status, unresolved risks, and next step.
+
+Receipt evidence must not include full prompt transcripts, raw private data,
+raw command logs by default, unredacted tool-call bodies, secrets, live values,
+local Windows absolute paths, or generated downstream source.
+
+The schema is manual evidence guidance only. It does not create audit logs,
+schema validation, quality-gate integration, CI integration, release evidence,
+or automation.
+
 ## Release Readiness
 
 Use `docs/RELEASE_CHECKLIST.md` before tagging a reusable baseline. Known gaps and intentionally unsupported behavior are tracked in `docs/KNOWN_LIMITATIONS.md`.

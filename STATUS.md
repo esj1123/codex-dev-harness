@@ -10,7 +10,8 @@ The repository contains documentation, base templates, profile templates, render
 tooling, quality gates, tests, minimal example skeletons, a standalone local
 read-only AI readiness scanner, local release evidence tooling, a capability
 implementation roadmap, and an owner-approved manual read-only GitHub Actions
-local verification workflow.
+local verification workflow. The audit / trace / receipt schema is documented
+as a manual closeout contract in `docs/AUDIT_TRACE_SCHEMA.md`.
 
 Stages 1-5A are complete:
 
@@ -35,16 +36,17 @@ implement CI, RAG, audit / trace / receipt schema, eval/report integration,
 MCP tool boundary, Hermes sidecar, release automation / provenance, and
 downstream product integration. The first implementation target after the
 roadmap, read-only CI + verification hygiene, is implemented as
-`.github/workflows/local-verify.yml`. The next targets are audit / trace /
-receipt schema, eval/report integration, approved corpus digest, local RAG, MCP
-tool boundary, Hermes sidecar, and later release automation / provenance plus
+`.github/workflows/local-verify.yml`. The second target, audit / trace /
+receipt schema, is documented in `docs/AUDIT_TRACE_SCHEMA.md`. The next targets
+are eval/report integration, approved corpus digest, local RAG, MCP tool
+boundary, Hermes sidecar, and later release automation / provenance plus
 downstream product integration.
 
 ## Current Verification Snapshot
 
 Snapshot purpose: document the Stage 2 final local post-v0.1.0 evidence
 baseline refresh after the Stage 1 documentation drift cleanup and the current
-Phase 3 read-only CI + verification hygiene state.
+Phase 4 audit / trace / receipt schema state.
 
 | item | status | evidence |
 |---|---|---|
@@ -90,6 +92,8 @@ Phase 3 read-only CI + verification hygiene state.
 | stock practical probe sequence | COMPLETE / CLOSEOUT RECORDED | Probe #1-#5 were completed in `stock` under separate target-repo tasks; this harness task records privacy-safe evidence summaries only and does not write to `stock` |
 | `plc_or_device_tool` actual experiment | DEFERRED / NOT NEXT DEFAULT | Separate owner approval required; not the current strategic priority |
 | CI workflow | PRESENT / MANUAL READ-ONLY | `.github/workflows/local-verify.yml`; runs tests, quality gate, and three render dry-runs only |
+| Local Verify smoke run | PASS | workflow `Local Verify` succeeded for commit `026788c1ae5df617ae5b6874c4b4919f76d9e734`; run `27254100041`; no artifacts uploaded |
+| audit / trace / receipt schema | PRESENT / MANUAL SCHEMA | `docs/AUDIT_TRACE_SCHEMA.md`; documentation-only closeout contract; no audit automation or real audit session logs |
 | release publication, tag movement, archive creation, signing | NOT DONE | Stage 2 performed local evidence regeneration only; this is not release publication |
 
 ## What Exists
@@ -141,6 +145,7 @@ Phase 3 read-only CI + verification hygiene state.
   - `docs/HUMAN_APPROVALS.md`
   - `docs/EVAL_POLICY.md`
   - `docs/AUDIT_LOG_POLICY.md`
+  - `docs/AUDIT_TRACE_SCHEMA.md`
   - `docs/P6_RELEASE_CLOSEOUT.md`
   - `docs/GITHUB_RELEASE_DRAFT_v0.1.0-rc2.md`
   - `docs/GITHUB_RELEASE_DRAFT_v0.1.0.md`
@@ -211,6 +216,8 @@ Phase 3 read-only CI + verification hygiene state.
 - Reusable prompt contract templates under `prompts/task_contract/`.
 - Minimal local-only eval harness design and expanded implementation: `docs/MINIMAL_EVAL_HARNESS_DESIGN.md`, `scripts/run_eval.py`, `scripts/gates/eval_gate.py`, and 14 named cases under `evals/cases/`.
 - Audit log schema for future optional evidence: `audits/audit-log.schema.json`.
+- Manual audit / trace / receipt schema:
+  `docs/AUDIT_TRACE_SCHEMA.md`.
 - Approved-corpus RAG planning: `docs/APPROVED_CORPUS_RAG_PLAN.md`.
 - Model and prompt change planning: `docs/MODEL_CHANGE_POLICY.md`.
 - AI readiness scanner:
@@ -364,7 +371,7 @@ Stage 0 current-main gap review basis:
 | dedicated change control policy | PRESENT | `docs/CHANGE_CONTROL.md` |
 | dedicated human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md` |
 | dedicated eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval implementation now exists |
-| audit log policy and schema | PRESENT | `docs/AUDIT_LOG_POLICY.md` and `audits/audit-log.schema.json`; no real audit logs or logging automation added |
+| audit log policy and schema | PRESENT | `docs/AUDIT_LOG_POLICY.md`, `docs/AUDIT_TRACE_SCHEMA.md`, and `audits/audit-log.schema.json`; no real audit logs or logging automation added |
 | post-v0.1.0 governance/release docs gate coverage | PRESENT | `docs_gate` requires Stage 1 policy docs plus release bundle/manifest, SBOM/provenance, Python runtime, approved-corpus RAG, model change, optional CI actualization, and minimal eval design docs |
 | local staging verification compatibility | PRESENT | `pytest.ini` and `run_local_verify.ps1` scope pytest to `tests`; hygiene and secret-scan gates ignore root `local/` |
 | existing governance docs not recreated | CONFIRMED | `PROMPT_PATTERNS`, `BUG_REVIEW_TEMPLATE`, `SIMPLIFICATION_CHECKLIST`, `LOCAL_PACKAGE_CHECKLIST`, and `OPTIONAL_EVAL_HARNESS_PLAN` were preserved |
@@ -576,7 +583,7 @@ Stage 0 current-main gap review basis:
 | Stage 1 change control policy | PRESENT | `docs/CHANGE_CONTROL.md`; documentation-only |
 | Stage 1 human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md`; documentation-only |
 | Stage 1 eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval exists; no dependencies, quality-gate integration, or CI integration |
-| audit log schema | PRESENT | `audits/audit-log.schema.json`; optional future evidence contract only, no real session logs or automation |
+| audit log schema | PRESENT | `docs/AUDIT_TRACE_SCHEMA.md` and `audits/audit-log.schema.json`; manual receipt schema and optional future evidence contract only, no real session logs or automation |
 | docs gate alignment | PRESENT | `docs_gate` includes Stage 1 policy docs and current post-v0.1.0 governance/release-evidence docs as required documentation |
 | local staging verification compatibility | PRESENT | `pytest.ini` and `scripts/run_local_verify.ps1` scope pytest to `tests`; hygiene and secret-scan gates ignore root `local/` |
 | Stage 4/Priority 3 implementation boundary | PRESERVED | Standalone eval code, 14 named cases, golden path list, gate wrapper, optional report output, and tests are present; report paths are repo-internal relative under `artifacts/`; no eval report generated by default, quality-gate integration, eval CI integration, eval workflow, tags, releases, profiles, application code, C# source/project, PLC/device code, or live-write behavior added |
@@ -632,12 +639,13 @@ Stage 0 current-main gap review basis:
 Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
 sequencing handoff.
 
-The next recommended task is Phase 4: audit / trace / receipt schema. The task
-should define the schema boundary before automation and must not add audit
-logging automation, prompt capture, tool-call body capture, RAG/index tooling,
-eval quality-gate integration, MCP/Hermes implementation, release automation,
+The next recommended task is Phase 5: eval/report integration. The task should
+connect standalone eval evidence to the audit / trace / receipt schema before
+any default gate or release-blocking behavior, and must not add default
+quality-gate integration, release-blocking eval semantics, routine report
+generation, RAG/index tooling, MCP/Hermes implementation, release automation,
 artifact upload, release publication, signing, tag movement, deployment,
-downstream edits, or live-write behavior.
+downstream edits, or live-write behavior without separate approval.
 
 Treat Stage 5B stock probe records, optional CI/RAG/audit decisions, and the
 post-v0.1.0 evidence baseline as historical risk evidence for the roadmap, not

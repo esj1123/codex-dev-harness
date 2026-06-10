@@ -12,7 +12,8 @@ current local-first baseline.
 
 Current sequencing note: audit / trace / receipt schema is the second
 implementation target in `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`, after
-read-only CI + verification hygiene. This policy remains schema and boundary
+read-only CI + verification hygiene. `docs/AUDIT_TRACE_SCHEMA.md` defines the
+manual receipt schema for that target. This policy remains schema and boundary
 guidance only; real audit log generation and automation still require a
 separate approved implementation phase.
 
@@ -26,8 +27,23 @@ The repository already records audit-adjacent evidence in:
 - clean clone validation records
 - downstream adoption and feedback records
 - decision and closeout records under `docs/`
+- `docs/AUDIT_TRACE_SCHEMA.md`
 
 These are related evidence foundations. They are not real audit session logs.
+
+## Manual Receipt Schema
+
+`docs/AUDIT_TRACE_SCHEMA.md` is the current manual audit / trace / receipt
+schema. It defines receipt fields for task identity, repository state,
+changed files, approval class, side-effect class, commands run, commands not
+run, verification result, safety exclusions, commit state, push state, tag
+state, release state, workflow run evidence, artifact upload status,
+unresolved risks, and next step.
+
+The schema is a closeout contract only. It does not create audit entries,
+generate JSONL, add a validator, add quality-gate integration, add CI
+integration, capture prompts, capture tool-call bodies, or store private raw
+data.
 
 ## Audit Event Fields
 

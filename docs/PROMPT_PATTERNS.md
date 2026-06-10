@@ -20,6 +20,11 @@ than the short patterns below:
 
 These prompt templates do not grant approval by themselves.
 
+For closeouts that need audit-style receipt structure, use
+`docs/AUDIT_TRACE_SCHEMA.md` as the field reference. The schema defines what to
+summarize, but it does not authorize prompt capture, tool-call body capture,
+private raw data capture, audit logging automation, or receipt file generation.
+
 Write/apply actions still require human approval when they cross side-effect
 boundaries such as deletion, moving files, external sends, dependency or
 environment mutation, workflow installation, release publication, manifest,
