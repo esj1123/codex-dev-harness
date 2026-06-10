@@ -173,6 +173,11 @@ The runner discovers named `evals/cases/*.yml` files in deterministic filename
 order. It is local-only, non-LLM, and not wired into `scripts/quality_gate.py`
 by default.
 
+Phase 5 report-only planning is documented in
+`docs/EVAL_REPORT_INTEGRATION_PLAN.md`. Eval evidence may be summarized in
+audit / trace / receipt closeouts using the eval receipt fields in
+`docs/AUDIT_TRACE_SCHEMA.md`.
+
 To write an optional machine-readable report, run:
 
 `python scripts/run_eval.py --report artifacts/eval-report.json`
@@ -186,6 +191,10 @@ outputs, or live target details.
 If `artifacts/eval-report.json` is present, the checksum policy treats it as a
 present optional release evidence artifact. Regenerate `artifacts/checksums.sha256`
 after creating the report when checksum coverage is being asserted.
+
+Do not generate eval reports routinely. Do not treat evals as release-blocking,
+CI-integrated, or part of `scripts/quality_gate.py` unless a separate task
+explicitly approves that integration.
 
 The quality gate includes:
 - Documentation presence.

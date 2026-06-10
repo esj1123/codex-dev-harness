@@ -37,10 +37,12 @@ MCP tool boundary, Hermes sidecar, release automation / provenance, and
 downstream product integration. The first implementation target after the
 roadmap, read-only CI + verification hygiene, is implemented as
 `.github/workflows/local-verify.yml`. The second target, audit / trace /
-receipt schema, is documented in `docs/AUDIT_TRACE_SCHEMA.md`. The next targets
-are eval/report integration, approved corpus digest, local RAG, MCP tool
-boundary, Hermes sidecar, and later release automation / provenance plus
-downstream product integration.
+receipt schema, is documented in `docs/AUDIT_TRACE_SCHEMA.md`. Phase 5
+eval/report integration planning is documented in
+`docs/EVAL_REPORT_INTEGRATION_PLAN.md`; the eval runner remains standalone.
+The next targets are report-only eval receipt alignment, approved corpus
+digest, local RAG, MCP tool boundary, Hermes sidecar, and later release
+automation / provenance plus downstream product integration.
 
 ## Current Verification Snapshot
 
@@ -64,7 +66,7 @@ Phase 4 audit / trace / receipt schema state.
 | manifest files recorded | PRESENT | `211` |
 | checksum coverage | PRESENT | `artifacts/checksums.sha256` records 5 entries: eval report, provenance, manifest, CycloneDX SBOM, and SPDX SBOM; checksum file self-reference excluded |
 | standalone eval case count | PRESENT | `scripts/run_eval.py` discovers 14 named local-only non-LLM eval cases under `evals/cases/` |
-| eval / report integration | ROADMAP TARGET / CURRENTLY STANDALONE | `docs/EVAL_INTEGRATION_DECISION.md` and `docs/EVAL_POLICY.md`; third implementation target after audit / trace / receipt schema, while the current runtime boundary keeps evals standalone and local-only |
+| eval / report integration | PLANNED / CURRENTLY STANDALONE | `docs/EVAL_REPORT_INTEGRATION_PLAN.md`, `docs/EVAL_INTEGRATION_DECISION.md`, and `docs/EVAL_POLICY.md`; report-only receipt alignment is planned while evals remain standalone and local-only |
 | `csharp_desktop` local target experiment | PASS | `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md` |
 | `csharp_desktop` dry-run render | PASS | 16 Markdown documentation outputs planned in an outside-repo temporary target |
 | `csharp_desktop` actual render | PASS | 16 Markdown documentation outputs generated in an outside-repo temporary target; temporary target not committed |
@@ -141,6 +143,7 @@ Phase 4 audit / trace / receipt schema state.
   - `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`
   - `docs/MINIMAL_EVAL_HARNESS_DESIGN.md`
   - `docs/EVAL_INTEGRATION_DECISION.md`
+  - `docs/EVAL_REPORT_INTEGRATION_PLAN.md`
   - `docs/CHANGE_CONTROL.md`
   - `docs/HUMAN_APPROVALS.md`
   - `docs/EVAL_POLICY.md`
@@ -215,6 +218,8 @@ Phase 4 audit / trace / receipt schema state.
   `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`.
 - Reusable prompt contract templates under `prompts/task_contract/`.
 - Minimal local-only eval harness design and expanded implementation: `docs/MINIMAL_EVAL_HARNESS_DESIGN.md`, `scripts/run_eval.py`, `scripts/gates/eval_gate.py`, and 14 named cases under `evals/cases/`.
+- Eval/report integration planning:
+  `docs/EVAL_REPORT_INTEGRATION_PLAN.md`.
 - Audit log schema for future optional evidence: `audits/audit-log.schema.json`.
 - Manual audit / trace / receipt schema:
   `docs/AUDIT_TRACE_SCHEMA.md`.
@@ -551,7 +556,7 @@ Stage 0 current-main gap review basis:
 | release page decision | DEFERRED | `docs/RELEASE_PAGE_DECISION.md`; GitHub Release page not created |
 | local package checklist | PRESENT | `docs/LOCAL_PACKAGE_CHECKLIST.md`; no package archive generated |
 | optional eval harness | EXPANDED STANDALONE IMPLEMENTED | `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`; `scripts/run_eval.py`, `scripts/gates/eval_gate.py`, 14 named `evals/cases/`, and `evals/golden/` exist |
-| eval / report integration | ROADMAP TARGET / CURRENTLY STANDALONE | `docs/EVAL_INTEGRATION_DECISION.md`; future integration is third in the capability roadmap, while no default quality-gate integration, CI integration, routine eval report generation, or release-blocking eval semantics are active now |
+| eval / report integration | PLANNED / CURRENTLY STANDALONE | `docs/EVAL_REPORT_INTEGRATION_PLAN.md` and `docs/EVAL_INTEGRATION_DECISION.md`; report-only receipt alignment is the current plan, while no default quality-gate integration, CI integration, routine eval report generation, or release-blocking eval semantics are active now |
 | known limitations | REFRESHED | `docs/KNOWN_LIMITATIONS.md` no longer lists completed CI policy or release tagging guidance as future work |
 | architecture release/record plane | REFRESHED | `docs/ARCHITECTURE.md` lists current v0.1.0 and post-v0.1.0 evidence |
 | architecture optional pack plane | REFRESHED | Optional design-stage pack is documented as manual-use-only, not profile, and not base render |
@@ -639,13 +644,14 @@ Stage 0 current-main gap review basis:
 Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
 sequencing handoff.
 
-The next recommended task is Phase 5: eval/report integration. The task should
-connect standalone eval evidence to the audit / trace / receipt schema before
-any default gate or release-blocking behavior, and must not add default
+The next recommended task is Phase 5 report-only eval receipt alignment. The
+task should add or refine documentation examples for summarizing standalone
+eval evidence in audit / trace / receipt closeouts, and must not add default
 quality-gate integration, release-blocking eval semantics, routine report
-generation, RAG/index tooling, MCP/Hermes implementation, release automation,
-artifact upload, release publication, signing, tag movement, deployment,
-downstream edits, or live-write behavior without separate approval.
+generation, CI eval integration, RAG/index tooling, MCP/Hermes implementation,
+release automation, artifact upload, release publication, signing, tag
+movement, deployment, downstream edits, or live-write behavior without separate
+approval.
 
 Treat Stage 5B stock probe records, optional CI/RAG/audit decisions, and the
 post-v0.1.0 evidence baseline as historical risk evidence for the roadmap, not

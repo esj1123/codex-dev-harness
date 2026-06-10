@@ -14,8 +14,8 @@ evidence. It is superseded for implementation sequencing by
 `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`, which makes eval / report
 integration the third implementation target after read-only CI + verification
 hygiene and audit / trace / receipt schema. The standalone baseline recorded
-here remains the safe current runtime state until that approved implementation
-phase begins.
+here remains the safe current runtime state. Phase 5 report-only planning is
+documented in `docs/EVAL_REPORT_INTEGRATION_PLAN.md`.
 
 ## Current Eval State
 
@@ -65,7 +65,7 @@ generation, or release publication.
 
 Keep the eval harness standalone.
 
-The safe next state is:
+The current safe state is:
 
 - `scripts/run_eval.py` remains the primary local eval command.
 - `scripts/gates/eval_gate.py` remains standalone and separate from
@@ -76,6 +76,11 @@ The safe next state is:
 - `quality_gate.py` integration is not approved.
 - CI integration is not approved.
 - Release-blocking eval semantics are not approved.
+
+Phase 5 planning in `docs/EVAL_REPORT_INTEGRATION_PLAN.md` allows eval evidence
+to be summarized in audit / trace / receipt closeouts. It does not approve
+runtime integration, report generation by default, CI eval execution, or
+release-blocking behavior.
 
 This decision can be revisited if repeated downstream use shows concrete
 failure modes that the current `quality_gate.py` checks do not catch.

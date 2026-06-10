@@ -106,6 +106,17 @@ Optional fields may be added when relevant:
 | `line_ending_notes` | LF/CRLF or related non-fatal hygiene notes. |
 | `environment_notes` | Environment limitations, such as launcher failures. |
 | `policy_only_scan_matches` | Sensitive-word matches that are policy text only. |
+| `eval_command` | Eval command or stable eval command label, if eval evidence is relevant. |
+| `eval_scope` | Eval case set or NOT RUN reason. |
+| `eval_case_count` | Total eval case count when known. |
+| `eval_pass_count` | Passed eval case count when known. |
+| `eval_fail_count` | Failed eval case count when known. |
+| `eval_report_path` | Repo-relative eval report path, only if explicitly generated. |
+| `eval_report_generation_status` | Eval report generation state. |
+| `eval_integration_status` | Eval integration state, such as standalone or receipt-summary-only. |
+| `eval_gate_status` | Quality-gate relationship. |
+| `release_blocking_status` | Release-blocking relationship. |
+| `notes_or_failures_summary` | Short safe eval notes or failed case summary. |
 
 Optional fields must follow the same redaction rules as required fields.
 

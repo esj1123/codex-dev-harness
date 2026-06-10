@@ -12,8 +12,9 @@ or install CI.
 
 Current sequencing note: eval / report integration is the third implementation
 target in `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`, after read-only CI +
-verification hygiene and audit / trace / receipt schema. Until that approved
-phase starts, the current runtime policy remains standalone and local-only.
+verification hygiene and audit / trace / receipt schema. Phase 5 report-only
+planning is documented in `docs/EVAL_REPORT_INTEGRATION_PLAN.md`; the current
+runtime policy remains standalone and local-only.
 
 ## Current State
 
@@ -44,6 +45,11 @@ The current integration decision is recorded in
 Decision: keep the eval harness standalone until a separately approved roadmap
 implementation phase changes the integration boundary.
 
+The report-only planning target is recorded in
+`docs/EVAL_REPORT_INTEGRATION_PLAN.md`. Eval evidence may be summarized in
+audit / trace / receipt closeouts, but report generation remains explicit and
+manual.
+
 The current approved state is:
 
 - `scripts/run_eval.py` remains the primary local eval command.
@@ -54,6 +60,7 @@ The current approved state is:
 - `scripts/quality_gate.py` integration is not approved.
 - CI integration is not approved.
 - release-blocking eval semantics are not approved.
+- no LLM judge or external service is approved.
 
 ## Eval Principles
 
