@@ -196,6 +196,26 @@ Do not generate eval reports routinely. Do not treat evals as release-blocking,
 CI-integrated, or part of `scripts/quality_gate.py` unless a separate task
 explicitly approves that integration.
 
+## Approved Corpus Digest Planning Flow
+
+Phase 6 approved corpus digest planning is documented in:
+
+`docs/APPROVED_CORPUS_DIGEST_PLAN.md`
+
+The plan defines candidate corpus classes, forbidden corpus, required metadata,
+risk labels, digest/hash policy, redaction and encoding checks, source path
+rules, `08_Study` limits, and RSID/downstream evidence limits before any local
+RAG work.
+
+Planning tasks for this phase must verify that no digest artifact, `corpus/`,
+`retrieval/`, `index/`, embeddings, vector database, external RAG service, CI
+integration, quality-gate integration, audit automation, MCP/Hermes
+implementation, release automation, artifact regeneration, downstream edit, or
+eval report generation occurred unless a separate task explicitly approves it.
+
+If a digest artifact is not generated, report it as `NOT RUN` or `not
+generated`. Do not imply digest generation or retrieval verification passed.
+
 The quality gate includes:
 - Documentation presence.
 - Repository hygiene.

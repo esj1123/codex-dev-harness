@@ -40,9 +40,12 @@ roadmap, read-only CI + verification hygiene, is implemented as
 receipt schema, is documented in `docs/AUDIT_TRACE_SCHEMA.md`. Phase 5
 eval/report integration planning is documented in
 `docs/EVAL_REPORT_INTEGRATION_PLAN.md`; the eval runner remains standalone.
-The next targets are report-only eval receipt alignment, approved corpus
-digest, local RAG, MCP tool boundary, Hermes sidecar, and later release
-automation / provenance plus downstream product integration.
+Phase 6 approved corpus digest planning is documented in
+`docs/APPROVED_CORPUS_DIGEST_PLAN.md`; no digest artifact, corpus folder,
+retrieval folder, index folder, embeddings, vector database, or local RAG
+implementation exists. The next targets are exact approved corpus allow-list
+and digest metadata refinement, local RAG, MCP tool boundary, Hermes sidecar,
+and later release automation / provenance plus downstream product integration.
 
 ## Current Verification Snapshot
 
@@ -67,6 +70,7 @@ Phase 4 audit / trace / receipt schema state.
 | checksum coverage | PRESENT | `artifacts/checksums.sha256` records 5 entries: eval report, provenance, manifest, CycloneDX SBOM, and SPDX SBOM; checksum file self-reference excluded |
 | standalone eval case count | PRESENT | `scripts/run_eval.py` discovers 14 named local-only non-LLM eval cases under `evals/cases/` |
 | eval / report integration | PLANNED / CURRENTLY STANDALONE | `docs/EVAL_REPORT_INTEGRATION_PLAN.md`, `docs/EVAL_INTEGRATION_DECISION.md`, and `docs/EVAL_POLICY.md`; report-only receipt alignment is planned while evals remain standalone and local-only |
+| approved corpus digest | PLANNED / DOCUMENTATION-ONLY | `docs/APPROVED_CORPUS_DIGEST_PLAN.md`; digest is the required predecessor to local RAG, but no digest artifact, corpus folder, retrieval folder, index folder, embeddings, vector database, or external service is added |
 | `csharp_desktop` local target experiment | PASS | `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md` |
 | `csharp_desktop` dry-run render | PASS | 16 Markdown documentation outputs planned in an outside-repo temporary target |
 | `csharp_desktop` actual render | PASS | 16 Markdown documentation outputs generated in an outside-repo temporary target; temporary target not committed |
@@ -138,6 +142,7 @@ Phase 4 audit / trace / receipt schema state.
   - `docs/RELEASE_MANIFEST_POLICY.md`
   - `docs/SBOM_PROVENANCE_PLAN.md`
   - `docs/PYTHON_RUNTIME_POLICY.md`
+  - `docs/APPROVED_CORPUS_DIGEST_PLAN.md`
   - `docs/APPROVED_CORPUS_RAG_PLAN.md`
   - `docs/MODEL_CHANGE_POLICY.md`
   - `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`
@@ -224,6 +229,8 @@ Phase 4 audit / trace / receipt schema state.
 - Manual audit / trace / receipt schema:
   `docs/AUDIT_TRACE_SCHEMA.md`.
 - Approved-corpus RAG planning: `docs/APPROVED_CORPUS_RAG_PLAN.md`.
+- Approved corpus digest planning:
+  `docs/APPROVED_CORPUS_DIGEST_PLAN.md`.
 - Model and prompt change planning: `docs/MODEL_CHANGE_POLICY.md`.
 - AI readiness scanner:
   - `docs/AI_READINESS_SCANNER_v0.md`
@@ -259,6 +266,7 @@ Phase 4 audit / trace / receipt schema state.
 - `stock` target repository writes, reports, tests, or generated artifacts from
   this harness repository.
 - Retrieval indexes, embeddings, vector stores, or RAG tooling.
+- Corpus digest artifacts, `corpus/`, `retrieval/`, and `index/` directories.
 - Model comparison code, model observability tooling, prompt capture, or model
   output capture.
 - SBOM/provenance external metadata resolution.
@@ -371,7 +379,8 @@ Stage 0 current-main gap review basis:
 | Python runtime policy | PRESENT | `docs/PYTHON_RUNTIME_POLICY.md` documents the pinned local verification runtime and dependency update rule |
 | Python runtime pin | PRESENT | `.python-version` pins Python `3.12.13` for local verification reproducibility |
 | development dependency lock | PRESENT | `requirements-dev.txt` pins the direct pytest dependency and `requirements-dev.lock` records exact local verification dependency pins |
-| approved-corpus RAG plan | PRESENT | `docs/APPROVED_CORPUS_RAG_PLAN.md`; planning-only approved corpus candidates, metadata, forbidden corpus, and approval checkpoint |
+| approved-corpus digest plan | PRESENT | `docs/APPROVED_CORPUS_DIGEST_PLAN.md`; documentation-only candidate classes, metadata fields, risk labels, hash policy, redaction/encoding checks, `08_Study` boundary, and RSID/downstream boundary |
+| approved-corpus RAG plan | PRESENT | `docs/APPROVED_CORPUS_RAG_PLAN.md`; planning-only approved corpus candidates, metadata, forbidden corpus, and approval checkpoint; digest plan must precede local RAG |
 | model change policy | PRESENT | `docs/MODEL_CHANGE_POLICY.md`; planning-only model/prompt tracking, compare-before-adopt, eval/closeout evidence, and side-effect class controls |
 | dedicated change control policy | PRESENT | `docs/CHANGE_CONTROL.md` |
 | dedicated human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md` |
@@ -578,6 +587,7 @@ Stage 0 current-main gap review basis:
 | release manifest/checksum generation | IMPLEMENTED | Local-only manifest and full-bundle checksum scripts, path-boundary tests, runtime reproducibility inventory, and artifacts added; outputs and checksum inputs are restricted to repo-relative `artifacts/` paths; final checksum coverage includes manifest, SBOM, and provenance evidence while excluding self-reference; no archive, release CI artifact generation, tag, release, application, or live-write behavior |
 | SBOM/provenance generation | IMPLEMENTED MINIMAL LOCAL | Standard-library-only SPDX, CycloneDX, and in-toto-style provenance generators and artifacts added; output paths reject release-evidence overlap; no external metadata lookup, signing, archive, CI-based generation, tag, release publication, application, or live-write behavior |
 | release verification wrapper | IMPLEMENTED LOCAL | `scripts/run_release_verify.ps1` runs local verification, optional standalone eval, manifest generation, bootstrap checksum generation, optional SBOM/provenance generation, strict final full-bundle checksum regeneration, and artifact path reporting; no archive, release CI workflow, signing, publication, tag movement, application, or live-write behavior |
+| approved-corpus digest planning | ADDED | `docs/APPROVED_CORPUS_DIGEST_PLAN.md` defines candidate classes, required metadata, risk labels, forbidden corpus, digest/hash policy, redaction/encoding checks, source path policy, `08_Study` limits, and RSID/downstream evidence limits; no digest artifact, corpus folder, retrieval/index tooling, embeddings, vector storage, external service, CI, quality-gate integration, or RAG implementation added |
 | approved-corpus RAG planning | ADDED | `docs/APPROVED_CORPUS_RAG_PLAN.md` defines candidate safe corpus files, required metadata, forbidden corpus, and corpus-expansion approval checkpoints; no retrieval/index tooling added |
 | model and prompt change planning | ADDED | `docs/MODEL_CHANGE_POLICY.md` defines model, prompt template, eval run, corpus digest, side-effect class, and compare-before-adopt controls; no model comparison or capture tooling added |
 | optional release verification CI template | TEMPLATE ONLY / DEFERRED | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`, `docs/OPTIONAL_GITHUB_ACTIONS.md`, and `templates/ci/*.template` exist; no release verification workflow, required checks, artifact upload, publishing, signing, tag movement, deployment, application code, or live-write behavior |
@@ -644,14 +654,16 @@ Stage 0 current-main gap review basis:
 Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
 sequencing handoff.
 
-The next recommended task is Phase 5 report-only eval receipt alignment. The
-task should add or refine documentation examples for summarizing standalone
-eval evidence in audit / trace / receipt closeouts, and must not add default
-quality-gate integration, release-blocking eval semantics, routine report
-generation, CI eval integration, RAG/index tooling, MCP/Hermes implementation,
-release automation, artifact upload, release publication, signing, tag
-movement, deployment, downstream edits, or live-write behavior without separate
-approval.
+The next recommended task is Phase 6 exact approved corpus allow-list and
+digest metadata refinement. The task should use
+`docs/APPROVED_CORPUS_DIGEST_PLAN.md` to name exact repo-relative candidate
+files or patterns and safe example metadata rows, and must not generate a
+digest artifact, create `corpus/`, `retrieval/`, or `index/`, add embeddings or
+vector storage, use an external service, integrate CI or `scripts/quality_gate.py`,
+run audit automation, implement MCP/Hermes, regenerate artifacts, generate eval
+reports, publish releases, move tags, deploy, edit downstream repositories, or
+ingest private raw data, RSID raw evidence, downstream raw evidence, or
+`08_Study` raw note content without separate approval.
 
 Treat Stage 5B stock probe records, optional CI/RAG/audit decisions, and the
 post-v0.1.0 evidence baseline as historical risk evidence for the roadmap, not

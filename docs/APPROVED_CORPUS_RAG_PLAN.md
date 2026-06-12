@@ -14,7 +14,9 @@ Current sequencing note: this plan is roadmap input, not authorization to index
 or retrieve. `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` makes approved corpus
 digest the fourth implementation target and local RAG the fifth implementation
 target, after read-only CI, audit / trace / receipt schema, and eval / report
-integration.
+integration. The Phase 6 digest boundary is documented in
+`docs/APPROVED_CORPUS_DIGEST_PLAN.md`; it must be satisfied before any local
+RAG implementation.
 
 ## Intended Use
 
@@ -129,6 +131,19 @@ of these or equivalent surfaces:
 
 Future implementation must remain local-first unless a separate task explicitly
 changes that boundary.
+
+## Approved Corpus Digest Boundary
+
+`docs/APPROVED_CORPUS_DIGEST_PLAN.md` defines the safe predecessor to local
+RAG. It records approved candidate classes, forbidden corpus, required metadata,
+risk labels, digest/hash policy, redaction and encoding checks, source path
+rules, `08_Study` limits, and RSID/downstream evidence limits.
+
+That plan does not generate a digest artifact. It also does not approve
+`corpus/`, `retrieval/`, `index/`, digest scripts, embeddings, vector storage,
+external services, CI integration, quality-gate integration, audit automation,
+MCP/Hermes implementation, release automation, artifact regeneration, or
+downstream edits.
 
 ## Non-Goals
 

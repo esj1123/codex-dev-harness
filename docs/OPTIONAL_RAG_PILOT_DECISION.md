@@ -10,6 +10,8 @@ superseded for implementation sequencing by
 `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`, which makes approved corpus digest
 the required predecessor to local RAG and keeps retrieval local-first,
 redaction-aware, metadata-backed, and approval-gated.
+The current Phase 6 approved corpus digest planning boundary is documented in
+`docs/APPROVED_CORPUS_DIGEST_PLAN.md`.
 
 This record is documentation-only. It does not approve or implement retrieval,
 indexing, embeddings, vector storage, an external RAG service, runtime code,
@@ -186,9 +188,11 @@ Use this decision record as the current RAG readiness boundary. Continue manual
 retrieval for future tasks.
 
 If repeated evidence later justifies revisiting the topic, the next safe step is
-a docs-only corpus allow-list refinement that names exact repo-owned files,
-forbidden files, metadata fields, redaction checks, encoding checks,
-verification commands, and closeout requirements. Do not create retrieval code,
-indexes, embeddings, vector storage, external service calls, CI integration,
-audit automation, release artifacts, downstream evidence collection, or
+the approved corpus digest sequence documented in
+`docs/APPROVED_CORPUS_DIGEST_PLAN.md`: exact repo-owned files or patterns,
+forbidden files, metadata fields, risk labels, redaction checks, encoding
+checks, verification commands, and closeout requirements before any local RAG.
+Do not create retrieval code, indexes, corpus folders, digest artifacts,
+embeddings, vector storage, external service calls, CI integration, audit
+automation, release artifacts, downstream evidence collection, or
 Scenario-Simulator changes without separate explicit approval.
