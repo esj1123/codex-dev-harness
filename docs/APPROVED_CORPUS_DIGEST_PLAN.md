@@ -423,6 +423,186 @@ future task explicitly approves generation, the digest artifact status remains
 `not generated`, release-artifact status remains `not release artifact`, and
 RAG authorization status remains `not authorized`.
 
+### Phase 6E digest generation task contract
+
+Purpose: define the minimum contract a later approved digest generation task
+must satisfy before it may generate `artifacts/corpus-digest.json`. Phase 6E is
+a task contract only. It does not approve actual digest generation, create the
+future output file, create a generated corpus artifact, add scripts, create
+`corpus/`, `retrieval/`, or `index/`, or authorize RAG.
+
+Required future generation inputs:
+
+- exact source files or expanded exact pattern matches;
+- source allow-list reference;
+- excluded file and path patterns;
+- expected output path: `artifacts/corpus-digest.json`;
+- digest algorithm: `sha256`;
+- normalization policy;
+- redaction check policy;
+- encoding check policy;
+- sensitive-value scan policy;
+- release-artifact status policy;
+- RAG authorization status policy;
+- owner approval reference.
+
+Required future output path:
+
+- `artifacts/corpus-digest.json`
+
+This path remains future-only in Phase 6E. Do not create it in this task. The
+future generated artifact should follow the Phase 6C artifact format decision:
+top-level metadata, source entries, precheck summary, release-artifact status,
+RAG authorization status, and closeout fields.
+
+Required future normalization policy:
+
+- normalize only approved text content units from exact repo-relative source
+  paths;
+- preserve stable section boundaries through `section_title` or an equivalent
+  stable section identifier;
+- use deterministic newline and whitespace handling documented in the future
+  generation approval;
+- hash only normalized approved content units with `sha256`;
+- do not normalize, hash, summarize, or include private raw data as a way to
+  bypass redaction.
+
+Required future pre-generation checks:
+
+- expand candidate patterns into exact files;
+- confirm all source paths are repo-relative;
+- confirm excluded patterns are not included;
+- confirm no local Windows absolute paths;
+- confirm no private raw data;
+- confirm no prompt transcripts;
+- confirm no model output transcripts;
+- confirm no unredacted tool-call request or response bodies;
+- confirm no secrets, tokens, credentials, or account identifiers;
+- confirm no real IPs, ports, live endpoints, device values,
+  broker/account values, equipment parameters, or live configuration;
+- confirm no generated downstream target output;
+- confirm no RSID raw evidence or review output unless separately redacted and
+  approved;
+- confirm no downstream raw evidence unless separately redacted and approved;
+- confirm no `08_Study` raw note content unless separately curated into safe
+  short summaries;
+- confirm text encoding is readable and stable;
+- classify policy-only sensitive-term matches without copying values.
+
+`08_Study` must remain excluded as raw note content. It may only be considered
+later as separately approved, curated, short, repository-owned safe summaries.
+Do not copy `08_Study` raw content into this repository or any digest artifact.
+
+RSID raw evidence, RSID review output, generated downstream output, and
+downstream raw implementation details remain excluded unless separately
+redacted and explicitly approved as safe summaries.
+
+Required future generation command shape:
+
+```text
+python scripts/build_corpus_digest.py --allow-list <future_allow_list_ref> --output artifacts/corpus-digest.json --dry-run-first
+```
+
+This command is illustrative future text only. Phase 6E does not create
+`scripts/build_corpus_digest.py`, a digest generator, or a digest artifact.
+
+Required future post-generation checks:
+
+- inspect generated JSON shape;
+- verify source count;
+- verify every source path is repo-relative;
+- verify no excluded path appears;
+- verify no local Windows absolute path appears;
+- verify no IP-like values appear;
+- verify sensitive-term matches are policy-only or safely classified;
+- verify artifact/RAG boundary text remains clear;
+- verify `release_artifact_status`;
+- verify `rag_authorization_status`;
+- verify no RAG, index, or retrieval files were created;
+- verify no unrelated artifacts were regenerated.
+
+Required future closeout fields:
+
+- `status_label`;
+- `artifact_path`;
+- `source_count`;
+- `source_allow_list_ref`;
+- `digest_algorithm`;
+- `precheck_result`;
+- `redaction_result`;
+- `encoding_result`;
+- `sensitive_scan_result`;
+- `release_artifact_status`;
+- `rag_authorization_status`;
+- `artifact_generation_status`;
+- `artifact_commit_status`;
+- `push_status`;
+- `tag_status`;
+- `release_status`;
+- `unresolved_risks`;
+- `next_step`.
+
+Required future commit behavior:
+
+- the future generation task must explicitly state whether
+  `artifacts/corpus-digest.json` may be committed;
+- if commit approval is absent, generated digest artifacts must remain
+  uncommitted or not generated;
+- committing a digest artifact is not a push, tag, release publication,
+  signing event, artifact upload, or release-artifact approval.
+
+Required future push and release boundary:
+
+- no push unless separately approved;
+- no tag;
+- no release publication;
+- no signing;
+- no artifact upload;
+- generated corpus digest is not a release artifact unless separately
+  approved;
+- digest generation does not authorize RAG, retrieval, index, embeddings,
+  vector database, external service, MCP/Hermes, release automation, or
+  downstream integration.
+
+Blockers before generation:
+
+- actual generation remains blocked until a separate owner-approved task names
+  exact files or expanded exact pattern matches;
+- the future task must approve the output path, normalization policy,
+  verification commands, generation command, commit behavior, and closeout
+  requirements;
+- the future task must explicitly allow artifact creation;
+- no generated artifact may be inferred from this Phase 6E task contract.
+
+Smallest safe next task prompt:
+
+```text
+Repository:
+esj1123/codex-dev-harness
+
+Task:
+Create the approved corpus digest artifact in a bounded dry-run-first task.
+
+Goal:
+Generate artifacts/corpus-digest.json only if this task explicitly approves
+artifact creation, names exact source files or expanded exact pattern matches,
+confirms the source allow-list reference, and defines verification and closeout
+requirements.
+
+Required boundaries:
+- exact source files or expanded exact pattern matches only
+- output path: artifacts/corpus-digest.json
+- digest algorithm: sha256
+- dry-run first
+- no RAG, retrieval, index, embeddings, vector DB, external service,
+  MCP/Hermes, release automation, downstream integration, tag, release
+  publication, signing, artifact upload, or push unless separately approved
+- generated digest is not a release artifact unless separately approved
+- no private raw data, prompt transcript, tool-call body, local Windows
+  absolute path, sensitive/live value, 08_Study raw note, RSID raw evidence, or
+  downstream raw evidence
+```
+
 ## 9. Redaction and encoding checks
 
 Before any source is approved for digest inclusion, a future task must check:
@@ -527,9 +707,10 @@ Required order after this plan:
 2. create an exact approved corpus allow-list and exclusion list;
 3. define digest artifact format and review example metadata rows;
 4. complete a digest generation readiness review without creating artifacts;
-5. implement digest generation only if separately approved;
-6. verify digest generation without RAG or index creation;
-7. only then consider local RAG over the approved digest basis.
+5. define a digest generation task contract without creating artifacts;
+6. implement digest generation only if separately approved;
+7. verify digest generation without RAG or index creation;
+8. only then consider local RAG over the approved digest basis.
 
 Do not create `corpus/`, `retrieval/`, `index/`, digest scripts, embeddings,
 vector storage, external service integrations, CI integration, quality-gate
@@ -584,11 +765,11 @@ Repository:
 esj1123/codex-dev-harness
 
 Task:
-Review and locally commit the approved corpus digest generation readiness review.
+Review and locally commit the approved corpus digest generation task contract.
 
 Goal:
-Complete final verification for the Phase 6D approved corpus digest generation
-readiness review, then create one local documentation commit only if the owner
+Complete final verification for the Phase 6E approved corpus digest generation
+task contract, then create one local documentation commit only if the owner
 approves the diff.
 
 Read first:
@@ -607,6 +788,7 @@ Required boundaries:
 - no generated corpus artifact
 - no `artifacts/corpus-digest.json`
 - no digest generation approval
+- no script creation
 - no RAG code
 - no retrieval folder
 - no index folder
@@ -625,9 +807,11 @@ Required boundaries:
 Closeout:
 - PASS / PASS WITH NOTES / BLOCKED
 - changed files
-- readiness review summary
+- Phase 6E task contract summary
+- future generation inputs
+- future output path boundary
+- future pre-generation and post-generation checks
 - remaining blockers before actual digest generation
-- future artifact boundary
 - forbidden corpus confirmation
 - verification command results
 - safety scan results
