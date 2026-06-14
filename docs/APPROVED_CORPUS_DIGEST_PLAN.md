@@ -392,6 +392,37 @@ does not authorize RAG, index, retrieval, embeddings, vector storage, external
 services, CI integration, quality-gate integration, release automation, or
 downstream integration. RAG implementation remains a later roadmap phase.
 
+### Phase 6D digest generation readiness review
+
+This review checks whether the repository is ready to request a separate
+approved digest generation task. It does not approve generation and does not
+create `artifacts/corpus-digest.json`, a generated corpus artifact, `corpus/`,
+`retrieval/`, `index/`, scripts, RAG code, embeddings, vector storage, or
+external service integration.
+
+| question | readiness assessment |
+|---|---|
+| Is the exact candidate allow-list narrow enough for a first digest? | Adequate for a first approved-corpus digest request because it is limited to repo-owned governance, policy, verification, audit, eval, CI, roadmap, ADR, release-record, and clean-clone documentation. The future generation task should still expand patterns into exact matched files and may choose a smaller first subset. |
+| Are excluded patterns sufficient? | Adequate for readiness. The exclusions cover generated artifacts, local-only folders, future corpus and retrieval surfaces, eval golden files, generated downstream output, RSID raw evidence, `08_Study` raw notes, downstream material, binaries, and sensitive/live values. Future generation must recheck matched files against these exclusions. |
+| Are metadata fields complete enough? | Adequate for a first digest contract. Required fields cover source path, source commit, section, content class, risk label, digest/release allowance, redaction, encoding, algorithm, hash, verification time, approval reference, and notes. |
+| Are redaction checks clear enough? | Adequate for readiness. The plan requires exclusion of private raw input, business source text, prompt/model transcripts, tool-call bodies, sensitive values, live values, `08_Study` raw notes, RSID raw evidence, and downstream raw evidence unless separately redacted and approved. |
+| Are encoding checks clear enough? | Adequate for readiness. Future generation must confirm readable stable text or explicitly approved encoding handling before inclusion. Encoding damage remains an exclusion reason until separately reviewed. |
+| Are sensitive-value scans clear enough? | Adequate for readiness. Future generation must run path, IP-like, sensitive-term, and artifact/RAG boundary scans against exact matched sources and the generated artifact path before any commit. Policy-only matches must be classified without copying values. |
+| Is the future artifact path boundary clear? | Clear. `artifacts/corpus-digest.json` is a future candidate path only and is not created by this plan or this readiness review. |
+| Is release-artifact status clear? | Clear. Generated digest artifacts are not release artifacts and must not enter release checksums, release manifests, publication, upload, signing, or tag evidence unless separately approved. |
+| Is RAG authorization status clear? | Clear. Digest planning or digest artifact creation does not authorize RAG, indexing, retrieval, embeddings, vector storage, external services, MCP/Hermes work, or downstream integration. |
+| Is `08_Study` raw note exclusion clear? | Clear. `08_Study` raw note content is excluded by default and may only appear later as a separately approved, short, repo-owned safe summary. |
+| Is RSID/downstream raw evidence exclusion clear? | Clear. RSID raw evidence, review output, generated downstream target output, and raw downstream implementation details are excluded unless separately redacted and approved as safe summaries. |
+| Are future generation closeout fields sufficient? | Adequate for a first generation request. The closeout fields cover status, artifact path, source count, digest algorithm, precheck, redaction, encoding, safety scan, release-artifact status, RAG authorization, upload, push, tag, release, unresolved risks, and next step. |
+| What remains BLOCKED before actual generation? | Actual generation remains BLOCKED until a separate owner-approved task names exact files or expanded pattern matches, expected output path, normalization rules, verification commands, artifact retention/commit behavior, and closeout requirements. That task must explicitly allow creation of the digest artifact. |
+| What is the smallest safe next task? | The smallest safe next task is either a local commit of this readiness review after owner approval, or a separate owner-approved docs-first digest generation task contract that names exact files, expected output path, verification commands, and closeout requirements without adding RAG, index, or retrieval behavior. |
+
+Readiness decision: documentation readiness is adequate to request a separate
+digest generation task, but digest generation is not approved here. Until a
+future task explicitly approves generation, the digest artifact status remains
+`not generated`, release-artifact status remains `not release artifact`, and
+RAG authorization status remains `not authorized`.
+
 ## 9. Redaction and encoding checks
 
 Before any source is approved for digest inclusion, a future task must check:
@@ -495,9 +526,10 @@ Required order after this plan:
 1. owner reviews and approves this documentation-only plan;
 2. create an exact approved corpus allow-list and exclusion list;
 3. define digest artifact format and review example metadata rows;
-4. implement digest generation only if separately approved;
-5. verify digest generation without RAG or index creation;
-6. only then consider local RAG over the approved digest basis.
+4. complete a digest generation readiness review without creating artifacts;
+5. implement digest generation only if separately approved;
+6. verify digest generation without RAG or index creation;
+7. only then consider local RAG over the approved digest basis.
 
 Do not create `corpus/`, `retrieval/`, `index/`, digest scripts, embeddings,
 vector storage, external service integrations, CI integration, quality-gate
@@ -552,11 +584,11 @@ Repository:
 esj1123/codex-dev-harness
 
 Task:
-Review and locally commit the approved corpus digest artifact format decision.
+Review and locally commit the approved corpus digest generation readiness review.
 
 Goal:
-Complete final verification for the Phase 6C approved corpus digest artifact
-format decision, then create one local documentation commit only if the owner
+Complete final verification for the Phase 6D approved corpus digest generation
+readiness review, then create one local documentation commit only if the owner
 approves the diff.
 
 Read first:
@@ -574,6 +606,7 @@ Required boundaries:
 - no digest artifact
 - no generated corpus artifact
 - no `artifacts/corpus-digest.json`
+- no digest generation approval
 - no RAG code
 - no retrieval folder
 - no index folder
@@ -592,9 +625,9 @@ Required boundaries:
 Closeout:
 - PASS / PASS WITH NOTES / BLOCKED
 - changed files
-- digest artifact format decision summary
-- future artifact path boundary
-- precheck requirement summary
+- readiness review summary
+- remaining blockers before actual digest generation
+- future artifact boundary
 - forbidden corpus confirmation
 - verification command results
 - safety scan results
