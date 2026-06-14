@@ -83,6 +83,91 @@ Each future digest task must name exact repo-relative files or exact
 repo-relative patterns. Broad class approval is not enough to generate a
 digest.
 
+### Exact candidate files and patterns for Phase 6B
+
+The following entries are exact approved-corpus candidates for a future digest
+task. This allow-list is candidate evidence only. It does not authorize digest
+generation, generated corpus artifacts, indexing, retrieval, RAG,
+embeddings, vector storage, external service calls, CI integration, or
+quality-gate integration.
+
+Exact candidate files:
+
+- `AGENTS.md`
+- `README.md`
+- `STATUS.md`
+- `ACCEPTANCE_TRACE.md`
+- `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`
+- `docs/SAFETY_POLICY.md`
+- `docs/VERIFICATION.md`
+- `docs/CI_POLICY.md`
+- `docs/AUDIT_TRACE_SCHEMA.md`
+- `docs/AUDIT_LOG_POLICY.md`
+- `docs/APPROVED_CORPUS_DIGEST_PLAN.md`
+- `docs/APPROVED_CORPUS_RAG_PLAN.md`
+- `docs/EVAL_REPORT_INTEGRATION_PLAN.md`
+- `docs/EVAL_POLICY.md`
+- `docs/EVAL_INTEGRATION_DECISION.md`
+- `docs/OPTIONAL_RAG_PILOT_DECISION.md`
+- `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`
+- `docs/AUDIT_RECEIPT_PILOT_REVIEW.md`
+- `docs/MINIMAL_EVAL_HARNESS_DESIGN.md`
+- `docs/AI_HANDOFF.md`
+- `docs/CHANGE_CONTROL.md`
+- `docs/HUMAN_APPROVALS.md`
+- `docs/PROMPT_PATTERNS.md`
+
+Exact candidate patterns:
+
+- `docs/adr/*.md`
+- `docs/RELEASE_RECORD_*.md`
+- `docs/CLEAN_CLONE_VALIDATION_*.md`
+
+Pattern matches remain subject to the forbidden-corpus rules below. A matching
+file is not eligible for future digest generation if it contains forbidden
+material, raw private data, unredacted live values, generated downstream source,
+or external/private corpus material.
+
+### Explicit excluded files and patterns
+
+The following files and patterns are excluded by default:
+
+- `.git/**`
+- `.github/workflows/**`
+- `artifacts/**`
+- `local/**`
+- `corpus/**`
+- `retrieval/**`
+- `index/**`
+- `evals/golden/**`
+- generated target output or generated downstream source under any path;
+- RSID raw evidence or review output unless separately redacted and approved;
+- `08_Study` raw note content unless separately curated into safe short
+  summaries;
+- downstream repository material unless separately approved as a redacted,
+  repo-facing summary;
+- binaries, installers, drivers, DLLs, archives, or unknown executable content;
+- files containing secrets, tokens, credentials, account identifiers, real IPs,
+  ports, live endpoints, device values, broker/account values, equipment
+  parameters, or live configuration.
+
+External, private, and downstream material remains excluded by default even if
+it is referenced by a safe planning document. Future generated corpus artifacts
+require separate owner approval and a separate verification closeout.
+
+### Safe metadata example rows
+
+These rows show the intended metadata shape only. They do not compute real
+hashes, generate a digest, or approve release-facing corpus artifacts.
+
+| `source_path` | `git_sha` | `section_title` | `content_class` | `risk_label` | `allowed_for_digest` | `allowed_for_release` | `redaction_status` | `encoding_status` | `digest_algorithm` | `content_hash` | `verified_at` | `reviewer_or_approval_ref` | `notes` |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `AGENTS.md` | `<future_git_sha>` | `Current Phase Rule` | `governance` | `baseline_policy` | `candidate_only` | `candidate_only` | `pending_future_check` | `pending_future_check` | `sha256` | `<future_sha256>` | `<future_verified_at>` | `<future_approval_ref>` | Candidate row only; no digest generated. |
+| `docs/VERIFICATION.md` | `<future_git_sha>` | `Approved Corpus Digest Planning Flow` | `verification` | `verification_policy` | `candidate_only` | `candidate_only` | `pending_future_check` | `pending_future_check` | `sha256` | `<future_sha256>` | `<future_verified_at>` | `<future_approval_ref>` | Future digest task must rerun safety scans. |
+| `docs/AUDIT_TRACE_SCHEMA.md` | `<future_git_sha>` | `CI/run evidence fields` | `audit` | `approval_boundary` | `candidate_only` | `candidate_only` | `pending_future_check` | `pending_future_check` | `sha256` | `<future_sha256>` | `<future_verified_at>` | `<future_approval_ref>` | Receipt linkage only; no audit automation. |
+| `docs/OPTIONAL_RAG_PILOT_DECISION.md` | `<future_git_sha>` | `Decision` | `planning` | `historical_risk_evidence` | `candidate_only` | `candidate_only` | `pending_future_check` | `pending_future_check` | `sha256` | `<future_sha256>` | `<future_verified_at>` | `<future_approval_ref>` | Historical evidence, not a blocker. |
+| `docs/adr/ADR-0001-local-first.md` | `<future_git_sha>` | `<future_section_title>` | `architecture_decision` | `baseline_policy` | `candidate_only` | `candidate_only` | `pending_future_check` | `pending_future_check` | `sha256` | `<future_sha256>` | `<future_verified_at>` | `<future_approval_ref>` | Pattern candidate; include only if present and clean. |
+
 ## 5. Forbidden corpus
 
 The approved corpus must exclude:
@@ -329,12 +414,12 @@ Repository:
 esj1123/codex-dev-harness
 
 Task:
-Create the exact approved corpus allow-list and digest metadata example.
+Review and locally commit the approved corpus allow-list refinement.
 
 Goal:
-Use docs/APPROVED_CORPUS_DIGEST_PLAN.md to define exact repo-relative files or
-patterns eligible for a future digest, plus example metadata rows. Keep the
-task documentation-only unless separately approved.
+Complete final verification for the Phase 6B approved corpus allow-list and
+metadata refinement, then create one local documentation commit only if the
+owner approves the diff.
 
 Read first:
 - AGENTS.md
@@ -347,7 +432,9 @@ Read first:
 - docs/VERIFICATION.md
 
 Required boundaries:
+- documentation-only
 - no digest artifact
+- no generated corpus artifact
 - no RAG code
 - no retrieval folder
 - no index folder
@@ -367,10 +454,13 @@ Closeout:
 - PASS / PASS WITH NOTES / BLOCKED
 - changed files
 - exact allow-list summary
+- excluded pattern summary
+- metadata example summary
 - forbidden corpus confirmation
 - verification command results
 - safety scan results
-- whether digest generation, push, tag, release, artifact regeneration, or
-  eval report generation occurred
+- whether a local commit was created
+- whether digest generation, push, tag, release, artifact regeneration,
+  generated corpus artifact creation, or eval report generation occurred
 - next recommended task
 ```
