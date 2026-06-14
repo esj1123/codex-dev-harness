@@ -254,6 +254,144 @@ Policy:
 Any future digest artifact must be separately approved with exact path,
 format, input list, verification commands, and retention expectations.
 
+### Phase 6C digest artifact format decision
+
+The future approved corpus digest artifact exists to summarize approved
+repo-owned corpus sources, metadata, and content hashes so later tasks can cite
+stable source evidence without copying raw documents into receipts, reports, or
+future retrieval context. It is a traceability artifact only. It does not
+authorize RAG, indexing, retrieval, embeddings, vector storage, release
+publication, or downstream product integration.
+
+The future artifact path candidate is `artifacts/corpus-digest.json`. This path
+is a candidate only. This task does not create that file, create any artifact,
+or approve routine artifact regeneration.
+
+Proposed JSON top-level fields:
+
+- `schema_version`
+- `artifact_type`
+- `artifact_path`
+- `repository`
+- `git_sha`
+- `generated_at`
+- `generation_approval_ref`
+- `source_allow_list_ref`
+- `digest_algorithm`
+- `normalization_policy`
+- `precheck_summary`
+- `release_artifact_status`
+- `rag_authorization_status`
+- `sources`
+- `closeout`
+
+Proposed per-source entry fields:
+
+- `source_path`
+- `git_sha`
+- `section_title`
+- `content_class`
+- `risk_label`
+- `allowed_for_digest`
+- `allowed_for_release`
+- `redaction_status`
+- `encoding_status`
+- `digest_algorithm`
+- `content_hash`
+- `verified_at`
+- `reviewer_or_approval_ref`
+- `notes`
+
+Required prechecks before any future digest generation:
+
+- confirm the exact source allow-list and matched files;
+- confirm all source paths are repo-relative;
+- confirm no local absolute paths, private raw data, prompt transcripts,
+  tool-call bodies, business source text, or external/private corpus material;
+- confirm no secret, credential, token, account identifier, live endpoint,
+  device value, broker/account value, equipment parameter, or live
+  configuration;
+- confirm `08_Study` raw note content, RSID raw evidence, and downstream raw
+  evidence are excluded unless separately redacted and approved;
+- confirm text encoding is readable and stable for each source;
+- confirm generated digest artifacts are not release artifacts unless
+  separately approved.
+
+Required closeout fields for a future digest generation task:
+
+- `status_label`;
+- `artifact_path`;
+- `artifact_generation_status`;
+- `source_allow_list_ref`;
+- `source_count`;
+- `digest_algorithm`;
+- `precheck_result`;
+- `redaction_result`;
+- `encoding_result`;
+- `safety_scan_result`;
+- `release_artifact_status`;
+- `rag_authorization_status`;
+- `artifact_upload_status`;
+- `push_status`;
+- `tag_status`;
+- `release_status`;
+- `unresolved_risks`;
+- `next_step`.
+
+Example JSON shape:
+
+```json
+{
+  "schema_version": "<future_schema_version>",
+  "artifact_type": "approved_corpus_digest",
+  "artifact_path": "artifacts/corpus-digest.json",
+  "repository": "esj1123/codex-dev-harness",
+  "git_sha": "<future_git_sha>",
+  "generated_at": "<future_generated_at>",
+  "generation_approval_ref": "<future_approval_ref>",
+  "source_allow_list_ref": "docs/APPROVED_CORPUS_DIGEST_PLAN.md#exact-candidate-files-and-patterns-for-phase-6b",
+  "digest_algorithm": "sha256",
+  "normalization_policy": "<future_normalization_policy_ref>",
+  "precheck_summary": {
+    "redaction_status": "<future_redaction_status>",
+    "encoding_status": "<future_encoding_status>",
+    "sensitive_value_status": "<future_sensitive_value_status>"
+  },
+  "release_artifact_status": "not_release_artifact_without_separate_approval",
+  "rag_authorization_status": "not_authorized",
+  "sources": [
+    {
+      "source_path": "AGENTS.md",
+      "git_sha": "<future_git_sha>",
+      "section_title": "<future_section_title>",
+      "content_class": "governance",
+      "risk_label": "baseline_policy",
+      "allowed_for_digest": "<future_allowed_for_digest>",
+      "allowed_for_release": "<future_allowed_for_release>",
+      "redaction_status": "<future_redaction_status>",
+      "encoding_status": "<future_encoding_status>",
+      "digest_algorithm": "sha256",
+      "content_hash": "<future_sha256>",
+      "verified_at": "<future_verified_at>",
+      "reviewer_or_approval_ref": "<future_approval_ref>",
+      "notes": "Placeholder example only; no digest generated in Phase 6C."
+    }
+  ],
+  "closeout": {
+    "status_label": "<future_status_label>",
+    "artifact_generation_status": "<future_artifact_generation_status>",
+    "safety_scan_result": "<future_safety_scan_result>",
+    "next_step": "<future_next_step>"
+  }
+}
+```
+
+Digest generation requires separate owner approval. Generated digest artifacts
+are not release artifacts unless separately approved. Creating a digest artifact
+does not authorize RAG, index, retrieval, embeddings, vector storage, external
+services, CI integration, quality-gate integration, release automation, or
+downstream integration. RAG implementation remains a later roadmap phase.
+
 ## 9. Redaction and encoding checks
 
 Before any source is approved for digest inclusion, a future task must check:
@@ -414,12 +552,12 @@ Repository:
 esj1123/codex-dev-harness
 
 Task:
-Review and locally commit the approved corpus allow-list refinement.
+Review and locally commit the approved corpus digest artifact format decision.
 
 Goal:
-Complete final verification for the Phase 6B approved corpus allow-list and
-metadata refinement, then create one local documentation commit only if the
-owner approves the diff.
+Complete final verification for the Phase 6C approved corpus digest artifact
+format decision, then create one local documentation commit only if the owner
+approves the diff.
 
 Read first:
 - AGENTS.md
@@ -435,6 +573,7 @@ Required boundaries:
 - documentation-only
 - no digest artifact
 - no generated corpus artifact
+- no `artifacts/corpus-digest.json`
 - no RAG code
 - no retrieval folder
 - no index folder
@@ -453,9 +592,9 @@ Required boundaries:
 Closeout:
 - PASS / PASS WITH NOTES / BLOCKED
 - changed files
-- exact allow-list summary
-- excluded pattern summary
-- metadata example summary
+- digest artifact format decision summary
+- future artifact path boundary
+- precheck requirement summary
 - forbidden corpus confirmation
 - verification command results
 - safety scan results
