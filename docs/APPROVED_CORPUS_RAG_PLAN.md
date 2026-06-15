@@ -139,11 +139,15 @@ RAG. It records approved candidate classes, forbidden corpus, required metadata,
 risk labels, digest/hash policy, redaction and encoding checks, source path
 rules, `08_Study` limits, and RSID/downstream evidence limits.
 
-That plan does not generate a digest artifact. It also does not approve
-`corpus/`, `retrieval/`, `index/`, digest scripts, embeddings, vector storage,
-external services, CI integration, quality-gate integration, audit automation,
-MCP/Hermes implementation, release automation, artifact regeneration, or
-downstream edits.
+Phase 6F later generated `artifacts/corpus-digest.json` with separate owner
+approval. The artifact is metadata/hash-only, records 32 approved source
+entries, is not a release artifact unless separately approved, and has
+`rag_authorization_status` set to `not_authorized`.
+
+The digest artifact does not approve `corpus/`, `retrieval/`, `index/`, digest
+scripts, embeddings, vector storage, external services, CI integration,
+quality-gate integration, audit automation, MCP/Hermes implementation, release
+automation, artifact regeneration, RAG implementation, or downstream edits.
 
 ## Non-Goals
 
