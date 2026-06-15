@@ -149,6 +149,21 @@ scripts, embeddings, vector storage, external services, CI integration,
 quality-gate integration, audit automation, MCP/Hermes implementation, release
 automation, artifact regeneration, RAG implementation, or downstream edits.
 
+## Phase 7A Local RAG Design Boundary
+
+`docs/LOCAL_RAG_DESIGN.md` records the Phase 7A design for a future
+local-only, read-only lexical retriever over the approved digest basis.
+
+The design keeps the first RAG phase advisory and lexical/search-based. It
+requires every retrieval-backed answer to cite repo-relative source paths,
+section or title metadata, content hashes, risk labels, and
+current-vs-historical status where available.
+
+The Phase 7A design does not authorize retrieval code, indexing, embeddings,
+vector storage, external services, digest regeneration, CI integration,
+quality-gate integration, audit automation, MCP/Hermes work, release
+automation, downstream edits, or generated corpus artifacts.
+
 ## Non-Goals
 
 This plan does not add:

@@ -216,6 +216,24 @@ eval report generation occurred unless a separate task explicitly approves it.
 If a digest artifact is not generated, report it as `NOT RUN` or `not
 generated`. Do not imply digest generation or retrieval verification passed.
 
+## Local RAG Design Planning Flow
+
+Phase 7A local RAG design is documented in:
+
+`docs/LOCAL_RAG_DESIGN.md`
+
+The design defines a future local-only, read-only lexical retriever over
+`artifacts/corpus-digest.json` and digest-listed repo-owned source files. It is
+planning-only and advisory. It does not implement RAG, retrieval, indexing,
+embeddings, vector storage, external service calls, CI integration,
+quality-gate integration, audit automation, MCP/Hermes work, release
+automation, downstream edits, or digest regeneration.
+
+Verification for Phase 7A documentation tasks must confirm that changed files
+stay within the approved documentation scope, no generated corpus artifact is
+created, no digest artifact is regenerated, and no `corpus/`, `retrieval/`, or
+`index/` folder is created.
+
 The quality gate includes:
 - Documentation presence.
 - Repository hygiene.
