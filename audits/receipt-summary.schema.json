@@ -257,6 +257,93 @@
         }
       }
     },
+    "eval_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Optional Phase 5B eval evidence reference. Use only for standalone eval evidence that was explicitly run or cited. Summary JSON is safe summary evidence; cases JSONL is detailed evidence referenced by cases_ref and cases_sha256. Do not copy full case details into receipts.",
+      "required": [
+        "eval_command",
+        "eval_scope",
+        "eval_report_generation_status",
+        "eval_integration_status",
+        "eval_gate_status",
+        "release_blocking_status"
+      ],
+      "properties": {
+        "eval_command": {
+          "$ref": "#/$defs/safe_summary"
+        },
+        "eval_scope": {
+          "$ref": "#/$defs/safe_summary"
+        },
+        "eval_case_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "eval_pass_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "eval_fail_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "summary_report_path": {
+          "$ref": "#/$defs/repo_relative_path",
+          "description": "Repo-relative path to the explicitly generated eval summary JSON, when cited."
+        },
+        "summary_report_sha256": {
+          "$ref": "#/$defs/sha256_value",
+          "description": "SHA-256 of the eval summary JSON bytes, when cited."
+        },
+        "cases_ref": {
+          "$ref": "#/$defs/repo_relative_path",
+          "description": "Repo-relative cases JSONL reference. When sourced from a split summary report, this should match that report's cases_ref."
+        },
+        "cases_sha256": {
+          "$ref": "#/$defs/sha256_value",
+          "description": "SHA-256 of the cases JSONL bytes. When sourced from a split summary report, this should match that report's cases_sha256."
+        },
+        "eval_report_generation_status": {
+          "type": "string",
+          "enum": [
+            "not generated",
+            "generated",
+            "not run",
+            "blocked"
+          ]
+        },
+        "eval_integration_status": {
+          "type": "string",
+          "enum": [
+            "standalone",
+            "receipt-summary-only",
+            "ci-approved",
+            "not applicable",
+            "not checked"
+          ]
+        },
+        "eval_gate_status": {
+          "type": "string",
+          "enum": [
+            "not integrated",
+            "not applicable",
+            "not checked"
+          ]
+        },
+        "release_blocking_status": {
+          "type": "string",
+          "enum": [
+            "not release-blocking",
+            "not applicable",
+            "not checked"
+          ]
+        },
+        "notes_or_failures_summary": {
+          "$ref": "#/$defs/safe_summary"
+        }
+      }
+    },
     "status_label": {
       "$ref": "#/$defs/status_label"
     },
@@ -298,6 +385,10 @@
     "commit_or_unknown": {
       "type": "string",
       "pattern": "^([0-9a-fA-F]{7,40}|unknown|not checked|not applicable)$"
+    },
+    "sha256_value": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{64}$"
     },
     "hash_record": {
       "type": "object",

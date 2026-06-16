@@ -36,6 +36,35 @@ def schema(required_fields: list[str], evidence_kind: str) -> dict:
     properties["status_label"] = {"$ref": "#/$defs/status_label"}
     if "payload_capture" in required_fields:
         properties["payload_capture"] = {"type": "string", "enum": ["none", "redacted_summary_only"]}
+    if evidence_kind == "receipt_summary":
+        properties["eval_evidence"] = {
+            "type": "object",
+            "additionalProperties": False,
+            "required": [
+                "eval_command",
+                "eval_scope",
+                "eval_report_generation_status",
+                "eval_integration_status",
+                "eval_gate_status",
+                "release_blocking_status",
+            ],
+            "properties": {
+                "eval_command": {"type": "string"},
+                "eval_scope": {"type": "string"},
+                "eval_case_count": {"type": "integer"},
+                "eval_pass_count": {"type": "integer"},
+                "eval_fail_count": {"type": "integer"},
+                "summary_report_path": {"$ref": "#/$defs/repo_relative_path"},
+                "summary_report_sha256": {"$ref": "#/$defs/sha256_value"},
+                "cases_ref": {"$ref": "#/$defs/repo_relative_path"},
+                "cases_sha256": {"$ref": "#/$defs/sha256_value"},
+                "eval_report_generation_status": {"type": "string"},
+                "eval_integration_status": {"type": "string"},
+                "eval_gate_status": {"type": "string"},
+                "release_blocking_status": {"type": "string"},
+                "notes_or_failures_summary": {"type": "string"},
+            },
+        }
     return {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "$id": f"https://example.invalid/{evidence_kind}.schema.json",
@@ -59,6 +88,14 @@ def schema(required_fields: list[str], evidence_kind: str) -> dict:
                 "type": "object",
                 "required": ["status", "notes"],
                 "properties": {"status": {"type": "string"}, "notes": {"type": "string"}},
+            },
+            "repo_relative_path": {
+                "type": "string",
+                "pattern": "^(?![A-Za-z]:)(?!/)",
+            },
+            "sha256_value": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{64}$",
             },
         },
     }
@@ -169,6 +206,30 @@ def test_json_evidence_gate_reports_missing_receipt_id_required_schema_field(tmp
 
     assert result.passed is False
     assert any("missing required field: receipt_id" in message for message in result.messages)
+
+
+def test_json_evidence_gate_reports_required_eval_evidence_schema_field(tmp_path: Path) -> None:
+    write_valid_bundle(tmp_path)
+    bad_schema = schema(receipt_required_fields(), "receipt_summary")
+    bad_schema["required"].append("eval_evidence")
+    write(tmp_path / "audits" / "receipt-summary.schema.json", json.dumps(bad_schema))
+
+    result = json_evidence_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert any("eval_evidence must be optional" in message for message in result.messages)
+
+
+def test_json_evidence_gate_reports_missing_eval_evidence_reference_shape(tmp_path: Path) -> None:
+    write_valid_bundle(tmp_path)
+    bad_schema = schema(receipt_required_fields(), "receipt_summary")
+    del bad_schema["properties"]["eval_evidence"]["properties"]["cases_sha256"]
+    write(tmp_path / "audits" / "receipt-summary.schema.json", json.dumps(bad_schema))
+
+    result = json_evidence_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert any("eval_evidence missing property: cases_sha256" in message for message in result.messages)
 
 
 def test_json_evidence_gate_reports_missing_policy_boundary(tmp_path: Path) -> None:

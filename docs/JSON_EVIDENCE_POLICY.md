@@ -56,6 +56,16 @@ from `task_id`, which identifies the broader task or phase. When a trace event
 is associated with a receipt summary, `related_receipt_id` should point to
 `receipt_summary.receipt_id`.
 
+Phase 5B eval receipt alignment adds optional `eval_evidence` references to
+receipt summaries. The eval summary JSON is safe summary evidence. The cases
+JSONL is detailed evidence and must be referenced by repo-relative `cases_ref`
+and `cases_sha256` rather than copied into a receipt. Receipts that cite split
+eval evidence may also record the summary report path and SHA-256.
+
+These eval references do not run evals, generate reports by default, wire evals
+into `scripts/quality_gate.py`, add CI eval behavior, or create release-blocking
+semantics.
+
 Schema files must be plain JSON and parse with the Python standard library.
 The quality gate checks schema presence and core shape only. It is not a
 general-purpose JSON Schema validator for generated evidence records.
@@ -106,7 +116,7 @@ Phase 4B does not implement:
 - JSONL audit writing
 - generated receipt files
 - generated trace files
-- eval summary/cases split
+- default eval summary/cases generation
 - eval quality-gate integration
 - RAG, embeddings, vector database, or retrieval
 - MCP runtime

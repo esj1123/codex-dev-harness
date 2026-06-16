@@ -53,6 +53,26 @@ STATUS_LABELS = {
     "FAIL",
 }
 
+EVAL_EVIDENCE_REQUIRED_FIELDS = {
+    "eval_command",
+    "eval_scope",
+    "eval_report_generation_status",
+    "eval_integration_status",
+    "eval_gate_status",
+    "release_blocking_status",
+}
+
+EVAL_EVIDENCE_EXPECTED_PROPERTIES = EVAL_EVIDENCE_REQUIRED_FIELDS | {
+    "eval_case_count",
+    "eval_pass_count",
+    "eval_fail_count",
+    "summary_report_path",
+    "summary_report_sha256",
+    "cases_ref",
+    "cases_sha256",
+    "notes_or_failures_summary",
+}
+
 SENSITIVE_VALUE_PATTERNS = [
     re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b"),
     re.compile(r"\b[A-Za-z]:[\\/][^\s`'\"]+"),
@@ -163,6 +183,50 @@ def require_redaction_status(schema: dict[str, Any], relative: str) -> list[str]
     return [f"{relative} redaction_status must require status and notes"]
 
 
+def check_eval_evidence_shape(schema: dict[str, Any]) -> list[str]:
+    relative = "audits/receipt-summary.schema.json"
+    findings: list[str] = []
+    top_required = set(schema.get("required", []))
+    if "eval_evidence" in top_required:
+        findings.append(f"{relative} eval_evidence must be optional, not required")
+
+    properties = schema.get("properties", {})
+    eval_evidence = properties.get("eval_evidence")
+    if not isinstance(eval_evidence, dict):
+        return [f"{relative} missing optional eval_evidence property"]
+
+    if eval_evidence.get("type") != "object":
+        findings.append(f"{relative} eval_evidence type must be object")
+    if eval_evidence.get("additionalProperties") is not False:
+        findings.append(f"{relative} eval_evidence must set additionalProperties to false")
+
+    eval_required = set(eval_evidence.get("required", []))
+    missing_required = sorted(EVAL_EVIDENCE_REQUIRED_FIELDS - eval_required)
+    findings.extend(f"{relative} eval_evidence missing required field: {field}" for field in missing_required)
+
+    eval_properties = eval_evidence.get("properties", {})
+    if not isinstance(eval_properties, dict):
+        findings.append(f"{relative} eval_evidence must define properties")
+        return findings
+
+    missing_properties = sorted(EVAL_EVIDENCE_EXPECTED_PROPERTIES - set(eval_properties))
+    findings.extend(f"{relative} eval_evidence missing property: {field}" for field in missing_properties)
+
+    for path_field in ["summary_report_path", "cases_ref"]:
+        if eval_properties.get(path_field, {}).get("$ref") != "#/$defs/repo_relative_path":
+            findings.append(f"{relative} eval_evidence {path_field} must reference repo_relative_path")
+
+    for hash_field in ["summary_report_sha256", "cases_sha256"]:
+        if eval_properties.get(hash_field, {}).get("$ref") != "#/$defs/sha256_value":
+            findings.append(f"{relative} eval_evidence {hash_field} must reference sha256_value")
+
+    sha256_value = schema.get("$defs", {}).get("sha256_value", {})
+    if sha256_value.get("pattern") != "^[0-9a-fA-F]{64}$":
+        findings.append(f"{relative} sha256_value must require a 64-character SHA-256 hex value")
+
+    return findings
+
+
 def check_receipt_schema(schema: dict[str, Any]) -> list[str]:
     relative = "audits/receipt-summary.schema.json"
     required_fields = {
@@ -190,6 +254,7 @@ def check_receipt_schema(schema: dict[str, Any]) -> list[str]:
     evidence_kind = schema.get("properties", {}).get("evidence_kind", {})
     if evidence_kind.get("const") != "receipt_summary":
         findings.append(f"{relative} evidence_kind must be receipt_summary")
+    findings.extend(check_eval_evidence_shape(schema))
     return findings
 
 

@@ -44,7 +44,10 @@ through `scripts/quality_gate.py`; it does not create audit automation or real
 audit logs. Phase 5 eval/report integration planning is documented in
 `docs/EVAL_REPORT_INTEGRATION_PLAN.md`; Phase 5A report-only eval evidence
 optimization adds explicit paired summary/cases report outputs while the eval
-runner remains standalone.
+runner remains standalone. Phase 5B eval receipt alignment / evidence closure
+defines optional receipt-summary references to explicitly generated eval
+summary JSON and cases JSONL by repo-relative path and SHA-256 without copying
+full case details into receipts.
 Phase 6 approved corpus digest planning and generation are complete. The
 generated digest artifact exists at `artifacts/corpus-digest.json` and is
 metadata/hash-only. The artifact-containing commit is
@@ -81,7 +84,7 @@ Core foundation.
 | manifest files recorded | PRESENT | `211` |
 | checksum coverage | PRESENT | `artifacts/checksums.sha256` records 5 entries: eval report, provenance, manifest, CycloneDX SBOM, and SPDX SBOM; checksum file self-reference excluded |
 | standalone eval case count | PRESENT | `scripts/run_eval.py` discovers 14 named local-only non-LLM eval cases under `evals/cases/` |
-| eval / report integration | PHASE 5A REPORT-ONLY / STANDALONE | `scripts/run_eval.py`, `tests/test_run_eval.py`, `docs/EVAL_REPORT_INTEGRATION_PLAN.md`, `docs/EVAL_INTEGRATION_DECISION.md`, and `docs/EVAL_POLICY.md`; legacy `--report` remains backward-compatible, paired `--summary-report` / `--cases-report` outputs are explicit opt-in only, and evals remain separate from `scripts/quality_gate.py`, CI, and release-blocking behavior |
+| eval / report integration | PHASE 5B RECEIPT-ALIGNED / STANDALONE | `scripts/run_eval.py`, `tests/test_run_eval.py`, `docs/EVAL_REPORT_INTEGRATION_PLAN.md`, `docs/EVAL_INTEGRATION_DECISION.md`, `docs/EVAL_POLICY.md`, and `audits/receipt-summary.schema.json`; legacy `--report` remains backward-compatible, paired `--summary-report` / `--cases-report` outputs are explicit opt-in only, receipts may cite split eval evidence by repo-relative path and SHA-256, and evals remain separate from `scripts/quality_gate.py`, CI, and release-blocking behavior |
 | approved corpus digest | GENERATED / VERIFIED | `artifacts/corpus-digest.json`; `artifact_type` is `approved_corpus_digest`; source count is 32; artifact-containing commit `df51aac8c3a9b001c4d036633897f176b87c304d`; source-basis commit `37a0e7274ae2cd0a50811c138147a37c1b4c0160`; metadata/hash-only; `release_artifact_status` is `not_release_artifact_without_separate_approval`; `rag_authorization_status` is `not_authorized` |
 | approved corpus digest Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `df51aac8c3a9b001c4d036633897f176b87c304d`; run `27522922010`; job `81344426960`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded |
 | local RAG design | PLANNED / DOCUMENTATION-ONLY | `docs/LOCAL_RAG_DESIGN.md` defines a future local-only, read-only lexical retriever over `artifacts/corpus-digest.json` and digest-listed repo-owned source files; advisory only; no RAG code, retrieval/index/corpus folder, embeddings, vector database, external service, CI or quality-gate integration, audit automation, digest regeneration, release automation, MCP/Hermes, or downstream integration added |
@@ -245,6 +248,10 @@ Core foundation.
   paired `--summary-report` and `--cases-report` options are explicit opt-in
   only and remain separate from quality-gate, CI, and release-blocking
   behavior.
+- Phase 5B eval receipt alignment / evidence closure:
+  optional receipt-summary eval evidence references cite explicitly generated
+  split summary JSON and cases JSONL by repo-relative path and SHA-256 without
+  copying full case details into receipts.
 - Audit log schema for future optional evidence: `audits/audit-log.schema.json`.
 - Manual audit / trace / receipt schema:
   `docs/AUDIT_TRACE_SCHEMA.md`.
@@ -594,7 +601,7 @@ Stage 0 current-main gap review basis:
 | release page decision | DEFERRED | `docs/RELEASE_PAGE_DECISION.md`; GitHub Release page not created |
 | local package checklist | PRESENT | `docs/LOCAL_PACKAGE_CHECKLIST.md`; no package archive generated |
 | optional eval harness | EXPANDED STANDALONE IMPLEMENTED | `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`; `scripts/run_eval.py`, `scripts/gates/eval_gate.py`, 14 named `evals/cases/`, and `evals/golden/` exist |
-| eval / report integration | PHASE 5A REPORT-ONLY / STANDALONE | `docs/EVAL_REPORT_INTEGRATION_PLAN.md`, `docs/EVAL_INTEGRATION_DECISION.md`, `scripts/run_eval.py`, and `tests/test_run_eval.py`; report-only split summary/cases output is explicit opt-in, legacy `--report` remains compatible, and no default quality-gate integration, CI integration, routine eval report generation, or release-blocking eval semantics are active now |
+| eval / report integration | PHASE 5B RECEIPT-ALIGNED / STANDALONE | `docs/EVAL_REPORT_INTEGRATION_PLAN.md`, `docs/EVAL_INTEGRATION_DECISION.md`, `scripts/run_eval.py`, `tests/test_run_eval.py`, and `audits/receipt-summary.schema.json`; report-only split summary/cases output is explicit opt-in, receipts may cite summary JSON and cases JSONL by repo-relative path and SHA-256, legacy `--report` remains compatible, and no default quality-gate integration, CI integration, routine eval report generation, or release-blocking eval semantics are active now |
 | known limitations | REFRESHED | `docs/KNOWN_LIMITATIONS.md` no longer lists completed CI policy or release tagging guidance as future work |
 | architecture release/record plane | REFRESHED | `docs/ARCHITECTURE.md` lists current v0.1.0 and post-v0.1.0 evidence |
 | architecture optional pack plane | REFRESHED | Optional design-stage pack is documented as manual-use-only, not profile, and not base render |
@@ -684,11 +691,10 @@ Stage 0 current-main gap review basis:
 Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
 sequencing handoff.
 
-The next recommended task is owner review of the Phase 5A report-only eval
-evidence optimization and, if approved separately, a focused follow-up to
-decide whether any additional eval receipt examples or schema alignment are
-needed. Any later Phase 7B task may define the implementation
-contract for a read-only lexical retriever, but must not implement RAG,
+The next recommended task is owner review of the Phase 5B eval receipt
+alignment / evidence closure. Any later Phase 7B task may define the
+implementation contract for a read-only lexical retriever, but must not
+implement RAG,
 retrieval, indexing, embeddings, vector storage, external services, MCP/Hermes,
 release automation, downstream integration, additional CI integration,
 artifact regeneration, digest regeneration, eval report generation, tag or

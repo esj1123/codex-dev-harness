@@ -22,7 +22,8 @@ This schema does not:
 - create an audit logger
 - write JSONL, Markdown, or database audit entries
 - validate receipts in `scripts/quality_gate.py`
-- integrate with CI, release verification, evals, RAG, MCP, or Hermes
+- integrate runtime behavior with CI, release verification, evals, RAG, MCP, or
+  Hermes
 - capture full prompt transcripts
 - capture raw private input
 - capture raw source bundles
@@ -114,6 +115,11 @@ Optional fields may be added when relevant:
 | `eval_pass_count` | Passed eval case count when known. |
 | `eval_fail_count` | Failed eval case count when known. |
 | `eval_report_path` | Repo-relative eval report path, only if explicitly generated. |
+| `eval_evidence` | Optional JSON receipt-summary object for eval evidence references; not required for every receipt. |
+| `eval_evidence.summary_report_path` | Repo-relative split eval summary JSON path, only if explicitly generated and cited. |
+| `eval_evidence.summary_report_sha256` | SHA-256 of the split eval summary JSON bytes, only if cited. |
+| `eval_evidence.cases_ref` | Repo-relative cases JSONL path; should match the split summary report `cases_ref`. |
+| `eval_evidence.cases_sha256` | SHA-256 of the cases JSONL bytes; should match the split summary report `cases_sha256`. |
 | `eval_report_generation_status` | Eval report generation state. |
 | `eval_integration_status` | Eval integration state, such as standalone or receipt-summary-only. |
 | `eval_gate_status` | Quality-gate relationship. |
@@ -125,6 +131,9 @@ Optional fields may be added when relevant:
 | `corpus_source_policy` | Short summary of allow-list and forbidden corpus basis. |
 
 Optional fields must follow the same redaction rules as required fields.
+For Phase 5B eval evidence, the split summary JSON is safe summary evidence.
+The cases JSONL is detailed evidence and should be cited by repo-relative
+`cases_ref` and `cases_sha256` rather than copied into the receipt.
 
 ## 6. Forbidden fields
 

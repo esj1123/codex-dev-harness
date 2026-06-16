@@ -85,7 +85,19 @@ Phase 5A implements this target as report-only eval evidence optimization:
   release-blocking behavior, routine report generation, audit automation, or
   release artifact regeneration
 
-## 5. Required eval receipt fields
+Phase 5B implements eval receipt alignment / evidence closure:
+
+- receipt summaries may cite explicitly generated split eval evidence without
+  copying full case details into the receipt
+- the eval summary JSON is safe summary evidence containing counts, pass/fail
+  state, `cases_ref`, and `cases_sha256`
+- the cases JSONL is detailed evidence and is referenced by repo-relative
+  `cases_ref` plus the SHA-256 of the exact JSONL bytes
+- receipts that cite split eval evidence should record the summary report path
+  and SHA-256, plus `cases_ref` and `cases_sha256`
+- eval remains standalone and reports remain explicit opt-in only
+
+## 5. Eval receipt fields
 
 When eval evidence is relevant, receipts should include:
 
@@ -97,13 +109,19 @@ When eval evidence is relevant, receipts should include:
 | `eval_pass_count` | Passed case count. |
 | `eval_fail_count` | Failed case count. |
 | `eval_report_path` | Repo-relative report path, only if explicitly generated. |
+| `eval_evidence` | Optional JSON receipt-summary object for Phase 5B eval evidence references; absent when eval evidence is not relevant. |
+| `eval_evidence.summary_report_path` | Repo-relative split summary JSON path, only if explicitly generated and cited. |
+| `eval_evidence.summary_report_sha256` | SHA-256 of the split summary JSON bytes, only if cited. |
+| `eval_evidence.cases_ref` | Repo-relative cases JSONL path; should match the split summary report `cases_ref`. |
+| `eval_evidence.cases_sha256` | SHA-256 of the cases JSONL bytes; should match the split summary report `cases_sha256`. |
 | `eval_report_generation_status` | `not generated`, `generated`, `not run`, or `blocked`. |
 | `eval_integration_status` | `standalone`, `receipt-summary-only`, `ci-approved`, or other approved state. |
 | `eval_gate_status` | Quality-gate relationship, such as `not integrated`. |
 | `release_blocking_status` | Release-blocking relationship, such as `not release-blocking`. |
 | `notes_or_failures_summary` | Short safe summary of caveats or failed case names. |
 
-These fields are receipt fields, not a new artifact format.
+These fields are receipt fields, not a new artifact format. They must remain
+safe summaries and references; receipts must not copy the full cases JSONL rows.
 
 ## 6. Eval report formats
 
@@ -135,6 +153,12 @@ contains:
 The Phase 5A cases report is JSONL with one safe case-result object per line:
 stable case name, pass/fail value, and summarized messages. The summary
 `cases_sha256` value is calculated from the exact cases JSONL bytes.
+
+Phase 5B receipt alignment treats the split summary report as the summary
+evidence surface and the cases JSONL as detailed evidence. A receipt may cite
+both by repo-relative path and SHA-256, but should not inline the per-case JSONL
+records. The `cases_ref` and `cases_sha256` stored in a receipt should match
+the values in the split summary report.
 
 Optional future additions must remain safe summaries. They may include:
 
@@ -212,8 +236,11 @@ Recommended Phase 5 order:
    receipt schema.
 4. Implement Phase 5A report-only split summary/cases outputs while preserving
    standalone behavior.
-5. If approved later, add documentation examples for eval receipt summaries.
-6. If approved later, consider opt-in quality-gate or CI behavior.
+5. Implement Phase 5B eval receipt alignment / evidence closure with optional
+   receipt references to summary JSON and cases JSONL by repo-relative path and
+   SHA-256.
+6. If approved later, add example-only receipt snippets.
+7. If approved later, consider opt-in quality-gate or CI behavior.
 
 Do not skip from planning directly to default quality-gate, CI, or
 release-blocking behavior.
@@ -263,12 +290,11 @@ Repository:
 esj1123/codex-dev-harness
 
 Task:
-Implement the first report-only eval receipt alignment step.
+Review Phase 5B eval receipt alignment / evidence closure.
 
 Goal:
-Use the Phase 5 eval/report integration plan to add or refine documentation
-examples for summarizing standalone eval evidence in audit / trace / receipt
-closeouts.
+Confirm receipt summaries can cite explicitly generated split eval evidence by
+repo-relative path and SHA-256 without copying full cases JSONL details.
 
 Read first:
 - AGENTS.md
@@ -280,7 +306,7 @@ Read first:
 - scripts/run_eval.py
 
 Required boundaries:
-- documentation-only unless separately approved
+- review/documentation-only unless separately approved
 - eval runner remains standalone
 - no scripts/quality_gate.py integration
 - no CI eval integration
