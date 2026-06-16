@@ -6,9 +6,9 @@ Plan Phase 5 eval/report integration against the audit / trace / receipt schema.
 
 This plan defines how standalone eval evidence may be summarized in receipts
 and, when explicitly approved, in manual report artifacts. It does not change
-eval runtime behavior, wire evals into `scripts/quality_gate.py`, make evals
-release-blocking, generate routine reports, add CI eval integration, or create
-artifacts.
+default eval runtime behavior, wire evals into `scripts/quality_gate.py`, make
+evals release-blocking, generate routine reports, add CI eval integration, or
+create artifacts except explicitly requested local eval report files.
 
 ## 2. Current eval baseline
 
@@ -29,7 +29,9 @@ forbidden live config, forbidden secret patterns, prompt contract completeness,
 release manifest shape, checksum shape, SBOM shape, and provenance shape.
 
 The runner is local-only, non-LLM, standard-library-based, and separate from
-`scripts/quality_gate.py`. It writes no report unless called with `--report`.
+`scripts/quality_gate.py`. It writes no report unless called with `--report`
+or the paired Phase 5A split-output options `--summary-report` and
+`--cases-report`.
 
 ## 3. Relationship to audit / trace / receipt schema
 
@@ -67,6 +69,22 @@ The first safe target is report-only integration at the receipt level:
 This target improves closeout precision without coupling evals to routine
 verification or release publication.
 
+Phase 5A implements this target as report-only eval evidence optimization:
+
+- existing `python scripts/run_eval.py` behavior remains unchanged
+- existing `--report artifacts/eval-report.json` behavior remains
+  backward-compatible
+- split reports are generated only when both `--summary-report` and
+  `--cases-report` are explicitly provided
+- split summary reports contain `schema_version`, `generated_at_utc`,
+  `total_cases`, `passed_cases`, `failed_cases`, `passed`, `cases_ref`, and
+  `cases_sha256`
+- split cases reports are JSONL with one safe case-result object per line
+- `cases_sha256` is calculated from the exact cases JSONL bytes
+- split output does not add quality-gate integration, CI eval integration,
+  release-blocking behavior, routine report generation, audit automation, or
+  release artifact regeneration
+
 ## 5. Required eval receipt fields
 
 When eval evidence is relevant, receipts should include:
@@ -87,10 +105,10 @@ When eval evidence is relevant, receipts should include:
 
 These fields are receipt fields, not a new artifact format.
 
-## 6. Optional eval report fields
+## 6. Eval report formats
 
-If an eval report is explicitly generated in a later approved task, it may
-continue using the existing report shape:
+The existing monolithic report remains available only when explicitly generated
+with `--report`. It keeps the existing report shape:
 
 - `schema_version`
 - `generated_at_utc`
@@ -100,6 +118,23 @@ continue using the existing report shape:
 - `passed`
 - per-case objects with stable case names, pass/fail values, and summarized
   messages
+
+The Phase 5A split summary report is available only when explicitly generated
+with paired `--summary-report` and `--cases-report` options. The summary report
+contains:
+
+- `schema_version`
+- `generated_at_utc`
+- `total_cases`
+- `passed_cases`
+- `failed_cases`
+- `passed`
+- `cases_ref`
+- `cases_sha256`
+
+The Phase 5A cases report is JSONL with one safe case-result object per line:
+stable case name, pass/fail value, and summarized messages. The summary
+`cases_sha256` value is calculated from the exact cases JSONL bytes.
 
 Optional future additions must remain safe summaries. They may include:
 
@@ -175,8 +210,9 @@ Recommended Phase 5 order:
 2. Review receipt field alignment with `docs/AUDIT_TRACE_SCHEMA.md`.
 3. Decide whether to add eval-specific optional receipt fields to the manual
    receipt schema.
-4. If approved later, add documentation examples for eval receipt summaries.
-5. If approved later, adjust report generation fields with tests.
+4. Implement Phase 5A report-only split summary/cases outputs while preserving
+   standalone behavior.
+5. If approved later, add documentation examples for eval receipt summaries.
 6. If approved later, consider opt-in quality-gate or CI behavior.
 
 Do not skip from planning directly to default quality-gate, CI, or

@@ -68,6 +68,7 @@ def receipt_required_fields() -> list[str]:
     return [
         "schema_version",
         "evidence_kind",
+        "receipt_id",
         "task_id",
         "repository",
         "basis",
@@ -158,16 +159,16 @@ def test_json_evidence_gate_reports_invalid_json(tmp_path: Path) -> None:
     assert any("invalid JSON" in message for message in result.messages)
 
 
-def test_json_evidence_gate_reports_missing_required_schema_field(tmp_path: Path) -> None:
+def test_json_evidence_gate_reports_missing_receipt_id_required_schema_field(tmp_path: Path) -> None:
     write_valid_bundle(tmp_path)
     bad_schema = schema(receipt_required_fields(), "receipt_summary")
-    bad_schema["required"].remove("commands")
+    bad_schema["required"].remove("receipt_id")
     write(tmp_path / "audits" / "receipt-summary.schema.json", json.dumps(bad_schema))
 
     result = json_evidence_gate.run(tmp_path)
 
     assert result.passed is False
-    assert any("missing required field: commands" in message for message in result.messages)
+    assert any("missing required field: receipt_id" in message for message in result.messages)
 
 
 def test_json_evidence_gate_reports_missing_policy_boundary(tmp_path: Path) -> None:

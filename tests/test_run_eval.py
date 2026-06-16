@@ -1,3 +1,4 @@
+import hashlib
 import json
 from pathlib import Path
 
@@ -44,6 +45,23 @@ def render_case() -> dict[str, object]:
             }
         ],
     }
+
+
+def write_passing_eval_case(root: Path, name: str = "alpha_case") -> Path:
+    write(root / "AGENTS.md", "explicit confirmation\n")
+    case_path = root / "evals/cases/policy.yml"
+    write(
+        case_path,
+        json.dumps(
+            {
+                "name": name,
+                "eval": "policy_phrases",
+                "checks": [{"path": "AGENTS.md", "phrases": ["explicit confirmation"]}],
+            }
+        )
+        + "\n",
+    )
+    return case_path
 
 
 def test_render_structure_passes_expected_paths(tmp_path: Path) -> None:
@@ -180,6 +198,150 @@ def test_summary_report_shape_is_safe_and_stable() -> None:
         {"name": "beta_case", "passed": False, "messages": ["bad"]},
     ]
     assert "results" not in report
+
+
+def test_legacy_report_cli_writes_backward_compatible_report(tmp_path: Path) -> None:
+    case_path = write_passing_eval_case(tmp_path)
+
+    exit_code = run_eval.main(
+        [
+            "--repo-root",
+            str(tmp_path),
+            "--case",
+            str(case_path),
+            "--report",
+            "artifacts/eval-report.json",
+        ]
+    )
+
+    report_path = tmp_path / "artifacts/eval-report.json"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert exit_code == 0
+    assert report["schema_version"] == "1"
+    assert report["total_cases"] == 1
+    assert report["passed_cases"] == 1
+    assert report["failed_cases"] == 0
+    assert report["passed"] is True
+    assert report["cases"] == [{"name": "alpha_case", "passed": True, "messages": ["validated phrase targets: 1"]}]
+    assert "cases_ref" not in report
+    assert "cases_sha256" not in report
+    assert not (tmp_path / "artifacts/eval-report-summary.json").exists()
+    assert not (tmp_path / "artifacts/eval-cases.jsonl").exists()
+
+
+def test_cases_report_bytes_are_jsonl_case_results() -> None:
+    summary = run_eval.EvalSummary(
+        False,
+        [
+            run_eval.EvalResult("alpha_case", True, ["ok"]),
+            run_eval.EvalResult("beta_case", False, ["bad"]),
+        ],
+    )
+
+    data = run_eval.cases_report_bytes(summary)
+    records = [json.loads(line) for line in data.decode("utf-8").splitlines()]
+
+    assert records == [
+        {"messages": ["ok"], "name": "alpha_case", "passed": True},
+        {"messages": ["bad"], "name": "beta_case", "passed": False},
+    ]
+    assert data.endswith(b"\n")
+
+
+def test_split_summary_report_shape_is_safe_and_stable() -> None:
+    summary = run_eval.EvalSummary(True, [run_eval.EvalResult("alpha_case", True, ["ok"])])
+    cases_bytes = run_eval.cases_report_bytes(summary)
+    cases_sha256 = hashlib.sha256(cases_bytes).hexdigest()
+
+    report = run_eval.summary_to_split_report(
+        summary,
+        "artifacts/eval-cases.jsonl",
+        cases_sha256,
+        generated_at_utc="2026-05-26T00:00:00Z",
+    )
+
+    assert report == {
+        "schema_version": "1",
+        "generated_at_utc": "2026-05-26T00:00:00Z",
+        "total_cases": 1,
+        "passed_cases": 1,
+        "failed_cases": 0,
+        "passed": True,
+        "cases_ref": "artifacts/eval-cases.jsonl",
+        "cases_sha256": cases_sha256,
+    }
+    assert "cases" not in report
+    assert "results" not in report
+
+
+def test_split_reports_cli_writes_summary_cases_and_sha256(tmp_path: Path) -> None:
+    case_path = write_passing_eval_case(tmp_path)
+
+    exit_code = run_eval.main(
+        [
+            "--repo-root",
+            str(tmp_path),
+            "--case",
+            str(case_path),
+            "--summary-report",
+            "artifacts/eval-report-summary.json",
+            "--cases-report",
+            "artifacts/eval-cases.jsonl",
+        ]
+    )
+
+    summary_path = tmp_path / "artifacts/eval-report-summary.json"
+    cases_path = tmp_path / "artifacts/eval-cases.jsonl"
+    cases_bytes = cases_path.read_bytes()
+    summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    case_records = [json.loads(line) for line in cases_bytes.decode("utf-8").splitlines()]
+
+    assert exit_code == 0
+    assert summary["schema_version"] == "1"
+    assert summary["total_cases"] == 1
+    assert summary["passed_cases"] == 1
+    assert summary["failed_cases"] == 0
+    assert summary["passed"] is True
+    assert summary["cases_ref"] == "artifacts/eval-cases.jsonl"
+    assert summary["cases_sha256"] == hashlib.sha256(cases_bytes).hexdigest()
+    assert case_records == [{"messages": ["validated phrase targets: 1"], "name": "alpha_case", "passed": True}]
+    assert not (tmp_path / "artifacts/eval-report.json").exists()
+
+
+def test_eval_reports_are_not_generated_without_report_flags(tmp_path: Path) -> None:
+    case_path = write_passing_eval_case(tmp_path)
+
+    exit_code = run_eval.main(["--repo-root", str(tmp_path), "--case", str(case_path)])
+
+    assert exit_code == 0
+    assert not (tmp_path / "artifacts").exists()
+
+
+def test_split_report_flags_must_be_paired(tmp_path: Path) -> None:
+    try:
+        run_eval.main(["--repo-root", str(tmp_path), "--summary-report", "artifacts/eval-report-summary.json"])
+    except SystemExit as exc:
+        assert exc.code == 2
+    else:
+        raise AssertionError("split report flags should be required as a pair")
+
+
+def test_split_report_rejects_invalid_path(tmp_path: Path) -> None:
+    try:
+        run_eval.main(
+            [
+                "--repo-root",
+                str(tmp_path),
+                "--summary-report",
+                "STATUS.md",
+                "--cases-report",
+                "artifacts/eval-cases.jsonl",
+            ]
+        )
+    except SystemExit as exc:
+        assert exc.code == 2
+    else:
+        raise AssertionError("split summary report path should be restricted to artifacts/")
 
 
 def test_json_shape_validates_required_fields(tmp_path: Path) -> None:

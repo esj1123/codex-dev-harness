@@ -51,6 +51,11 @@ JSON evidence must use:
 JSON evidence must not use local absolute paths, raw transcripts, raw command
 logs, raw source bundles, or unredacted tool-call payloads.
 
+`receipt_id` is the stable identifier for one receipt summary. It is distinct
+from `task_id`, which identifies the broader task or phase. When a trace event
+is associated with a receipt summary, `related_receipt_id` should point to
+`receipt_summary.receipt_id`.
+
 Schema files must be plain JSON and parse with the Python standard library.
 The quality gate checks schema presence and core shape only. It is not a
 general-purpose JSON Schema validator for generated evidence records.

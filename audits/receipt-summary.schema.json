@@ -8,6 +8,7 @@
   "required": [
     "schema_version",
     "evidence_kind",
+    "receipt_id",
     "task_id",
     "repository",
     "basis",
@@ -32,6 +33,12 @@
     "evidence_kind": {
       "type": "string",
       "const": "receipt_summary"
+    },
+    "receipt_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "description": "Stable identifier for one receipt summary. Do not include raw prompts, private data, raw command logs, tool-call bodies, local absolute paths, secrets, account values, IPs, ports, live config, or device values."
     },
     "task_id": {
       "type": "string",

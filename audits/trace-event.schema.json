@@ -99,7 +99,8 @@
     "related_receipt_id": {
       "type": "string",
       "minLength": 1,
-      "maxLength": 160
+      "maxLength": 160,
+      "description": "Optional reference to receipt_summary.receipt_id when this trace event is associated with a receipt summary."
     },
     "hashes": {
       "type": "array",

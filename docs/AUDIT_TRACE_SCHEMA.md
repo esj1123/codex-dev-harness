@@ -40,6 +40,7 @@ summaries, or future audit records.
 
 The receipt records:
 
+- receipt identity
 - task identity
 - repository and branch state
 - changed file summary
@@ -61,6 +62,7 @@ Every receipt must include:
 
 | field | meaning |
 |---|---|
+| `receipt_id` | Stable identifier for one receipt record, distinct from `task_id`. |
 | `task_id` | Stable task or phase identifier. |
 | `repository` | Repository name, such as `owner/repo`. |
 | `branch` | Current branch or detached reference. |
@@ -300,6 +302,7 @@ edits.
 
 ```yaml
 receipt_schema_version: "manual-v1"
+receipt_id: "receipt-phase-04-audit-trace-schema"
 task_id: "phase-04-audit-trace-schema"
 repository: "esj1123/codex-dev-harness"
 branch: "main"

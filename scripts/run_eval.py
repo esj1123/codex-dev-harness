@@ -10,6 +10,7 @@ import argparse
 from dataclasses import dataclass
 from datetime import datetime, timezone
 import fnmatch
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -400,25 +401,61 @@ def summary_to_report(summary: EvalSummary, generated_at_utc: str | None = None)
     }
 
 
-def resolve_report_path(repo_root: Path, report_arg: str) -> Path:
+def case_result_record(result: EvalResult) -> dict[str, Any]:
+    return {
+        "name": result.name,
+        "passed": result.passed,
+        "messages": result.messages,
+    }
+
+
+def cases_report_bytes(summary: EvalSummary) -> bytes:
+    lines = [json.dumps(case_result_record(result), sort_keys=True) for result in summary.results]
+    text = "\n".join(lines)
+    if text:
+        text += "\n"
+    return text.encode("utf-8")
+
+
+def summary_to_split_report(
+    summary: EvalSummary,
+    cases_ref: str,
+    cases_sha256: str,
+    generated_at_utc: str | None = None,
+) -> dict[str, Any]:
+    passed_cases = sum(1 for result in summary.results if result.passed)
+    failed_cases = len(summary.results) - passed_cases
+    return {
+        "schema_version": REPORT_SCHEMA_VERSION,
+        "generated_at_utc": generated_at_utc or utc_now(),
+        "total_cases": len(summary.results),
+        "passed_cases": passed_cases,
+        "failed_cases": failed_cases,
+        "passed": summary.passed,
+        "cases_ref": cases_ref,
+        "cases_sha256": cases_sha256,
+    }
+
+
+def resolve_report_path(repo_root: Path, report_arg: str, option_name: str = "--report") -> Path:
     raw_path = Path(report_arg)
     if raw_path.is_absolute() or raw_path.drive or raw_path.anchor:
-        raise ValueError("--report must be a repo-internal relative path")
+        raise ValueError(f"{option_name} must be a repo-internal relative path")
     if not raw_path.parts:
-        raise ValueError("--report must name a report file")
+        raise ValueError(f"{option_name} must name a report file")
     if any(part == ".." for part in raw_path.parts):
-        raise ValueError("--report must not contain parent traversal")
+        raise ValueError(f"{option_name} must not contain parent traversal")
     if raw_path.parts[0] != ARTIFACTS_ROOT or len(raw_path.parts) < 2:
-        raise ValueError("--report must be under artifacts/")
+        raise ValueError(f"{option_name} must be under artifacts/")
 
     resolved_root = repo_root.resolve()
     report_path = (resolved_root / raw_path).resolve()
     try:
         report_path.relative_to(resolved_root)
     except ValueError as exc:
-        raise ValueError("--report must resolve inside the repository") from exc
+        raise ValueError(f"{option_name} must resolve inside the repository") from exc
     if report_path == resolved_root:
-        raise ValueError("--report must name a report file")
+        raise ValueError(f"{option_name} must name a report file")
     return report_path
 
 
@@ -440,6 +477,16 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Optional repo-internal relative JSON report path, e.g. artifacts/eval-report.json",
     )
+    parser.add_argument(
+        "--summary-report",
+        default=None,
+        help="Optional repo-internal relative split summary report path under artifacts/",
+    )
+    parser.add_argument(
+        "--cases-report",
+        default=None,
+        help="Optional repo-internal relative split cases JSONL report path under artifacts/",
+    )
     return parser
 
 
@@ -449,11 +496,25 @@ def main(argv: list[str] | None = None) -> int:
     repo_root = Path(args.repo_root).resolve()
     case_paths = [Path(path).resolve() for path in args.case] if args.case else None
     report_path = None
+    summary_report_path = None
+    cases_report_path = None
     if args.report:
         try:
             report_path = resolve_report_path(repo_root, args.report)
         except ValueError as exc:
             parser.error(str(exc))
+    if bool(args.summary_report) != bool(args.cases_report):
+        parser.error("--summary-report and --cases-report must be used together")
+    if args.summary_report and args.cases_report:
+        try:
+            summary_report_path = resolve_report_path(repo_root, args.summary_report, "--summary-report")
+            cases_report_path = resolve_report_path(repo_root, args.cases_report, "--cases-report")
+        except ValueError as exc:
+            parser.error(str(exc))
+        if summary_report_path == cases_report_path:
+            parser.error("--summary-report and --cases-report must name different files")
+        if report_path and report_path in {summary_report_path, cases_report_path}:
+            parser.error("--report, --summary-report, and --cases-report must name distinct files")
 
     summary = run_all(repo_root, case_paths)
     print_summary(summary)
@@ -462,6 +523,21 @@ def main(argv: list[str] | None = None) -> int:
         report_path.parent.mkdir(parents=True, exist_ok=True)
         report_path.write_text(json.dumps(summary_to_report(summary), indent=2) + "\n", encoding="utf-8")
         print(f"Wrote eval report: {relpath(report_path, repo_root)}")
+    if summary_report_path and cases_report_path:
+        cases_bytes = cases_report_bytes(summary)
+        cases_sha256 = hashlib.sha256(cases_bytes).hexdigest()
+        cases_report_path.parent.mkdir(parents=True, exist_ok=True)
+        cases_report_path.write_bytes(cases_bytes)
+
+        summary_report_path.parent.mkdir(parents=True, exist_ok=True)
+        summary_report = summary_to_split_report(
+            summary,
+            relpath(cases_report_path, repo_root),
+            cases_sha256,
+        )
+        summary_report_path.write_text(json.dumps(summary_report, indent=2) + "\n", encoding="utf-8")
+        print(f"Wrote eval summary report: {relpath(summary_report_path, repo_root)}")
+        print(f"Wrote eval cases report: {relpath(cases_report_path, repo_root)}")
 
     return 0 if summary.passed else 1
 

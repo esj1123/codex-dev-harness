@@ -168,6 +168,7 @@ def check_receipt_schema(schema: dict[str, Any]) -> list[str]:
     required_fields = {
         "schema_version",
         "evidence_kind",
+        "receipt_id",
         "task_id",
         "repository",
         "basis",
