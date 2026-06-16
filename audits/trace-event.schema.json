@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/esj1123/codex-dev-harness/audits/trace-event.schema.json",
+  "title": "codex-dev-harness trace event",
+  "description": "Core JSON evidence schema for safe trace events. This schema defines serialized event shape only and does not enable audit automation or real audit logs.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "evidence_kind",
+    "event_id",
+    "task_id",
+    "sequence",
+    "event_type",
+    "event_summary",
+    "status_label",
+    "redaction_status",
+    "payload_capture"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": [
+        "1.0"
+      ]
+    },
+    "evidence_kind": {
+      "type": "string",
+      "const": "trace_event"
+    },
+    "event_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "description": "Stable task identifier. Do not include raw prompt text."
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "timestamp_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "plan",
+        "approval",
+        "file_change",
+        "command",
+        "verification",
+        "closeout",
+        "not_run",
+        "blocked"
+      ]
+    },
+    "source_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/repo_relative_path"
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "commit": {
+          "$ref": "#/$defs/commit_or_unknown"
+        }
+      }
+    },
+    "event_summary": {
+      "$ref": "#/$defs/safe_summary"
+    },
+    "status_label": {
+      "$ref": "#/$defs/status_label"
+    },
+    "redaction_status": {
+      "$ref": "#/$defs/redaction_status"
+    },
+    "payload_capture": {
+      "type": "string",
+      "enum": [
+        "none",
+        "redacted_summary_only"
+      ],
+      "description": "Raw prompt, private input, command log, and tool-call body capture are not allowed in this core schema."
+    },
+    "related_receipt_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160
+    },
+    "hashes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/hash_record"
+      }
+    }
+  },
+  "$defs": {
+    "status_label": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "PASS WITH NOTES",
+        "BLOCKED",
+        "NOT RUN",
+        "ENVIRONMENT BLOCKED",
+        "FAIL"
+      ]
+    },
+    "safe_summary": {
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 2000,
+      "description": "Redacted summary only. Do not store raw prompts, private data, raw command logs, unredacted tool-call bodies, secrets, live values, local absolute paths, or generated downstream source."
+    },
+    "repo_relative_path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 260,
+      "pattern": "^(?![A-Za-z]:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9._/() -]+$",
+      "description": "Repository-relative path only."
+    },
+    "commit_or_unknown": {
+      "type": "string",
+      "pattern": "^([0-9a-fA-F]{7,40}|unknown|not checked|not applicable)$"
+    },
+    "hash_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "enum": [
+            "sha256"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{64}$"
+        }
+      }
+    },
+    "redaction_status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "notes"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "not_needed",
+            "redacted",
+            "approved_summary_only",
+            "blocked_sensitive_content"
+          ]
+        },
+        "notes": {
+          "$ref": "#/$defs/safe_summary"
+        }
+      }
+    }
+  }
+}

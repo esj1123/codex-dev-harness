@@ -1,0 +1,382 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/esj1123/codex-dev-harness/audits/receipt-summary.schema.json",
+  "title": "codex-dev-harness receipt summary",
+  "description": "Core JSON evidence schema for safe task receipt summaries. This schema defines shape only and does not enable audit automation or real audit logs.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "evidence_kind",
+    "task_id",
+    "repository",
+    "basis",
+    "approval",
+    "side_effect_class",
+    "changed_files",
+    "commands",
+    "verification",
+    "safety",
+    "artifacts",
+    "status_label",
+    "unresolved_risks",
+    "next_step"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": [
+        "1.0"
+      ]
+    },
+    "evidence_kind": {
+      "type": "string",
+      "const": "receipt_summary"
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "description": "Stable task or phase identifier. Do not include raw prompts."
+    },
+    "repository": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Repository identifier such as owner/name or a safe local label."
+    },
+    "basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "branch",
+        "head_commit",
+        "origin_commit",
+        "local_remote_relationship"
+      ],
+      "properties": {
+        "branch": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "head_commit": {
+          "$ref": "#/$defs/commit_or_unknown"
+        },
+        "origin_commit": {
+          "$ref": "#/$defs/commit_or_unknown"
+        },
+        "local_remote_relationship": {
+          "type": "string",
+          "enum": [
+            "equal",
+            "ahead",
+            "behind",
+            "diverged",
+            "unknown",
+            "not checked"
+          ]
+        },
+        "branch_ahead_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "branch_behind_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "approval_class",
+        "approval_reference"
+      ],
+      "properties": {
+        "approval_class": {
+          "type": "string",
+          "enum": [
+            "read_only",
+            "documentation_only",
+            "owner_approved_local_edit",
+            "owner_approved_local_commit",
+            "owner_approved_push",
+            "owner_approved_workflow_dispatch",
+            "release_publication_approved",
+            "not_applicable"
+          ]
+        },
+        "approval_reference": {
+          "$ref": "#/$defs/safe_summary"
+        }
+      }
+    },
+    "side_effect_class": {
+      "type": "string",
+      "enum": [
+        "read_only_inspection",
+        "documentation_edit",
+        "schema_edit",
+        "test_edit",
+        "quality_gate_validation",
+        "local_git_commit",
+        "remote_push",
+        "manual_workflow_dispatch",
+        "artifact_generation",
+        "release_publication",
+        "downstream_edit",
+        "live_target_action"
+      ]
+    },
+    "changed_files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "change_type"
+        ],
+        "properties": {
+          "path": {
+            "$ref": "#/$defs/repo_relative_path"
+          },
+          "change_type": {
+            "type": "string",
+            "enum": [
+              "added",
+              "modified",
+              "deleted",
+              "renamed"
+            ]
+          },
+          "content_hash": {
+            "$ref": "#/$defs/hash_record"
+          }
+        }
+      }
+    },
+    "commands": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run",
+        "not_run"
+      ],
+      "properties": {
+        "run": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/command_result"
+          }
+        },
+        "not_run": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/not_run_result"
+          }
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "result",
+        "summary"
+      ],
+      "properties": {
+        "result": {
+          "$ref": "#/$defs/status_label"
+        },
+        "summary": {
+          "$ref": "#/$defs/safe_summary"
+        }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "redaction_status",
+        "exclusions"
+      ],
+      "properties": {
+        "redaction_status": {
+          "$ref": "#/$defs/redaction_status"
+        },
+        "exclusions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/safe_summary"
+          }
+        }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "generated",
+        "release_artifact_status",
+        "artifact_upload_status"
+      ],
+      "properties": {
+        "generated": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/repo_relative_path"
+          }
+        },
+        "release_artifact_status": {
+          "type": "string",
+          "enum": [
+            "not generated",
+            "generated by separate approval",
+            "not applicable",
+            "not checked"
+          ]
+        },
+        "artifact_upload_status": {
+          "type": "string",
+          "enum": [
+            "none",
+            "uploaded",
+            "not applicable",
+            "not checked"
+          ]
+        }
+      }
+    },
+    "status_label": {
+      "$ref": "#/$defs/status_label"
+    },
+    "unresolved_risks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/safe_summary"
+      }
+    },
+    "next_step": {
+      "$ref": "#/$defs/safe_summary"
+    }
+  },
+  "$defs": {
+    "status_label": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "PASS WITH NOTES",
+        "BLOCKED",
+        "NOT RUN",
+        "ENVIRONMENT BLOCKED",
+        "FAIL"
+      ]
+    },
+    "safe_summary": {
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 2000,
+      "description": "Redacted summary only. Do not store raw prompts, private data, raw command logs, unredacted tool-call bodies, secrets, live values, local absolute paths, or generated downstream source."
+    },
+    "repo_relative_path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 260,
+      "pattern": "^(?![A-Za-z]:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9._/() -]+$",
+      "description": "Repository-relative path only."
+    },
+    "commit_or_unknown": {
+      "type": "string",
+      "pattern": "^([0-9a-fA-F]{7,40}|unknown|not checked|not applicable)$"
+    },
+    "hash_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "enum": [
+            "sha256"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{64}$"
+        }
+      }
+    },
+    "command_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command_summary",
+        "result",
+        "note"
+      ],
+      "properties": {
+        "command_summary": {
+          "$ref": "#/$defs/safe_summary"
+        },
+        "result": {
+          "$ref": "#/$defs/status_label"
+        },
+        "note": {
+          "$ref": "#/$defs/safe_summary"
+        }
+      }
+    },
+    "not_run_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command_summary",
+        "result",
+        "reason"
+      ],
+      "properties": {
+        "command_summary": {
+          "$ref": "#/$defs/safe_summary"
+        },
+        "result": {
+          "type": "string",
+          "enum": [
+            "NOT RUN",
+            "ENVIRONMENT BLOCKED"
+          ]
+        },
+        "reason": {
+          "$ref": "#/$defs/safe_summary"
+        }
+      }
+    },
+    "redaction_status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "notes"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "not_needed",
+            "redacted",
+            "approved_summary_only",
+            "blocked_sensitive_content"
+          ]
+        },
+        "notes": {
+          "$ref": "#/$defs/safe_summary"
+        }
+      }
+    }
+  }
+}

@@ -72,7 +72,8 @@ not capabilities to abandon.
 | Capability Implementation Roadmap | This document. | Durable owner-intent and sequencing record. | Source of truth cleanup. |
 | Read-only CI + verification hygiene | CI policy and inert templates exist; no workflow is installed. | Read-only verification mirror for existing local checks, with no secrets, uploads, release, tag, deploy, or live write. | Roadmap and source-of-truth confirmation. |
 | Audit / trace / receipt schema | Audit schema and manual receipt review exist; no automation. | Stable schema, redaction rules, receipt fields, validation plan, and manual examples before automation. | Read-only verification hygiene. |
-| Eval/report integration | Standalone local eval runner exists; no quality-gate or CI integration by default. | Evidence-aligned report integration that can cite audit and receipt identifiers. | Audit / trace / receipt schema. |
+| JSON Evidence Core / Evidence Serialization Policy | Manual receipt schema exists; machine-readable receipt and trace schemas are now the next serialization foundation. | Policy, core schemas, and a quality-gate bundle check exist before any audit automation or real logs. | Audit / trace / receipt schema. |
+| Eval/report integration | Standalone local eval runner exists; no quality-gate or CI integration by default. | Evidence-aligned report integration that can cite audit and receipt identifiers. | JSON Evidence Core / Evidence Serialization Policy. |
 | Approved corpus digest | Approved-corpus plan exists; no digest or index. | Exact allow-list, metadata, redaction checks, encoding checks, and digest contract. | Eval/report and audit identifiers. |
 | Local RAG | Planning only. | Local-first retrieval over the approved corpus, with retrieval output treated as advisory context. | Approved corpus digest. |
 | MCP tool boundary | No implementation. | Explicit allowed tool classes, input/output rules, approval boundaries, redaction rules, and audit hooks. | Local RAG and audit rules. |
@@ -88,6 +89,7 @@ Required implementation order:
 2. Capability Implementation Roadmap.
 3. Read-only CI + verification hygiene.
 4. Audit / trace / receipt schema.
+4B. JSON Evidence Core / Evidence Serialization Policy.
 5. Eval/report integration.
 6. Approved corpus digest.
 7. Local RAG.
@@ -106,6 +108,8 @@ The order matters:
 - the roadmap records the new owner intent before implementation starts;
 - CI hygiene gives future phases a repeatable verification mirror;
 - audit / trace / receipt schema defines what evidence future phases can cite;
+- JSON Evidence Core defines the safe serialization bundle before logs or
+  automation exist;
 - eval/report integration should not precede the receipt fields it needs;
 - approved corpus digest must precede retrieval;
 - local RAG must precede tool-facing context integration;
@@ -202,6 +206,42 @@ Gate:
   are explicit.
 - Local commit, local branch-ahead, push, tag, and release states are
   distinguished.
+
+### Phase 4B: JSON Evidence Core / Evidence Serialization Policy
+
+Goal:
+
+- Define the JSON evidence serialization policy for receipt summaries and trace
+  events.
+- Add the core machine-readable schemas for safe receipt summaries and trace
+  events.
+- Gate the policy and schema bundle through `scripts/quality_gate.py` without
+  validating or writing real audit logs.
+
+Must not include by default:
+
+- audit automation;
+- real audit logs;
+- generated receipt or trace files;
+- raw prompt capture;
+- raw private data capture;
+- raw command log capture;
+- unredacted tool-call bodies;
+- eval summary/cases split;
+- RAG, embeddings, vector database, retrieval, MCP runtime, Hermes sidecar,
+  AgentOps runtime, memory runtime, release automation, or downstream changes.
+
+Gate:
+
+- `docs/JSON_EVIDENCE_POLICY.md`,
+  `audits/receipt-summary.schema.json`, and
+  `audits/trace-event.schema.json` form one required bundle when roadmap or
+  status documents contain a Phase 4B or JSON Evidence Core marker.
+- A synthetic repository with no bundle files and no marker may be treated as
+  not applicable.
+- Partial bundles fail.
+- The quality gate parses the schemas and checks core shape and policy safety
+  language using standard-library code only.
 
 ### Phase 5: eval/report integration
 
@@ -427,6 +467,7 @@ The first implementation target after this roadmap is:
 The next targets are:
 
 - second: audit / trace / receipt schema;
+- Phase 4B: JSON Evidence Core / Evidence Serialization Policy;
 - third: eval/report integration;
 - fourth: approved corpus digest;
 - fifth: local RAG;
@@ -448,6 +489,7 @@ remote state clearly.
 | Capability Implementation Roadmap | This document exists, records owner intent, lists the dependency order, and sets read-only CI + verification hygiene as the first implementation target. |
 | Read-only CI + verification hygiene | Approved verification path runs existing local checks in read-only mode, with no secrets, artifact upload, release, tag, deploy, downstream edit, or live write. |
 | Audit / trace / receipt schema | Schema and manual examples capture outcome, git state, approvals, files, commands, verification, safety exclusions, redaction status, and NOT RUN reasons without raw private data. |
+| JSON Evidence Core / Evidence Serialization Policy | Policy and core schemas define safe receipt-summary and trace-event JSON serialization, are checked by the quality gate, and do not create audit automation or real logs. |
 | Eval/report integration | Eval reports cite stable receipt fields, remain non-LLM and local unless separately approved, and do not become default gate or release-blocking behavior without explicit approval. |
 | Approved corpus digest | Exact safe corpus allow-list, forbidden corpus list, metadata, risk labels, redaction checks, encoding checks, and digest format are approved and verified. |
 | Local RAG | Retrieval is local-first, limited to the approved corpus basis, advisory only, and unable to broaden approval or side-effect permissions. |
