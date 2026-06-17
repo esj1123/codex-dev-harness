@@ -164,6 +164,23 @@ vector storage, external services, digest regeneration, CI integration,
 quality-gate integration, audit automation, MCP/Hermes work, release
 automation, downstream edits, or generated corpus artifacts.
 
+## Phase 7B Implementation Contract Boundary
+
+`docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md` records the Phase 7B contract for a
+future local-only, read-only lexical retriever. It defines allowed inputs,
+forbidden inputs, output shape, citation rules, no-answer behavior, and future
+verification requirements.
+
+Phase 7B is implementation-contract-only. It does not authorize retrieval code,
+indexing, embeddings, vector storage, external services, MCP/Hermes work,
+release automation, downstream edits, artifact regeneration, digest
+regeneration, or private/raw corpus ingestion.
+
+The only allowed future retrieval inputs are `artifacts/corpus-digest.json` and
+digest-listed repo-owned source files. `08_Study` raw notes, RSID raw evidence,
+downstream raw evidence, external/private corpus material, local absolute
+paths, secrets, and live values remain forbidden inputs.
+
 ## Non-Goals
 
 This plan does not add:

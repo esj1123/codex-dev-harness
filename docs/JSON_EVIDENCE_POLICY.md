@@ -66,6 +66,16 @@ These eval references do not run evals, generate reports by default, wire evals
 into `scripts/quality_gate.py`, add CI eval behavior, or create release-blocking
 semantics.
 
+Phase 7B local RAG implementation-contract evidence may describe future
+retrieval citations using repo-relative source paths, digest content hashes,
+safe summaries, and no-answer reasons. It must not store raw private corpus
+content, full retrieved documents, local absolute paths, secrets, live values,
+prompt transcripts, model outputs, or tool-call bodies.
+
+These retrieval evidence references do not implement retrieval, create indexes,
+generate corpus artifacts, add embeddings or vector storage, call external
+services, integrate MCP/Hermes, or authorize downstream work.
+
 Schema files must be plain JSON and parse with the Python standard library.
 The quality gate checks schema presence and core shape only. It is not a
 general-purpose JSON Schema validator for generated evidence records.

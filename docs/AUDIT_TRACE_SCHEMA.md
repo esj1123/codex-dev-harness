@@ -129,11 +129,23 @@ Optional fields may be added when relevant:
 | `corpus_digest_path` | Repo-relative digest artifact path, only if explicitly generated in an approved task. |
 | `corpus_digest_algorithm` | Digest algorithm, such as `sha256`, when applicable. |
 | `corpus_source_policy` | Short summary of allow-list and forbidden corpus basis. |
+| `retrieval_status` | Future retrieval status, such as `not implemented`, `not run`, `found`, `partial`, `no_sufficient_evidence`, or `blocked`. |
+| `retrieval_query_summary` | Short sanitized retrieval query summary, not a prompt transcript. |
+| `retrieval_source_count` | Count of cited digest-listed sources. |
+| `retrieval_citations` | Repo-relative source references with digest content hashes and safe summaries only. |
+| `retrieval_no_answer_reason` | Safe reason when no sufficient evidence is available or retrieval is blocked. |
+| `retrieval_safety_notes` | Safe notes about excluded source classes and approval boundaries. |
+| `retrieval_digest_path` | Repo-relative digest path, such as `artifacts/corpus-digest.json`. |
+| `retrieval_digest_commit` | Source-basis commit recorded for the digest when relevant. |
+| `retrieval_rag_authorization_status` | RAG authorization state, such as `not_authorized` or a future approved state. |
 
 Optional fields must follow the same redaction rules as required fields.
 For Phase 5B eval evidence, the split summary JSON is safe summary evidence.
 The cases JSONL is detailed evidence and should be cited by repo-relative
 `cases_ref` and `cases_sha256` rather than copied into the receipt.
+For Phase 7B retrieval evidence, receipts may cite digest-listed sources by
+repo-relative path and content hash, but must not copy full source documents or
+private/raw corpus content.
 
 ## 6. Forbidden fields
 

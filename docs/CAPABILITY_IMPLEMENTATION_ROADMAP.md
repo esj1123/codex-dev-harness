@@ -75,7 +75,7 @@ not capabilities to abandon.
 | JSON Evidence Core / Evidence Serialization Policy | Manual receipt schema exists; machine-readable receipt and trace schemas are now the next serialization foundation. | Policy, core schemas, and a quality-gate bundle check exist before any audit automation or real logs. | Audit / trace / receipt schema. |
 | Eval/report integration | Standalone local eval runner exists; no quality-gate or CI integration by default. | Evidence-aligned report integration that can cite audit and receipt identifiers. | JSON Evidence Core / Evidence Serialization Policy. |
 | Approved corpus digest | Approved-corpus plan exists; no digest or index. | Exact allow-list, metadata, redaction checks, encoding checks, and digest contract. | Eval/report and audit identifiers. |
-| Local RAG | Planning only. | Local-first retrieval over the approved corpus, with retrieval output treated as advisory context. | Approved corpus digest. |
+| Local RAG | Phase 7A design exists and Phase 7B is the implementation-contract-only next step; no retrieval code or index exists. | Local-first retrieval over the approved corpus, with retrieval output treated as advisory context. | Approved corpus digest. |
 | MCP tool boundary | No implementation. | Explicit allowed tool classes, input/output rules, approval boundaries, redaction rules, and audit hooks. | Local RAG and audit rules. |
 | Hermes sidecar | No implementation. | Local sidecar constrained by the MCP boundary, audit model, eval evidence, and approval rules. | MCP tool boundary. |
 | Release automation / provenance | Local evidence generators and release wrapper exist; no release automation or publication. | Approval-gated release automation and provenance flow after earlier evidence surfaces are stable. | CI, audit, eval, digest, RAG, MCP, and Hermes stability. |
@@ -301,6 +301,7 @@ Goal:
 - Add local-first retrieval only after approved corpus digest discipline is
   proven.
 - Treat retrieval output as advisory context, not approval.
+- Use Phase 7B as an implementation-contract-only bridge before any prototype.
 
 Must not include by default:
 
@@ -315,6 +316,11 @@ Gate:
 - Retrieval uses only the approved corpus basis.
 - Generated indexes or dependencies are exact-file and exact-command approved.
 - Retrieval output cannot broaden the current task contract.
+- Phase 7B may define allowed inputs, output shape, citation rules,
+  no-answer behavior, and verification requirements, but must not create
+  retrieval code, a corpus folder, a retrieval folder, an index folder,
+  embeddings, vector storage, external services, MCP/Hermes behavior, release
+  automation, or downstream integration.
 
 ### Phase 8: MCP tool boundary
 
@@ -492,7 +498,7 @@ remote state clearly.
 | JSON Evidence Core / Evidence Serialization Policy | Policy and core schemas define safe receipt-summary and trace-event JSON serialization, are checked by the quality gate, and do not create audit automation or real logs. |
 | Eval/report integration | Eval reports cite stable receipt fields, remain non-LLM and local unless separately approved, and do not become default gate or release-blocking behavior without explicit approval. |
 | Approved corpus digest | Exact safe corpus allow-list, forbidden corpus list, metadata, risk labels, redaction checks, encoding checks, and digest format are approved and verified. |
-| Local RAG | Retrieval is local-first, limited to the approved corpus basis, advisory only, and unable to broaden approval or side-effect permissions. |
+| Local RAG | Phase 7B contract defines digest-only inputs, repo-relative citations, no-answer behavior, and future verification requirements before any prototype. Retrieval remains local-first, limited to the approved corpus basis, advisory only, and unable to broaden approval or side-effect permissions. |
 | MCP tool boundary | Tool classes, inputs, outputs, logs, redaction, approvals, and forbidden behavior are documented and tested before sidecar implementation. |
 | Hermes sidecar | Sidecar behavior is local-first, constrained by MCP boundary and audit rules, has tested failure modes, and cannot bypass task or downstream repo contracts. |
 | Release automation / provenance | Automation names exact artifacts and publication-adjacent behavior, distinguishes local commit from push/tag/release, and does not publish or move tags without explicit approval. |

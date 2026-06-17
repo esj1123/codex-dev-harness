@@ -9,6 +9,11 @@ This design exists to make future local RAG implementation safer and more
 traceable. It does not implement retrieval, create an index, regenerate the
 digest, create a corpus folder, call a model, or authorize any side effect.
 
+Phase 7B is documented separately in
+`docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md`. It is an
+implementation-contract-only bridge from this design to a possible later
+prototype; it still does not implement retrieval.
+
 ## 2. Current corpus basis
 
 The current approved corpus basis is the generated digest artifact:
@@ -380,6 +385,9 @@ Closeout:
 - PASS / PASS WITH NOTES / BLOCKED
 - changed files
 - implementation contract summary
+- allowed and forbidden input boundaries
+- output shape, citation, and no-answer rules
+- future implementation verification requirements
 - source eligibility rules
 - citation and no-answer rules
 - verification plan

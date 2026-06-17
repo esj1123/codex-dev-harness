@@ -59,7 +59,11 @@ vector database, external service, MCP/Hermes implementation, release
 automation, or downstream integration was added. Phase 7A local RAG design /
 read-only lexical retriever planning is documented in
 `docs/LOCAL_RAG_DESIGN.md`; it remains documentation-only and does not
-authorize retrieval implementation.
+authorize retrieval implementation. Phase 7B local RAG implementation contract
+is documented in `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md`; it defines the
+future retriever contract only and still does not add retrieval code, indexes,
+embeddings, vector storage, external services, MCP/Hermes, release automation,
+or downstream integration.
 
 ## Current Verification Snapshot
 
@@ -88,6 +92,7 @@ Core foundation.
 | approved corpus digest | GENERATED / VERIFIED | `artifacts/corpus-digest.json`; `artifact_type` is `approved_corpus_digest`; source count is 32; artifact-containing commit `df51aac8c3a9b001c4d036633897f176b87c304d`; source-basis commit `37a0e7274ae2cd0a50811c138147a37c1b4c0160`; metadata/hash-only; `release_artifact_status` is `not_release_artifact_without_separate_approval`; `rag_authorization_status` is `not_authorized` |
 | approved corpus digest Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `df51aac8c3a9b001c4d036633897f176b87c304d`; run `27522922010`; job `81344426960`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded |
 | local RAG design | PLANNED / DOCUMENTATION-ONLY | `docs/LOCAL_RAG_DESIGN.md` defines a future local-only, read-only lexical retriever over `artifacts/corpus-digest.json` and digest-listed repo-owned source files; advisory only; no RAG code, retrieval/index/corpus folder, embeddings, vector database, external service, CI or quality-gate integration, audit automation, digest regeneration, release automation, MCP/Hermes, or downstream integration added |
+| local RAG implementation contract | PRESENT / CONTRACT-ONLY | `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md` defines Phase 7B allowed inputs, forbidden inputs, output shape, citation rules, no-answer behavior, and future verification requirements; no retrieval code, index, corpus folder, retrieval folder, embeddings, vector database, external service, MCP/Hermes, release automation, digest regeneration, or downstream integration added |
 | `csharp_desktop` local target experiment | PASS | `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md` |
 | `csharp_desktop` dry-run render | PASS | 16 Markdown documentation outputs planned in an outside-repo temporary target |
 | `csharp_desktop` actual render | PASS | 16 Markdown documentation outputs generated in an outside-repo temporary target; temporary target not committed |
@@ -262,6 +267,8 @@ Core foundation.
   - `scripts/gates/json_evidence_gate.py`
   - `tests/test_json_evidence_gate.py`
 - Approved-corpus RAG planning: `docs/APPROVED_CORPUS_RAG_PLAN.md`.
+- Local RAG implementation contract:
+  `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md`.
 - Approved corpus digest planning:
   `docs/APPROVED_CORPUS_DIGEST_PLAN.md`.
 - Approved corpus digest artifact:
@@ -303,6 +310,7 @@ Core foundation.
   this harness repository.
 - Retrieval indexes, embeddings, vector stores, or RAG tooling.
 - `corpus/`, `retrieval/`, and `index/` directories.
+- Local RAG runtime implementation.
 - Model comparison code, model observability tooling, prompt capture, or model
   output capture.
 - SBOM/provenance external metadata resolution.
@@ -625,6 +633,7 @@ Stage 0 current-main gap review basis:
 | release verification wrapper | IMPLEMENTED LOCAL | `scripts/run_release_verify.ps1` runs local verification, optional standalone eval, manifest generation, bootstrap checksum generation, optional SBOM/provenance generation, strict final full-bundle checksum regeneration, and artifact path reporting; no archive, release CI workflow, signing, publication, tag movement, application, or live-write behavior |
 | approved-corpus digest | GENERATED / VERIFIED | `docs/APPROVED_CORPUS_DIGEST_PLAN.md` defines candidate classes, required metadata, risk labels, forbidden corpus, digest/hash policy, redaction/encoding checks, source path policy, `08_Study` limits, and RSID/downstream evidence limits; `artifacts/corpus-digest.json` now records a metadata/hash-only digest with 32 sources; artifact-containing commit `df51aac8c3a9b001c4d036633897f176b87c304d`; source-basis commit `37a0e7274ae2cd0a50811c138147a37c1b4c0160`; Local Verify run `27522922010` / job `81344426960` passed; no corpus folder, retrieval/index tooling, embeddings, vector storage, external service, CI or quality-gate integration, or RAG implementation added |
 | approved-corpus RAG planning | ADDED / NEXT PLANNING TARGET | `docs/APPROVED_CORPUS_RAG_PLAN.md` defines candidate safe corpus files, required metadata, forbidden corpus, and corpus-expansion approval checkpoints; the Phase 6F digest artifact does not authorize retrieval/index tooling, embeddings, vector storage, external service use, MCP/Hermes implementation, release automation, or downstream integration |
+| local RAG implementation contract | PHASE 7B CONTRACT-ONLY | `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md`; defines allowed inputs as `artifacts/corpus-digest.json` plus digest-listed repo-owned source files only, forbids private/raw corpus inputs, defines advisory lexical output shape, citation rules, no-answer behavior, and future verification requirements; no retrieval code, corpus/index/retrieval folder, embeddings, vector DB, external service, MCP/Hermes, AgentOps, memory runtime, release automation, artifact regeneration, digest regeneration, or downstream integration added |
 | model and prompt change planning | ADDED | `docs/MODEL_CHANGE_POLICY.md` defines model, prompt template, eval run, corpus digest, side-effect class, and compare-before-adopt controls; no model comparison or capture tooling added |
 | optional release verification CI template | TEMPLATE ONLY / DEFERRED | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`, `docs/OPTIONAL_GITHUB_ACTIONS.md`, and `templates/ci/*.template` exist; no release verification workflow, required checks, artifact upload, publishing, signing, tag movement, deployment, application code, or live-write behavior |
 | additional local target experiment plans | PARTIAL EXECUTED | `docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md` was executed once with explicit approval and recorded in `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md`; `docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md` remains planning-only |
@@ -691,16 +700,16 @@ Stage 0 current-main gap review basis:
 Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
 sequencing handoff.
 
-The next recommended task is owner review of the Phase 5B eval receipt
-alignment / evidence closure. Any later Phase 7B task may define the
-implementation contract for a read-only lexical retriever, but must not
-implement RAG,
-retrieval, indexing, embeddings, vector storage, external services, MCP/Hermes,
-release automation, downstream integration, additional CI integration,
-artifact regeneration, digest regeneration, eval report generation, tag or
-release publication, deployment, or private/raw corpus ingestion unless
-separately approved. `08_Study` raw notes, RSID raw evidence, and downstream
-raw evidence remain excluded unless separately redacted and approved.
+The next recommended task is owner review of the Phase 7B local RAG
+implementation contract. Any later Phase 7C task may implement a minimal
+read-only lexical retriever only after separate approval, and must not add RAG
+runtime, retrieval, indexing, embeddings, vector storage, external services,
+MCP/Hermes, release automation, downstream integration, additional CI
+integration, artifact regeneration, digest regeneration, eval report
+generation, tag or release publication, deployment, or private/raw corpus
+ingestion unless separately approved. `08_Study` raw notes, RSID raw evidence,
+and downstream raw evidence remain excluded unless separately redacted and
+approved.
 
 Treat Stage 5B stock probe records, optional CI/RAG/audit decisions, and the
 post-v0.1.0 evidence baseline as historical risk evidence for the roadmap, not
