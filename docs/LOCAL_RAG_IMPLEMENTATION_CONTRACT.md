@@ -10,8 +10,13 @@ create an index, create a corpus folder, create a retrieval folder, add
 embeddings, add vector storage, call external services, implement MCP/Hermes,
 add release automation, or edit downstream repositories.
 
-This contract exists so a later Phase 7C task can implement the smallest safe
-retriever only after separate owner approval.
+This contract exists so a later Phase 7C task may implement the smallest safe
+local-only, read-only lexical retriever only after separate owner approval with
+exact allowed files and scripts. That approval would not, by default, authorize
+persistent index, corpus, or retrieval folders; embeddings; vector storage;
+external services; MCP/Hermes; CI or quality-gate integration; release
+automation; downstream integration; artifact regeneration; digest
+regeneration; or private/raw corpus ingestion.
 
 ## 2. Corpus Basis
 
@@ -187,7 +192,7 @@ or deferred records must return `no_sufficient_evidence` or `partial`.
 
 ## 11. Future Verification Requirements
 
-A later Phase 7C implementation must prove:
+A later Phase 7C implementation, if separately approved, must prove:
 
 - the retriever reads `artifacts/corpus-digest.json`
 - every searched source path appears in the digest
@@ -199,9 +204,11 @@ A later Phase 7C implementation must prove:
 - output is bounded by `max_results`
 - no private raw data, local absolute paths, secrets, live values, prompt
   transcripts, model outputs, or tool-call bodies are returned
-- no index, corpus artifact, embeddings, vector storage, external service, CI,
-  quality-gate integration, audit automation, MCP/Hermes behavior, release
-  automation, or downstream edit is added unless separately approved
+- no persistent index, corpus folder, retrieval folder, embeddings, vector
+  storage, external service, CI, quality-gate integration, audit automation,
+  MCP/Hermes behavior, release automation, downstream edit, artifact
+  regeneration, digest regeneration, or private/raw corpus ingestion is added
+  by default
 
 Suggested future tests should use synthetic digest fixtures and synthetic
 source files. They must not ingest private or downstream material.
@@ -244,14 +251,17 @@ Phase 7B closeout must report:
   ingestion occurred
 - next recommended step
 
-## 14. Next Task Prompt
+## 14. Future Phase 7C Request Template
+
+This is not standing approval to implement retrieval. It is a constrained
+request template for a future separately approved task.
 
 ```text
 Repository:
 esj1123/codex-dev-harness
 
 Task:
-Implement Phase 7C minimal local lexical retriever prototype.
+Propose or implement Phase 7C minimal local lexical retriever prototype.
 
 Goal:
 Implement the smallest local-only, read-only lexical retriever over
@@ -259,13 +269,16 @@ artifacts/corpus-digest.json and digest-listed repo-owned source files, using
 the Phase 7B implementation contract.
 
 Required boundaries:
+- separate owner approval is required before editing
 - exact allowed files and scripts must be approved in the task
 - local-only and read-only
 - no persistent index unless separately approved
-- no corpus folder, index folder, embeddings, vector DB, external service,
-  MCP/Hermes, AgentOps, memory runtime, release automation, downstream edit, or
-  digest regeneration
+- no corpus folder, retrieval folder, index folder, embeddings, vector DB,
+  external service, MCP/Hermes, AgentOps, memory runtime, CI integration,
+  quality-gate integration, release automation, downstream edit, artifact
+  regeneration, or digest regeneration
 - no private raw data, 08_Study raw notes, RSID raw evidence, downstream raw
-  evidence, prompt transcripts, model outputs, tool-call bodies, local absolute
-  paths, secrets, IPs, ports, live config, or device values
+  evidence, private/raw corpus ingestion, prompt transcripts, model outputs,
+  tool-call bodies, local absolute paths, secrets, IPs, ports, live config, or
+  device values
 ```

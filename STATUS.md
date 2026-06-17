@@ -63,7 +63,8 @@ authorize retrieval implementation. Phase 7B local RAG implementation contract
 is documented in `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md`; it defines the
 future retriever contract only and still does not add retrieval code, indexes,
 embeddings, vector storage, external services, MCP/Hermes, release automation,
-or downstream integration.
+or downstream integration. The Phase 7B Local Verify run passed for commit
+`ecdcae277ab8affaa63f2f7ebe629e73041a7a2c` with no artifacts uploaded.
 
 ## Current Verification Snapshot
 
@@ -93,6 +94,7 @@ Core foundation.
 | approved corpus digest Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `df51aac8c3a9b001c4d036633897f176b87c304d`; run `27522922010`; job `81344426960`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded |
 | local RAG design | PLANNED / DOCUMENTATION-ONLY | `docs/LOCAL_RAG_DESIGN.md` defines a future local-only, read-only lexical retriever over `artifacts/corpus-digest.json` and digest-listed repo-owned source files; advisory only; no RAG code, retrieval/index/corpus folder, embeddings, vector database, external service, CI or quality-gate integration, audit automation, digest regeneration, release automation, MCP/Hermes, or downstream integration added |
 | local RAG implementation contract | PRESENT / CONTRACT-ONLY | `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md` defines Phase 7B allowed inputs, forbidden inputs, output shape, citation rules, no-answer behavior, and future verification requirements; no retrieval code, index, corpus folder, retrieval folder, embeddings, vector database, external service, MCP/Hermes, release automation, digest regeneration, or downstream integration added |
+| Phase 7B Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `ecdcae277ab8affaa63f2f7ebe629e73041a7a2c`; run `27669744955`; job `81831232940`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded |
 | `csharp_desktop` local target experiment | PASS | `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md` |
 | `csharp_desktop` dry-run render | PASS | 16 Markdown documentation outputs planned in an outside-repo temporary target |
 | `csharp_desktop` actual render | PASS | 16 Markdown documentation outputs generated in an outside-repo temporary target; temporary target not committed |
@@ -702,14 +704,15 @@ sequencing handoff.
 
 The next recommended task is owner review of the Phase 7B local RAG
 implementation contract. Any later Phase 7C task may implement a minimal
-read-only lexical retriever only after separate approval, and must not add RAG
-runtime, retrieval, indexing, embeddings, vector storage, external services,
-MCP/Hermes, release automation, downstream integration, additional CI
-integration, artifact regeneration, digest regeneration, eval report
-generation, tag or release publication, deployment, or private/raw corpus
-ingestion unless separately approved. `08_Study` raw notes, RSID raw evidence,
-and downstream raw evidence remain excluded unless separately redacted and
-approved.
+local-only, read-only lexical retriever only after separate approval with exact
+allowed files and scripts. That approval would not, by default, authorize
+persistent index, corpus, or retrieval folders; embeddings; vector storage;
+external services; MCP/Hermes; AgentOps; memory runtime; release automation;
+downstream integration; CI or quality-gate integration; artifact regeneration;
+digest regeneration; eval report generation; tag or release publication;
+deployment; or private/raw corpus ingestion. `08_Study` raw notes, RSID raw
+evidence, and downstream raw evidence remain excluded unless separately
+redacted and approved.
 
 Treat Stage 5B stock probe records, optional CI/RAG/audit decisions, and the
 post-v0.1.0 evidence baseline as historical risk evidence for the roadmap, not
