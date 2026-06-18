@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+import hashlib
 import json
 from pathlib import Path, PurePosixPath
 import re
@@ -64,6 +65,7 @@ POSIX_ABSOLUTE_RE = re.compile(r"(^|\s)/(?:Users|home|etc|var|tmp|mnt|opt|root)\
 IPV4_RE = re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b")
 ASSIGNMENT_SECRET_RE = re.compile(r"(?i)\b(secret|token|password|credential|api[_-]?key)\s*[:=]\s*\S+")
 TOKEN_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{1,}")
+SHA256_HEX_RE = re.compile(r"^[0-9a-fA-F]{64}$")
 
 
 @dataclass(frozen=True)
@@ -74,6 +76,7 @@ class SourceEntry:
     risk_label: str
     content_class: str
     full_path: Path
+    text: str
     note: str
 
 
@@ -151,6 +154,20 @@ def metadata_reject_reason(item: dict[str, Any]) -> str | None:
     return None
 
 
+def normalize_source_text(text: str) -> str:
+    return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
+def validated_content_hash(value: Any) -> tuple[str | None, str | None]:
+    if not isinstance(value, str) or SHA256_HEX_RE.fullmatch(value) is None:
+        return None, "digest content_hash is malformed"
+    return value.lower(), None
+
+
+def read_normalized_source_text(path: Path) -> str:
+    return normalize_source_text(path.read_bytes().decode("utf-8"))
+
+
 def load_digest(repo_root: Path, digest_relative_path: str = DEFAULT_DIGEST_PATH) -> dict[str, Any]:
     digest_path = repo_root / digest_relative_path
     with digest_path.open("r", encoding="utf-8") as handle:
@@ -192,15 +209,32 @@ def source_entries(repo_root: Path, digest: dict[str, Any]) -> tuple[list[Source
         if full_path.is_symlink():
             safety_notes.append(f"rejected {normalized}: source file is a symlink")
             continue
+        content_hash, hash_reason = validated_content_hash(item.get("content_hash"))
+        if hash_reason is not None or content_hash is None:
+            safety_notes.append(f"rejected {normalized}: {hash_reason}")
+            continue
+        try:
+            text = read_normalized_source_text(full_path)
+        except UnicodeDecodeError:
+            safety_notes.append(f"rejected {normalized}: source file is not UTF-8 text")
+            continue
+        except OSError:
+            safety_notes.append(f"rejected {normalized}: source file cannot be read")
+            continue
+        computed_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
+        if computed_hash.lower() != content_hash.lower():
+            safety_notes.append(f"rejected {normalized}: source content_hash mismatch")
+            continue
 
         entries.append(
             SourceEntry(
                 source_path=normalized,
                 section_title=str(item.get("section_title") or "unknown"),
-                content_hash=str(item.get("content_hash") or ""),
+                content_hash=content_hash,
                 risk_label=str(item.get("risk_label") or "unknown"),
                 content_class=str(item.get("content_class") or "unknown"),
                 full_path=full_path,
+                text=text,
                 note=str(item.get("notes") or ""),
             )
         )
@@ -208,15 +242,8 @@ def source_entries(repo_root: Path, digest: dict[str, Any]) -> tuple[list[Source
     return entries, safety_notes
 
 
-def safe_read_source(entry: SourceEntry) -> str:
-    try:
-        return entry.full_path.read_text(encoding="utf-8", errors="ignore")
-    except OSError:
-        return ""
-
-
 def score_entry(entry: SourceEntry, query_terms: list[str], query_phrase: str) -> Match | None:
-    text = safe_read_source(entry)
+    text = entry.text
     if not text:
         return None
 

@@ -76,6 +76,10 @@ The Phase 7C retriever usage probe is documented in
 `docs/LOCAL_RAG_RETRIEVER_USAGE_PROBE.md`; representative queries exercised
 `found`, `no_sufficient_evidence`, and `blocked` behavior without requiring a
 runtime patch.
+Phase 7C.1 Retrieval Citation Integrity Guard requires each candidate source
+to match its digest `content_hash` before scoring or citation. It rejects
+malformed hashes and stale source/hash mismatches without refreshing or
+regenerating `artifacts/corpus-digest.json`.
 
 ## Current Verification Snapshot
 
@@ -108,6 +112,7 @@ Core foundation.
 | Phase 7B Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `ecdcae277ab8affaa63f2f7ebe629e73041a7a2c`; run `27669744955`; job `81831232940`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded |
 | Phase 7C minimal local lexical retriever v0 | IMPLEMENTED / STANDALONE | `scripts/local_rag_retriever.py` and `tests/test_local_rag_retriever.py`; standard-library-only, local-only, read-only, advisory JSON output over `artifacts/corpus-digest.json` and digest-listed repo-owned source files only; not wired into `scripts/quality_gate.py`, CI, release automation, audit automation, MCP/Hermes, AgentOps, memory runtime, or downstream integration |
 | Phase 7C retriever usage probe | PASS / REVIEW-ONLY | `docs/LOCAL_RAG_RETRIEVER_USAGE_PROBE.md`; safe representative queries exercised `found`, `no_sufficient_evidence`, and `blocked` behavior; cited sources were repo-relative and included digest content hashes; no runtime patch required |
+| Phase 7C.1 citation integrity guard | IMPLEMENTED / STANDALONE | `scripts/local_rag_retriever.py` validates each candidate source against a 64-hex digest `content_hash` after UTF-8 read and LF normalization, rejects malformed or stale hashes before scoring/citation, and keeps digest refresh separately approval-gated |
 | `csharp_desktop` local target experiment | PASS | `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md` |
 | `csharp_desktop` dry-run render | PASS | 16 Markdown documentation outputs planned in an outside-repo temporary target |
 | `csharp_desktop` actual render | PASS | 16 Markdown documentation outputs generated in an outside-repo temporary target; temporary target not committed |
@@ -651,6 +656,7 @@ Stage 0 current-main gap review basis:
 | local RAG implementation contract | PHASE 7B CONTRACT-ONLY | `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md`; defines allowed inputs as `artifacts/corpus-digest.json` plus digest-listed repo-owned source files only, forbids private/raw corpus inputs, defines advisory lexical output shape, citation rules, no-answer behavior, and future verification requirements; no retrieval code, corpus/index/retrieval folder, embeddings, vector DB, external service, MCP/Hermes, AgentOps, memory runtime, release automation, artifact regeneration, digest regeneration, or downstream integration added |
 | minimal local lexical retriever | PHASE 7C IMPLEMENTED / STANDALONE | `scripts/local_rag_retriever.py` reads `artifacts/corpus-digest.json`, validates repo-relative digest-listed source paths, reads only eligible repo-owned source files, returns bounded advisory JSON citations with digest content hashes, and implements `found`, `no_sufficient_evidence`, and `blocked`; `tests/test_local_rag_retriever.py` uses synthetic fixtures; no persistent index, corpus/retrieval/index folder, embeddings, vector DB, external service, quality-gate or CI integration, audit automation, release automation, artifact regeneration, digest regeneration, downstream edit, MCP/Hermes, AgentOps, memory runtime, or private/raw corpus ingestion added |
 | local retriever usage probe | PASS / REVIEW-ONLY | `docs/LOCAL_RAG_RETRIEVER_USAGE_PROBE.md` records safe representative query behavior for `found`, `no_sufficient_evidence`, and `blocked`; source citations are repo-relative with digest hashes; no retriever runtime expansion or patch required |
+| local retriever citation integrity | PHASE 7C.1 IMPLEMENTED / STANDALONE | Candidate sources are UTF-8 read, LF-normalized without trimming trailing whitespace, SHA-256 checked against 64-hex digest hashes, and rejected before scoring/citation on malformed or stale hashes; no digest refresh, artifact regeneration, integration, persistent index, embeddings, vector DB, external service, or downstream change added |
 | model and prompt change planning | ADDED | `docs/MODEL_CHANGE_POLICY.md` defines model, prompt template, eval run, corpus digest, side-effect class, and compare-before-adopt controls; no model comparison or capture tooling added |
 | optional release verification CI template | TEMPLATE ONLY / DEFERRED | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`, `docs/OPTIONAL_GITHUB_ACTIONS.md`, and `templates/ci/*.template` exist; no release verification workflow, required checks, artifact upload, publishing, signing, tag movement, deployment, application code, or live-write behavior |
 | additional local target experiment plans | PARTIAL EXECUTED | `docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md` was executed once with explicit approval and recorded in `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md`; `docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md` remains planning-only |

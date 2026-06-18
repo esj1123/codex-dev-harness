@@ -154,6 +154,12 @@ Every retrieval-backed answer must cite:
 - risk label
 - current-vs-historical status
 
+Citation integrity requires the retriever to verify each candidate source
+against its digest `content_hash` before scoring or citation. The source text
+must be read as UTF-8, CRLF/CR normalized to LF without trimming trailing
+whitespace, hashed with SHA-256 over the normalized UTF-8 bytes, and rejected
+on malformed digest hashes or hash mismatch.
+
 Short snippets are allowed only when the source is digest-listed, repo-owned,
 and safe to quote. Prefer summaries when quoting would copy too much source
 text or risk exposing policy-only sensitive terms out of context.
@@ -199,6 +205,8 @@ A later Phase 7C implementation, if separately approved, must prove:
 - every searched source path is repo-relative
 - forbidden path classes are rejected
 - missing sources are handled without broadening scope
+- malformed digest hashes and source hash mismatches are rejected before
+  scoring or citation
 - output includes citations for every matched source
 - output includes digest content hashes
 - output is bounded by `max_results`
