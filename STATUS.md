@@ -80,6 +80,15 @@ Phase 7C.1 Retrieval Citation Integrity Guard requires each candidate source
 to match its digest `content_hash` before scoring or citation. It rejects
 malformed hashes and stale source/hash mismatches without refreshing or
 regenerating `artifacts/corpus-digest.json`.
+The Phase 7C.1 Local Verify evidence is recorded as workflow run
+`27758859490`, job `82127653462`, for commit
+`02dda7aab51352cc887786228605a4b72e5f8de0`, with PASS conclusion.
+Phase 7C.2A Retrieval Logical Verification is documented in
+`docs/LOCAL_RAG_RETRIEVER_LOGICAL_VERIFICATION.md`. It is review-only and
+documents that current retriever behavior is safe under the citation-integrity
+guard, while usability is limited by stale current-authority digest hashes.
+Decision: `digest_refresh_required`. This did not refresh the digest, patch the
+retriever runtime, or add CI/query-matrix automation.
 
 ## Current Verification Snapshot
 
@@ -113,6 +122,8 @@ Core foundation.
 | Phase 7C minimal local lexical retriever v0 | IMPLEMENTED / STANDALONE | `scripts/local_rag_retriever.py` and `tests/test_local_rag_retriever.py`; standard-library-only, local-only, read-only, advisory JSON output over `artifacts/corpus-digest.json` and digest-listed repo-owned source files only; not wired into `scripts/quality_gate.py`, CI, release automation, audit automation, MCP/Hermes, AgentOps, memory runtime, or downstream integration |
 | Phase 7C retriever usage probe | PASS / REVIEW-ONLY | `docs/LOCAL_RAG_RETRIEVER_USAGE_PROBE.md`; safe representative queries exercised `found`, `no_sufficient_evidence`, and `blocked` behavior; cited sources were repo-relative and included digest content hashes; no runtime patch required |
 | Phase 7C.1 citation integrity guard | IMPLEMENTED / STANDALONE | `scripts/local_rag_retriever.py` validates each candidate source against a 64-hex digest `content_hash` after UTF-8 read and LF normalization, rejects malformed or stale hashes before scoring/citation, and keeps digest refresh separately approval-gated |
+| Phase 7C.1 Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `02dda7aab51352cc887786228605a4b72e5f8de0`; run `27758859490`; job `82127653462` |
+| Phase 7C.2A retrieval logical verification | PASS WITH NOTES / REVIEW-ONLY | `docs/LOCAL_RAG_RETRIEVER_LOGICAL_VERIFICATION.md`; corpus inventory found 32 digest sources, 24 eligible sources after citation-integrity checks, and 8 stale current-authority sources; query matrix confirmed safe blocked/no-answer/deterministic/bounded behavior; decision is `digest_refresh_required`; no runtime patch, digest refresh, CI integration, artifact regeneration, commit, push, tag, or release performed |
 | `csharp_desktop` local target experiment | PASS | `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md` |
 | `csharp_desktop` dry-run render | PASS | 16 Markdown documentation outputs planned in an outside-repo temporary target |
 | `csharp_desktop` actual render | PASS | 16 Markdown documentation outputs generated in an outside-repo temporary target; temporary target not committed |
@@ -657,6 +668,7 @@ Stage 0 current-main gap review basis:
 | minimal local lexical retriever | PHASE 7C IMPLEMENTED / STANDALONE | `scripts/local_rag_retriever.py` reads `artifacts/corpus-digest.json`, validates repo-relative digest-listed source paths, reads only eligible repo-owned source files, returns bounded advisory JSON citations with digest content hashes, and implements `found`, `no_sufficient_evidence`, and `blocked`; `tests/test_local_rag_retriever.py` uses synthetic fixtures; no persistent index, corpus/retrieval/index folder, embeddings, vector DB, external service, quality-gate or CI integration, audit automation, release automation, artifact regeneration, digest regeneration, downstream edit, MCP/Hermes, AgentOps, memory runtime, or private/raw corpus ingestion added |
 | local retriever usage probe | PASS / REVIEW-ONLY | `docs/LOCAL_RAG_RETRIEVER_USAGE_PROBE.md` records safe representative query behavior for `found`, `no_sufficient_evidence`, and `blocked`; source citations are repo-relative with digest hashes; no retriever runtime expansion or patch required |
 | local retriever citation integrity | PHASE 7C.1 IMPLEMENTED / STANDALONE | Candidate sources are UTF-8 read, LF-normalized without trimming trailing whitespace, SHA-256 checked against 64-hex digest hashes, and rejected before scoring/citation on malformed or stale hashes; no digest refresh, artifact regeneration, integration, persistent index, embeddings, vector DB, external service, or downstream change added |
+| local retriever logical verification | PHASE 7C.2A PASS WITH NOTES / REVIEW-ONLY | `docs/LOCAL_RAG_RETRIEVER_LOGICAL_VERIFICATION.md` records corpus freshness inventory, query matrix behavior, citation/excerpt integrity findings, authority handling, determinism, bounded output, forbidden-query behavior, and multilingual limits; decision is `digest_refresh_required`; no runtime patch, digest refresh, artifact regeneration, quality-gate or CI integration, commit, push, tag, release, downstream edit, private/raw corpus ingestion, or generated corpus artifact added |
 | model and prompt change planning | ADDED | `docs/MODEL_CHANGE_POLICY.md` defines model, prompt template, eval run, corpus digest, side-effect class, and compare-before-adopt controls; no model comparison or capture tooling added |
 | optional release verification CI template | TEMPLATE ONLY / DEFERRED | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`, `docs/OPTIONAL_GITHUB_ACTIONS.md`, and `templates/ci/*.template` exist; no release verification workflow, required checks, artifact upload, publishing, signing, tag movement, deployment, application code, or live-write behavior |
 | additional local target experiment plans | PARTIAL EXECUTED | `docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md` was executed once with explicit approval and recorded in `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md`; `docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md` remains planning-only |
@@ -723,10 +735,12 @@ Stage 0 current-main gap review basis:
 Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
 sequencing handoff.
 
-The next recommended task is a separately approved downstream usage probe or
-Phase 7D retrieval evidence planning for the Phase 7C minimal local lexical
-retriever. Any later Phase 7D retrieval evidence or receipt work requires
-separate approval with exact allowed files and scripts. Phase 7C does not, by
+The next recommended task is a separately approved corpus digest refresh for
+`artifacts/corpus-digest.json`, using the approved corpus basis and current
+source files, before further retriever runtime changes or Phase 7D retrieval
+evidence planning. Any later digest refresh, corpus allow-list expansion,
+Phase 7D retrieval evidence, or receipt work requires separate approval with
+exact allowed files and scripts. Phase 7C does not, by
 default, authorize persistent index, corpus, or retrieval folders; embeddings;
 vector storage; external services; MCP/Hermes; AgentOps; memory runtime;
 release automation; downstream integration; CI or quality-gate integration;
