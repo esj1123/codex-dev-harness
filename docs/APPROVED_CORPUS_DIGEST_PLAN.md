@@ -631,6 +631,54 @@ MCP/Hermes implementation, release automation, or downstream integration.
 excluded. The Phase 6E section remains the historical task contract; this
 Phase 6F closeout records the later approved artifact generation state.
 
+### Phase 6G digest check/refresh tool boundary
+
+The approved-corpus digest check/refresh tool exists at
+`scripts/generate_corpus_digest.py`, with focused synthetic tests in
+`tests/test_generate_corpus_digest.py`.
+
+Default mode is read-only check:
+
+`python scripts/generate_corpus_digest.py --check --json`
+
+Check mode reviews the existing digest and digest-listed source files. It must
+not modify `artifacts/corpus-digest.json`.
+
+Write mode is present as a guarded tool capability, but it is not standing
+approval to refresh the artifact. Write mode may target only the exact
+canonical path:
+
+`artifacts/corpus-digest.json`
+
+Write mode requires:
+
+- a non-empty approval reference;
+- the exact existing digest source membership and ordering;
+- repo-relative POSIX source paths only;
+- no automatic source discovery;
+- no glob expansion;
+- no allow-list expansion;
+- SHA-256 over UTF-8 text with CRLF/CR normalized to LF;
+- missing, unsafe, symlink, or invalid UTF-8 sources to block write;
+- the current HEAD commit to be available;
+- every digest-listed source to be tracked in HEAD;
+- no staged or unstaged changes in any digest-listed source path.
+
+The source-basis rule is:
+
+`recorded git_sha = commit whose tracked source content is being hashed`
+
+The refresh tool must not treat a source-hash refresh as proof that JSON
+validation, safety scanning, quality gate, release verification, or checksum
+coverage passed. If the tool does not run a scan or gate, generated metadata
+must say that it was not run rather than reporting zero findings.
+
+Post-write verification for a future approved Phase 6G refresh must include
+explicit JSON validation, explicit safety scan, full local verification, owner
+review, and separate approval before commit. Phase 6G digest refresh remains a
+separately approved task; this boundary does not authorize artifact
+regeneration.
+
 ## 9. Redaction and encoding checks
 
 Before any source is approved for digest inclusion, a future task must check:

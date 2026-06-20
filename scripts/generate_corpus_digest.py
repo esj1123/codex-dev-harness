@@ -99,6 +99,17 @@ def current_git_sha(repo_root: Path) -> str:
     return result.stdout.strip() or "UNKNOWN"
 
 
+def git_stdout(repo_root: Path, args: list[str]) -> str:
+    result = subprocess.run(
+        ["git", *args],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return result.stdout
+
+
 def normalize_text(text: str) -> str:
     return text.replace("\r\n", "\n").replace("\r", "\n")
 
@@ -128,6 +139,29 @@ def write_digest(digest: dict[str, Any], digest_path: Path) -> None:
 
 def is_absolute_path_text(path_text: str) -> bool:
     return path_text.startswith("/") or path_text.startswith("\\") or bool(WINDOWS_ABSOLUTE_RE.match(path_text))
+
+
+def validate_cli_digest_path(repo_root: Path, value: Any, *, write: bool) -> Path:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("digest path must be a non-empty string")
+    raw = value.strip()
+    if "\\" in raw:
+        raise ValueError("digest path must use repo-relative POSIX separators")
+    if is_absolute_path_text(raw):
+        raise ValueError("digest path must be repository-relative")
+    parts = raw.split("/")
+    if not parts or any(part in {"", ".", ".."} for part in parts):
+        raise ValueError("digest path uses parent traversal or an empty/dot path part")
+    if write and raw != DEFAULT_DIGEST_PATH:
+        raise ValueError(f"write mode only permits {DEFAULT_DIGEST_PATH}")
+
+    root = repo_root.resolve()
+    resolved = (root / raw).resolve(strict=False)
+    try:
+        resolved.relative_to(root)
+    except ValueError as exc:
+        raise ValueError("digest path resolves outside the repository") from exc
+    return resolved
 
 
 def validate_repo_relative_source_path(value: Any) -> tuple[str | None, str | None]:
@@ -213,6 +247,62 @@ def check_sources(repo_root: Path, digest: dict[str, Any]) -> list[SourceCheck]:
     return [check_source(repo_root, item, digest_algorithm) for item in digest["sources"]]
 
 
+def digest_source_paths(digest: dict[str, Any]) -> list[str]:
+    paths: list[str] = []
+    for item in digest["sources"]:
+        if not isinstance(item, dict):
+            raise ValueError("cannot verify source basis: source entry is not an object")
+        normalized, path_reason = validate_repo_relative_source_path(item.get("source_path"))
+        if path_reason is not None or normalized is None:
+            raise ValueError(f"cannot verify source basis: {path_reason}")
+        paths.append(normalized)
+    if not paths:
+        raise ValueError("cannot verify source basis: digest source list is empty")
+    return paths
+
+
+def unique_preserving_order(values: list[str]) -> list[str]:
+    return list(dict.fromkeys(values))
+
+
+def git_changed_paths(repo_root: Path, args: list[str], source_paths: list[str]) -> list[str]:
+    output = git_stdout(repo_root, [*args, "--", *source_paths])
+    return [line.strip() for line in output.splitlines() if line.strip()]
+
+
+def require_clean_digest_source_basis(repo_root: Path, digest: dict[str, Any]) -> str:
+    head = current_git_sha(repo_root)
+    if head == "UNKNOWN":
+        raise ValueError("cannot write digest: current HEAD is unavailable")
+
+    source_paths = unique_preserving_order(digest_source_paths(digest))
+    missing_from_head: list[str] = []
+    for source_path in source_paths:
+        try:
+            git_stdout(repo_root, ["cat-file", "-e", f"{head}:{source_path}"])
+        except (OSError, subprocess.CalledProcessError):
+            missing_from_head.append(source_path)
+    if missing_from_head:
+        raise ValueError(
+            "cannot write digest: digest-listed source is not present in HEAD: "
+            + ", ".join(missing_from_head)
+        )
+
+    try:
+        staged = git_changed_paths(repo_root, ["diff", "--cached", "--name-only"], source_paths)
+        unstaged = git_changed_paths(repo_root, ["diff", "--name-only"], source_paths)
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise ValueError("cannot write digest: source-basis git diff check failed") from exc
+
+    changed = sorted(set(staged + unstaged))
+    if changed:
+        raise ValueError(
+            "cannot write digest: digest-listed source differs from HEAD: "
+            + ", ".join(changed)
+        )
+    return head
+
+
 def build_report(digest: dict[str, Any], checks: list[SourceCheck], *, mode: str) -> dict[str, Any]:
     counts = Counter(check.status for check in checks)
     source_count = len(checks)
@@ -276,11 +366,13 @@ def build_refreshed_digest(
         "excluded_path_status": "pass_no_excluded_sources",
         "encoding_status": "pass_utf8_readable",
         "content_boundary_status": "pass_metadata_and_hashes_only",
-        "source_scan_status": "not_rerun_by_refresh_tool",
-        "local_path_match_count": 0,
-        "ip_like_match_count": 0,
-        "assignment_like_match_count": 0,
-        "boundary_phrase_match_count": digest.get("precheck_summary", {}).get("boundary_phrase_match_count", 0),
+        "source_scan_status": "not_run_by_refresh_tool",
+        "safety_scan_status": "not_run_by_refresh_tool",
+        "local_path_match_count": None,
+        "ip_like_match_count": None,
+        "assignment_like_match_count": None,
+        "boundary_phrase_match_count": None,
+        "boundary_phrase_match_count_status": "not_run_by_refresh_tool",
     }
 
     for item in refreshed["sources"]:
@@ -292,20 +384,30 @@ def build_refreshed_digest(
 
     if isinstance(refreshed.get("closeout"), dict):
         closeout = refreshed["closeout"]
-        closeout["status_label"] = "PASS"
+        closeout["status_label"] = "PASS WITH NOTES"
         closeout["artifact_generation_status"] = "refreshed"
         closeout["artifact_commit_status"] = "not_committed_pending_owner_review"
         closeout["source_count"] = len(checks)
-        closeout["precheck_result"] = "PASS"
+        closeout["precheck_result"] = "PASS_WITH_NOT_RUN_SCAN_NOTES"
         closeout["json_validation_status"] = "not_run_by_refresh_tool"
-        closeout["safety_scan_status"] = "not_rerun_by_refresh_tool"
+        closeout["safety_scan_status"] = "not_run_by_refresh_tool"
+        closeout["quality_gate_status"] = "not_run_by_refresh_tool"
         closeout["release_artifact_status"] = refreshed.get("release_artifact_status")
         closeout["rag_authorization_status"] = refreshed.get("rag_authorization_status")
         closeout["push_status"] = "not_pushed"
         closeout["tag_status"] = "not_created"
         closeout["release_status"] = "not_published"
-        closeout["unresolved_risks"] = ["Owner review required before local commit."]
-        closeout["next_step"] = "Owner review, then approve local commit if accepted."
+        closeout["unresolved_risks"] = [
+            "Owner review required.",
+            "Explicit post-write JSON validation required.",
+            "Explicit post-write safety scan required.",
+            "Full local verification required.",
+            "Separate approval required before commit.",
+        ]
+        closeout["next_step"] = (
+            "Owner review, explicit JSON validation, explicit safety scan, full local "
+            "verification, then separate approval before commit."
+        )
 
     return refreshed
 
@@ -318,14 +420,20 @@ def write_refreshed_digest(
     git_sha: str | None = None,
     generated_at: str | None = None,
 ) -> dict[str, Any]:
-    if not approval_ref:
+    if not approval_ref or not approval_ref.strip():
         raise ValueError("--write requires --approval-ref")
     digest = load_digest(digest_path)
     checks = check_sources(repo_root, digest)
+    blocking = [check for check in checks if check.status in {"missing", "invalid_utf8", "unsafe"}]
+    if blocking:
+        raise ValueError("cannot write digest while sources are missing, unsafe, or invalid UTF-8")
+    source_basis_sha = require_clean_digest_source_basis(repo_root, digest)
+    if git_sha is not None and git_sha != source_basis_sha:
+        raise ValueError("--git-sha cannot override the current clean source-basis commit")
     refreshed = build_refreshed_digest(
         digest,
         checks,
-        git_sha=git_sha or current_git_sha(repo_root),
+        git_sha=source_basis_sha,
         generated_at=generated_at or utc_now(),
         approval_ref=approval_ref,
     )
@@ -350,9 +458,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     repo_root = Path(args.repo_root).resolve() if args.repo_root else repo_root_from_script()
-    digest_path = repo_root / args.digest_path
     try:
         if args.write:
+            digest_path = validate_cli_digest_path(repo_root, args.digest_path, write=True)
             report = write_refreshed_digest(
                 repo_root,
                 digest_path,
@@ -360,6 +468,7 @@ def main(argv: list[str] | None = None) -> int:
                 git_sha=args.git_sha,
             )
         else:
+            digest_path = validate_cli_digest_path(repo_root, args.digest_path, write=False)
             report = check_digest(repo_root, digest_path)
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         parser.exit(2, f"error: {exc}\n")

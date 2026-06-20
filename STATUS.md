@@ -56,7 +56,13 @@ recorded inside the artifact is `37a0e7274ae2cd0a50811c138147a37c1b4c0160`.
 The digest is not a release artifact unless separately approved and does not
 authorize RAG. No corpus folder, retrieval folder, index folder, embeddings,
 vector database, external service, MCP/Hermes implementation, release
-automation, or downstream integration was added. Phase 7A local RAG design /
+automation, or downstream integration was added. Phase 6G digest check/refresh
+tooling is present as `scripts/generate_corpus_digest.py` with focused
+synthetic tests in `tests/test_generate_corpus_digest.py`. Check mode is
+read-only and reviewable. Write mode is guarded, restricted to
+`artifacts/corpus-digest.json`, requires a clean digest-listed source basis,
+and is not authorized for the real repository until a separately approved
+Phase 6G digest refresh task. Phase 7A local RAG design /
 read-only lexical retriever planning is documented in
 `docs/LOCAL_RAG_DESIGN.md`; it remains documentation-only and does not
 authorize retrieval implementation. Phase 7B local RAG implementation contract
@@ -87,8 +93,12 @@ Phase 7C.2A Retrieval Logical Verification is documented in
 `docs/LOCAL_RAG_RETRIEVER_LOGICAL_VERIFICATION.md`. It is review-only and
 documents that current retriever behavior is safe under the citation-integrity
 guard, while usability is limited by stale current-authority digest hashes.
-Decision: `digest_refresh_required`. This did not refresh the digest, patch the
-retriever runtime, or add CI/query-matrix automation.
+Decision: `digest_refresh_required`. The final tracked commit
+`f2e270fdd704b6a6f7cc7a1e4e06b08612ef9587` also included the digest tooling
+files, so the recorded scope is reconciled as broader than the intended
+three-document review-only change. The real digest artifact remains stale and
+unchanged; no retriever runtime patch, digest refresh, or CI/query-matrix
+automation was added.
 
 ## Current Verification Snapshot
 
@@ -116,6 +126,7 @@ Core foundation.
 | eval / report integration | PHASE 5B RECEIPT-ALIGNED / STANDALONE | `scripts/run_eval.py`, `tests/test_run_eval.py`, `docs/EVAL_REPORT_INTEGRATION_PLAN.md`, `docs/EVAL_INTEGRATION_DECISION.md`, `docs/EVAL_POLICY.md`, and `audits/receipt-summary.schema.json`; legacy `--report` remains backward-compatible, paired `--summary-report` / `--cases-report` outputs are explicit opt-in only, receipts may cite split eval evidence by repo-relative path and SHA-256, and evals remain separate from `scripts/quality_gate.py`, CI, and release-blocking behavior |
 | approved corpus digest | GENERATED / VERIFIED | `artifacts/corpus-digest.json`; `artifact_type` is `approved_corpus_digest`; source count is 32; artifact-containing commit `df51aac8c3a9b001c4d036633897f176b87c304d`; source-basis commit `37a0e7274ae2cd0a50811c138147a37c1b4c0160`; metadata/hash-only; `release_artifact_status` is `not_release_artifact_without_separate_approval`; `rag_authorization_status` is `not_authorized` |
 | approved corpus digest Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `df51aac8c3a9b001c4d036633897f176b87c304d`; run `27522922010`; job `81344426960`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded |
+| Phase 6G digest tooling boundary | IMPLEMENTED / WRITE-GATED | `scripts/generate_corpus_digest.py` and `tests/test_generate_corpus_digest.py`; default check mode is read-only; write mode is restricted to `artifacts/corpus-digest.json`, requires a non-empty approval reference and clean digest-listed source basis, preserves exact source membership and ordering, and records scans/gates as not run when not executed; real-repository write remains not authorized until a separate Phase 6G refresh task |
 | local RAG design | PLANNED / DOCUMENTATION-ONLY | `docs/LOCAL_RAG_DESIGN.md` defines a future local-only, read-only lexical retriever over `artifacts/corpus-digest.json` and digest-listed repo-owned source files; advisory only; no RAG code, retrieval/index/corpus folder, embeddings, vector database, external service, CI or quality-gate integration, audit automation, digest regeneration, release automation, MCP/Hermes, or downstream integration added |
 | local RAG implementation contract | PRESENT / CONTRACT-ONLY | `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md` defines Phase 7B allowed inputs, forbidden inputs, output shape, citation rules, no-answer behavior, and future verification requirements; no retrieval code, index, corpus folder, retrieval folder, embeddings, vector database, external service, MCP/Hermes, release automation, digest regeneration, or downstream integration added |
 | Phase 7B Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `ecdcae277ab8affaa63f2f7ebe629e73041a7a2c`; run `27669744955`; job `81831232940`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded |
@@ -123,7 +134,7 @@ Core foundation.
 | Phase 7C retriever usage probe | PASS / REVIEW-ONLY | `docs/LOCAL_RAG_RETRIEVER_USAGE_PROBE.md`; safe representative queries exercised `found`, `no_sufficient_evidence`, and `blocked` behavior; cited sources were repo-relative and included digest content hashes; no runtime patch required |
 | Phase 7C.1 citation integrity guard | IMPLEMENTED / STANDALONE | `scripts/local_rag_retriever.py` validates each candidate source against a 64-hex digest `content_hash` after UTF-8 read and LF normalization, rejects malformed or stale hashes before scoring/citation, and keeps digest refresh separately approval-gated |
 | Phase 7C.1 Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `02dda7aab51352cc887786228605a4b72e5f8de0`; run `27758859490`; job `82127653462` |
-| Phase 7C.2A retrieval logical verification | PASS WITH NOTES / REVIEW-ONLY | `docs/LOCAL_RAG_RETRIEVER_LOGICAL_VERIFICATION.md`; corpus inventory found 32 digest sources, 24 eligible sources after citation-integrity checks, and 8 stale current-authority sources; query matrix confirmed safe blocked/no-answer/deterministic/bounded behavior; decision is `digest_refresh_required`; no runtime patch, digest refresh, CI integration, artifact regeneration, commit, push, tag, or release performed |
+| Phase 7C.2A retrieval logical verification | PASS WITH NOTES / SCOPE RECONCILED | `docs/LOCAL_RAG_RETRIEVER_LOGICAL_VERIFICATION.md`; corpus inventory found 32 digest sources, 24 eligible sources after citation-integrity checks, and 8 stale current-authority sources; query matrix confirmed safe blocked/no-answer/deterministic/bounded behavior; decision is `digest_refresh_required`; final tracked commit `f2e270fdd704b6a6f7cc7a1e4e06b08612ef9587` also included `scripts/generate_corpus_digest.py` and `tests/test_generate_corpus_digest.py`; Local Verify run `27795560350`, job `82254434101`, passed with tests, quality gate, and three render dry-runs; no artifacts uploaded |
 | `csharp_desktop` local target experiment | PASS | `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md` |
 | `csharp_desktop` dry-run render | PASS | 16 Markdown documentation outputs planned in an outside-repo temporary target |
 | `csharp_desktop` actual render | PASS | 16 Markdown documentation outputs generated in an outside-repo temporary target; temporary target not committed |
@@ -663,12 +674,13 @@ Stage 0 current-main gap review basis:
 | SBOM/provenance generation | IMPLEMENTED MINIMAL LOCAL | Standard-library-only SPDX, CycloneDX, and in-toto-style provenance generators and artifacts added; output paths reject release-evidence overlap; no external metadata lookup, signing, archive, CI-based generation, tag, release publication, application, or live-write behavior |
 | release verification wrapper | IMPLEMENTED LOCAL | `scripts/run_release_verify.ps1` runs local verification, optional standalone eval, manifest generation, bootstrap checksum generation, optional SBOM/provenance generation, strict final full-bundle checksum regeneration, and artifact path reporting; no archive, release CI workflow, signing, publication, tag movement, application, or live-write behavior |
 | approved-corpus digest | GENERATED / VERIFIED | `docs/APPROVED_CORPUS_DIGEST_PLAN.md` defines candidate classes, required metadata, risk labels, forbidden corpus, digest/hash policy, redaction/encoding checks, source path policy, `08_Study` limits, and RSID/downstream evidence limits; `artifacts/corpus-digest.json` now records a metadata/hash-only digest with 32 sources; artifact-containing commit `df51aac8c3a9b001c4d036633897f176b87c304d`; source-basis commit `37a0e7274ae2cd0a50811c138147a37c1b4c0160`; Local Verify run `27522922010` / job `81344426960` passed; no corpus folder, retrieval/index tooling, embeddings, vector storage, external service, CI or quality-gate integration, or RAG implementation added |
+| approved-corpus digest tooling | PHASE 6G BOUNDARY HARDENED / WRITE NOT AUTHORIZED | `scripts/generate_corpus_digest.py` and `tests/test_generate_corpus_digest.py` provide check/refresh tooling; check mode is read-only; write mode is guarded by canonical output path, approval reference, source safety checks, and clean digest-listed source-basis checks; refresh metadata records scan/gate evidence as not run when not executed; `artifacts/corpus-digest.json` remains unchanged and stale pending separate Phase 6G refresh approval |
 | approved-corpus RAG planning | ADDED / NEXT PLANNING TARGET | `docs/APPROVED_CORPUS_RAG_PLAN.md` defines candidate safe corpus files, required metadata, forbidden corpus, and corpus-expansion approval checkpoints; the Phase 6F digest artifact does not authorize retrieval/index tooling, embeddings, vector storage, external service use, MCP/Hermes implementation, release automation, or downstream integration |
 | local RAG implementation contract | PHASE 7B CONTRACT-ONLY | `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md`; defines allowed inputs as `artifacts/corpus-digest.json` plus digest-listed repo-owned source files only, forbids private/raw corpus inputs, defines advisory lexical output shape, citation rules, no-answer behavior, and future verification requirements; no retrieval code, corpus/index/retrieval folder, embeddings, vector DB, external service, MCP/Hermes, AgentOps, memory runtime, release automation, artifact regeneration, digest regeneration, or downstream integration added |
 | minimal local lexical retriever | PHASE 7C IMPLEMENTED / STANDALONE | `scripts/local_rag_retriever.py` reads `artifacts/corpus-digest.json`, validates repo-relative digest-listed source paths, reads only eligible repo-owned source files, returns bounded advisory JSON citations with digest content hashes, and implements `found`, `no_sufficient_evidence`, and `blocked`; `tests/test_local_rag_retriever.py` uses synthetic fixtures; no persistent index, corpus/retrieval/index folder, embeddings, vector DB, external service, quality-gate or CI integration, audit automation, release automation, artifact regeneration, digest regeneration, downstream edit, MCP/Hermes, AgentOps, memory runtime, or private/raw corpus ingestion added |
 | local retriever usage probe | PASS / REVIEW-ONLY | `docs/LOCAL_RAG_RETRIEVER_USAGE_PROBE.md` records safe representative query behavior for `found`, `no_sufficient_evidence`, and `blocked`; source citations are repo-relative with digest hashes; no retriever runtime expansion or patch required |
 | local retriever citation integrity | PHASE 7C.1 IMPLEMENTED / STANDALONE | Candidate sources are UTF-8 read, LF-normalized without trimming trailing whitespace, SHA-256 checked against 64-hex digest hashes, and rejected before scoring/citation on malformed or stale hashes; no digest refresh, artifact regeneration, integration, persistent index, embeddings, vector DB, external service, or downstream change added |
-| local retriever logical verification | PHASE 7C.2A PASS WITH NOTES / REVIEW-ONLY | `docs/LOCAL_RAG_RETRIEVER_LOGICAL_VERIFICATION.md` records corpus freshness inventory, query matrix behavior, citation/excerpt integrity findings, authority handling, determinism, bounded output, forbidden-query behavior, and multilingual limits; decision is `digest_refresh_required`; no runtime patch, digest refresh, artifact regeneration, quality-gate or CI integration, commit, push, tag, release, downstream edit, private/raw corpus ingestion, or generated corpus artifact added |
+| local retriever logical verification | PHASE 7C.2A PASS WITH NOTES / SCOPE RECONCILED | `docs/LOCAL_RAG_RETRIEVER_LOGICAL_VERIFICATION.md` records corpus freshness inventory, query matrix behavior, citation/excerpt integrity findings, authority handling, determinism, bounded output, forbidden-query behavior, and multilingual limits; decision is `digest_refresh_required`; final tracked commit `f2e270fdd704b6a6f7cc7a1e4e06b08612ef9587` included the digest tool and tests as broader-than-intended scope; no runtime patch, digest refresh, artifact regeneration, quality-gate or CI integration, tag, release, downstream edit, private/raw corpus ingestion, or generated corpus artifact added |
 | model and prompt change planning | ADDED | `docs/MODEL_CHANGE_POLICY.md` defines model, prompt template, eval run, corpus digest, side-effect class, and compare-before-adopt controls; no model comparison or capture tooling added |
 | optional release verification CI template | TEMPLATE ONLY / DEFERRED | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`, `docs/OPTIONAL_GITHUB_ACTIONS.md`, and `templates/ci/*.template` exist; no release verification workflow, required checks, artifact upload, publishing, signing, tag movement, deployment, application code, or live-write behavior |
 | additional local target experiment plans | PARTIAL EXECUTED | `docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md` was executed once with explicit approval and recorded in `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md`; `docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md` remains planning-only |
@@ -735,10 +747,12 @@ Stage 0 current-main gap review basis:
 Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
 sequencing handoff.
 
-The next recommended task is a separately approved corpus digest refresh for
-`artifacts/corpus-digest.json`, using the approved corpus basis and current
-source files, before further retriever runtime changes or Phase 7D retrieval
-evidence planning. Any later digest refresh, corpus allow-list expansion,
+The next recommended task is a separately approved Phase 6G corpus digest
+refresh for `artifacts/corpus-digest.json`, using the approved corpus basis and
+current source files, before further retriever runtime changes or Phase 7D
+retrieval evidence planning. The digest check/refresh tool is present and
+write-gated, but real-repository write is not yet authorized. Any later digest
+refresh, corpus allow-list expansion,
 Phase 7D retrieval evidence, or receipt work requires separate approval with
 exact allowed files and scripts. Phase 7C does not, by
 default, authorize persistent index, corpus, or retrieval folders; embeddings;

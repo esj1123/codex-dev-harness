@@ -35,26 +35,31 @@ Out of scope:
 | item | value |
 |---|---|
 | branch/ref | `main` / `origin/main` |
-| expected HEAD | `02dda7aab51352cc887786228605a4b72e5f8de0` |
-| observed HEAD | `02dda7aab51352cc887786228605a4b72e5f8de0` |
-| tracked diff before review edits | none |
-| pre-existing untracked files | `scripts/generate_corpus_digest.py`; `tests/test_generate_corpus_digest.py` |
-| pre-existing untracked-file classification | Stage 1 digest tooling from a prior task; unrelated to this review and not edited, staged, committed, or absorbed |
+| logical review starting HEAD | `02dda7aab51352cc887786228605a4b72e5f8de0` |
+| scope reconciliation basis HEAD | `f2e270fdd704b6a6f7cc7a1e4e06b08612ef9587` |
+| tracked diff before logical review edits | none |
+| beginning-of-review untracked files | `scripts/generate_corpus_digest.py`; `tests/test_generate_corpus_digest.py` |
+| beginning-of-review classification | pre-existing untracked local work of unverified prior task provenance; not edited by the logical review |
+| final tracked commit | `f2e270fdd704b6a6f7cc7a1e4e06b08612ef9587` |
+| final tracked scope note | final commit includes the three Phase 7C.2A documentation files plus `scripts/generate_corpus_digest.py` and `tests/test_generate_corpus_digest.py`; this was broader than the intended three-document review-only scope |
 | digest basis | `artifacts/corpus-digest.json`, source-basis commit `37a0e7274ae2cd0a50811c138147a37c1b4c0160` |
 | retriever basis | current `scripts/local_rag_retriever.py` at HEAD |
 
 ## 4 Phase 7C.1 Local Verify evidence
 
 Phase 7C.1 citation integrity is recorded as a standalone implementation. The
-owner-provided Local Verify evidence for the Phase 7C.1 commit is:
+clean Local Verify evidence for the final tracked Phase 7C.2A commit is:
 
 | item | value |
 |---|---|
 | workflow | `Local Verify` |
-| run | `27758859490` |
-| job | `82127653462` |
-| head commit | `02dda7aab51352cc887786228605a4b72e5f8de0` |
+| run | `27795560350` |
+| job | `82254434101` |
+| head commit | `f2e270fdd704b6a6f7cc7a1e4e06b08612ef9587` |
 | conclusion | PASS |
+| checks | tests, quality gate, and three render dry-runs passed |
+| workflow contents permission | read-only |
+| uploaded artifacts | none |
 
 This Phase 7C.2A review did not run, edit, or add GitHub Actions workflows.
 
@@ -196,7 +201,12 @@ documents should be separately named and approved.
 
 ## 14 Safety confirmation
 
-This review did not:
+This scope reconciliation does not claim that no commit or push occurred for
+the completed Phase 7C.2A work. The actual final tracked commit is
+`f2e270fdd704b6a6f7cc7a1e4e06b08612ef9587`, and it includes the digest check
+tool and its tests in addition to the review documentation.
+
+The logical retrieval review did not:
 
 - modify `scripts/local_rag_retriever.py`;
 - modify `tests/test_local_rag_retriever.py`;
@@ -207,7 +217,7 @@ This review did not:
 - add persistent index, embeddings, vector database, external service, LLM
   judge, MCP/Hermes, AgentOps, memory runtime, audit automation, eval
   integration, quality-gate integration, CI integration, release automation,
-  downstream integration, commit, push, tag, or release.
+  downstream integration, tag, or release.
 
 No private raw data, downstream raw evidence, RSID raw evidence, `08_Study` raw
 notes, raw prompts, model outputs, raw command logs, unredacted tool-call

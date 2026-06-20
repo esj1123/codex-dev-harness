@@ -1,7 +1,13 @@
 import json
 from pathlib import Path
+import subprocess
+
+import pytest
 
 from scripts import generate_corpus_digest
+
+
+APPROVAL_REF = "owner_approved_phase_6g_digest_refresh_task"
 
 
 def write(path: Path, content: str) -> None:
@@ -67,6 +73,59 @@ def write_digest(root: Path, sources: list[dict[str, object]]) -> Path:
     return digest_path
 
 
+def run_git(root: Path, *args: str) -> str:
+    result = subprocess.run(
+        ["git", *args],
+        cwd=root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return result.stdout.strip()
+
+
+def init_git_repo(root: Path) -> None:
+    run_git(root, "init")
+    run_git(root, "config", "user.email", "synthetic@example.invalid")
+    run_git(root, "config", "user.name", "Synthetic Tester")
+
+
+def commit_all(root: Path, message: str = "synthetic commit") -> str:
+    run_git(root, "add", ".")
+    run_git(root, "commit", "-m", message)
+    return run_git(root, "rev-parse", "HEAD")
+
+
+def refreshed_from(root: Path, digest_path: Path) -> dict[str, object]:
+    digest = generate_corpus_digest.load_digest(digest_path)
+    checks = generate_corpus_digest.check_sources(root, digest)
+    return generate_corpus_digest.build_refreshed_digest(
+        digest,
+        checks,
+        git_sha="new-basis",
+        generated_at="2026-02-01T00:00:00Z",
+        approval_ref=APPROVAL_REF,
+    )
+
+
+def test_default_check_mode_is_read_only(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    write(tmp_path / "docs" / "A.md", "new content\n")
+    digest_path = write_digest(
+        tmp_path,
+        [digest_entry("docs/A.md", content_hash=digest_hash("old content\n"))],
+    )
+    before = digest_path.read_bytes()
+
+    exit_code = generate_corpus_digest.main(["--repo-root", str(tmp_path), "--json"])
+    captured = capsys.readouterr()
+    report = json.loads(captured.out)
+
+    assert exit_code == 0
+    assert report["mode"] == "check"
+    assert report["stale"] == 1
+    assert digest_path.read_bytes() == before
+
+
 def test_check_mode_does_not_write_digest(tmp_path: Path) -> None:
     write(tmp_path / "docs" / "A.md", "new content\n")
     digest_path = write_digest(
@@ -80,6 +139,132 @@ def test_check_mode_does_not_write_digest(tmp_path: Path) -> None:
     assert report["stale"] == 1
     assert report["refresh_required"] is True
     assert digest_path.read_bytes() == before
+
+
+def test_write_rejects_empty_approval_reference(tmp_path: Path) -> None:
+    text = "# Source\n"
+    write(tmp_path / "docs" / "A.md", text)
+    digest_path = write_digest(tmp_path, [digest_entry("docs/A.md", source_text=text)])
+
+    with pytest.raises(ValueError, match="approval-ref"):
+        generate_corpus_digest.write_refreshed_digest(tmp_path, digest_path, approval_ref="")
+
+
+@pytest.mark.parametrize(
+    "bad_path",
+    [
+        r"C:\temp\corpus-digest.json",
+        "/tmp/corpus-digest.json",
+        "../outside.json",
+        "artifacts/../outside.json",
+    ],
+)
+def test_write_rejects_absolute_and_parent_traversal_digest_paths(tmp_path: Path, bad_path: str) -> None:
+    with pytest.raises(ValueError):
+        generate_corpus_digest.validate_cli_digest_path(tmp_path, bad_path, write=True)
+
+
+@pytest.mark.parametrize("bad_path", ["artifacts/other.json", "corpus-digest.json", "docs/corpus-digest.json", ""])
+def test_write_rejects_repo_contained_noncanonical_output_paths(tmp_path: Path, bad_path: str) -> None:
+    with pytest.raises(ValueError):
+        generate_corpus_digest.validate_cli_digest_path(tmp_path, bad_path, write=True)
+
+
+def test_write_accepts_only_canonical_digest_path(tmp_path: Path) -> None:
+    resolved = generate_corpus_digest.validate_cli_digest_path(
+        tmp_path,
+        "artifacts/corpus-digest.json",
+        write=True,
+    )
+
+    assert resolved == (tmp_path / "artifacts" / "corpus-digest.json").resolve(strict=False)
+
+
+def test_missing_source_blocks_write(tmp_path: Path) -> None:
+    digest_path = write_digest(tmp_path, [digest_entry("docs/MISSING.md", content_hash="0" * 64)])
+    before = digest_path.read_bytes()
+
+    with pytest.raises(ValueError, match="missing"):
+        generate_corpus_digest.write_refreshed_digest(tmp_path, digest_path, approval_ref=APPROVAL_REF)
+
+    assert digest_path.read_bytes() == before
+
+
+def test_unsafe_source_blocks_write(tmp_path: Path) -> None:
+    digest_path = write_digest(tmp_path, [digest_entry("raw/PRIVATE.md", content_hash="0" * 64)])
+
+    with pytest.raises(ValueError, match="unsafe"):
+        generate_corpus_digest.write_refreshed_digest(tmp_path, digest_path, approval_ref=APPROVAL_REF)
+
+
+def test_invalid_utf8_blocks_write(tmp_path: Path) -> None:
+    write_raw(tmp_path / "docs" / "BAD.md", b"# Bad\n\xff\xfe\n")
+    digest_path = write_digest(tmp_path, [digest_entry("docs/BAD.md", content_hash="0" * 64)])
+
+    with pytest.raises(ValueError, match="invalid UTF-8"):
+        generate_corpus_digest.write_refreshed_digest(tmp_path, digest_path, approval_ref=APPROVAL_REF)
+
+
+def test_modified_digest_listed_tracked_source_blocks_write(tmp_path: Path) -> None:
+    text = "# Clean\n"
+    write(tmp_path / "docs" / "A.md", text)
+    digest_path = write_digest(tmp_path, [digest_entry("docs/A.md", content_hash=digest_hash("old\n"))])
+    init_git_repo(tmp_path)
+    commit_all(tmp_path)
+    write(tmp_path / "docs" / "A.md", "# Modified\n")
+
+    with pytest.raises(ValueError, match="differs from HEAD: docs/A.md"):
+        generate_corpus_digest.write_refreshed_digest(tmp_path, digest_path, approval_ref=APPROVAL_REF)
+
+
+def test_staged_digest_listed_source_blocks_write(tmp_path: Path) -> None:
+    text = "# Clean\n"
+    write(tmp_path / "docs" / "A.md", text)
+    digest_path = write_digest(tmp_path, [digest_entry("docs/A.md", content_hash=digest_hash("old\n"))])
+    init_git_repo(tmp_path)
+    commit_all(tmp_path)
+    write(tmp_path / "docs" / "A.md", "# Staged\n")
+    run_git(tmp_path, "add", "docs/A.md")
+
+    with pytest.raises(ValueError, match="differs from HEAD: docs/A.md"):
+        generate_corpus_digest.write_refreshed_digest(tmp_path, digest_path, approval_ref=APPROVAL_REF)
+
+
+def test_clean_committed_digest_listed_source_permits_refresh_write(tmp_path: Path) -> None:
+    text = "# Current source\n"
+    write(tmp_path / "docs" / "A.md", text)
+    digest_path = write_digest(tmp_path, [digest_entry("docs/A.md", content_hash=digest_hash("old\n"))])
+    init_git_repo(tmp_path)
+    head = commit_all(tmp_path)
+
+    report = generate_corpus_digest.write_refreshed_digest(
+        tmp_path,
+        digest_path,
+        approval_ref=APPROVAL_REF,
+        generated_at="2026-02-01T00:00:00Z",
+    )
+    refreshed = json.loads(digest_path.read_text(encoding="utf-8"))
+
+    assert report["valid"] == 1
+    assert refreshed["git_sha"] == head
+    assert refreshed["sources"][0]["git_sha"] == head
+    assert refreshed["sources"][0]["content_hash"] == digest_hash(text)
+
+
+def test_git_sha_override_cannot_weaken_source_basis_guard(tmp_path: Path) -> None:
+    text = "# Current source\n"
+    write(tmp_path / "docs" / "A.md", text)
+    digest_path = write_digest(tmp_path, [digest_entry("docs/A.md", source_text=text)])
+    init_git_repo(tmp_path)
+    commit_all(tmp_path)
+
+    with pytest.raises(ValueError, match="cannot override"):
+        generate_corpus_digest.write_refreshed_digest(
+            tmp_path,
+            digest_path,
+            approval_ref=APPROVAL_REF,
+            git_sha="not-the-head-commit",
+        )
 
 
 def test_report_preserves_deterministic_source_order(tmp_path: Path) -> None:
@@ -132,33 +317,6 @@ def test_crlf_source_matches_lf_normalized_hash(tmp_path: Path) -> None:
     assert report["stale"] == 0
 
 
-def test_invalid_utf8_is_reported_without_writing(tmp_path: Path) -> None:
-    write_raw(tmp_path / "docs" / "BAD.md", b"# Bad\n\xff\xfe\n")
-    digest_path = write_digest(tmp_path, [digest_entry("docs/BAD.md", content_hash="0" * 64)])
-
-    report = generate_corpus_digest.check_digest(tmp_path, digest_path)
-
-    assert report["invalid_utf8"] == 1
-    assert report["refresh_required"] is True
-    assert report["sources"][0]["source_path"] == "docs/BAD.md"
-
-
-def test_missing_and_unsafe_paths_are_reported(tmp_path: Path) -> None:
-    digest_path = write_digest(
-        tmp_path,
-        [
-            digest_entry("docs/MISSING.md", content_hash="0" * 64),
-            digest_entry("../ESCAPE.md", content_hash="0" * 64),
-        ],
-    )
-
-    report = generate_corpus_digest.check_digest(tmp_path, digest_path)
-
-    assert report["missing"] == 1
-    assert report["unsafe"] == 1
-    assert report["refresh_required"] is True
-
-
 def test_refreshed_digest_preserves_exact_source_set_and_statuses(tmp_path: Path) -> None:
     first = "# First\n"
     second = "# Second\n"
@@ -171,52 +329,64 @@ def test_refreshed_digest_preserves_exact_source_set_and_statuses(tmp_path: Path
             digest_entry("docs/SECOND.md", content_hash=digest_hash("old second\n")),
         ],
     )
-    digest = generate_corpus_digest.load_digest(digest_path)
-    checks = generate_corpus_digest.check_sources(tmp_path, digest)
 
-    refreshed = generate_corpus_digest.build_refreshed_digest(
-        digest,
-        checks,
-        git_sha="new-basis",
-        generated_at="2026-02-01T00:00:00Z",
-        approval_ref="owner_approved_phase_6g_digest_refresh_task",
-    )
+    refreshed = refreshed_from(tmp_path, digest_path)
 
     assert [source["source_path"] for source in refreshed["sources"]] == ["docs/FIRST.md", "docs/SECOND.md"]
+    assert refreshed["sources"][1]["content_hash"] == digest_hash(second)
+
+
+def test_not_run_scan_fields_are_not_reported_as_completed_zero_findings(tmp_path: Path) -> None:
+    text = "# Source\n"
+    write(tmp_path / "docs" / "A.md", text)
+    digest_path = write_digest(tmp_path, [digest_entry("docs/A.md", source_text=text)])
+
+    refreshed = refreshed_from(tmp_path, digest_path)
+    precheck = refreshed["precheck_summary"]
+    closeout = refreshed["closeout"]
+
+    assert precheck["source_scan_status"] == "not_run_by_refresh_tool"
+    assert precheck["safety_scan_status"] == "not_run_by_refresh_tool"
+    assert precheck["local_path_match_count"] is None
+    assert precheck["ip_like_match_count"] is None
+    assert precheck["assignment_like_match_count"] is None
+    assert precheck["boundary_phrase_match_count"] is None
+    assert closeout["json_validation_status"] == "not_run_by_refresh_tool"
+    assert closeout["safety_scan_status"] == "not_run_by_refresh_tool"
+    assert closeout["quality_gate_status"] == "not_run_by_refresh_tool"
+    assert closeout["status_label"] == "PASS WITH NOTES"
+
+
+def test_release_artifact_and_rag_authorization_boundaries_are_preserved(tmp_path: Path) -> None:
+    text = "# Source\n"
+    write(tmp_path / "docs" / "A.md", text)
+    digest_path = write_digest(tmp_path, [digest_entry("docs/A.md", source_text=text)])
+    digest = json.loads(digest_path.read_text(encoding="utf-8"))
+
+    refreshed = refreshed_from(tmp_path, digest_path)
+
     assert refreshed["release_artifact_status"] == digest["release_artifact_status"]
     assert refreshed["rag_authorization_status"] == digest["rag_authorization_status"]
-    assert refreshed["sources"][1]["content_hash"] == digest_hash(second)
-    assert refreshed["sources"][1]["git_sha"] == "new-basis"
 
 
-def test_write_requires_explicit_approval_and_updates_only_template_sources(tmp_path: Path) -> None:
-    text = "# Refresh me\n"
-    write(tmp_path / "docs" / "REFRESH.md", text)
-    write(tmp_path / "docs" / "NOT_IN_DIGEST.md", "not approved\n")
-    digest_path = write_digest(
-        tmp_path,
-        [digest_entry("docs/REFRESH.md", content_hash=digest_hash("old text\n"))],
-    )
+def test_check_output_is_deterministic_for_same_inputs(tmp_path: Path) -> None:
+    text = "# Source\n"
+    write(tmp_path / "docs" / "A.md", text)
+    digest_path = write_digest(tmp_path, [digest_entry("docs/A.md", source_text=text)])
 
-    try:
-        generate_corpus_digest.write_refreshed_digest(tmp_path, digest_path, approval_ref="")
-    except ValueError as exc:
-        assert "approval-ref" in str(exc)
-    else:
-        raise AssertionError("write should require explicit approval")
+    first = generate_corpus_digest.check_digest(tmp_path, digest_path)
+    second = generate_corpus_digest.check_digest(tmp_path, digest_path)
 
-    report = generate_corpus_digest.write_refreshed_digest(
-        tmp_path,
-        digest_path,
-        approval_ref="owner_approved_phase_6g_digest_refresh_task",
-        git_sha="new-basis",
-        generated_at="2026-02-01T00:00:00Z",
-    )
-    refreshed = json.loads(digest_path.read_text(encoding="utf-8"))
+    assert json.dumps(first, sort_keys=True) == json.dumps(second, sort_keys=True)
 
-    assert report["valid"] == 1
-    assert report["refresh_required"] is False
-    assert [source["source_path"] for source in refreshed["sources"]] == ["docs/REFRESH.md"]
-    assert refreshed["sources"][0]["content_hash"] == digest_hash(text)
-    assert refreshed["git_sha"] == "new-basis"
-    assert refreshed["generation_approval_ref"] == "owner_approved_phase_6g_digest_refresh_task"
+
+def test_report_does_not_copy_source_body(tmp_path: Path) -> None:
+    body = "# Source\n\nUNIQUE_SYNTHETIC_SOURCE_BODY_SHOULD_NOT_APPEAR\n"
+    write(tmp_path / "docs" / "A.md", body)
+    digest_path = write_digest(tmp_path, [digest_entry("docs/A.md", source_text=body)])
+
+    report = generate_corpus_digest.check_digest(tmp_path, digest_path)
+    refreshed = refreshed_from(tmp_path, digest_path)
+
+    assert "UNIQUE_SYNTHETIC_SOURCE_BODY_SHOULD_NOT_APPEAR" not in json.dumps(report)
+    assert "UNIQUE_SYNTHETIC_SOURCE_BODY_SHOULD_NOT_APPEAR" not in json.dumps(refreshed)

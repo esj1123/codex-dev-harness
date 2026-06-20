@@ -216,6 +216,26 @@ eval report generation occurred unless a separate task explicitly approves it.
 If a digest artifact is not generated, report it as `NOT RUN` or `not
 generated`. Do not imply digest generation or retrieval verification passed.
 
+## Approved Corpus Digest Check Flow
+
+Safe check-only command:
+
+`python scripts/generate_corpus_digest.py --check --json`
+
+This command checks the current `artifacts/corpus-digest.json` and its
+digest-listed source files. It must not modify `artifacts/corpus-digest.json`,
+create corpus artifacts, expand the allow-list, create `corpus/`,
+`retrieval/`, or `index/`, or run release verification.
+
+Do not run `--write` in a boundary-hardening or review-only task. Write mode is
+guarded but requires a future separately approved Phase 6G digest refresh task
+that explicitly names artifact write permission, approval reference,
+source-basis expectations, post-write JSON validation, safety scan, full local
+verification, retention, and commit decision.
+
+Release verification and artifact checksum regeneration are not part of the
+check command.
+
 ## Local RAG Design Planning Flow
 
 Phase 7A local RAG design is documented in:
