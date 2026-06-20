@@ -12,6 +12,7 @@ import hashlib
 import json
 from pathlib import Path, PurePosixPath
 import re
+import subprocess
 from typing import Any
 
 
@@ -20,6 +21,18 @@ DEFAULT_MAX_RESULTS = 5
 MAX_RESULTS_LIMIT = 10
 MAX_QUERY_LENGTH = 160
 MAX_EXCERPT_LENGTH = 240
+GIT_TIMEOUT_SECONDS = 5
+
+VOLATILE_AUTHORITY_SOURCES = {
+    "STATUS.md": {
+        "temporal_class": "volatile_current_authority",
+        "authority_level": "current_operational_state",
+    },
+    "ACCEPTANCE_TRACE.md": {
+        "temporal_class": "volatile_current_authority",
+        "authority_level": "current_operational_state",
+    },
+}
 
 FORBIDDEN_PATH_PARTS = {
     ".git",
@@ -66,6 +79,11 @@ IPV4_RE = re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b")
 ASSIGNMENT_SECRET_RE = re.compile(r"(?i)\b(secret|token|password|credential|api[_-]?key)\s*[:=]\s*\S+")
 TOKEN_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{1,}")
 SHA256_HEX_RE = re.compile(r"^[0-9a-fA-F]{64}$")
+FULL_COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
+ACTION_SHAPED_QUERY_RE = re.compile(
+    r"\b(modify|change|edit|write|create|delete|remove|run|execute|push|commit|release|deploy|upload)\b",
+    re.I,
+)
 
 
 @dataclass(frozen=True)
@@ -84,6 +102,28 @@ class SourceEntry:
 class Match:
     score: int
     entry: SourceEntry
+    matched_terms: tuple[str, ...]
+    text: str
+    first_position: int
+
+
+@dataclass(frozen=True)
+class VolatileSourceEntry:
+    source_path: str
+    section_title: str
+    temporal_class: str
+    authority_level: str
+    observed_head_commit: str
+    volatile_content_hash: str
+    operational_freshness: str
+    section_authority: str
+    text: str
+
+
+@dataclass(frozen=True)
+class VolatileMatch:
+    score: int
+    entry: VolatileSourceEntry
     matched_terms: tuple[str, ...]
     text: str
     first_position: int
@@ -111,6 +151,48 @@ def query_block_reason(query: str) -> str | None:
         if pattern.search(sanitized):
             return "query asks for forbidden private, raw, secret, live, or transcript material"
     return None
+
+
+def classify_query(query: str) -> str:
+    normalized = sanitize_query(query).lower()
+    if not normalized:
+        return "durable_policy"
+
+    current_phrases = (
+        "next recommended task",
+        "current implementation sequence",
+        "current approved corpus digest status",
+        "latest verification status",
+    )
+    durable_phrases = (
+        "local verification commands",
+        "receipt redaction policy",
+        "safety policy",
+    )
+    historical_phrases = (
+        "optional ci decision",
+        "release history",
+    )
+    mixed_phrases = (
+        "phase 6g approved corpus digest refresh",
+    )
+    if any(phrase in normalized for phrase in mixed_phrases):
+        return "mixed_context"
+    has_current_signal = any(phrase in normalized for phrase in current_phrases) or "current" in normalized or "latest" in normalized
+    has_historical_signal = any(phrase in normalized for phrase in historical_phrases) or "historical" in normalized or "history" in normalized
+    if has_current_signal and has_historical_signal:
+        return "mixed_context"
+    if any(phrase in normalized for phrase in current_phrases):
+        return "current_state"
+    if any(phrase in normalized for phrase in durable_phrases):
+        return "durable_policy"
+    if any(phrase in normalized for phrase in historical_phrases):
+        return "historical_decision"
+    return "durable_policy"
+
+
+def is_action_shaped_query(query: str) -> bool:
+    return ACTION_SHAPED_QUERY_RE.search(sanitize_query(query)) is not None
 
 
 def tokenize(text: str) -> list[str]:
@@ -142,6 +224,24 @@ def validate_repo_relative_path(path_text: Any) -> tuple[str | None, str | None]
     return normalized, None
 
 
+def validate_volatile_source_path(path_text: Any) -> tuple[str | None, str | None]:
+    if not isinstance(path_text, str) or not path_text:
+        return None, "volatile source path is missing"
+    raw = path_text
+    if raw.strip() != raw:
+        return None, "volatile source path must be exact"
+    if "\\" in raw:
+        return None, "volatile source path must not use backslash aliases"
+    if is_absolute_path_text(raw):
+        return None, "volatile source path is absolute"
+    parts = PurePosixPath(raw).parts
+    if not parts or any(part in {"", ".", ".."} for part in parts):
+        return None, "volatile source path uses parent traversal or dot aliases"
+    if raw not in VOLATILE_AUTHORITY_SOURCES:
+        return None, "volatile source path is not allow-listed"
+    return raw, None
+
+
 def metadata_reject_reason(item: dict[str, Any]) -> str | None:
     if item.get("allowed_for_digest") is False:
         return "digest entry is not allowed for digest use"
@@ -166,6 +266,80 @@ def validated_content_hash(value: Any) -> tuple[str | None, str | None]:
 
 def read_normalized_source_text(path: Path) -> str:
     return normalize_source_text(path.read_bytes().decode("utf-8"))
+
+
+def safe_git_failure_note(action: str) -> str:
+    return f"volatile overlay unavailable: git {action} failed"
+
+
+def run_git(repo_root: Path, args: list[str], *, text: bool = False) -> subprocess.CompletedProcess[str] | subprocess.CompletedProcess[bytes]:
+    return subprocess.run(
+        ["git", *args],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=text,
+        shell=False,
+        timeout=GIT_TIMEOUT_SECONDS,
+    )
+
+
+def observed_head_commit(repo_root: Path) -> tuple[str | None, str | None]:
+    try:
+        result = run_git(repo_root, ["rev-parse", "--verify", "HEAD^{commit}"], text=True)
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        return None, safe_git_failure_note("rev-parse")
+    head = result.stdout.strip().lower()
+    if FULL_COMMIT_RE.fullmatch(head) is None:
+        return None, "volatile overlay unavailable: git head is not a full commit sha"
+    return head, None
+
+
+def read_committed_blob(repo_root: Path, source_path: str) -> tuple[bytes | None, str | None]:
+    normalized, reason = validate_volatile_source_path(source_path)
+    if reason is not None or normalized is None:
+        return None, reason or "volatile source path is invalid"
+    try:
+        result = run_git(repo_root, ["cat-file", "blob", f"HEAD:{normalized}"], text=False)
+    except subprocess.TimeoutExpired:
+        return None, safe_git_failure_note("cat-file")
+    except (OSError, subprocess.CalledProcessError):
+        return None, safe_git_failure_note("cat-file")
+    return result.stdout, None
+
+
+def read_volatile_entries(repo_root: Path) -> tuple[list[VolatileSourceEntry], list[str], str | None]:
+    head, head_reason = observed_head_commit(repo_root)
+    if head_reason is not None or head is None:
+        return [], [head_reason or "volatile overlay unavailable: git head unavailable"], None
+
+    entries: list[VolatileSourceEntry] = []
+    notes: list[str] = []
+    for source_path, metadata in VOLATILE_AUTHORITY_SOURCES.items():
+        blob, blob_reason = read_committed_blob(repo_root, source_path)
+        if blob_reason is not None or blob is None:
+            notes.append(blob_reason or f"volatile overlay unavailable: {source_path} cannot be read")
+            continue
+        try:
+            text = normalize_source_text(blob.decode("utf-8"))
+        except UnicodeDecodeError:
+            notes.append(f"volatile overlay rejected {source_path}: source is not UTF-8 text")
+            continue
+        content_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
+        entries.append(
+            VolatileSourceEntry(
+                source_path=source_path,
+                section_title=source_path,
+                temporal_class=metadata["temporal_class"],
+                authority_level=metadata["authority_level"],
+                observed_head_commit=head,
+                volatile_content_hash=content_hash,
+                operational_freshness="unknown",
+                section_authority="unknown",
+                text=text,
+            )
+        )
+    return entries, notes, head
 
 
 def load_digest(repo_root: Path, digest_relative_path: str = DEFAULT_DIGEST_PATH) -> dict[str, Any]:
@@ -280,6 +454,44 @@ def score_entry(entry: SourceEntry, query_terms: list[str], query_phrase: str) -
     )
 
 
+def score_volatile_entry(entry: VolatileSourceEntry, query_terms: list[str], query_phrase: str) -> VolatileMatch | None:
+    text = entry.text
+    if not text:
+        return None
+
+    metadata = " ".join([entry.source_path, entry.section_title, entry.temporal_class, entry.authority_level])
+    haystack = f"{metadata}\n{text}".lower()
+    score = 0
+    matched_terms: list[str] = []
+    first_position: int | None = None
+
+    for term in query_terms:
+        if term in haystack:
+            matched_terms.append(term)
+            metadata_hits = metadata.lower().count(term)
+            text_hits = text.lower().count(term)
+            score += metadata_hits * 5 + min(text_hits, 12)
+            position = text.lower().find(term)
+            if position >= 0 and (first_position is None or position < first_position):
+                first_position = position
+
+    if query_phrase and query_phrase.lower() in haystack:
+        score += 10
+        phrase_position = text.lower().find(query_phrase.lower())
+        if phrase_position >= 0:
+            first_position = phrase_position
+
+    if score <= 0:
+        return None
+    return VolatileMatch(
+        score=score,
+        entry=entry,
+        matched_terms=tuple(dict.fromkeys(matched_terms)),
+        text=text,
+        first_position=first_position or 0,
+    )
+
+
 def current_vs_historical_note(entry: SourceEntry) -> str:
     text = " ".join([entry.source_path, entry.risk_label, entry.content_class]).lower()
     if any(term in text for term in ("release", "historical", "deprecated", "clean_clone")):
@@ -309,6 +521,15 @@ def evidence_excerpt(match: Match) -> str:
     return sanitize_excerpt(text[start:end])
 
 
+def volatile_evidence_excerpt(match: VolatileMatch) -> str:
+    text = match.text
+    if not text:
+        return ""
+    start = max(match.first_position - 80, 0)
+    end = min(start + MAX_EXCERPT_LENGTH * 2, len(text))
+    return sanitize_excerpt(text[start:end])
+
+
 def match_to_result(match: Match) -> dict[str, Any]:
     entry = match.entry
     terms = ", ".join(match.matched_terms) if match.matched_terms else "query phrase"
@@ -324,18 +545,79 @@ def match_to_result(match: Match) -> dict[str, Any]:
     }
 
 
+def volatile_match_to_result(match: VolatileMatch) -> dict[str, Any]:
+    entry = match.entry
+    terms = ", ".join(match.matched_terms) if match.matched_terms else "query phrase"
+    return {
+        "source_path": entry.source_path,
+        "section_title": entry.section_title,
+        "temporal_class": entry.temporal_class,
+        "authority_level": entry.authority_level,
+        "observed_head_commit": entry.observed_head_commit,
+        "volatile_content_hash": entry.volatile_content_hash,
+        "operational_freshness": entry.operational_freshness,
+        "section_authority": entry.section_authority,
+        "match_reason": f"volatile committed-HEAD lexical match on: {terms}",
+        "evidence_excerpt": volatile_evidence_excerpt(match),
+        "safety_notes": [
+            "volatile source read from committed HEAD",
+            "operational_freshness is unknown unless a deterministic rule proves currency",
+        ],
+    }
+
+
+def matched_source_hash(result: dict[str, Any]) -> str | None:
+    value = result.get("volatile_content_hash") or result.get("content_hash")
+    return value if isinstance(value, str) else None
+
+
+def merge_results(
+    *,
+    query_class: str,
+    stable_results: list[dict[str, Any]],
+    volatile_results: list[dict[str, Any]],
+    max_results: int,
+) -> tuple[list[dict[str, Any]], list[str]]:
+    prefer_volatile = query_class in {"current_state", "mixed_context"}
+    ordered = [*volatile_results, *stable_results] if prefer_volatile else [*stable_results, *volatile_results]
+    merged: list[dict[str, Any]] = []
+    seen: dict[str, str | None] = {}
+    conflict_notes: list[str] = []
+    for result in ordered:
+        source_path = result["source_path"]
+        current_hash = matched_source_hash(result)
+        if source_path in seen:
+            previous_hash = seen[source_path]
+            if previous_hash and current_hash and previous_hash.lower() != current_hash.lower():
+                conflict_notes.append(f"{source_path}: stable and volatile hashes differ; preferred {'volatile' if prefer_volatile else 'stable'} citation")
+            continue
+        seen[source_path] = current_hash
+        merged.append(result)
+    return merged[:max_results], conflict_notes
+
+
 def retrieve(repo_root: Path, query: str, max_results: int = DEFAULT_MAX_RESULTS) -> dict[str, Any]:
     sanitized_query = sanitize_query(query)
+    query_class = classify_query(sanitized_query)
     blocked_reason = query_block_reason(query)
     base_safety_notes = [
         "local-only read-only lexical retrieval",
         "only digest-listed repo-owned source files are eligible",
         "no persistent index, embeddings, vector database, external service, or downstream source is used",
     ]
+    if is_action_shaped_query(sanitized_query):
+        base_safety_notes.extend(
+            [
+                "retrieval is advisory-only",
+                "no action was performed",
+                "retrieval grants no approval",
+            ]
+        )
     if blocked_reason is not None:
         return {
             "status": "blocked",
             "query": sanitized_query,
+            "query_class": query_class,
             "matched_sources": [],
             "safety_notes": base_safety_notes,
             "no_answer_reason": blocked_reason,
@@ -349,19 +631,74 @@ def retrieve(repo_root: Path, query: str, max_results: int = DEFAULT_MAX_RESULTS
 
     matches = [match for entry in entries if (match := score_entry(entry, query_terms, query_phrase)) is not None]
     matches.sort(key=lambda match: (-match.score, match.entry.source_path))
-    results = [match_to_result(match) for match in matches[:bounded_max_results]]
+    stable_results = [match_to_result(match) for match in matches]
+    volatile_results: list[dict[str, Any]] = []
+    volatile_safety_notes: list[str] = []
+    observed_head: str | None = None
+    if query_class in {"current_state", "mixed_context"}:
+        volatile_entries, volatile_safety_notes, observed_head = read_volatile_entries(repo_root)
+        volatile_matches = [
+            match
+            for entry in volatile_entries
+            if (match := score_volatile_entry(entry, query_terms, query_phrase)) is not None
+        ]
+        volatile_matches.sort(key=lambda match: (-match.score, match.entry.source_path))
+        volatile_results = [volatile_match_to_result(match) for match in volatile_matches]
 
-    safety_notes = base_safety_notes + source_safety_notes[:10]
+    results, conflict_notes = merge_results(
+        query_class=query_class,
+        stable_results=stable_results,
+        volatile_results=volatile_results,
+        max_results=bounded_max_results,
+    )
+
+    safety_notes = base_safety_notes + volatile_safety_notes[:10] + source_safety_notes[:10]
     if results:
-        return {
-            "status": "found",
+        status = "found"
+        if query_class in {"current_state", "mixed_context"} and (volatile_safety_notes or not volatile_results):
+            status = "partial"
+        payload: dict[str, Any] = {
+            "status": status,
             "query": sanitized_query,
+            "query_class": query_class,
             "matched_sources": results,
             "safety_notes": safety_notes,
+        }
+        if stable_results:
+            payload["stable_digest_ref"] = DEFAULT_DIGEST_PATH
+            payload["source_basis_commit"] = str(digest.get("git_sha") or "unknown")
+        if observed_head is not None and volatile_results:
+            payload["observed_head_commit"] = observed_head
+        if conflict_notes:
+            payload["conflict_notes"] = conflict_notes
+        if status == "partial":
+            payload["no_answer_reason"] = "volatile current authority is incomplete or unmatched; returned bounded available evidence"
+        return payload
+
+    if query_class in {"current_state", "mixed_context"} and (volatile_safety_notes or observed_head is None):
+        if stable_results:
+            return {
+                "status": "partial",
+                "query": sanitized_query,
+                "query_class": query_class,
+                "matched_sources": stable_results[:bounded_max_results],
+                "stable_digest_ref": DEFAULT_DIGEST_PATH,
+                "source_basis_commit": str(digest.get("git_sha") or "unknown"),
+                "safety_notes": safety_notes,
+                "no_answer_reason": "volatile current authority is unavailable; stable evidence cannot fully answer current state",
+            }
+        return {
+            "status": "no_sufficient_evidence",
+            "query": sanitized_query,
+            "query_class": query_class,
+            "matched_sources": [],
+            "safety_notes": safety_notes,
+            "no_answer_reason": "committed-HEAD volatile authority is unavailable for current-state retrieval",
         }
     return {
         "status": "no_sufficient_evidence",
         "query": sanitized_query,
+        "query_class": query_class,
         "matched_sources": [],
         "safety_notes": safety_notes,
         "no_answer_reason": "no digest-listed eligible source matched the sanitized query",
@@ -385,9 +722,10 @@ def main(argv: list[str] | None = None) -> int:
         payload = {
             "status": "blocked",
             "query": sanitize_query(args.query),
+            "query_class": classify_query(args.query),
             "matched_sources": [],
             "safety_notes": ["local-only read-only lexical retrieval failed before source search"],
-            "no_answer_reason": str(exc),
+            "no_answer_reason": "retrieval failed before source search",
         }
     print(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True))
     return 0

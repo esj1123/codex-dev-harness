@@ -89,9 +89,12 @@ content only.
 
 Required behavior:
 
-- establish `observed_head_commit` from `git rev-parse HEAD`;
-- read source bytes from the commit object, for example
-  `git show HEAD:<repo-relative-path>`;
+- establish `observed_head_commit` with `git rev-parse --verify
+  HEAD^{commit}`;
+- read source bytes from the commit object with `git cat-file blob
+  HEAD:<repo-relative-path>`;
+- invoke Git with a standard-library subprocess argument list, `shell=False`,
+  captured output, and an explicit short timeout;
 - do not read dirty working-tree file contents for volatile authority;
 - do not read staged-but-uncommitted content;
 - do not silently fall back to the filesystem if committed-HEAD read fails;
@@ -137,7 +140,7 @@ Future overlay-backed matched source objects must include:
 | `authority_level` | Must be `current_operational_state`. |
 | `observed_head_commit` | Full commit SHA used for committed-HEAD read. |
 | `volatile_content_hash` | SHA-256 of normalized committed-HEAD content. |
-| `operational_freshness` | `current`, `lagging`, or `unknown`. |
+| `operational_freshness` | `current`, `lagging`, or `unknown`; default to `unknown` unless a deterministic rule proves semantic currency. |
 | `section_authority` | Section-level label when available; otherwise `unknown`. |
 | `evidence_excerpt` | Bounded safe excerpt or summary. |
 | `match_reason` | Short safe lexical or section match reason. |
@@ -168,6 +171,11 @@ For `current_state` queries:
    operational state.
 4. Stable digest citations may provide durable policy and historical context.
 5. Generation-time artifact metadata may only describe the generation moment.
+
+Same-path stable and volatile citations must be deduplicated before applying
+`max_results`. For `current_state` and `mixed_context` queries, prefer the
+volatile committed-HEAD citation; for `durable_policy` and
+`historical_decision` queries, prefer the stable digest citation.
 
 For `durable_policy` queries:
 
@@ -298,6 +306,11 @@ Do not implement Phase 7C.3D as part of this contract task.
 The next task should name exact allowed files, confirm whether committed-HEAD
 Git reads are allowed, and specify focused synthetic tests before editing
 runtime code.
+
+The Phase 7C.3D implementation may add deterministic query classification for
+`current_state`, `durable_policy`, `historical_decision`, and `mixed_context`.
+General lexical/ranking correction, including the known short-token `CI`
+ranking issue, remains deferred to Phase 7C.4.
 
 ## 14. Commands run
 
