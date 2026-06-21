@@ -45,6 +45,21 @@ APPROVED_RISK_LABELS = {
     "verification_boundary",
 }
 
+APPROVED_TEMPORAL_CLASSES = {
+    "historical_planning_evidence",
+    "historical_release_evidence",
+    "mixed_temporal_evidence",
+    "stable_architecture_decision",
+    "stable_current_authority",
+}
+
+APPROVED_AUTHORITY_LEVELS = {
+    "control_policy",
+    "durable_policy",
+    "historical_context",
+    "supporting_policy",
+}
+
 FORBIDDEN_PATH_PARTS = {
     ".git",
     "08_study",
@@ -164,6 +179,26 @@ def validate_cli_digest_path(repo_root: Path, value: Any, *, write: bool) -> Pat
     return resolved
 
 
+def validate_cli_spec_path(repo_root: Path, value: Any) -> Path:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("source-set spec path must be a non-empty string")
+    raw = value.strip()
+    if "\\" in raw:
+        raise ValueError("source-set spec path must use repo-relative POSIX separators")
+    if is_absolute_path_text(raw):
+        raise ValueError("source-set spec path must be repository-relative")
+    parts = raw.split("/")
+    if not parts or any(part in {"", ".", ".."} for part in parts):
+        raise ValueError("source-set spec path uses parent traversal or an empty/dot path part")
+    root = repo_root.resolve()
+    resolved = (root / raw).resolve(strict=False)
+    try:
+        resolved.relative_to(root)
+    except ValueError as exc:
+        raise ValueError("source-set spec path resolves outside the repository") from exc
+    return resolved
+
+
 def validate_repo_relative_source_path(value: Any) -> tuple[str | None, str | None]:
     if not isinstance(value, str) or not value.strip():
         return None, "source path is missing"
@@ -200,6 +235,73 @@ def validate_metadata(item: dict[str, Any], digest_algorithm: str) -> str | None
     if item.get("risk_label") not in APPROVED_RISK_LABELS:
         return "risk label is not approved"
     return None
+
+
+def validate_source_set_spec(spec: Any) -> dict[str, Any]:
+    if not isinstance(spec, dict):
+        raise ValueError("source-set spec JSON must be an object")
+    for field in ("schema_version", "source_set_id", "human_contract_ref"):
+        if not isinstance(spec.get(field), str) or not spec[field].strip():
+            raise ValueError(f"source-set spec missing {field}")
+    ordered_sources = spec.get("ordered_sources")
+    if not isinstance(ordered_sources, list) or not ordered_sources:
+        raise ValueError("source-set spec must contain a non-empty ordered_sources array")
+    expected_source_count = spec.get("expected_source_count")
+    if not isinstance(expected_source_count, int) or expected_source_count <= 0:
+        raise ValueError("source-set spec expected_source_count must be a positive integer")
+    if expected_source_count != len(ordered_sources):
+        raise ValueError("source-set spec expected_source_count does not match ordered_sources")
+
+    normalized_paths: list[str] = []
+    normalized_sources: list[dict[str, Any]] = []
+    for index, item in enumerate(ordered_sources, start=1):
+        if not isinstance(item, dict):
+            raise ValueError(f"source-set entry {index} is not an object")
+        normalized, path_reason = validate_repo_relative_source_path(item.get("source_path"))
+        if path_reason is not None or normalized is None:
+            raise ValueError(f"source-set entry {index} has invalid source_path: {path_reason}")
+        for field in ("section_title", "content_class", "risk_label", "temporal_class", "authority_level"):
+            if not isinstance(item.get(field), str) or not item[field].strip():
+                raise ValueError(f"source-set entry {normalized} missing {field}")
+        if item["content_class"] not in APPROVED_CONTENT_CLASSES:
+            raise ValueError(f"source-set entry {normalized} has unapproved content_class")
+        if item["risk_label"] not in APPROVED_RISK_LABELS:
+            raise ValueError(f"source-set entry {normalized} has unapproved risk_label")
+        if item["temporal_class"] not in APPROVED_TEMPORAL_CLASSES:
+            raise ValueError(f"source-set entry {normalized} has unapproved temporal_class")
+        if item["authority_level"] not in APPROVED_AUTHORITY_LEVELS:
+            raise ValueError(f"source-set entry {normalized} has unapproved authority_level")
+        normalized_item = deepcopy(item)
+        normalized_item["source_path"] = normalized
+        normalized_sources.append(normalized_item)
+        normalized_paths.append(normalized)
+
+    duplicates = [path for path, count in Counter(normalized_paths).items() if count > 1]
+    if duplicates:
+        raise ValueError("source-set spec contains duplicate source paths: " + ", ".join(sorted(duplicates)))
+
+    excluded_volatile_sources = spec.get("excluded_volatile_sources")
+    if not isinstance(excluded_volatile_sources, list):
+        raise ValueError("source-set spec must contain excluded_volatile_sources")
+    normalized_excluded: list[str] = []
+    for index, value in enumerate(excluded_volatile_sources, start=1):
+        normalized, path_reason = validate_repo_relative_source_path(value)
+        if path_reason is not None or normalized is None:
+            raise ValueError(f"excluded volatile source {index} has invalid source_path: {path_reason}")
+        normalized_excluded.append(normalized)
+    overlap = sorted(set(normalized_paths).intersection(normalized_excluded))
+    if overlap:
+        raise ValueError("source-set spec includes excluded volatile source paths: " + ", ".join(overlap))
+
+    normalized_spec = deepcopy(spec)
+    normalized_spec["ordered_sources"] = normalized_sources
+    normalized_spec["excluded_volatile_sources"] = normalized_excluded
+    return normalized_spec
+
+
+def load_source_set_spec(spec_path: Path) -> dict[str, Any]:
+    with spec_path.open("r", encoding="utf-8") as handle:
+        return validate_source_set_spec(json.load(handle))
 
 
 def check_source(repo_root: Path, item: Any, digest_algorithm: str) -> SourceCheck:
@@ -412,6 +514,138 @@ def build_refreshed_digest(
     return refreshed
 
 
+def source_content_hash_or_placeholder(repo_root: Path, source_path: str) -> str:
+    full_path = (repo_root / source_path).resolve(strict=False)
+    try:
+        full_path.relative_to(repo_root.resolve())
+    except ValueError:
+        return "0" * 64
+    if full_path.is_symlink() or not full_path.is_file():
+        return "0" * 64
+    try:
+        return normalized_sha256(read_normalized_text(full_path))
+    except (OSError, UnicodeDecodeError):
+        return "0" * 64
+
+
+def build_rebaselined_digest(
+    digest: dict[str, Any],
+    source_set_spec: dict[str, Any],
+    *,
+    repo_root: Path,
+    git_sha: str,
+    generated_at: str,
+    approval_ref: str,
+) -> dict[str, Any]:
+    rebaselined = deepcopy(digest)
+    rebaselined["git_sha"] = git_sha
+    rebaselined["generated_at"] = generated_at
+    rebaselined["generation_approval_ref"] = approval_ref
+    rebaselined["source_allow_list_ref"] = source_set_spec["human_contract_ref"]
+    rebaselined["digest_algorithm"] = "sha256"
+    rebaselined["precheck_summary"] = {
+        "source_count": source_set_spec["expected_source_count"],
+        "source_path_status": "pass_repo_relative_only",
+        "excluded_path_status": "pass_no_excluded_sources",
+        "encoding_status": "pass_utf8_readable",
+        "content_boundary_status": "pass_metadata_and_hashes_only",
+        "source_scan_status": "not_run_by_rebaseline_tool",
+        "safety_scan_status": "not_run_by_rebaseline_tool",
+        "local_path_match_count": None,
+        "ip_like_match_count": None,
+        "assignment_like_match_count": None,
+        "boundary_phrase_match_count": None,
+        "boundary_phrase_match_count_status": "not_run_by_rebaseline_tool",
+    }
+
+    sources: list[dict[str, Any]] = []
+    for source in source_set_spec["ordered_sources"]:
+        source_path = source["source_path"]
+        sources.append(
+            {
+                "source_path": source_path,
+                "git_sha": git_sha,
+                "section_title": source["section_title"],
+                "content_class": source["content_class"],
+                "risk_label": source["risk_label"],
+                "allowed_for_digest": "approved",
+                "allowed_for_release": "not_release_without_separate_approval",
+                "redaction_status": "metadata_hash_only_no_source_text",
+                "encoding_status": "utf8_readable",
+                "digest_algorithm": "sha256",
+                "content_hash": source_content_hash_or_placeholder(repo_root, source_path),
+                "verified_at": generated_at,
+                "reviewer_or_approval_ref": approval_ref,
+                "notes": "Metadata and hash only; source body omitted.",
+            }
+        )
+    rebaselined["sources"] = sources
+
+    if isinstance(rebaselined.get("closeout"), dict):
+        closeout = rebaselined["closeout"]
+        closeout["status_label"] = "PASS WITH NOTES"
+        closeout["artifact_generation_status"] = "rebaselined"
+        closeout["artifact_commit_status"] = "not_committed_pending_owner_review"
+        closeout["source_count"] = len(sources)
+        closeout["precheck_result"] = "PASS_WITH_NOT_RUN_SCAN_NOTES"
+        closeout["json_validation_status"] = "not_run_by_rebaseline_tool"
+        closeout["safety_scan_status"] = "not_run_by_rebaseline_tool"
+        closeout["quality_gate_status"] = "not_run_by_rebaseline_tool"
+        closeout["release_artifact_status"] = rebaselined.get("release_artifact_status")
+        closeout["rag_authorization_status"] = rebaselined.get("rag_authorization_status")
+        closeout["push_status"] = "not_pushed"
+        closeout["tag_status"] = "not_created"
+        closeout["release_status"] = "not_published"
+        closeout["unresolved_risks"] = [
+            "Owner review required.",
+            "Explicit post-write JSON validation required.",
+            "Explicit post-write safety scan required.",
+            "Full local verification required.",
+            "Separate approval required before commit.",
+        ]
+        closeout["next_step"] = (
+            "Owner review, explicit JSON validation, explicit safety scan, full local "
+            "verification, then separate approval before commit."
+        )
+
+    return rebaselined
+
+
+def source_set_paths(source_set_spec: dict[str, Any]) -> list[str]:
+    return [str(source["source_path"]) for source in source_set_spec["ordered_sources"]]
+
+
+def add_source_set_diff_fields(report: dict[str, Any], digest: dict[str, Any], source_set_spec: dict[str, Any]) -> dict[str, Any]:
+    existing_paths = digest_source_paths(digest)
+    target_paths = source_set_paths(source_set_spec)
+    existing_set = set(existing_paths)
+    target_set = set(target_paths)
+    report["source_set_id"] = source_set_spec["source_set_id"]
+    report["expected_source_count"] = source_set_spec["expected_source_count"]
+    report["source_allow_list_ref"] = source_set_spec["human_contract_ref"]
+    report["added_sources"] = [path for path in target_paths if path not in existing_set]
+    report["removed_sources"] = [path for path in existing_paths if path not in target_set]
+    report["retained_sources"] = [path for path in target_paths if path in existing_set]
+    report["excluded_volatile_sources"] = source_set_spec["excluded_volatile_sources"]
+    return report
+
+
+def check_rebaseline_spec(repo_root: Path, digest_path: Path, source_set_spec_path: Path) -> dict[str, Any]:
+    digest = load_digest(digest_path)
+    source_set_spec = load_source_set_spec(source_set_spec_path)
+    candidate = build_rebaselined_digest(
+        digest,
+        source_set_spec,
+        repo_root=repo_root,
+        git_sha=current_git_sha(repo_root),
+        generated_at=utc_now(),
+        approval_ref="read_only_rebaseline_check",
+    )
+    report = build_report(candidate, check_sources(repo_root, candidate), mode="rebaseline_check")
+    report["source_set_spec_path"] = str(source_set_spec_path.relative_to(repo_root.resolve()).as_posix())
+    return add_source_set_diff_fields(report, digest, source_set_spec)
+
+
 def write_refreshed_digest(
     repo_root: Path,
     digest_path: Path,
@@ -441,14 +675,57 @@ def write_refreshed_digest(
     return build_report(refreshed, check_sources(repo_root, refreshed), mode="write")
 
 
+def write_rebaselined_digest(
+    repo_root: Path,
+    digest_path: Path,
+    source_set_spec_path: Path,
+    *,
+    approval_ref: str,
+    git_sha: str | None = None,
+    generated_at: str | None = None,
+) -> dict[str, Any]:
+    if not approval_ref or not approval_ref.strip():
+        raise ValueError("--write requires --approval-ref")
+    digest = load_digest(digest_path)
+    source_set_spec = load_source_set_spec(source_set_spec_path)
+    candidate = build_rebaselined_digest(
+        digest,
+        source_set_spec,
+        repo_root=repo_root,
+        git_sha=current_git_sha(repo_root),
+        generated_at=generated_at or utc_now(),
+        approval_ref=approval_ref,
+    )
+    checks = check_sources(repo_root, candidate)
+    blocking = [check for check in checks if check.status in {"missing", "invalid_utf8", "unsafe", "malformed"}]
+    if blocking:
+        raise ValueError("cannot write digest while rebaseline sources are missing, unsafe, invalid UTF-8, or malformed")
+    source_basis_sha = require_clean_digest_source_basis(repo_root, candidate)
+    if git_sha is not None and git_sha != source_basis_sha:
+        raise ValueError("--git-sha cannot override the current clean source-basis commit")
+    rebaselined = build_rebaselined_digest(
+        digest,
+        source_set_spec,
+        repo_root=repo_root,
+        git_sha=source_basis_sha,
+        generated_at=generated_at or utc_now(),
+        approval_ref=approval_ref,
+    )
+    write_digest(rebaselined, digest_path)
+    report = build_report(rebaselined, check_sources(repo_root, rebaselined), mode="rebaseline_write")
+    report["source_set_spec_path"] = str(source_set_spec_path.relative_to(repo_root.resolve()).as_posix())
+    return add_source_set_diff_fields(report, digest, source_set_spec)
+
+
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Check or refresh the approved corpus digest.")
+    parser = argparse.ArgumentParser(description="Check, refresh, or explicitly re-baseline the approved corpus digest.")
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--check", action="store_true", help="Read-only check mode. This is the default.")
     mode.add_argument("--write", action="store_true", help="Refresh digest metadata and hashes. Requires --approval-ref.")
     parser.add_argument("--json", action="store_true", help="Emit JSON report.")
     parser.add_argument("--repo-root", default=None, help="Repository root. Defaults to the script parent repository.")
     parser.add_argument("--digest-path", default=DEFAULT_DIGEST_PATH, help="Repo-relative digest path.")
+    parser.add_argument("--rebaseline-spec", default=None, help="Repo-relative explicit source-set spec for approved rebaseline mode.")
     parser.add_argument("--approval-ref", default="", help="Required approval reference for --write.")
     parser.add_argument("--git-sha", default=None, help="Override source-basis git SHA for tests or controlled refreshes.")
     return parser
@@ -461,15 +738,29 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.write:
             digest_path = validate_cli_digest_path(repo_root, args.digest_path, write=True)
-            report = write_refreshed_digest(
-                repo_root,
-                digest_path,
-                approval_ref=args.approval_ref,
-                git_sha=args.git_sha,
-            )
+            if args.rebaseline_spec:
+                source_set_spec_path = validate_cli_spec_path(repo_root, args.rebaseline_spec)
+                report = write_rebaselined_digest(
+                    repo_root,
+                    digest_path,
+                    source_set_spec_path,
+                    approval_ref=args.approval_ref,
+                    git_sha=args.git_sha,
+                )
+            else:
+                report = write_refreshed_digest(
+                    repo_root,
+                    digest_path,
+                    approval_ref=args.approval_ref,
+                    git_sha=args.git_sha,
+                )
         else:
             digest_path = validate_cli_digest_path(repo_root, args.digest_path, write=False)
-            report = check_digest(repo_root, digest_path)
+            if args.rebaseline_spec:
+                source_set_spec_path = validate_cli_spec_path(repo_root, args.rebaseline_spec)
+                report = check_rebaseline_spec(repo_root, digest_path, source_set_spec_path)
+            else:
+                report = check_digest(repo_root, digest_path)
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         parser.exit(2, f"error: {exc}\n")
 

@@ -8,6 +8,7 @@ from scripts import generate_corpus_digest
 
 
 APPROVAL_REF = "owner_approved_phase_6g_digest_refresh_task"
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 def write(path: Path, content: str) -> None:
@@ -43,6 +44,25 @@ def digest_entry(source_path: str, *, source_text: str = "", content_hash: str |
     }
 
 
+def source_set_entry(
+    source_path: str,
+    *,
+    section_title: str | None = None,
+    content_class: str = "repo_baseline",
+    risk_label: str = "approved_repo_policy",
+    temporal_class: str = "stable_current_authority",
+    authority_level: str = "supporting_policy",
+) -> dict[str, object]:
+    return {
+        "source_path": source_path,
+        "section_title": section_title or source_path,
+        "content_class": content_class,
+        "risk_label": risk_label,
+        "temporal_class": temporal_class,
+        "authority_level": authority_level,
+    }
+
+
 def write_digest(root: Path, sources: list[dict[str, object]]) -> Path:
     digest_path = root / "artifacts" / "corpus-digest.json"
     digest_path.parent.mkdir(parents=True, exist_ok=True)
@@ -71,6 +91,27 @@ def write_digest(root: Path, sources: list[dict[str, object]]) -> Path:
     }
     digest_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     return digest_path
+
+
+def write_source_set_spec(
+    root: Path,
+    sources: list[dict[str, object]],
+    *,
+    expected_source_count: int | None = None,
+    excluded_volatile_sources: list[str] | None = None,
+) -> Path:
+    spec_path = root / "docs" / "source-set.json"
+    spec_path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "schema_version": "2.0",
+        "source_set_id": "synthetic_source_set",
+        "human_contract_ref": "docs/SYNTHETIC_CONTRACT.md#source-set",
+        "expected_source_count": expected_source_count if expected_source_count is not None else len(sources),
+        "ordered_sources": sources,
+        "excluded_volatile_sources": excluded_volatile_sources or ["STATUS.md", "ACCEPTANCE_TRACE.md"],
+    }
+    spec_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    return spec_path
 
 
 def run_git(root: Path, *args: str) -> str:
@@ -390,3 +431,267 @@ def test_report_does_not_copy_source_body(tmp_path: Path) -> None:
 
     assert "UNIQUE_SYNTHETIC_SOURCE_BODY_SHOULD_NOT_APPEAR" not in json.dumps(report)
     assert "UNIQUE_SYNTHETIC_SOURCE_BODY_SHOULD_NOT_APPEAR" not in json.dumps(refreshed)
+
+
+def test_phase_6h_source_set_spec_matches_exact_contract() -> None:
+    spec = generate_corpus_digest.load_source_set_spec(
+        REPO_ROOT / "docs" / "APPROVED_CORPUS_SOURCE_SET.v2.json"
+    )
+    paths = generate_corpus_digest.source_set_paths(spec)
+
+    assert len(paths) == 34
+    assert spec["expected_source_count"] == 34
+    assert paths == [
+        "AGENTS.md",
+        "README.md",
+        "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md",
+        "docs/SAFETY_POLICY.md",
+        "docs/VERIFICATION.md",
+        "docs/CI_POLICY.md",
+        "docs/AUDIT_TRACE_SCHEMA.md",
+        "docs/AUDIT_LOG_POLICY.md",
+        "docs/APPROVED_CORPUS_DIGEST_PLAN.md",
+        "docs/APPROVED_CORPUS_RAG_PLAN.md",
+        "docs/LOCAL_RAG_DESIGN.md",
+        "docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md",
+        "docs/LOCAL_RAG_VOLATILE_AUTHORITY_POLICY.md",
+        "docs/LOCAL_RAG_VOLATILE_OVERLAY_CONTRACT.md",
+        "docs/EVAL_REPORT_INTEGRATION_PLAN.md",
+        "docs/EVAL_POLICY.md",
+        "docs/EVAL_INTEGRATION_DECISION.md",
+        "docs/OPTIONAL_RAG_PILOT_DECISION.md",
+        "docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md",
+        "docs/AUDIT_RECEIPT_PILOT_REVIEW.md",
+        "docs/MINIMAL_EVAL_HARNESS_DESIGN.md",
+        "docs/AI_HANDOFF.md",
+        "docs/CHANGE_CONTROL.md",
+        "docs/HUMAN_APPROVALS.md",
+        "docs/PROMPT_PATTERNS.md",
+        "docs/adr/ADR-0001-local-first.md",
+        "docs/adr/ADR-0002-base-template-over-domain-profile.md",
+        "docs/adr/ADR-0003-approval-gated-side-effect.md",
+        "docs/RELEASE_RECORD_v0.1.0-rc1.md",
+        "docs/RELEASE_RECORD_v0.1.0-rc2.md",
+        "docs/RELEASE_RECORD_v0.1.0.md",
+        "docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md",
+        "docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc2.md",
+        "docs/CLEAN_CLONE_VALIDATION_v0.1.0.md",
+    ]
+    assert spec["excluded_volatile_sources"] == ["STATUS.md", "ACCEPTANCE_TRACE.md"]
+    assert "STATUS.md" not in paths
+    assert "ACCEPTANCE_TRACE.md" not in paths
+    assert "docs/LOCAL_RAG_RETRIEVER_LOGICAL_VERIFICATION.md" not in paths
+
+
+def test_rebaseline_check_is_read_only_and_reports_source_set_diff(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    keep = "# Keep\n"
+    new = "# New\n"
+    write(tmp_path / "docs" / "KEEP.md", keep)
+    write(tmp_path / "docs" / "NEW.md", new)
+    digest_path = write_digest(
+        tmp_path,
+        [
+            digest_entry("docs/OLD.md", source_text="# Old\n"),
+            digest_entry("docs/KEEP.md", source_text=keep),
+        ],
+    )
+    spec_path = write_source_set_spec(
+        tmp_path,
+        [
+            source_set_entry("docs/NEW.md"),
+            source_set_entry("docs/KEEP.md"),
+        ],
+    )
+    before = digest_path.read_bytes()
+
+    exit_code = generate_corpus_digest.main(
+        [
+            "--repo-root",
+            str(tmp_path),
+            "--rebaseline-spec",
+            "docs/source-set.json",
+            "--json",
+        ]
+    )
+    captured = capsys.readouterr()
+    report = json.loads(captured.out)
+
+    assert exit_code == 0
+    assert report["mode"] == "rebaseline_check"
+    assert report["source_count"] == 2
+    assert report["valid"] == 2
+    assert [source["source_path"] for source in report["sources"]] == ["docs/NEW.md", "docs/KEEP.md"]
+    assert report["added_sources"] == ["docs/NEW.md"]
+    assert report["removed_sources"] == ["docs/OLD.md"]
+    assert report["source_set_spec_path"] == "docs/source-set.json"
+    assert digest_path.read_bytes() == before
+    assert spec_path.read_text(encoding="utf-8")
+
+
+def test_rebaseline_write_with_spec_updates_membership_order_and_hashes(tmp_path: Path) -> None:
+    keep = "# Keep\n"
+    new = "# New\n"
+    write(tmp_path / "docs" / "KEEP.md", keep)
+    write(tmp_path / "docs" / "NEW.md", new)
+    digest_path = write_digest(
+        tmp_path,
+        [
+            digest_entry("docs/OLD.md", source_text="# Old\n"),
+            digest_entry("docs/KEEP.md", content_hash=digest_hash("# stale keep\n")),
+        ],
+    )
+    spec_path = write_source_set_spec(
+        tmp_path,
+        [
+            source_set_entry("docs/NEW.md"),
+            source_set_entry("docs/KEEP.md"),
+        ],
+    )
+    init_git_repo(tmp_path)
+    head = commit_all(tmp_path)
+
+    report = generate_corpus_digest.write_rebaselined_digest(
+        tmp_path,
+        digest_path,
+        spec_path,
+        approval_ref=APPROVAL_REF,
+        generated_at="2026-02-01T00:00:00Z",
+    )
+    rebaselined = json.loads(digest_path.read_text(encoding="utf-8"))
+
+    assert report["mode"] == "rebaseline_write"
+    assert report["valid"] == 2
+    assert report["added_sources"] == ["docs/NEW.md"]
+    assert report["removed_sources"] == ["docs/OLD.md"]
+    assert rebaselined["git_sha"] == head
+    assert rebaselined["source_allow_list_ref"] == "docs/SYNTHETIC_CONTRACT.md#source-set"
+    assert [source["source_path"] for source in rebaselined["sources"]] == ["docs/NEW.md", "docs/KEEP.md"]
+    assert rebaselined["sources"][0]["content_hash"] == digest_hash(new)
+    assert rebaselined["sources"][1]["content_hash"] == digest_hash(keep)
+    assert all("temporal_class" not in source for source in rebaselined["sources"])
+
+
+def test_rebaseline_write_rejects_dirty_source_basis(tmp_path: Path) -> None:
+    text = "# Clean\n"
+    write(tmp_path / "docs" / "A.md", text)
+    digest_path = write_digest(tmp_path, [digest_entry("docs/OLD.md", source_text="# Old\n")])
+    spec_path = write_source_set_spec(tmp_path, [source_set_entry("docs/A.md")])
+    init_git_repo(tmp_path)
+    commit_all(tmp_path)
+    before = digest_path.read_bytes()
+    write(tmp_path / "docs" / "A.md", "# Dirty\n")
+
+    with pytest.raises(ValueError, match="differs from HEAD: docs/A.md"):
+        generate_corpus_digest.write_rebaselined_digest(
+            tmp_path,
+            digest_path,
+            spec_path,
+            approval_ref=APPROVAL_REF,
+        )
+
+    assert digest_path.read_bytes() == before
+
+
+def test_rebaseline_write_rejects_missing_spec_source(tmp_path: Path) -> None:
+    digest_path = write_digest(tmp_path, [digest_entry("docs/OLD.md", source_text="# Old\n")])
+    spec_path = write_source_set_spec(tmp_path, [source_set_entry("docs/MISSING.md")])
+    before = digest_path.read_bytes()
+
+    with pytest.raises(ValueError, match="missing"):
+        generate_corpus_digest.write_rebaselined_digest(
+            tmp_path,
+            digest_path,
+            spec_path,
+            approval_ref=APPROVAL_REF,
+        )
+
+    assert digest_path.read_bytes() == before
+
+
+def test_rebaseline_write_rejects_invalid_utf8_spec_source(tmp_path: Path) -> None:
+    write_raw(tmp_path / "docs" / "BAD.md", b"# Bad\n\xff\xfe\n")
+    digest_path = write_digest(tmp_path, [digest_entry("docs/OLD.md", source_text="# Old\n")])
+    spec_path = write_source_set_spec(tmp_path, [source_set_entry("docs/BAD.md")])
+    before = digest_path.read_bytes()
+
+    with pytest.raises(ValueError, match="invalid UTF-8"):
+        generate_corpus_digest.write_rebaselined_digest(
+            tmp_path,
+            digest_path,
+            spec_path,
+            approval_ref=APPROVAL_REF,
+        )
+
+    assert digest_path.read_bytes() == before
+
+
+def test_rebaseline_spec_rejects_duplicate_sources(tmp_path: Path) -> None:
+    spec_path = write_source_set_spec(
+        tmp_path,
+        [
+            source_set_entry("docs/A.md"),
+            source_set_entry("docs/A.md"),
+        ],
+    )
+
+    with pytest.raises(ValueError, match="duplicate source paths"):
+        generate_corpus_digest.load_source_set_spec(spec_path)
+
+
+@pytest.mark.parametrize(
+    "bad_source_path",
+    [
+        r"C:\repo\docs\A.md",
+        "../docs/A.md",
+        "artifacts/generated.md",
+        "corpus/private.md",
+    ],
+)
+def test_rebaseline_spec_rejects_unsafe_source_paths(tmp_path: Path, bad_source_path: str) -> None:
+    spec_path = write_source_set_spec(tmp_path, [source_set_entry(bad_source_path)])
+
+    with pytest.raises(ValueError, match="invalid source_path"):
+        generate_corpus_digest.load_source_set_spec(spec_path)
+
+
+def test_rebaseline_spec_expected_count_must_match_ordered_sources(tmp_path: Path) -> None:
+    spec_path = write_source_set_spec(
+        tmp_path,
+        [source_set_entry("docs/A.md")],
+        expected_source_count=2,
+    )
+
+    with pytest.raises(ValueError, match="expected_source_count"):
+        generate_corpus_digest.load_source_set_spec(spec_path)
+
+
+def test_rebaseline_spec_rejects_excluded_volatile_overlap(tmp_path: Path) -> None:
+    spec_path = write_source_set_spec(
+        tmp_path,
+        [source_set_entry("STATUS.md")],
+        excluded_volatile_sources=["STATUS.md"],
+    )
+
+    with pytest.raises(ValueError, match="excluded volatile"):
+        generate_corpus_digest.load_source_set_spec(spec_path)
+
+
+def test_rebaseline_git_sha_override_cannot_weaken_source_basis_guard(tmp_path: Path) -> None:
+    text = "# Source\n"
+    write(tmp_path / "docs" / "A.md", text)
+    digest_path = write_digest(tmp_path, [digest_entry("docs/OLD.md", source_text="# Old\n")])
+    spec_path = write_source_set_spec(tmp_path, [source_set_entry("docs/A.md")])
+    init_git_repo(tmp_path)
+    commit_all(tmp_path)
+
+    with pytest.raises(ValueError, match="cannot override"):
+        generate_corpus_digest.write_rebaselined_digest(
+            tmp_path,
+            digest_path,
+            spec_path,
+            approval_ref=APPROVAL_REF,
+            git_sha="not-the-head-commit",
+        )

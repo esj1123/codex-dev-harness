@@ -1,0 +1,297 @@
+{
+  "schema_version": "2.0",
+  "source_set_id": "phase_6h_stable_corpus_rebaseline_v2",
+  "human_contract_ref": "docs/LOCAL_RAG_STABLE_CORPUS_REBASELINE_CONTRACT.md#exact-approved-phase-6h-stable-source-set",
+  "expected_source_count": 34,
+  "ordered_sources": [
+    {
+      "source_path": "AGENTS.md",
+      "section_title": "AGENTS.md",
+      "content_class": "operating_rules",
+      "risk_label": "approved_repo_policy",
+      "temporal_class": "stable_current_authority",
+      "authority_level": "control_policy"
+    },
+    {
+      "source_path": "README.md",
+      "section_title": "codex-dev-harness",
+      "content_class": "repo_baseline",
+      "risk_label": "approved_repo_policy",
+      "temporal_class": "stable_current_authority",
+      "authority_level": "supporting_policy"
+    },
+    {
+      "source_path": "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md",
+      "section_title": "Capability Implementation Roadmap",
+      "content_class": "capability_roadmap",
+      "risk_label": "approved_repo_policy",
+      "temporal_class": "stable_current_authority",
+      "authority_level": "durable_policy"
+    },
+    {
+      "source_path": "docs/SAFETY_POLICY.md",
+      "section_title": "SAFETY_POLICY.md",
+      "content_class": "safety_policy",
+      "risk_label": "safety_boundary",
+      "temporal_class": "stable_current_authority",
+      "authority_level": "durable_policy"
+    },
+    {
+      "source_path": "docs/VERIFICATION.md",
+      "section_title": "VERIFICATION.md",
+      "content_class": "verification_policy",
+      "risk_label": "verification_boundary",
+      "temporal_class": "stable_current_authority",
+      "authority_level": "durable_policy"
+    },
+    {
+      "source_path": "docs/CI_POLICY.md",
+      "section_title": "CI_POLICY.md",
+      "content_class": "verification_policy",
+      "risk_label": "verification_boundary",
+      "temporal_class": "stable_current_authority",
+      "authority_level": "durable_policy"
+    },
+    {
+      "source_path": "docs/AUDIT_TRACE_SCHEMA.md",
+      "section_title": "Audit Trace Schema",
+      "content_class": "audit_trace_policy",
+      "risk_label": "approval_boundary",
+      "temporal_class": "stable_current_authority",
+      "authority_level": "durable_policy"
+    },
+    {
+      "source_path": "docs/AUDIT_LOG_POLICY.md",
+      "section_title": "Audit Log Policy",
+      "content_class": "audit_trace_policy",
+      "risk_label": "approval_boundary",
+      "temporal_class": "stable_current_authority",
+      "authority_level": "durable_policy"
+    },
+    {
+      "source_path": "docs/APPROVED_CORPUS_DIGEST_PLAN.md",
+      "section_title": "Approved Corpus Digest Plan",
+      "content_class": "corpus_planning",
+      "risk_label": "approved_repo_policy",
+      "temporal_class": "mixed_temporal_evidence",
+      "authority_level": "supporting_policy"
+    },
+    {
+      "source_path": "docs/APPROVED_CORPUS_RAG_PLAN.md",
+      "section_title": "Approved Corpus RAG Plan",
+      "content_class": "corpus_planning",
+      "risk_label": "approved_repo_policy",
+      "temporal_class": "mixed_temporal_evidence",
+      "authority_level": "supporting_policy"
+    },
+    {
+      "source_path": "docs/LOCAL_RAG_DESIGN.md",
+      "section_title": "Local RAG Design",
+      "content_class": "corpus_planning",
+      "risk_label": "approved_repo_policy",
+      "temporal_class": "stable_current_authority",
+      "authority_level": "supporting_policy"
+    },
+    {
+      "source_path": "docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md",
+      "section_title": "Local RAG Implementation Contract",
+      "content_class": "repo_policy",
+      "risk_label": "approval_boundary",
+      "temporal_class": "stable_current_authority",
+      "authority_level": "supporting_policy"
+    },
+    {
+      "source_path": "docs/LOCAL_RAG_VOLATILE_AUTHORITY_POLICY.md",
+      "section_title": "Local RAG Volatile Authority Policy",
+      "content_class": "repo_policy",
+      "risk_label": "approved_repo_policy",
+      "temporal_class": "stable_current_authority",
+      "authority_level": "durable_policy"
+    },
+    {
+      "source_path": "docs/LOCAL_RAG_VOLATILE_OVERLAY_CONTRACT.md",
+      "section_title": "Local RAG Volatile Overlay Contract",
+      "content_class": "repo_policy",
+      "risk_label": "approval_boundary",
+      "temporal_class": "stable_current_authority",
+      "authority_level": "durable_policy"
+    },
+    {
+      "source_path": "docs/EVAL_REPORT_INTEGRATION_PLAN.md",
+      "section_title": "Eval Report Integration Plan",
+      "content_class": "eval_policy",
+      "risk_label": "approved_repo_policy",
+      "temporal_class": "stable_current_authority",
+      "authority_level": "supporting_policy"
+    },
+    {
+      "source_path": "docs/EVAL_POLICY.md",
+      "section_title": "Eval Policy",
+      "content_class": "eval_policy",
+      "risk_label": "approved_repo_policy",
+      "temporal_class": "stable_current_authority",
+      "authority_level": "durable_policy"
+    },
+    {
+      "source_path": "docs/EVAL_INTEGRATION_DECISION.md",
+      "section_title": "Eval Integration Decision",
+      "content_class": "eval_policy",
+      "risk_label": "approved_repo_policy",
+      "temporal_class": "stable_current_authority",
+      "authority_level": "supporting_policy"
+    },
+    {
+      "source_path": "docs/OPTIONAL_RAG_PILOT_DECISION.md",
+      "section_title": "Optional RAG Pilot Decision",
+      "content_class": "corpus_planning",
+      "risk_label": "historical_risk_evidence",
+      "temporal_class": "historical_planning_evidence",
+      "authority_level": "historical_context"
+    },
+    {
+      "source_path": "docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md",
+      "section_title": "Optional CI Actualization Decision",
+      "content_class": "repo_policy",
+      "risk_label": "historical_risk_evidence",
+      "temporal_class": "historical_planning_evidence",
+      "authority_level": "historical_context"
+    },
+    {
+      "source_path": "docs/AUDIT_RECEIPT_PILOT_REVIEW.md",
+      "section_title": "Audit Receipt Pilot Review",
+      "content_class": "audit_trace_policy",
+      "risk_label": "historical_risk_evidence",
+      "temporal_class": "historical_planning_evidence",
+      "authority_level": "historical_context"
+    },
+    {
+      "source_path": "docs/MINIMAL_EVAL_HARNESS_DESIGN.md",
+      "section_title": "Minimal Eval Harness Design",
+      "content_class": "eval_policy",
+      "risk_label": "approved_repo_policy",
+      "temporal_class": "stable_current_authority",
+      "authority_level": "supporting_policy"
+    },
+    {
+      "source_path": "docs/AI_HANDOFF.md",
+      "section_title": "AI_HANDOFF.md",
+      "content_class": "governance_policy",
+      "risk_label": "approved_repo_policy",
+      "temporal_class": "stable_current_authority",
+      "authority_level": "supporting_policy"
+    },
+    {
+      "source_path": "docs/CHANGE_CONTROL.md",
+      "section_title": "Change Control",
+      "content_class": "governance_policy",
+      "risk_label": "approval_boundary",
+      "temporal_class": "stable_current_authority",
+      "authority_level": "durable_policy"
+    },
+    {
+      "source_path": "docs/HUMAN_APPROVALS.md",
+      "section_title": "Human Approvals",
+      "content_class": "governance_policy",
+      "risk_label": "approval_boundary",
+      "temporal_class": "stable_current_authority",
+      "authority_level": "durable_policy"
+    },
+    {
+      "source_path": "docs/PROMPT_PATTERNS.md",
+      "section_title": "Prompt Patterns",
+      "content_class": "governance_policy",
+      "risk_label": "approved_repo_policy",
+      "temporal_class": "stable_current_authority",
+      "authority_level": "supporting_policy"
+    },
+    {
+      "source_path": "docs/adr/ADR-0001-local-first.md",
+      "section_title": "ADR-0001 Local First",
+      "content_class": "architecture_decision",
+      "risk_label": "decision_record",
+      "temporal_class": "stable_architecture_decision",
+      "authority_level": "durable_policy"
+    },
+    {
+      "source_path": "docs/adr/ADR-0002-base-template-over-domain-profile.md",
+      "section_title": "ADR-0002 Base Template Over Domain Profile",
+      "content_class": "architecture_decision",
+      "risk_label": "decision_record",
+      "temporal_class": "stable_architecture_decision",
+      "authority_level": "durable_policy"
+    },
+    {
+      "source_path": "docs/adr/ADR-0003-approval-gated-side-effect.md",
+      "section_title": "ADR-0003 Approval Gated Side Effect",
+      "content_class": "architecture_decision",
+      "risk_label": "decision_record",
+      "temporal_class": "stable_architecture_decision",
+      "authority_level": "durable_policy"
+    },
+    {
+      "source_path": "docs/RELEASE_RECORD_v0.1.0-rc1.md",
+      "section_title": "Release Record v0.1.0-rc1",
+      "content_class": "release_evidence",
+      "risk_label": "historical_release_evidence",
+      "temporal_class": "historical_release_evidence",
+      "authority_level": "historical_context"
+    },
+    {
+      "source_path": "docs/RELEASE_RECORD_v0.1.0-rc2.md",
+      "section_title": "Release Record v0.1.0-rc2",
+      "content_class": "release_evidence",
+      "risk_label": "historical_release_evidence",
+      "temporal_class": "historical_release_evidence",
+      "authority_level": "historical_context"
+    },
+    {
+      "source_path": "docs/RELEASE_RECORD_v0.1.0.md",
+      "section_title": "Release Record v0.1.0",
+      "content_class": "release_evidence",
+      "risk_label": "historical_release_evidence",
+      "temporal_class": "historical_release_evidence",
+      "authority_level": "historical_context"
+    },
+    {
+      "source_path": "docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md",
+      "section_title": "Clean Clone Validation v0.1.0-rc1",
+      "content_class": "release_evidence",
+      "risk_label": "historical_release_evidence",
+      "temporal_class": "historical_release_evidence",
+      "authority_level": "historical_context"
+    },
+    {
+      "source_path": "docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc2.md",
+      "section_title": "Clean Clone Validation v0.1.0-rc2",
+      "content_class": "release_evidence",
+      "risk_label": "historical_release_evidence",
+      "temporal_class": "historical_release_evidence",
+      "authority_level": "historical_context"
+    },
+    {
+      "source_path": "docs/CLEAN_CLONE_VALIDATION_v0.1.0.md",
+      "section_title": "Clean Clone Validation v0.1.0",
+      "content_class": "release_evidence",
+      "risk_label": "historical_release_evidence",
+      "temporal_class": "historical_release_evidence",
+      "authority_level": "historical_context"
+    }
+  ],
+  "excluded_volatile_sources": [
+    "STATUS.md",
+    "ACCEPTANCE_TRACE.md"
+  ],
+  "excluded_review_sources": [
+    "docs/LOCAL_RAG_RETRIEVER_USAGE_PROBE.md",
+    "docs/LOCAL_RAG_RETRIEVER_LOGICAL_VERIFICATION.md",
+    "docs/LOCAL_RAG_RETRIEVER_POST_REFRESH_LOGICAL_VERIFICATION.md",
+    "docs/LOCAL_RAG_POLICY_APPLICATION_REVIEW.md",
+    "docs/LOCAL_RAG_REAL_REPO_OVERLAY_VERIFICATION.md",
+    "docs/LOCAL_RAG_STABLE_CORPUS_REBASELINE_CONTRACT.md"
+  ],
+  "notes": [
+    "Machine-readable Phase 6H.2 source-set specification only.",
+    "Contains no source bodies, content hashes, local absolute paths, or generated artifacts.",
+    "Does not authorize writing artifacts/corpus-digest.json without separate approval."
+  ]
+}
