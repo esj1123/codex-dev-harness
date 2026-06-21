@@ -501,6 +501,117 @@ def test_durable_policy_preserves_stable_only_precedence(tmp_path: Path) -> None
     assert "content_hash" in payload["matched_sources"][0]
 
 
+def test_short_ci_query_prefers_current_ci_policy_over_historical_decision(tmp_path: Path) -> None:
+    ci_policy = "# CI Policy\n\nCI verification is the current read-only workflow boundary.\n"
+    optional_decision = "# Optional CI Decision\n\nCI CI CI CI CI CI future optional history.\n"
+    write(tmp_path / "docs" / "CI_POLICY.md", ci_policy)
+    write(tmp_path / "docs" / "OPTIONAL_CI_ACTUALIZATION_DECISION.md", optional_decision)
+    write_digest(
+        tmp_path,
+        [
+            digest_source(
+                "docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md",
+                source_text=optional_decision,
+                risk_label="historical_risk_evidence",
+            ),
+            digest_source(
+                "docs/CI_POLICY.md",
+                source_text=ci_policy,
+                content_class="verification_policy",
+                risk_label="verification_boundary",
+            ),
+        ],
+    )
+
+    payload = retriever.retrieve(tmp_path, "CI", max_results=3)
+
+    assert payload["status"] == "found"
+    assert payload["matched_sources"][0]["source_path"] == "docs/CI_POLICY.md"
+
+
+def test_short_ci_query_does_not_match_ci_inside_decision_substring(tmp_path: Path) -> None:
+    decision = "# Decision\n\nThis historical decision record has no standalone short token.\n"
+    write(tmp_path / "docs" / "DECISION.md", decision)
+    write_digest(tmp_path, [digest_source("docs/DECISION.md", source_text=decision)])
+
+    payload = retriever.retrieve(tmp_path, "CI", max_results=3)
+
+    assert payload["status"] == "no_sufficient_evidence"
+    assert payload["matched_sources"] == []
+
+
+def test_receipt_redaction_policy_prefers_schema_over_historical_review(tmp_path: Path) -> None:
+    schema = "# Audit Trace Schema\n\nReceipt redaction policy belongs in structured schema guidance.\n"
+    review = "# Audit Receipt Pilot Review\n\nReceipt redaction policy receipt redaction policy historical review.\n"
+    write(tmp_path / "docs" / "AUDIT_TRACE_SCHEMA.md", schema)
+    write(tmp_path / "docs" / "AUDIT_RECEIPT_PILOT_REVIEW.md", review)
+    write_digest(
+        tmp_path,
+        [
+            digest_source(
+                "docs/AUDIT_RECEIPT_PILOT_REVIEW.md",
+                source_text=review,
+                content_class="audit_trace_policy",
+                risk_label="historical_risk_evidence",
+            ),
+            digest_source(
+                "docs/AUDIT_TRACE_SCHEMA.md",
+                source_text=schema,
+                content_class="audit_trace_policy",
+                risk_label="approval_boundary",
+            ),
+        ],
+    )
+
+    payload = retriever.retrieve(tmp_path, "receipt redaction policy", max_results=3)
+
+    assert payload["status"] == "found"
+    assert payload["matched_sources"][0]["source_path"] == "docs/AUDIT_TRACE_SCHEMA.md"
+
+
+def test_narrow_durable_policy_document_beats_broad_rag_policy_text(tmp_path: Path) -> None:
+    safety = "# Safety Policy\n\nSafety policy defines the durable repository safety boundary.\n"
+    broad_rag = "# Local RAG Volatile Authority Policy\n\nSafety policy safety policy broad overlay context.\n"
+    write(tmp_path / "docs" / "SAFETY_POLICY.md", safety)
+    write(tmp_path / "docs" / "LOCAL_RAG_VOLATILE_AUTHORITY_POLICY.md", broad_rag)
+    write_digest(
+        tmp_path,
+        [
+            digest_source("docs/LOCAL_RAG_VOLATILE_AUTHORITY_POLICY.md", source_text=broad_rag),
+            digest_source(
+                "docs/SAFETY_POLICY.md",
+                source_text=safety,
+                content_class="safety_policy",
+                risk_label="safety_boundary",
+            ),
+        ],
+    )
+
+    payload = retriever.retrieve(tmp_path, "safety policy", max_results=3)
+
+    assert payload["status"] == "found"
+    assert payload["matched_sources"][0]["source_path"] == "docs/SAFETY_POLICY.md"
+
+
+def test_text_match_beats_metadata_only_match(tmp_path: Path) -> None:
+    metadata_only = "# Metadata Only\n\nThis source has background notes without the target phrase.\n"
+    body_match = "# Body Match\n\nCalibration policy appears in the source body text.\n"
+    write(tmp_path / "docs" / "CALIBRATION_POLICY.md", metadata_only)
+    write(tmp_path / "docs" / "CURRENT_GUIDANCE.md", body_match)
+    write_digest(
+        tmp_path,
+        [
+            digest_source("docs/CALIBRATION_POLICY.md", source_text=metadata_only),
+            digest_source("docs/CURRENT_GUIDANCE.md", source_text=body_match),
+        ],
+    )
+
+    payload = retriever.retrieve(tmp_path, "calibration policy", max_results=3)
+
+    assert payload["status"] == "found"
+    assert payload["matched_sources"][0]["source_path"] == "docs/CURRENT_GUIDANCE.md"
+
+
 def test_max_results_applies_after_merge_and_dedup(tmp_path: Path) -> None:
     make_git_overlay_repo(tmp_path)
 
