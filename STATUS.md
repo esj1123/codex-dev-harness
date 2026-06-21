@@ -48,12 +48,16 @@ runner remains standalone. Phase 5B eval receipt alignment / evidence closure
 defines optional receipt-summary references to explicitly generated eval
 summary JSON and cases JSONL by repo-relative path and SHA-256 without copying
 full case details into receipts.
-Phase 6 approved corpus digest planning and generation are complete. The
-generated digest artifact exists at `artifacts/corpus-digest.json` and is
-metadata/hash-only. The artifact-containing commit is
-`df51aac8c3a9b001c4d036633897f176b87c304d`; the digest source-basis commit
-recorded inside the artifact is `37a0e7274ae2cd0a50811c138147a37c1b4c0160`.
-The digest is not a release artifact unless separately approved and does not
+Phase 6 approved corpus digest planning, tooling, and re-baselining are
+complete through Phase 6H.3. The current digest artifact exists at
+`artifacts/corpus-digest.json` and is metadata/hash-only. The current
+artifact-containing commit is `8febedead5da6cfd863dd1cbb1c87b0f8d8fab4b`; the
+digest source-basis commit recorded inside the artifact is
+`e35f4649dad430678980714c6827a63668b7b125`. The current stable source set has
+34 sources, removes `STATUS.md` and `ACCEPTANCE_TRACE.md` as volatile
+current-authority files, adds four normative Local RAG policy/contract sources,
+and keeps historical review/probe documents out of the stable digest. The
+digest is not a release artifact unless separately approved and does not
 authorize RAG. No corpus folder, retrieval folder, index folder, embeddings,
 vector database, external service, MCP/Hermes implementation, release
 automation, or downstream integration was added. Phase 6G digest check/refresh
@@ -61,8 +65,9 @@ tooling is present as `scripts/generate_corpus_digest.py` with focused
 synthetic tests in `tests/test_generate_corpus_digest.py`. Check mode is
 read-only and reviewable. Write mode is guarded, restricted to
 `artifacts/corpus-digest.json`, requires a clean digest-listed source basis,
-and is not authorized for the real repository until a separately approved
-Phase 6G digest refresh task. Phase 7A local RAG design /
+and was used only for the separately approved Phase 6H.3 real digest
+re-baseline; future real digest writes remain separately approval-gated. Phase
+7A local RAG design /
 read-only lexical retriever planning is documented in
 `docs/LOCAL_RAG_DESIGN.md`; it remains documentation-only and does not
 authorize retrieval implementation. Phase 7B local RAG implementation contract
@@ -96,9 +101,10 @@ guard, while usability is limited by stale current-authority digest hashes.
 Decision: `digest_refresh_required`. The final tracked commit
 `f2e270fdd704b6a6f7cc7a1e4e06b08612ef9587` also included the digest tooling
 files, so the recorded scope is reconciled as broader than the intended
-three-document review-only change. The real digest artifact remains stale and
-unchanged; no retriever runtime patch, digest refresh, or CI/query-matrix
-automation was added.
+three-document review-only change. The stale digest condition identified by
+that review was resolved later by the approved Phase 6H.3 34-source digest
+re-baseline; no retriever runtime patch or CI/query-matrix automation was
+added.
 
 ## Current Verification Snapshot
 
@@ -124,10 +130,13 @@ Core foundation.
 | checksum coverage | PRESENT | `artifacts/checksums.sha256` records 5 entries: eval report, provenance, manifest, CycloneDX SBOM, and SPDX SBOM; checksum file self-reference excluded |
 | standalone eval case count | PRESENT | `scripts/run_eval.py` discovers 14 named local-only non-LLM eval cases under `evals/cases/` |
 | eval / report integration | PHASE 5B RECEIPT-ALIGNED / STANDALONE | `scripts/run_eval.py`, `tests/test_run_eval.py`, `docs/EVAL_REPORT_INTEGRATION_PLAN.md`, `docs/EVAL_INTEGRATION_DECISION.md`, `docs/EVAL_POLICY.md`, and `audits/receipt-summary.schema.json`; legacy `--report` remains backward-compatible, paired `--summary-report` / `--cases-report` outputs are explicit opt-in only, receipts may cite split eval evidence by repo-relative path and SHA-256, and evals remain separate from `scripts/quality_gate.py`, CI, and release-blocking behavior |
-| approved corpus digest | GENERATED / VERIFIED | `artifacts/corpus-digest.json`; `artifact_type` is `approved_corpus_digest`; source count is 32; artifact-containing commit `df51aac8c3a9b001c4d036633897f176b87c304d`; source-basis commit `37a0e7274ae2cd0a50811c138147a37c1b4c0160`; metadata/hash-only; `release_artifact_status` is `not_release_artifact_without_separate_approval`; `rag_authorization_status` is `not_authorized` |
-| approved corpus digest Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `df51aac8c3a9b001c4d036633897f176b87c304d`; run `27522922010`; job `81344426960`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded |
-| Phase 6G digest tooling boundary | IMPLEMENTED / WRITE-GATED | `scripts/generate_corpus_digest.py` and `tests/test_generate_corpus_digest.py`; default check mode is read-only; write mode is restricted to `artifacts/corpus-digest.json`, requires a non-empty approval reference and clean digest-listed source basis, preserves exact source membership and ordering, and records scans/gates as not run when not executed; real-repository write remains not authorized until a separate Phase 6G refresh task |
-| Phase 6G digest tooling boundary Local Verify evidence | PASS | commit `940a8a5de13d84b25627ece3ae814730e1b8c3e2`; workflow `Local Verify`; run `27865330352`; job `82468393525`; tests, quality gate, and three render dry-runs passed; contents permission remained read-only; no artifacts uploaded; workflow did not run digest refresh, digest check/write, release verification, retrieval query-matrix verification, or artifact generation; real-repository `--write` remains NOT RUN; `artifacts/corpus-digest.json` remains stale and unchanged; digest remains non-release evidence and RAG authorization remains unchanged |
+| approved corpus digest | REBASELINED / VERIFIED | `artifacts/corpus-digest.json`; `artifact_type` is `approved_corpus_digest`; current source count is 34; artifact-containing commit `8febedead5da6cfd863dd1cbb1c87b0f8d8fab4b`; source-basis commit `e35f4649dad430678980714c6827a63668b7b125`; metadata/hash-only; stable digest excludes `STATUS.md` and `ACCEPTANCE_TRACE.md` as volatile current-authority files; `release_artifact_status` is `not_release_artifact_without_separate_approval`; `rag_authorization_status` is `not_authorized` |
+| approved corpus digest Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `8febedead5da6cfd863dd1cbb1c87b0f8d8fab4b`; run `27890277121`; job `82532492491`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded; contents permission remained read-only |
+| Phase 6G digest tooling boundary | IMPLEMENTED / WRITE-GATED | `scripts/generate_corpus_digest.py` and `tests/test_generate_corpus_digest.py`; default check mode is read-only; write mode is restricted to `artifacts/corpus-digest.json`, requires a non-empty approval reference and clean digest-listed source basis, preserves exact source membership and ordering, records scans/gates as not run when not executed, and was used only for the separately approved Phase 6H.3 real digest re-baseline |
+| Phase 6G digest tooling boundary Local Verify evidence | PASS | commit `940a8a5de13d84b25627ece3ae814730e1b8c3e2`; workflow `Local Verify`; run `27865330352`; job `82468393525`; tests, quality gate, and three render dry-runs passed; contents permission remained read-only; no artifacts uploaded; workflow did not run digest refresh, digest check/write, release verification, retrieval query-matrix verification, or artifact generation |
+| Phase 6H.1 stable corpus rebaseline contract | PRESENT / CONTRACT-ONLY | `docs/LOCAL_RAG_STABLE_CORPUS_REBASELINE_CONTRACT.md`; selects the exact 34-source stable corpus decision, removes `STATUS.md` and `ACCEPTANCE_TRACE.md` from stable digest membership, adds four normative Local RAG policy/contract sources, excludes historical review/probe documents, and keeps digest write separately gated |
+| Phase 6H.2 rebaseline tooling and source-set spec | IMPLEMENTED / VERIFIED | `docs/APPROVED_CORPUS_SOURCE_SET.v2.json`, `scripts/generate_corpus_digest.py`, and `tests/test_generate_corpus_digest.py`; source-set spec declares the exact 34-source order and excluded volatile sources; tooling supports rebaseline preview/write with guarded output; Local Verify run `27889997830`, job `82531741929`, passed for commit `e35f4649dad430678980714c6827a63668b7b125` |
+| Phase 6H.3 approved real digest rebaseline | PASS | `artifacts/corpus-digest.json` was rebaselined to the approved 34-source set with 34 valid sources and 0 stale sources; commit `8febedead5da6cfd863dd1cbb1c87b0f8d8fab4b`; Local Verify run `27890277121`, job `82532492491`, passed; no release artifact publication, RAG authorization, corpus/retrieval/index directory, embeddings, vector DB, external service, downstream integration, or artifact upload was added |
 | local RAG design | PLANNED / DOCUMENTATION-ONLY | `docs/LOCAL_RAG_DESIGN.md` defines a future local-only, read-only lexical retriever over `artifacts/corpus-digest.json` and digest-listed repo-owned source files; advisory only; no RAG code, retrieval/index/corpus folder, embeddings, vector database, external service, CI or quality-gate integration, audit automation, digest regeneration, release automation, MCP/Hermes, or downstream integration added |
 | local RAG implementation contract | PRESENT / CONTRACT-ONLY | `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md` defines Phase 7B allowed inputs, forbidden inputs, output shape, citation rules, no-answer behavior, and future verification requirements; no retrieval code, index, corpus folder, retrieval folder, embeddings, vector database, external service, MCP/Hermes, release automation, digest regeneration, or downstream integration added |
 | Phase 7B Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `ecdcae277ab8affaa63f2f7ebe629e73041a7a2c`; run `27669744955`; job `81831232940`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded |
@@ -315,8 +324,13 @@ Core foundation.
 - Approved corpus digest planning:
   `docs/APPROVED_CORPUS_DIGEST_PLAN.md`.
 - Approved corpus digest artifact:
-  `artifacts/corpus-digest.json`, metadata/hash-only, source count 32, not a
-  release artifact without separate approval, and not RAG authorization.
+  `artifacts/corpus-digest.json`, metadata/hash-only, source count 34,
+  rebaselined through Phase 6H.3, not a release artifact without separate
+  approval, and not RAG authorization.
+- Approved corpus source-set specification:
+  `docs/APPROVED_CORPUS_SOURCE_SET.v2.json`, exact ordered 34-source stable
+  source set with `STATUS.md` and `ACCEPTANCE_TRACE.md` excluded as volatile
+  current-authority sources.
 - Model and prompt change planning: `docs/MODEL_CHANGE_POLICY.md`.
 - AI readiness scanner:
   - `docs/AI_READINESS_SCANNER_v0.md`
@@ -674,8 +688,8 @@ Stage 0 current-main gap review basis:
 | release manifest/checksum generation | IMPLEMENTED | Local-only manifest and full-bundle checksum scripts, path-boundary tests, runtime reproducibility inventory, and artifacts added; outputs and checksum inputs are restricted to repo-relative `artifacts/` paths; final checksum coverage includes manifest, SBOM, and provenance evidence while excluding self-reference; no archive, release CI artifact generation, tag, release, application, or live-write behavior |
 | SBOM/provenance generation | IMPLEMENTED MINIMAL LOCAL | Standard-library-only SPDX, CycloneDX, and in-toto-style provenance generators and artifacts added; output paths reject release-evidence overlap; no external metadata lookup, signing, archive, CI-based generation, tag, release publication, application, or live-write behavior |
 | release verification wrapper | IMPLEMENTED LOCAL | `scripts/run_release_verify.ps1` runs local verification, optional standalone eval, manifest generation, bootstrap checksum generation, optional SBOM/provenance generation, strict final full-bundle checksum regeneration, and artifact path reporting; no archive, release CI workflow, signing, publication, tag movement, application, or live-write behavior |
-| approved-corpus digest | GENERATED / VERIFIED | `docs/APPROVED_CORPUS_DIGEST_PLAN.md` defines candidate classes, required metadata, risk labels, forbidden corpus, digest/hash policy, redaction/encoding checks, source path policy, `08_Study` limits, and RSID/downstream evidence limits; `artifacts/corpus-digest.json` now records a metadata/hash-only digest with 32 sources; artifact-containing commit `df51aac8c3a9b001c4d036633897f176b87c304d`; source-basis commit `37a0e7274ae2cd0a50811c138147a37c1b4c0160`; Local Verify run `27522922010` / job `81344426960` passed; no corpus folder, retrieval/index tooling, embeddings, vector storage, external service, CI or quality-gate integration, or RAG implementation added |
-| approved-corpus digest tooling | PHASE 6G BOUNDARY HARDENED / WRITE NOT AUTHORIZED | `scripts/generate_corpus_digest.py` and `tests/test_generate_corpus_digest.py` provide check/refresh tooling; check mode is read-only; write mode is guarded by canonical output path, approval reference, source safety checks, and clean digest-listed source-basis checks; refresh metadata records scan/gate evidence as not run when not executed; `artifacts/corpus-digest.json` remains unchanged and stale pending separate Phase 6G refresh approval |
+| approved-corpus digest | REBASELINED / VERIFIED | `docs/APPROVED_CORPUS_DIGEST_PLAN.md` defines candidate classes, required metadata, risk labels, forbidden corpus, digest/hash policy, redaction/encoding checks, source path policy, `08_Study` limits, and RSID/downstream evidence limits; `artifacts/corpus-digest.json` now records a metadata/hash-only digest with 34 sources; artifact-containing commit `8febedead5da6cfd863dd1cbb1c87b0f8d8fab4b`; source-basis commit `e35f4649dad430678980714c6827a63668b7b125`; Local Verify run `27890277121` / job `82532492491` passed; `STATUS.md` and `ACCEPTANCE_TRACE.md` are excluded from stable digest membership as volatile current-authority files; no corpus folder, retrieval/index tooling, embeddings, vector storage, external service, CI or quality-gate integration, release artifact publication, or RAG authorization added |
+| approved-corpus digest tooling | PHASE 6G/6H WRITE-GATED / REBASELINE COMPLETE | `scripts/generate_corpus_digest.py`, `tests/test_generate_corpus_digest.py`, and `docs/APPROVED_CORPUS_SOURCE_SET.v2.json` provide check/rebaseline tooling; check mode is read-only; write mode is guarded by canonical output path, approval reference, source safety checks, and clean digest-listed source-basis checks; refresh metadata records scan/gate evidence as not run when not executed; the only real-repository write recorded here is the separately approved Phase 6H.3 34-source digest rebaseline |
 | approved-corpus RAG planning | ADDED / NEXT PLANNING TARGET | `docs/APPROVED_CORPUS_RAG_PLAN.md` defines candidate safe corpus files, required metadata, forbidden corpus, and corpus-expansion approval checkpoints; the Phase 6F digest artifact does not authorize retrieval/index tooling, embeddings, vector storage, external service use, MCP/Hermes implementation, release automation, or downstream integration |
 | local RAG implementation contract | PHASE 7B CONTRACT-ONLY | `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md`; defines allowed inputs as `artifacts/corpus-digest.json` plus digest-listed repo-owned source files only, forbids private/raw corpus inputs, defines advisory lexical output shape, citation rules, no-answer behavior, and future verification requirements; no retrieval code, corpus/index/retrieval folder, embeddings, vector DB, external service, MCP/Hermes, AgentOps, memory runtime, release automation, artifact regeneration, digest regeneration, or downstream integration added |
 | minimal local lexical retriever | PHASE 7C IMPLEMENTED / STANDALONE | `scripts/local_rag_retriever.py` reads `artifacts/corpus-digest.json`, validates repo-relative digest-listed source paths, reads only eligible repo-owned source files, returns bounded advisory JSON citations with digest content hashes, and implements `found`, `no_sufficient_evidence`, and `blocked`; `tests/test_local_rag_retriever.py` uses synthetic fixtures; no persistent index, corpus/retrieval/index folder, embeddings, vector DB, external service, quality-gate or CI integration, audit automation, release automation, artifact regeneration, digest regeneration, downstream edit, MCP/Hermes, AgentOps, memory runtime, or private/raw corpus ingestion added |
