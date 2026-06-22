@@ -77,7 +77,7 @@ not capabilities to abandon.
 | Approved corpus digest | Approved-corpus plan exists; no digest or index. | Exact allow-list, metadata, redaction checks, encoding checks, and digest contract. | Eval/report and audit identifiers. |
 | Local RAG | Phase 7B contract, Phase 7C standalone local lexical retriever, Phase 7C.4 ranking correction, and Phase 7D retrieval receipt evidence planning are complete; retrieval remains local-only, read-only, advisory-only, and not integrated into CI, quality gates, release, audit automation, MCP/Hermes, AgentOps, memory, or downstream repositories. | Local-first retrieval over the approved corpus, with retrieval output treated as advisory context and any receipt evidence implementation separately approval-gated. | Approved corpus digest and JSON evidence policy. |
 | MCP tool boundary | Phase 8A boundary contract is documented and Phase 8B synthetic contract tests/review checks are present; no MCP runtime, Hermes sidecar, tool execution, quality-gate or CI integration, audit automation, external service, release automation, or downstream integration. | Explicit allowed tool classes, input/output rules, approval boundaries, redaction rules, and audit hooks. | Local RAG and audit rules. |
-| Hermes sidecar | No implementation. | Local sidecar constrained by the MCP boundary, audit model, eval evidence, and approval rules. | MCP tool boundary. |
+| Hermes sidecar | Phase 9A planning contract is documented; no sidecar runtime, background daemon, MCP runtime, tool execution, quality-gate or CI integration, audit automation, external service, release automation, or downstream integration. | Local sidecar constrained by the MCP boundary, audit model, eval evidence, and approval rules. | MCP tool boundary. |
 | Release automation / provenance | Local evidence generators and release wrapper exist; no release automation or publication. | Approval-gated release automation and provenance flow after earlier evidence surfaces are stable. | CI, audit, eval, digest, RAG, MCP, and Hermes stability. |
 | Downstream product integration | Downstream adoption and probe records exist; no downstream edit in this task. | Product-specific integration under downstream repo rules and separate approvals. | Release automation / provenance readiness. |
 
@@ -364,6 +364,8 @@ Goal:
 
 - Implement the sidecar only after the MCP tool boundary is explicit and tested.
 - Keep sidecar behavior local-first and approval-gated.
+- Document the sidecar planning contract before any sidecar runtime behavior is
+  implemented.
 
 Must not include by default:
 

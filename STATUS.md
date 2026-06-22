@@ -168,6 +168,16 @@ The Phase 8B clean Local Verify evidence is recorded as workflow run
 `27949703996`, job `82703245923`, for commit
 `3a24b7bd3f3366aaf24b7a97b22ca3ff082433db`, with tests, quality gate, and the
 three render dry-runs passing and no artifacts uploaded.
+Phase 9A Hermes Sidecar Planning Contract is documented in
+`docs/HERMES_SIDECAR_PLANNING_CONTRACT.md`. It defines the sidecar
+responsibility model, local-first constraints, relationship to the MCP tool
+boundary, input/output redaction boundaries, approval boundaries, failure
+modes, and future verification expectations before any sidecar runtime behavior
+is implemented. It does not implement Hermes sidecar runtime, background
+daemon, MCP runtime, tool execution, quality-gate or CI integration, audit
+automation, real receipt/log generation, external service calls, AgentOps,
+memory runtime behavior, release automation, artifact regeneration, digest
+regeneration, or downstream integration.
 
 ## Current Verification Snapshot
 
@@ -211,6 +221,7 @@ Core foundation.
 | Phase 8A Local Verify evidence | PASS | commit `3528842b3ae2a05f585f95dc23b26cd50d2600d9`; workflow `Local Verify`; run `27948452068`; job `82699051830`; tests passed with 178 cases; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
 | Phase 8B MCP tool boundary synthetic review | IMPLEMENTED / SYNTHETIC TESTS | `tests/test_mcp_tool_boundary_contract.py` and `docs/MCP_TOOL_BOUNDARY_SYNTHETIC_REVIEW.md`; checks documented tool classes, approval separation, input/output redaction, evidence hooks, fail-closed statuses, non-goals, and sequencing; no MCP runtime, Hermes sidecar, tool execution, quality-gate or CI integration, audit automation, real receipt/log generation, external service, AgentOps, memory runtime, release automation, or downstream integration added |
 | Phase 8B Local Verify evidence | PASS | commit `3a24b7bd3f3366aaf24b7a97b22ca3ff082433db`; workflow `Local Verify`; run `27949703996`; job `82703245923`; tests passed with 186 cases; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
+| Phase 9A Hermes sidecar planning contract | PRESENT / CONTRACT-ONLY | `docs/HERMES_SIDECAR_PLANNING_CONTRACT.md`; defines future sidecar responsibility model, local-first constraints, MCP boundary relationship, input/output redaction boundaries, approval boundaries, failure modes, no-op behavior, and future verification expectations; no Hermes sidecar runtime, background daemon, MCP runtime, tool execution, quality-gate or CI integration, audit automation, real receipt/log generation, external service, AgentOps, memory runtime, release automation, artifact regeneration, digest regeneration, or downstream integration added |
 | local RAG design | PLANNED / DOCUMENTATION-ONLY | `docs/LOCAL_RAG_DESIGN.md` defines a future local-only, read-only lexical retriever over `artifacts/corpus-digest.json` and digest-listed repo-owned source files; advisory only; no RAG code, retrieval/index/corpus folder, embeddings, vector database, external service, CI or quality-gate integration, audit automation, digest regeneration, release automation, MCP/Hermes, or downstream integration added |
 | local RAG implementation contract | PRESENT / CONTRACT-ONLY | `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md` defines Phase 7B allowed inputs, forbidden inputs, output shape, citation rules, no-answer behavior, and future verification requirements; no retrieval code, index, corpus folder, retrieval folder, embeddings, vector database, external service, MCP/Hermes, release automation, digest regeneration, or downstream integration added |
 | Phase 7B Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `ecdcae277ab8affaa63f2f7ebe629e73041a7a2c`; run `27669744955`; job `81831232940`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded |
@@ -841,11 +852,11 @@ Stage 0 current-main gap review basis:
 Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
 sequencing handoff.
 
-The next recommended task is a separately approved Phase 9 Hermes sidecar
-planning pass. It should remain documentation-first and define the sidecar
-contract, local-first constraints, failure modes, approval boundaries, and
-relationship to the MCP tool boundary before any sidecar runtime behavior is
-implemented.
+The next recommended task is a separately approved Phase 9B Hermes sidecar
+synthetic contract review. It should remain documentation/test-only and check
+the Phase 9A sidecar contract, local-first constraints, failure modes, approval
+boundaries, redaction boundaries, no-op behavior, and relationship to the MCP
+tool boundary before any sidecar runtime behavior is implemented.
 
 If the owner wants more Phase 7D evidence first, it must be separately approved
 as a narrower Phase 7D.2 task with exact allowed files, commands, artifacts, and
