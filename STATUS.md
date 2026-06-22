@@ -178,6 +178,10 @@ daemon, MCP runtime, tool execution, quality-gate or CI integration, audit
 automation, real receipt/log generation, external service calls, AgentOps,
 memory runtime behavior, release automation, artifact regeneration, digest
 regeneration, or downstream integration.
+The Phase 9A clean Local Verify evidence is recorded as workflow run
+`27950988744`, job `82707563962`, for commit
+`0d74ba91eddcd4d259aa2ede7d14799327eebf3a`, with tests, quality gate, and the
+three render dry-runs passing and no artifacts uploaded.
 
 ## Current Verification Snapshot
 
@@ -222,6 +226,7 @@ Core foundation.
 | Phase 8B MCP tool boundary synthetic review | IMPLEMENTED / SYNTHETIC TESTS | `tests/test_mcp_tool_boundary_contract.py` and `docs/MCP_TOOL_BOUNDARY_SYNTHETIC_REVIEW.md`; checks documented tool classes, approval separation, input/output redaction, evidence hooks, fail-closed statuses, non-goals, and sequencing; no MCP runtime, Hermes sidecar, tool execution, quality-gate or CI integration, audit automation, real receipt/log generation, external service, AgentOps, memory runtime, release automation, or downstream integration added |
 | Phase 8B Local Verify evidence | PASS | commit `3a24b7bd3f3366aaf24b7a97b22ca3ff082433db`; workflow `Local Verify`; run `27949703996`; job `82703245923`; tests passed with 186 cases; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
 | Phase 9A Hermes sidecar planning contract | PRESENT / CONTRACT-ONLY | `docs/HERMES_SIDECAR_PLANNING_CONTRACT.md`; defines future sidecar responsibility model, local-first constraints, MCP boundary relationship, input/output redaction boundaries, approval boundaries, failure modes, no-op behavior, and future verification expectations; no Hermes sidecar runtime, background daemon, MCP runtime, tool execution, quality-gate or CI integration, audit automation, real receipt/log generation, external service, AgentOps, memory runtime, release automation, artifact regeneration, digest regeneration, or downstream integration added |
+| Phase 9A Local Verify evidence | PASS | commit `0d74ba91eddcd4d259aa2ede7d14799327eebf3a`; workflow `Local Verify`; run `27950988744`; job `82707563962`; tests passed with 186 cases; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
 | local RAG design | PLANNED / DOCUMENTATION-ONLY | `docs/LOCAL_RAG_DESIGN.md` defines a future local-only, read-only lexical retriever over `artifacts/corpus-digest.json` and digest-listed repo-owned source files; advisory only; no RAG code, retrieval/index/corpus folder, embeddings, vector database, external service, CI or quality-gate integration, audit automation, digest regeneration, release automation, MCP/Hermes, or downstream integration added |
 | local RAG implementation contract | PRESENT / CONTRACT-ONLY | `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md` defines Phase 7B allowed inputs, forbidden inputs, output shape, citation rules, no-answer behavior, and future verification requirements; no retrieval code, index, corpus folder, retrieval folder, embeddings, vector database, external service, MCP/Hermes, release automation, digest regeneration, or downstream integration added |
 | Phase 7B Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `ecdcae277ab8affaa63f2f7ebe629e73041a7a2c`; run `27669744955`; job `81831232940`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded |
