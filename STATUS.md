@@ -134,6 +134,10 @@ raw retriever output, run query-matrix automation, wire retrieval into
 change retriever runtime behavior, create corpus/retrieval/index folders, add
 embeddings or vector storage, call external services, integrate MCP/Hermes,
 AgentOps, memory, release automation, or downstream work.
+The Phase 7D clean Local Verify evidence is recorded as workflow run
+`27926621569`, job `82630153680`, for commit
+`14e86d417fb743a146cb7bfbf070eee7cf5559b9`, with tests, quality gate, and the
+three render dry-runs passing and no artifacts uploaded.
 
 ## Current Verification Snapshot
 
@@ -169,7 +173,8 @@ Core foundation.
 | Phase 7C.3F post-rebaseline retrieval verification | PASS WITH NOTES | `docs/LOCAL_RAG_POST_REBASELINE_RETRIEVAL_VERIFICATION.md`; digest check reports 34 valid sources and 0 stale sources; `STATUS.md` and `ACCEPTANCE_TRACE.md` are excluded from stable digest membership; durable/historical query checks returned zero stable citations to those files; current/mixed queries still use committed-HEAD volatile citations; remaining Phase 7C.4 issues are short-token collision and authority/ranking behavior |
 | Phase 7C.4 minimal retriever logic correction | IMPLEMENTED / STANDALONE | `scripts/local_rag_retriever.py` and `tests/test_local_rag_retriever.py`; stable source scoring uses boundary-aware term matches, favors body evidence over metadata-only hits, and applies narrow authority boosts for current durable policy files; no digest write, artifact regeneration, query-matrix automation, quality-gate integration, CI integration, release automation, external service, embeddings, vector DB, MCP/Hermes, AgentOps, memory runtime, or downstream integration added |
 | Phase 7C.4 Local Verify evidence | PASS | commit `dd968c3deca02688799a89bf46493f51ff08ac29`; workflow `Local Verify`; run `27895689922`; job `82546726021`; tests passed with 178 cases; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
-| Phase 7D retrieval receipt evidence planning | DOCUMENTED / SCHEMA-ALIGNED | `docs/RETRIEVAL_RECEIPT_EVIDENCE_PLAN.md`, `docs/JSON_EVIDENCE_POLICY.md`, `audits/receipt-summary.schema.json`, and `audits/trace-event.schema.json`; optional retrieval evidence fields are receipt/trace references only; no generated receipt, audit log, query-matrix automation, quality-gate or CI integration, digest regeneration, retriever runtime change, corpus/retrieval/index folder, embeddings, vector DB, external service, MCP/Hermes, AgentOps, memory runtime, release automation, or downstream integration added |
+| Phase 7D retrieval receipt evidence planning | PASS / SCHEMA-ALIGNED | `docs/RETRIEVAL_RECEIPT_EVIDENCE_PLAN.md`, `docs/JSON_EVIDENCE_POLICY.md`, `audits/receipt-summary.schema.json`, and `audits/trace-event.schema.json`; commit `14e86d417fb743a146cb7bfbf070eee7cf5559b9`; optional retrieval evidence fields are receipt/trace references only; no generated receipt, audit log, query-matrix automation, quality-gate or CI integration, digest regeneration, retriever runtime change, corpus/retrieval/index folder, embeddings, vector DB, external service, MCP/Hermes, AgentOps, memory runtime, release automation, or downstream integration added |
+| Phase 7D Local Verify evidence | PASS | workflow `Local Verify`; run `27926621569`; job `82630153680`; tests passed with 178 cases; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
 | local RAG design | PLANNED / DOCUMENTATION-ONLY | `docs/LOCAL_RAG_DESIGN.md` defines a future local-only, read-only lexical retriever over `artifacts/corpus-digest.json` and digest-listed repo-owned source files; advisory only; no RAG code, retrieval/index/corpus folder, embeddings, vector database, external service, CI or quality-gate integration, audit automation, digest regeneration, release automation, MCP/Hermes, or downstream integration added |
 | local RAG implementation contract | PRESENT / CONTRACT-ONLY | `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md` defines Phase 7B allowed inputs, forbidden inputs, output shape, citation rules, no-answer behavior, and future verification requirements; no retrieval code, index, corpus folder, retrieval folder, embeddings, vector database, external service, MCP/Hermes, release automation, digest regeneration, or downstream integration added |
 | Phase 7B Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `ecdcae277ab8affaa63f2f7ebe629e73041a7a2c`; run `27669744955`; job `81831232940`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded |
@@ -731,6 +736,7 @@ Stage 0 current-main gap review basis:
 | local retriever logical verification | PHASE 7C.2A PASS WITH NOTES / SCOPE RECONCILED | `docs/LOCAL_RAG_RETRIEVER_LOGICAL_VERIFICATION.md` records corpus freshness inventory, query matrix behavior, citation/excerpt integrity findings, authority handling, determinism, bounded output, forbidden-query behavior, and multilingual limits; decision is `digest_refresh_required`; final tracked commit `f2e270fdd704b6a6f7cc7a1e4e06b08612ef9587` included the digest tool and tests as broader-than-intended scope; no runtime patch, digest refresh, artifact regeneration, quality-gate or CI integration, tag, release, downstream edit, private/raw corpus ingestion, or generated corpus artifact added |
 | local retriever post-rebaseline verification | PHASE 7C.3F PASS WITH NOTES | `docs/LOCAL_RAG_POST_REBASELINE_RETRIEVAL_VERIFICATION.md` records real-repository post-rebaseline query evidence; durable and historical query paths no longer receive `STATUS.md` or `ACCEPTANCE_TRACE.md` as stable citations; current and mixed query paths still use those files only through the committed-HEAD volatile overlay; remaining `CI` short-token collision and durable-policy authority ranking issues are deferred to Phase 7C.4 |
 | local retriever logic correction | PHASE 7C.4 PASS / STANDALONE | `scripts/local_rag_retriever.py` now uses alnum-boundary term scoring for stable digest sources, weights body matches above metadata-only matches, and applies narrow boosts for current durable policy authority files; `tests/test_local_rag_retriever.py` covers terse `CI`, receipt redaction policy, narrow durable policy authority, and metadata-only demotion; commit `dd968c3deca02688799a89bf46493f51ff08ac29` passed Local Verify run `27895689922` / job `82546726021`; no digest write, artifact regeneration, quality-gate or CI integration, query-matrix automation, release automation, downstream edit, private/raw corpus ingestion, or external service added |
+| retrieval receipt evidence planning | PHASE 7D PASS / SCHEMA-ALIGNED | `docs/RETRIEVAL_RECEIPT_EVIDENCE_PLAN.md`, `docs/JSON_EVIDENCE_POLICY.md`, `audits/receipt-summary.schema.json`, and `audits/trace-event.schema.json` define optional retrieval evidence references for receipts and trace events; commit `14e86d417fb743a146cb7bfbf070eee7cf5559b9` passed Local Verify run `27926621569` / job `82630153680`; no generated receipt or trace file, audit log, query-matrix automation, quality-gate or CI integration, digest refresh, artifact regeneration, retriever runtime change, corpus/retrieval/index folder, embeddings, vector DB, external service, MCP/Hermes, AgentOps, memory runtime, release automation, or downstream edit added |
 | model and prompt change planning | ADDED | `docs/MODEL_CHANGE_POLICY.md` defines model, prompt template, eval run, corpus digest, side-effect class, and compare-before-adopt controls; no model comparison or capture tooling added |
 | optional release verification CI template | TEMPLATE ONLY / DEFERRED | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`, `docs/OPTIONAL_GITHUB_ACTIONS.md`, and `templates/ci/*.template` exist; no release verification workflow, required checks, artifact upload, publishing, signing, tag movement, deployment, application code, or live-write behavior |
 | additional local target experiment plans | PARTIAL EXECUTED | `docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md` was executed once with explicit approval and recorded in `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md`; `docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md` remains planning-only |
@@ -797,11 +803,13 @@ Stage 0 current-main gap review basis:
 Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
 sequencing handoff.
 
-The next recommended task is to review, commit, push, and run clean Local Verify
-for the Phase 7D Retrieval Receipt Evidence Planning patch. After that clean
-verification exists, any Phase 7D receipt evidence implementation, query-matrix
-review, digest refresh, corpus allow-list expansion, or receipt work requires
-separate approval with exact allowed files, scripts, commands, and artifacts.
+The next recommended task is a separately approved Phase 7D.1 retrieval receipt
+evidence implementation-boundary review. That task should decide whether any
+real receipt evidence, retrieval evidence sample, or query-matrix review is
+needed, and must name exact allowed files, scripts, commands, artifacts, and
+verification. By default, no receipt generation, audit logging, query-matrix
+automation, digest refresh, corpus allow-list expansion, or CI/quality-gate
+integration is authorized.
 
 Phase 7C and Phase 7D do not, by default,
 authorize persistent index, corpus, or retrieval folders; embeddings; vector
