@@ -141,6 +141,9 @@ three render dry-runs passing and no artifacts uploaded.
 The roadmap alignment closeout for Phase 7C/7D state is recorded as commit
 `841ed5867863c94fe541e031b5b34d6ba05d7272` and clean Local Verify run
 `27929677672`, job `82638849754`.
+Phase 7D.1 Retrieval Receipt Evidence Implementation Boundary Review records
+that no real receipt evidence, retrieval evidence sample, or query-matrix
+review output is required before moving to the next roadmap capability boundary.
 
 ## Current Verification Snapshot
 
@@ -179,6 +182,7 @@ Core foundation.
 | Phase 7D retrieval receipt evidence planning | PASS / SCHEMA-ALIGNED | `docs/RETRIEVAL_RECEIPT_EVIDENCE_PLAN.md`, `docs/JSON_EVIDENCE_POLICY.md`, `audits/receipt-summary.schema.json`, and `audits/trace-event.schema.json`; commit `14e86d417fb743a146cb7bfbf070eee7cf5559b9`; optional retrieval evidence fields are receipt/trace references only; no generated receipt, audit log, query-matrix automation, quality-gate or CI integration, digest regeneration, retriever runtime change, corpus/retrieval/index folder, embeddings, vector DB, external service, MCP/Hermes, AgentOps, memory runtime, release automation, or downstream integration added |
 | Phase 7D Local Verify evidence | PASS | workflow `Local Verify`; run `27926621569`; job `82630153680`; tests passed with 178 cases; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
 | Phase 7 roadmap alignment Local Verify evidence | PASS | commit `841ed5867863c94fe541e031b5b34d6ba05d7272`; workflow `Local Verify`; run `27929677672`; job `82638849754`; tests passed with 178 cases; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
+| Phase 7D.1 retrieval receipt evidence implementation boundary review | PASS / DOCUMENTATION-ONLY | `docs/RETRIEVAL_RECEIPT_EVIDENCE_IMPLEMENTATION_BOUNDARY_REVIEW.md`; no real receipt evidence, generated trace file, audit log, retrieval evidence sample, query-matrix output, digest refresh, retriever runtime change, quality-gate or CI integration, release automation, or downstream change added |
 | local RAG design | PLANNED / DOCUMENTATION-ONLY | `docs/LOCAL_RAG_DESIGN.md` defines a future local-only, read-only lexical retriever over `artifacts/corpus-digest.json` and digest-listed repo-owned source files; advisory only; no RAG code, retrieval/index/corpus folder, embeddings, vector database, external service, CI or quality-gate integration, audit automation, digest regeneration, release automation, MCP/Hermes, or downstream integration added |
 | local RAG implementation contract | PRESENT / CONTRACT-ONLY | `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md` defines Phase 7B allowed inputs, forbidden inputs, output shape, citation rules, no-answer behavior, and future verification requirements; no retrieval code, index, corpus folder, retrieval folder, embeddings, vector database, external service, MCP/Hermes, release automation, digest regeneration, or downstream integration added |
 | Phase 7B Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `ecdcae277ab8affaa63f2f7ebe629e73041a7a2c`; run `27669744955`; job `81831232940`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded |
@@ -742,6 +746,7 @@ Stage 0 current-main gap review basis:
 | local retriever logic correction | PHASE 7C.4 PASS / STANDALONE | `scripts/local_rag_retriever.py` now uses alnum-boundary term scoring for stable digest sources, weights body matches above metadata-only matches, and applies narrow boosts for current durable policy authority files; `tests/test_local_rag_retriever.py` covers terse `CI`, receipt redaction policy, narrow durable policy authority, and metadata-only demotion; commit `dd968c3deca02688799a89bf46493f51ff08ac29` passed Local Verify run `27895689922` / job `82546726021`; no digest write, artifact regeneration, quality-gate or CI integration, query-matrix automation, release automation, downstream edit, private/raw corpus ingestion, or external service added |
 | retrieval receipt evidence planning | PHASE 7D PASS / SCHEMA-ALIGNED | `docs/RETRIEVAL_RECEIPT_EVIDENCE_PLAN.md`, `docs/JSON_EVIDENCE_POLICY.md`, `audits/receipt-summary.schema.json`, and `audits/trace-event.schema.json` define optional retrieval evidence references for receipts and trace events; commit `14e86d417fb743a146cb7bfbf070eee7cf5559b9` passed Local Verify run `27926621569` / job `82630153680`; no generated receipt or trace file, audit log, query-matrix automation, quality-gate or CI integration, digest refresh, artifact regeneration, retriever runtime change, corpus/retrieval/index folder, embeddings, vector DB, external service, MCP/Hermes, AgentOps, memory runtime, release automation, or downstream edit added |
 | Phase 7 roadmap alignment closeout | PASS / DOCUMENTATION-ONLY | `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` now reflects the completed Phase 7B contract, Phase 7C standalone retriever, Phase 7C.4 ranking correction, and Phase 7D receipt evidence planning; commit `841ed5867863c94fe541e031b5b34d6ba05d7272` passed Local Verify run `27929677672` / job `82638849754`; no retriever runtime, schema, digest, artifact, quality-gate, CI, audit automation, receipt/log generation, query-matrix automation, release, or downstream change added |
+| Phase 7D.1 implementation-boundary review | PASS / DOCUMENTATION-ONLY | `docs/RETRIEVAL_RECEIPT_EVIDENCE_IMPLEMENTATION_BOUNDARY_REVIEW.md` records that Phase 7D does not need real receipt evidence, retrieval evidence samples, or query-matrix output before the next roadmap boundary; any future synthetic example, manual query-matrix review, generated receipt evidence, or automation remains separately approval-gated |
 | model and prompt change planning | ADDED | `docs/MODEL_CHANGE_POLICY.md` defines model, prompt template, eval run, corpus digest, side-effect class, and compare-before-adopt controls; no model comparison or capture tooling added |
 | optional release verification CI template | TEMPLATE ONLY / DEFERRED | `docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md`, `docs/OPTIONAL_GITHUB_ACTIONS.md`, and `templates/ci/*.template` exist; no release verification workflow, required checks, artifact upload, publishing, signing, tag movement, deployment, application code, or live-write behavior |
 | additional local target experiment plans | PARTIAL EXECUTED | `docs/LOCAL_TARGET_EXPERIMENT_PLAN_csharp_desktop.md` was executed once with explicit approval and recorded in `docs/LOCAL_TARGET_EXPERIMENT_csharp_desktop_post_v0.1.0.md`; `docs/LOCAL_TARGET_EXPERIMENT_PLAN_plc_tool.md` remains planning-only |
@@ -808,11 +813,14 @@ Stage 0 current-main gap review basis:
 Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
 sequencing handoff.
 
-The next recommended task is a separately approved Phase 7D.1 retrieval receipt
-evidence implementation-boundary review. That task should decide whether any
-real receipt evidence, retrieval evidence sample, or query-matrix review is
-needed, and must name exact allowed files, scripts, commands, artifacts, and
-verification. By default, no receipt generation, audit logging, query-matrix
+The next recommended task is a separately approved Phase 8 MCP Tool Boundary
+Contract planning pass. It should remain documentation-only and define allowed
+tool classes, input/output limits, approval boundaries, redaction rules, audit
+hooks, and explicit non-goals before any MCP runtime or Hermes sidecar work.
+
+If the owner wants more Phase 7D evidence first, it must be separately approved
+as a narrower Phase 7D.2 task with exact allowed files, commands, artifacts, and
+cleanup rules. By default, no receipt generation, audit logging, query-matrix
 automation, digest refresh, corpus allow-list expansion, or CI/quality-gate
 integration is authorized.
 
