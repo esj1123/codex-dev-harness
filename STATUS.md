@@ -152,6 +152,10 @@ sidecar work. It does not implement MCP runtime, execute tool calls, wire
 quality-gate or CI integration, create audit automation, generate receipts or
 logs, call external services, add AgentOps or memory behavior, automate release
 behavior, or edit downstream repositories.
+The Phase 8A clean Local Verify evidence is recorded as workflow run
+`27948452068`, job `82699051830`, for commit
+`3528842b3ae2a05f585f95dc23b26cd50d2600d9`, with tests, quality gate, and the
+three render dry-runs passing and no artifacts uploaded.
 
 ## Current Verification Snapshot
 
@@ -192,6 +196,7 @@ Core foundation.
 | Phase 7 roadmap alignment Local Verify evidence | PASS | commit `841ed5867863c94fe541e031b5b34d6ba05d7272`; workflow `Local Verify`; run `27929677672`; job `82638849754`; tests passed with 178 cases; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
 | Phase 7D.1 retrieval receipt evidence implementation boundary review | PASS / DOCUMENTATION-ONLY | `docs/RETRIEVAL_RECEIPT_EVIDENCE_IMPLEMENTATION_BOUNDARY_REVIEW.md`; no real receipt evidence, generated trace file, audit log, retrieval evidence sample, query-matrix output, digest refresh, retriever runtime change, quality-gate or CI integration, release automation, or downstream change added |
 | Phase 8A MCP tool boundary contract | PRESENT / CONTRACT-ONLY | `docs/MCP_TOOL_BOUNDARY_CONTRACT.md`; defines future MCP tool classes, input/output limits, approval separation, redaction rules, evidence hooks, failure handling, and explicit non-goals; no MCP runtime, Hermes sidecar, tool execution, quality-gate or CI integration, audit automation, real receipt/log generation, external service, AgentOps, memory runtime, release automation, or downstream integration added |
+| Phase 8A Local Verify evidence | PASS | commit `3528842b3ae2a05f585f95dc23b26cd50d2600d9`; workflow `Local Verify`; run `27948452068`; job `82699051830`; tests passed with 178 cases; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
 | local RAG design | PLANNED / DOCUMENTATION-ONLY | `docs/LOCAL_RAG_DESIGN.md` defines a future local-only, read-only lexical retriever over `artifacts/corpus-digest.json` and digest-listed repo-owned source files; advisory only; no RAG code, retrieval/index/corpus folder, embeddings, vector database, external service, CI or quality-gate integration, audit automation, digest regeneration, release automation, MCP/Hermes, or downstream integration added |
 | local RAG implementation contract | PRESENT / CONTRACT-ONLY | `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md` defines Phase 7B allowed inputs, forbidden inputs, output shape, citation rules, no-answer behavior, and future verification requirements; no retrieval code, index, corpus folder, retrieval folder, embeddings, vector database, external service, MCP/Hermes, release automation, digest regeneration, or downstream integration added |
 | Phase 7B Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `ecdcae277ab8affaa63f2f7ebe629e73041a7a2c`; run `27669744955`; job `81831232940`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded |
@@ -822,10 +827,8 @@ Stage 0 current-main gap review basis:
 Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
 sequencing handoff.
 
-The next recommended task is a separately approved Phase 8A closeout or Phase
-8B synthetic MCP boundary review. Phase 8A closeout should commit the
-documentation-only MCP tool boundary contract and run clean Local Verify. Phase
-8B, if approved, should add only focused synthetic boundary tests or review
+The next recommended task is a separately approved Phase 8B synthetic MCP
+boundary review. It should add only focused synthetic boundary tests or review
 checks for allowed/forbidden tool classes, approval separation, redaction, and
 blocked/not-run behavior before any MCP runtime or Hermes sidecar work.
 
