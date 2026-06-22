@@ -344,6 +344,91 @@
         }
       }
     },
+    "retrieval_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Optional Phase 7D retrieval evidence reference. Use only for explicitly reviewed standalone retrieval evidence or an explicit not-run record. Store safe summaries, repo-relative paths, hashes, counts, and commit identifiers only; do not copy raw retriever stdout, full documents, raw prompts, private data, command logs, tool-call bodies, secrets, live values, or local absolute paths.",
+      "required": [
+        "retrieval_status",
+        "retrieval_mode",
+        "source_count",
+        "citations",
+        "output_capture",
+        "retrieval_integration_status"
+      ],
+      "properties": {
+        "retrieval_status": {
+          "$ref": "#/$defs/retrieval_status"
+        },
+        "retrieval_mode": {
+          "type": "string",
+          "enum": [
+            "not_run",
+            "standalone_manual",
+            "standalone_cli_output_reference",
+            "not_applicable"
+          ]
+        },
+        "query_summary": {
+          "$ref": "#/$defs/safe_summary",
+          "description": "Short sanitized query summary only. Do not store prompt transcripts."
+        },
+        "query_class": {
+          "$ref": "#/$defs/retrieval_query_class"
+        },
+        "source_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "citations": {
+          "type": "array",
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/$defs/retrieval_citation"
+          }
+        },
+        "no_answer_reason": {
+          "$ref": "#/$defs/safe_summary"
+        },
+        "safety_notes": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/$defs/safe_summary"
+          }
+        },
+        "digest_ref": {
+          "$ref": "#/$defs/repo_relative_path",
+          "description": "Repo-relative digest path when stable digest evidence is cited."
+        },
+        "digest_source_basis_commit": {
+          "$ref": "#/$defs/commit_or_unknown"
+        },
+        "observed_head_commit": {
+          "$ref": "#/$defs/commit_or_unknown",
+          "description": "Committed HEAD used for volatile authority evidence, when cited."
+        },
+        "output_capture": {
+          "type": "string",
+          "enum": [
+            "none",
+            "redacted_summary_only",
+            "bounded_citations_only"
+          ]
+        },
+        "retrieval_integration_status": {
+          "type": "string",
+          "enum": [
+            "receipt-summary-only",
+            "trace-reference-only",
+            "not integrated",
+            "not applicable",
+            "not checked"
+          ]
+        }
+      }
+    },
     "status_label": {
       "$ref": "#/$defs/status_label"
     },
@@ -389,6 +474,67 @@
     "sha256_value": {
       "type": "string",
       "pattern": "^[0-9a-fA-F]{64}$"
+    },
+    "retrieval_status": {
+      "type": "string",
+      "enum": [
+        "not_run",
+        "found",
+        "partial",
+        "no_sufficient_evidence",
+        "blocked",
+        "not_applicable"
+      ]
+    },
+    "retrieval_query_class": {
+      "type": "string",
+      "enum": [
+        "durable_policy",
+        "current_state",
+        "historical_decision",
+        "mixed_context",
+        "unknown",
+        "not_applicable"
+      ]
+    },
+    "retrieval_citation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_path",
+        "hash",
+        "hash_kind",
+        "citation_scope",
+        "summary"
+      ],
+      "properties": {
+        "source_path": {
+          "$ref": "#/$defs/repo_relative_path"
+        },
+        "hash": {
+          "$ref": "#/$defs/sha256_value"
+        },
+        "hash_kind": {
+          "type": "string",
+          "enum": [
+            "digest_content_hash",
+            "volatile_content_hash"
+          ]
+        },
+        "citation_scope": {
+          "type": "string",
+          "enum": [
+            "stable_digest",
+            "volatile_committed_head"
+          ]
+        },
+        "summary": {
+          "$ref": "#/$defs/safe_summary"
+        },
+        "authority_note": {
+          "$ref": "#/$defs/safe_summary"
+        }
+      }
     },
     "hash_record": {
       "type": "object",

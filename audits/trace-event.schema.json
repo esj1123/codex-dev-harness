@@ -102,6 +102,53 @@
       "maxLength": 160,
       "description": "Optional reference to receipt_summary.receipt_id when this trace event is associated with a receipt summary."
     },
+    "retrieval_evidence_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Optional Phase 7D retrieval evidence pointer for trace review. This is a compact safe reference only; do not store raw retriever stdout, full documents, raw prompts, command logs, private data, tool-call bodies, secrets, live values, or local absolute paths.",
+      "required": [
+        "retrieval_status",
+        "source_count",
+        "output_capture"
+      ],
+      "properties": {
+        "retrieval_status": {
+          "$ref": "#/$defs/retrieval_status"
+        },
+        "query_summary": {
+          "$ref": "#/$defs/safe_summary"
+        },
+        "query_class": {
+          "$ref": "#/$defs/retrieval_query_class"
+        },
+        "source_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "citation_hashes": {
+          "type": "array",
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/$defs/sha256_value"
+          }
+        },
+        "digest_ref": {
+          "$ref": "#/$defs/repo_relative_path"
+        },
+        "output_capture": {
+          "type": "string",
+          "enum": [
+            "none",
+            "redacted_summary_only",
+            "bounded_citations_only"
+          ]
+        },
+        "note": {
+          "$ref": "#/$defs/safe_summary"
+        }
+      }
+    },
     "hashes": {
       "type": "array",
       "items": {
@@ -137,6 +184,32 @@
     "commit_or_unknown": {
       "type": "string",
       "pattern": "^([0-9a-fA-F]{7,40}|unknown|not checked|not applicable)$"
+    },
+    "sha256_value": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{64}$"
+    },
+    "retrieval_status": {
+      "type": "string",
+      "enum": [
+        "not_run",
+        "found",
+        "partial",
+        "no_sufficient_evidence",
+        "blocked",
+        "not_applicable"
+      ]
+    },
+    "retrieval_query_class": {
+      "type": "string",
+      "enum": [
+        "durable_policy",
+        "current_state",
+        "historical_decision",
+        "mixed_context",
+        "unknown",
+        "not_applicable"
+      ]
     },
     "hash_record": {
       "type": "object",

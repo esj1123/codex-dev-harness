@@ -76,6 +76,26 @@ These retrieval evidence references do not implement retrieval, create indexes,
 generate corpus artifacts, add embeddings or vector storage, call external
 services, integrate MCP/Hermes, or authorize downstream work.
 
+Phase 7D retrieval receipt evidence alignment adds optional
+`retrieval_evidence` references to receipt summaries and optional
+`retrieval_evidence_ref` pointers to trace events. These fields may record
+retrieval status, sanitized query summaries, bounded source counts,
+repo-relative source paths, digest or volatile content hashes, safe citation
+summaries, no-answer reasons, safety notes, and commit identifiers.
+
+Stable digest citations must distinguish `stable_digest` references from
+`volatile_committed_head` references. Stable citations use digest
+`content_hash` values and the digest source-basis commit when known. Volatile
+current-authority citations use committed-HEAD content hashes and the observed
+HEAD commit. A volatile citation is not a digest refresh.
+
+These Phase 7D references do not generate receipt files, write audit logs,
+capture raw retriever output, run a query matrix, wire retrieval into
+`scripts/quality_gate.py` or CI, regenerate `artifacts/corpus-digest.json`,
+change retriever runtime behavior, create indexes, add embeddings or vector
+storage, call external services, integrate MCP/Hermes, or authorize downstream
+work.
+
 Schema files must be plain JSON and parse with the Python standard library.
 The quality gate checks schema presence and core shape only. It is not a
 general-purpose JSON Schema validator for generated evidence records.
