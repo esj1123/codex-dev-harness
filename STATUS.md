@@ -207,6 +207,10 @@ or HTTP server, MCP runtime, tool execution, quality-gate or CI integration,
 audit automation, real receipt/log/trace generation, external service calls,
 AgentOps, memory runtime behavior, release automation, artifact or digest
 regeneration, or downstream integration.
+The Phase 9C clean Local Verify evidence is recorded as workflow run
+`28001249006`, job `82873899477`, for commit
+`322271b1ad1d923cd5ebc54333bb06c5c5dbf3f6`, with tests, quality gate, and the
+three render dry-runs passing and no artifacts uploaded.
 
 ## Current Verification Snapshot
 
@@ -255,6 +259,7 @@ Core foundation.
 | Phase 9B Hermes sidecar synthetic review | IMPLEMENTED / SYNTHETIC TESTS | `tests/test_hermes_sidecar_planning_contract.py` and `docs/HERMES_SIDECAR_SYNTHETIC_REVIEW.md`; checks documentation-only scope, MCP boundary relationship, policy consistency, bounded input/output rules, approval separation, fail-closed/no-op behavior, future verification expectations, and absence of expected runtime entrypoints; no Hermes sidecar runtime, background daemon, MCP runtime, tool execution, quality-gate or CI integration, audit automation, real receipt/log generation, external service, AgentOps, memory runtime, release automation, artifact regeneration, digest regeneration, or downstream integration added |
 | Phase 9B Local Verify evidence | PASS | commit `18d7e0ae1da8b8cfdf0a8649a68f1446291e774d`; workflow `Local Verify`; run `27990544417`; job `82841782838`; tests passed; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
 | Phase 9C Hermes sidecar implementation boundary | PRESENT / DOCUMENTATION-ONLY | `docs/HERMES_SIDECAR_IMPLEMENTATION_BOUNDARY.md`; defines the minimal future no-op sidecar shape, input/output contracts, fail-closed reason codes, approval gates, and future synthetic test expectations; no Hermes sidecar runtime, background daemon, scheduler, service manager, socket/HTTP server, MCP runtime, tool execution, quality-gate or CI integration, audit automation, real receipt/log/trace generation, external service, AgentOps, memory runtime, release automation, artifact or digest regeneration, or downstream integration added |
+| Phase 9C Local Verify evidence | PASS | commit `322271b1ad1d923cd5ebc54333bb06c5c5dbf3f6`; workflow `Local Verify`; run `28001249006`; job `82873899477`; tests passed; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
 | local RAG design | PLANNED / DOCUMENTATION-ONLY | `docs/LOCAL_RAG_DESIGN.md` defines a future local-only, read-only lexical retriever over `artifacts/corpus-digest.json` and digest-listed repo-owned source files; advisory only; no RAG code, retrieval/index/corpus folder, embeddings, vector database, external service, CI or quality-gate integration, audit automation, digest regeneration, release automation, MCP/Hermes, or downstream integration added |
 | local RAG implementation contract | PRESENT / CONTRACT-ONLY | `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md` defines Phase 7B allowed inputs, forbidden inputs, output shape, citation rules, no-answer behavior, and future verification requirements; no retrieval code, index, corpus folder, retrieval folder, embeddings, vector database, external service, MCP/Hermes, release automation, digest regeneration, or downstream integration added |
 | Phase 7B Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `ecdcae277ab8affaa63f2f7ebe629e73041a7a2c`; run `27669744955`; job `81831232940`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded |
@@ -885,11 +890,12 @@ Stage 0 current-main gap review basis:
 Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
 sequencing handoff.
 
-The immediate next step after the Phase 9C documentation update is to commit
-and push the boundary document and run clean Local Verify. After that passes,
-the next separately approved Phase 9 task may define exact files, scripts,
+The next separately approved Phase 9 task may define exact files, scripts,
 commands, safety tests, and side-effect boundaries for a minimal no-op Hermes
-sidecar implementation.
+sidecar implementation. Until that approval exists, no Hermes runtime,
+background process, MCP execution, quality-gate or CI integration, audit
+automation, release automation, external service, memory/AgentOps behavior, or
+downstream integration is authorized.
 
 If the owner wants more Phase 7D evidence first, it must be separately approved
 as a narrower Phase 7D.2 task with exact allowed files, commands, artifacts, and
