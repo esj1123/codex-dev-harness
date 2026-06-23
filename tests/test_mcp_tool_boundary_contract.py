@@ -20,6 +20,10 @@ def section(text: str, heading: str) -> str:
     return text[start:next_start]
 
 
+def normalize_ws(text: str) -> str:
+    return " ".join(text.split())
+
+
 def tool_class_rows() -> dict[str, dict[str, str]]:
     rows: dict[str, dict[str, str]] = {}
     policy_section = section(contract_text(), "3. Tool Class Policy")
@@ -60,7 +64,7 @@ def test_tool_class_matrix_defines_default_statuses() -> None:
 
 def test_approval_gated_classes_do_not_inherit_unrelated_side_effects() -> None:
     text = contract_text()
-    approval_section = section(text, "6. Approval Boundary")
+    approval_section = normalize_ws(section(text, "6. Approval Boundary"))
 
     assert "Approval for one side-effect class does not authorize another" in approval_section
     for side_effect in [
@@ -76,7 +80,7 @@ def test_approval_gated_classes_do_not_inherit_unrelated_side_effects() -> None:
 
 
 def test_input_boundary_rejects_sensitive_live_and_private_values() -> None:
-    input_section = section(contract_text(), "4. Input Boundary")
+    input_section = normalize_ws(section(contract_text(), "4. Input Boundary"))
 
     forbidden_inputs = [
         "raw prompts",
@@ -102,13 +106,13 @@ def test_input_boundary_rejects_sensitive_live_and_private_values() -> None:
 
     for forbidden_input in forbidden_inputs:
         assert forbidden_input in input_section
-    assert "blocked or\nno-sufficient-evidence" in input_section
+    assert "blocked or no-sufficient-evidence" in input_section
 
 
 def test_output_and_redaction_boundaries_prefer_safe_summaries() -> None:
     text = contract_text()
-    output_section = section(text, "5. Output Boundary")
-    redaction_section = section(text, "7. Redaction Rules")
+    output_section = normalize_ws(section(text, "5. Output Boundary"))
+    redaction_section = normalize_ws(section(text, "7. Redaction Rules"))
 
     for safe_output in [
         "PASS, PASS WITH NOTES, FAIL, BLOCKED, NOT RUN, or ENVIRONMENT BLOCKED",
@@ -129,12 +133,18 @@ def test_output_and_redaction_boundaries_prefer_safe_summaries() -> None:
     ]:
         assert unsafe_output in output_section
 
-    assert "identifiers, hashes, counts, status labels,\nand safe summaries" in redaction_section
-    assert "report the\nlimit as a safety note instead of copying unsafe material" in redaction_section
+    assert (
+        "identifiers, hashes, counts, status labels, and safe summaries"
+        in redaction_section
+    )
+    assert (
+        "report the limit as a safety note instead of copying unsafe material"
+        in redaction_section
+    )
 
 
 def test_evidence_hooks_reference_receipts_and_traces_without_automation() -> None:
-    evidence_section = section(contract_text(), "8. Evidence Hooks")
+    evidence_section = normalize_ws(section(contract_text(), "8. Evidence Hooks"))
 
     for reference in [
         "`receipt_summary.receipt_id`",
@@ -149,14 +159,14 @@ def test_evidence_hooks_reference_receipts_and_traces_without_automation() -> No
     for forbidden_automation in [
         "does not create audit automation",
         "receipt generation",
-        "trace file\ngeneration",
+        "trace file generation",
         "log writing",
     ]:
         assert forbidden_automation in evidence_section
 
 
 def test_failure_handling_fails_closed_without_unapproved_fallbacks() -> None:
-    failure_section = section(contract_text(), "9. Failure Handling")
+    failure_section = normalize_ws(section(contract_text(), "9. Failure Handling"))
 
     for status in [
         "`blocked`",
@@ -170,13 +180,13 @@ def test_failure_handling_fails_closed_without_unapproved_fallbacks() -> None:
         "widens file access",
         "calls external services",
         "writes artifacts",
-        "performs side effects without\nseparate approval",
+        "performs side effects without separate approval",
     ]:
         assert forbidden_fallback in failure_section
 
 
 def test_non_goals_keep_runtime_and_integrations_out_of_scope() -> None:
-    non_goals = section(contract_text(), "11. Explicit Non-Goals")
+    non_goals = normalize_ws(section(contract_text(), "11. Explicit Non-Goals"))
 
     forbidden_scope = [
         "implement MCP runtime",
@@ -199,9 +209,9 @@ def test_non_goals_keep_runtime_and_integrations_out_of_scope() -> None:
 
 
 def test_phase_8b_remains_synthetic_before_runtime_planning() -> None:
-    next_step = section(contract_text(), "12. Next Step")
+    next_step = normalize_ws(section(contract_text(), "12. Next Step"))
 
-    assert "Phase 8B synthetic MCP\nboundary tests or review checks" in next_step
+    assert "Phase 8B synthetic MCP boundary tests or review checks" in next_step
     assert "before any runtime planning" in next_step
     assert "Phase 9 Hermes sidecar planning should remain separate" in next_step
     assert "Neither next step is authorized by this document alone" in next_step

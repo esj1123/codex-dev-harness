@@ -21,8 +21,12 @@ def section(text: str, heading: str) -> str:
     return text[start:next_start]
 
 
+def normalize_ws(text: str) -> str:
+    return " ".join(text.split())
+
+
 def test_current_scope_excludes_runtime_and_integrations() -> None:
-    current_scope = section(contract_text(), "Current Scope")
+    current_scope = normalize_ws(section(contract_text(), "Current Scope"))
 
     for allowed_planning_item in [
         "document the sidecar responsibility model",
@@ -49,12 +53,14 @@ def test_current_scope_excludes_runtime_and_integrations() -> None:
 
 
 def test_sidecar_stays_downstream_of_mcp_and_existing_policies() -> None:
-    relationship = section(contract_text(), "Relationship To Existing Boundaries")
+    relationship = normalize_ws(
+        section(contract_text(), "Relationship To Existing Boundaries")
+    )
 
     assert MCP_CONTRACT_PATH.exists()
     assert "downstream of the MCP tool boundary" in relationship
     assert "cannot widen the allowed MCP tool classes" in relationship
-    assert "approval\nrules, redaction rules, or evidence hooks" in relationship
+    assert "approval rules, redaction rules, or evidence hooks" in relationship
 
     for policy_path in [
         "`docs/SAFETY_POLICY.md`",
@@ -67,11 +73,11 @@ def test_sidecar_stays_downstream_of_mcp_and_existing_policies() -> None:
     ]:
         assert policy_path in relationship
 
-    assert "safer and more\nrestrictive rule applies" in relationship
+    assert "safer and more restrictive rule applies" in relationship
 
 
 def test_responsibility_model_is_planning_not_implicit_task_running() -> None:
-    responsibility = section(contract_text(), "Responsibility Model")
+    responsibility = normalize_ws(section(contract_text(), "Responsibility Model"))
 
     for limited_responsibility in [
         "reading explicit local request metadata",
@@ -86,9 +92,9 @@ def test_responsibility_model_is_planning_not_implicit_task_running() -> None:
 
     for prohibited_behavior in [
         "must not become an implicit task runner",
-        "must not infer\napproval from prior tasks",
+        "must not infer approval from prior tasks",
         "perform hidden background work",
-        "bypass user\napproval",
+        "bypass user approval",
         "downstream repository rules",
         "safety invariants",
     ]:
@@ -96,7 +102,7 @@ def test_responsibility_model_is_planning_not_implicit_task_running() -> None:
 
 
 def test_input_boundary_forbids_sensitive_live_and_private_inputs() -> None:
-    input_boundary = section(contract_text(), "Input Boundary")
+    input_boundary = normalize_ws(section(contract_text(), "Input Boundary"))
 
     for allowed_input in [
         "repo-relative paths to approved repository files",
@@ -121,12 +127,12 @@ def test_input_boundary_forbids_sensitive_live_and_private_inputs() -> None:
         "IPs",
         "ports",
         "live config",
-        "device\n  values",
+        "device values",
         "local absolute paths",
         "private raw corpus",
         "`08_Study` raw notes",
         "RSID raw evidence",
-        "downstream raw\n  evidence",
+        "downstream raw evidence",
         "unapproved downstream repository files",
         "hidden environment state",
     ]:
@@ -134,10 +140,10 @@ def test_input_boundary_forbids_sensitive_live_and_private_inputs() -> None:
 
 
 def test_output_boundary_is_bounded_and_redacted() -> None:
-    output_boundary = section(contract_text(), "Output Boundary")
+    output_boundary = normalize_ws(section(contract_text(), "Output Boundary"))
 
     for safe_output in [
-        "`PASS`, `PASS WITH NOTES`, `BLOCKED`, `NOT RUN`, `ENVIRONMENT BLOCKED`, or\n  `FAIL`-style status values",
+        "`PASS`, `PASS WITH NOTES`, `BLOCKED`, `NOT RUN`, `ENVIRONMENT BLOCKED`, or `FAIL`-style status values",
         "repo-relative evidence paths",
         "commit hashes and content hashes",
         "counts, redacted summaries, and reason codes",
@@ -149,13 +155,13 @@ def test_output_boundary_is_bounded_and_redacted() -> None:
     for forbidden_output in [
         "raw prompts",
         "private data",
-        "raw command\nlogs",
+        "raw command logs",
         "unredacted tool-call bodies",
         "secrets",
         "account values",
         "IPs",
         "ports",
-        "live\nconfig",
+        "live config",
         "device values",
         "local absolute paths",
         "generated downstream source",
@@ -164,9 +170,12 @@ def test_output_boundary_is_bounded_and_redacted() -> None:
 
 
 def test_approval_boundary_requires_explicit_side_effect_approval() -> None:
-    approval = section(contract_text(), "Approval Boundary")
+    approval = normalize_ws(section(contract_text(), "Approval Boundary"))
 
-    assert "may not treat planning, dry-run output, documentation approval, or\nprevious task approval as permission" in approval
+    assert (
+        "may not treat planning, dry-run output, documentation approval, or previous task approval as permission"
+        in approval
+    )
 
     for side_effect in [
         "write files",
@@ -179,14 +188,17 @@ def test_approval_boundary_requires_explicit_side_effect_approval() -> None:
     ]:
         assert side_effect in approval
 
-    assert "specific to the side effect, target, expected output, cleanup\nrule, and verification rule" in approval
+    assert (
+        "specific to the side effect, target, expected output, cleanup rule, and verification rule"
+        in approval
+    )
 
 
 def test_failure_behavior_defaults_to_no_op_and_fails_closed() -> None:
-    failure = section(contract_text(), "Failure And No-op Behavior")
+    failure = normalize_ws(section(contract_text(), "Failure And No-op Behavior"))
 
     assert "The default sidecar behavior must be no-op" in failure
-    assert "outside\nthe current approval" in failure
+    assert "outside the current approval" in failure
     assert "blocked or not-run result" in failure
 
     for status in [
@@ -202,11 +214,13 @@ def test_failure_behavior_defaults_to_no_op_and_fails_closed() -> None:
 
 
 def test_future_verification_remains_synthetic_before_runtime() -> None:
-    verification = section(contract_text(), "Future Verification Expectations")
-    next_step = section(contract_text(), "Next Step")
+    verification = normalize_ws(
+        section(contract_text(), "Future Verification Expectations")
+    )
+    next_step = normalize_ws(section(contract_text(), "Next Step"))
 
     for expected_check in [
-        "focused synthetic tests before any real\nsidecar behavior",
+        "focused synthetic tests before any real sidecar behavior",
         "dry-run only behavior",
         "fail-closed approval handling",
         "forbidden input rejection",
@@ -218,8 +232,11 @@ def test_future_verification_remains_synthetic_before_runtime() -> None:
     ]:
         assert expected_check in verification
 
-    assert "should not generate\nreceipt, trace, digest, release, or downstream artifacts" in verification
-    assert "synthetic review of this\ncontract" in next_step
+    assert (
+        "should not generate receipt, trace, digest, release, or downstream artifacts"
+        in verification
+    )
+    assert "synthetic review of this contract" in next_step
     assert "must still not implement Hermes sidecar runtime behavior" in next_step
 
 
