@@ -240,9 +240,11 @@ def test_future_verification_remains_synthetic_before_runtime() -> None:
     assert "must still not implement Hermes sidecar runtime behavior" in next_step
 
 
-def test_no_runtime_sidecar_entrypoints_are_present() -> None:
+def test_only_phase_9d_noop_runtime_entrypoint_is_present() -> None:
+    approved_noop_entrypoint = REPO_ROOT / "scripts" / "hermes_sidecar.py"
+    assert approved_noop_entrypoint.exists()
+
     forbidden_paths = [
-        REPO_ROOT / "scripts" / "hermes_sidecar.py",
         REPO_ROOT / "scripts" / "hermes.py",
         REPO_ROOT / "hermes",
         REPO_ROOT / "sidecar",
