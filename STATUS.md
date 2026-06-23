@@ -240,6 +240,17 @@ The Phase 9D.1 clean Local Verify evidence is recorded as workflow run
 `28010946750`, job `82903733721`, for commit
 `0cfade7118f3061e6097539fcaeb6bc58cf8dd8d`, with tests, quality gate, and the
 three render dry-runs passing and no artifacts uploaded.
+Phase 9E Hermes MCP Security Alignment Review is documented in
+`docs/HERMES_MCP_SECURITY_ALIGNMENT_REVIEW.md` with focused synthetic checks in
+`tests/test_hermes_mcp_security_alignment.py`. It aligns the current no-op
+Hermes boundary with MCP security expectations for user consent, human-in-the-
+loop tool invocation, untrusted tool descriptors and annotations, local server
+compromise, scope minimization, allow-list-first exposure, and bounded
+structured output. It does not change sidecar runtime behavior, implement MCP
+runtime, execute tools, start servers, wire quality-gate or CI integration,
+create audit automation, generate real receipt/log/trace files, call external
+services, regenerate artifacts or digests, add AgentOps or memory behavior,
+publish releases, or edit downstream repositories.
 
 ## Current Verification Snapshot
 
@@ -293,6 +304,7 @@ Core foundation.
 | Phase 9D Local Verify evidence | PASS | commit `257315b55705475155a7ae80b6d1caa0f92d3282`; workflow `Local Verify`; run `28009659183`; job `82899632941`; tests passed; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
 | Phase 9D.1 Hermes sidecar usage probe | PASS WITH NOTES / REVIEW-ONLY | `docs/HERMES_SIDECAR_USAGE_PROBE.md`; no-op sidecar behavior was reviewed for advisory no-op output, approval blocking, approved side-effect `NOT_RUN`, unsafe input blocking, and missing evidence blocking; no sidecar runtime change, test change, quality-gate or CI integration, MCP execution, audit automation, receipt/log/trace generation, artifact or digest regeneration, release automation, external service, AgentOps, memory runtime, or downstream integration added |
 | Phase 9D.1 Local Verify evidence | PASS | commit `0cfade7118f3061e6097539fcaeb6bc58cf8dd8d`; workflow `Local Verify`; run `28010946750`; job `82903733721`; tests passed; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
+| Phase 9E Hermes MCP security alignment review | PASS WITH NOTES / SYNTHETIC TESTS | `docs/HERMES_MCP_SECURITY_ALIGNMENT_REVIEW.md` and `tests/test_hermes_mcp_security_alignment.py`; aligns the no-op sidecar boundary with MCP security expectations for explicit consent, human-in-the-loop tool invocation, untrusted tool metadata, local server compromise, least-privilege scope, allow-list-first exposure, and bounded structured output; no sidecar runtime change, MCP runtime, tool execution, server startup, quality-gate or CI integration, audit automation, receipt/log/trace generation, artifact or digest regeneration, external service, AgentOps, memory runtime, release automation, or downstream integration added |
 | local RAG design | PLANNED / DOCUMENTATION-ONLY | `docs/LOCAL_RAG_DESIGN.md` defines a future local-only, read-only lexical retriever over `artifacts/corpus-digest.json` and digest-listed repo-owned source files; advisory only; no RAG code, retrieval/index/corpus folder, embeddings, vector database, external service, CI or quality-gate integration, audit automation, digest regeneration, release automation, MCP/Hermes, or downstream integration added |
 | local RAG implementation contract | PRESENT / CONTRACT-ONLY | `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md` defines Phase 7B allowed inputs, forbidden inputs, output shape, citation rules, no-answer behavior, and future verification requirements; no retrieval code, index, corpus folder, retrieval folder, embeddings, vector database, external service, MCP/Hermes, release automation, digest regeneration, or downstream integration added |
 | Phase 7B Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `ecdcae277ab8affaa63f2f7ebe629e73041a7a2c`; run `27669744955`; job `81831232940`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded |
@@ -923,10 +935,12 @@ Stage 0 current-main gap review basis:
 Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
 sequencing handoff.
 
-Any further Hermes task must be separately approved and must not add MCP
-execution, background service behavior, quality-gate or CI integration, audit
-automation, release automation, external service, memory/AgentOps behavior, or
-downstream integration by default.
+The immediate next Hermes step after Phase 9E is to commit and push the
+security-alignment review, then run clean Local Verify. After that passes, any
+further Hermes task must be separately approved and must not add MCP execution,
+background service behavior, quality-gate or CI integration, audit automation,
+release automation, external service, memory/AgentOps behavior, or downstream
+integration by default.
 
 If the owner wants more Phase 7D evidence first, it must be separately approved
 as a narrower Phase 7D.2 task with exact allowed files, commands, artifacts, and
