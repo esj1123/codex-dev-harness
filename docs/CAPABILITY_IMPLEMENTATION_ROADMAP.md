@@ -77,7 +77,7 @@ not capabilities to abandon.
 | Approved corpus digest | Approved-corpus plan exists; no digest or index. | Exact allow-list, metadata, redaction checks, encoding checks, and digest contract. | Eval/report and audit identifiers. |
 | Local RAG | Phase 7B contract, Phase 7C standalone local lexical retriever, Phase 7C.4 ranking correction, and Phase 7D retrieval receipt evidence planning are complete; retrieval remains local-only, read-only, advisory-only, and not integrated into CI, quality gates, release, audit automation, MCP/Hermes, AgentOps, memory, or downstream repositories. | Local-first retrieval over the approved corpus, with retrieval output treated as advisory context and any receipt evidence implementation separately approval-gated. | Approved corpus digest and JSON evidence policy. |
 | MCP tool boundary | Phase 8A boundary contract is documented and Phase 8B synthetic contract tests/review checks are present; no MCP runtime, Hermes sidecar, tool execution, quality-gate or CI integration, audit automation, external service, release automation, or downstream integration. | Explicit allowed tool classes, input/output rules, approval boundaries, redaction rules, and audit hooks. | Local RAG and audit rules. |
-| Hermes sidecar | Phase 9A planning contract is documented and Phase 9B synthetic contract tests/review checks are present; no sidecar runtime, background daemon, MCP runtime, tool execution, quality-gate or CI integration, audit automation, external service, release automation, or downstream integration. | Local sidecar constrained by the MCP boundary, audit model, eval evidence, and approval rules. | MCP tool boundary. |
+| Hermes sidecar | Phase 9A planning contract, Phase 9B synthetic contract tests/review checks, and Phase 9C implementation boundary planning are present; no sidecar runtime, background daemon, MCP runtime, tool execution, quality-gate or CI integration, audit automation, external service, release automation, or downstream integration. | Local sidecar constrained by the MCP boundary, audit model, eval evidence, and approval rules. | MCP tool boundary. |
 | Release automation / provenance | Local evidence generators and release wrapper exist; no release automation or publication. | Approval-gated release automation and provenance flow after earlier evidence surfaces are stable. | CI, audit, eval, digest, RAG, MCP, and Hermes stability. |
 | Downstream product integration | Downstream adoption and probe records exist; no downstream edit in this task. | Product-specific integration under downstream repo rules and separate approvals. | Release automation / provenance readiness. |
 
@@ -368,6 +368,8 @@ Goal:
   implemented.
 - Verify the planning contract with synthetic documentation tests before any
   runtime implementation is considered.
+- Document the implementation boundary, failure taxonomy, and exact approval
+  gates before any minimal no-op sidecar runtime is approved.
 
 Must not include by default:
 
@@ -385,6 +387,8 @@ Gate:
 - Failure modes are documented and tested.
 - No sidecar behavior bypasses task contracts, approval records, or safety
   invariants.
+- The first runtime task, if approved later, names exact files, commands,
+  safety tests, cleanup rules, and side-effect boundaries.
 
 ### Phase 10: release automation / provenance
 
@@ -520,7 +524,7 @@ remote state clearly.
 | Approved corpus digest | Exact safe corpus allow-list, forbidden corpus list, metadata, risk labels, redaction checks, encoding checks, and digest format are approved and verified. |
 | Local RAG | Phase 7B contract defines digest-only inputs, repo-relative citations, no-answer behavior, and future verification requirements; Phase 7C provides a standalone read-only lexical retriever over the approved corpus digest; Phase 7D defines receipt evidence references without creating receipts or audit logs. Retrieval remains local-first, limited to the approved corpus basis, advisory only, and unable to broaden approval or side-effect permissions. |
 | MCP tool boundary | Tool classes, inputs, outputs, logs, redaction, approvals, and forbidden behavior are documented and tested before sidecar implementation. |
-| Hermes sidecar | Sidecar behavior is local-first, constrained by MCP boundary and audit rules, has tested failure modes, and cannot bypass task or downstream repo contracts. |
+| Hermes sidecar | Sidecar behavior is local-first, constrained by MCP boundary and audit rules, has tested failure modes, uses bounded reason codes, and cannot bypass task or downstream repo contracts. |
 | Release automation / provenance | Automation names exact artifacts and publication-adjacent behavior, distinguishes local commit from push/tag/release, and does not publish or move tags without explicit approval. |
 | Downstream product integration | Downstream repo work uses repo-local rules, safe summaries, explicit approvals, and no private raw data or live values in harness-facing records. |
 
