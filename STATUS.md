@@ -319,6 +319,18 @@ The Phase 9I clean Local Verify evidence is recorded as workflow run
 `b04c156f1b9b21f3e6cb42561dd0022386dcf26f`, with 228 tests, quality gate, and
 the three render dry-runs passing; contents permission remained read-only and
 no artifacts were uploaded.
+Phase 9J Hermes Preflight Caller Implementation Boundary is documented in
+`docs/HERMES_PREFLIGHT_CALLER_IMPLEMENTATION_BOUNDARY.md` with focused
+documentation checks in `tests/test_hermes_preflight_caller_boundary.py`. It
+defines the exact future approval details, required result fields,
+fail-closed stop conditions, persistence and cleanup rules, and verification
+requirements for any later preflight caller implementation. It does not
+implement a caller or wrapper, change sidecar runtime behavior, wire
+quality-gate or CI integration, execute MCP tools, start servers, create audit
+automation, generate real receipt/log or trace files, add a machine-readable
+schema artifact, regenerate artifacts or digests, call external services, add
+AgentOps or memory behavior, publish releases, or edit downstream
+repositories.
 
 ## Current Verification Snapshot
 
@@ -382,6 +394,7 @@ Core foundation.
 | Phase 9H Local Verify evidence | PASS | commit `c6db8bea08e1aeb39dd876de9f4971f1c84f06a9`; workflow `Local Verify`; run `28079767262`; job `83131807971`; tests passed with 217 cases; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
 | Phase 9I Hermes preflight synthetic matrix review | PASS WITH NOTES / SYNTHETIC TESTS | `docs/HERMES_PREFLIGHT_SYNTHETIC_MATRIX_REVIEW.md` and `tests/test_hermes_preflight_use_planning_contract.py`; documents future-caller fail-closed decisions for advisory, approval-blocked, approved-but-not-run, unsafe input, invalid evidence, unexpected schema/mode/status, non-empty `performed_actions`, and out-of-scope evidence cases; no caller implementation, runtime change, machine-readable schema artifact, quality-gate or CI integration, MCP runtime, tool execution, server startup, audit automation, receipt/log/trace generation, artifact or digest regeneration, external service, AgentOps, memory runtime, release automation, or downstream integration added |
 | Phase 9I Local Verify evidence | PASS | commit `b04c156f1b9b21f3e6cb42561dd0022386dcf26f`; workflow `Local Verify`; run `28081828444`; job `83138351731`; tests passed with 228 cases; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
+| Phase 9J Hermes preflight caller implementation boundary | PASS WITH NOTES / SYNTHETIC TESTS | `docs/HERMES_PREFLIGHT_CALLER_IMPLEMENTATION_BOUNDARY.md` and `tests/test_hermes_preflight_caller_boundary.py`; defines exact future approval details, required result field checks, fail-closed stop conditions, persistence/cleanup rules, and verification requirements before any preflight caller implementation; no caller or wrapper implementation, runtime change, machine-readable schema artifact, quality-gate or CI integration, MCP runtime, tool execution, server startup, audit automation, receipt/log/trace generation, artifact or digest regeneration, external service, AgentOps, memory runtime, release automation, or downstream integration added |
 | local RAG design | PLANNED / DOCUMENTATION-ONLY | `docs/LOCAL_RAG_DESIGN.md` defines a future local-only, read-only lexical retriever over `artifacts/corpus-digest.json` and digest-listed repo-owned source files; advisory only; no RAG code, retrieval/index/corpus folder, embeddings, vector database, external service, CI or quality-gate integration, audit automation, digest regeneration, release automation, MCP/Hermes, or downstream integration added |
 | local RAG implementation contract | PRESENT / CONTRACT-ONLY | `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md` defines Phase 7B allowed inputs, forbidden inputs, output shape, citation rules, no-answer behavior, and future verification requirements; no retrieval code, index, corpus folder, retrieval folder, embeddings, vector database, external service, MCP/Hermes, release automation, digest regeneration, or downstream integration added |
 | Phase 7B Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `ecdcae277ab8affaa63f2f7ebe629e73041a7a2c`; run `27669744955`; job `81831232940`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded |
@@ -1012,13 +1025,13 @@ Stage 0 current-main gap review basis:
 Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
 sequencing handoff.
 
-The immediate next Hermes step after Phase 9I clean Local Verify is to commit
-and push this closeout evidence update, then run clean Local Verify for the
-closeout commit. After that passes, any future preflight caller implementation
-must be separately approved with exact files, commands, result fields,
-persistence rules, cleanup rules, and verification commands. Any further Hermes
-task must not add MCP execution, background service behavior, quality-gate or
-CI integration, audit automation, release automation, external service,
+The immediate next Hermes step after Phase 9J local verification is to commit
+and push the preflight caller boundary record, then run clean Local Verify for
+that commit. After that passes, any actual preflight caller implementation must
+be separately approved with exact files, commands, result fields, persistence
+rules, cleanup rules, and verification commands. Any further Hermes task must
+not add MCP execution, background service behavior, quality-gate or CI
+integration, audit automation, release automation, external service,
 memory/AgentOps behavior, or downstream integration by default.
 
 If the owner wants more Phase 7D evidence first, it must be separately approved
