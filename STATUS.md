@@ -286,6 +286,17 @@ The Phase 9G clean Local Verify evidence is recorded as workflow run
 `28075268125`, job `83118109336`, for commit
 `8851276b1666ff1457985003e96881799c798418`, with tests, quality gate, and the
 three render dry-runs passing and no artifacts uploaded.
+Phase 9H Hermes Preflight Use Planning Contract is documented in
+`docs/HERMES_PREFLIGHT_USE_PLANNING_CONTRACT.md`. It defines how a future
+approved caller may use the no-op Hermes sidecar as a fail-closed preflight
+check before side effects, including allowed caller inputs, stop conditions,
+result fields to inspect, and the separation between preflight approval context
+and actual side-effect execution. It does not implement a caller, change
+runtime behavior, add tests, create a schema artifact, wire quality-gate or CI
+integration, implement MCP runtime, execute tools, start servers, create audit
+automation, generate real receipt/log/trace files, call external services,
+regenerate artifacts or digests, publish releases, or edit downstream
+repositories.
 
 ## Current Verification Snapshot
 
@@ -345,6 +356,7 @@ Core foundation.
 | Phase 9F Local Verify evidence | PASS | commit `5ad2c4e025cfcf6b0fe9c2b7a25f846e91f9f4b8`; workflow `Local Verify`; run `28073416185`; job `83112637131`; tests passed; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
 | Phase 9G Hermes result schema artifact decision | PASS WITH NOTES / DOCUMENTATION-ONLY | `docs/HERMES_RESULT_SCHEMA_ARTIFACT_DECISION.md`; decision `schema_artifact_deferred_until_consumer_exists`; no machine-readable schema artifact, runtime change, new tests, quality-gate or CI integration, MCP runtime, tool execution, server startup, audit automation, receipt/log/trace generation, artifact or digest regeneration, external service, AgentOps, memory runtime, release automation, or downstream integration added |
 | Phase 9G Local Verify evidence | PASS | commit `8851276b1666ff1457985003e96881799c798418`; workflow `Local Verify`; run `28075268125`; job `83118109336`; tests passed; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
+| Phase 9H Hermes preflight use planning contract | PASS WITH NOTES / DOCUMENTATION-ONLY | `docs/HERMES_PREFLIGHT_USE_PLANNING_CONTRACT.md`; defines future fail-closed caller use of the no-op sidecar before side effects, allowed caller inputs, stop conditions, result fields to inspect, and separation between preflight context and side-effect execution; no caller implementation, runtime change, new tests, machine-readable schema artifact, quality-gate or CI integration, MCP runtime, tool execution, server startup, audit automation, receipt/log/trace generation, artifact or digest regeneration, external service, AgentOps, memory runtime, release automation, or downstream integration added |
 | local RAG design | PLANNED / DOCUMENTATION-ONLY | `docs/LOCAL_RAG_DESIGN.md` defines a future local-only, read-only lexical retriever over `artifacts/corpus-digest.json` and digest-listed repo-owned source files; advisory only; no RAG code, retrieval/index/corpus folder, embeddings, vector database, external service, CI or quality-gate integration, audit automation, digest regeneration, release automation, MCP/Hermes, or downstream integration added |
 | local RAG implementation contract | PRESENT / CONTRACT-ONLY | `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md` defines Phase 7B allowed inputs, forbidden inputs, output shape, citation rules, no-answer behavior, and future verification requirements; no retrieval code, index, corpus folder, retrieval folder, embeddings, vector database, external service, MCP/Hermes, release automation, digest regeneration, or downstream integration added |
 | Phase 7B Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `ecdcae277ab8affaa63f2f7ebe629e73041a7a2c`; run `27669744955`; job `81831232940`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded |
@@ -975,14 +987,12 @@ Stage 0 current-main gap review basis:
 Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
 sequencing handoff.
 
-Any further Hermes task must be separately approved and must not add MCP
-execution, background service behavior, quality-gate or CI integration, audit
-automation, release automation, external service, memory/AgentOps behavior, or
-downstream integration by default. The safest next Hermes task is a
-documentation-only preflight-use planning contract for how a future caller
-would use the no-op sidecar before side effects, without executing MCP tools,
-starting servers, writing artifacts, or integrating with quality gates or CI by
-default.
+The immediate next Hermes step after Phase 9H is to commit and push the
+preflight-use planning contract, then run clean Local Verify. After that
+passes, any further Hermes task must be separately approved and must not add
+MCP execution, background service behavior, quality-gate or CI integration,
+audit automation, release automation, external service, memory/AgentOps
+behavior, or downstream integration by default.
 
 If the owner wants more Phase 7D evidence first, it must be separately approved
 as a narrower Phase 7D.2 task with exact allowed files, commands, artifacts, and
