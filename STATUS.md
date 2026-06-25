@@ -447,6 +447,11 @@ automation, execute real `git push`, change Hermes runtime, wire
 quality-gate/CI integration beyond existing schema-bundle checks, execute MCP
 tools, regenerate artifacts or digests, call external services, add AgentOps or
 memory behavior, publish releases, or edit downstream repositories.
+The Phase 9Q clean Local Verify evidence is recorded as workflow run
+`28154089083`, job `83378355128`, for commit
+`801c7fed81b9861be59d020a7f66b8b04681bb3b`, with 284 tests, quality gate, and
+the three render dry-runs passing; contents permission remained read-only and
+no artifacts were uploaded.
 
 ## Current Verification Snapshot
 
@@ -525,6 +530,7 @@ Core foundation.
 | Phase 9P Hermes git-push preflight receipt trace plan | PASS WITH NOTES / SYNTHETIC TESTS | `docs/HERMES_GIT_PUSH_PREFLIGHT_RECEIPT_TRACE_PLAN.md` and `tests/test_hermes_git_push_preflight_receipt_trace_plan.py`; defines optional future receipt and trace evidence candidate fields for selected safe preflight summaries and keeps schema alignment, writer behavior, evidence persistence, quality-gate/CI integration, and runtime expansion separately approval-gated; no runtime change, receipt or trace schema edit, schema artifact addition, receipt or trace writing, audit automation, preflight output persistence, real `git push`, MCP execution, artifact or digest regeneration, external service, AgentOps, memory runtime, release automation, or downstream integration added |
 | Phase 9P Local Verify evidence | PASS | commit `6a385cee88e80ea642f6b987ee5afdc4607abcca`; workflow `Local Verify`; run `28151264949`; job `83369296241`; tests passed with 277 cases; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
 | Phase 9Q Hermes git-push preflight schema alignment review | PASS WITH NOTES / SCHEMA-ALIGNMENT TESTS | `audits/receipt-summary.schema.json`, `audits/trace-event.schema.json`, `scripts/gates/json_evidence_gate.py`, `tests/test_json_evidence_gate.py`, `docs/HERMES_GIT_PUSH_PREFLIGHT_SCHEMA_ALIGNMENT_REVIEW.md`, and `tests/test_hermes_git_push_preflight_schema_alignment.py`; adds optional selected-field receipt evidence and compact trace reference shapes for Hermes git-push preflight summaries; no writer, receipt/trace generation, audit automation, preflight output persistence, real `git push`, Hermes runtime change, quality-gate/CI integration beyond existing schema-bundle checks, MCP execution, artifact or digest regeneration, external service, AgentOps, memory runtime, release automation, or downstream integration added |
+| Phase 9Q Local Verify evidence | PASS | commit `801c7fed81b9861be59d020a7f66b8b04681bb3b`; workflow `Local Verify`; run `28154089083`; job `83378355128`; tests passed with 284 cases; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
 | local RAG design | PLANNED / DOCUMENTATION-ONLY | `docs/LOCAL_RAG_DESIGN.md` defines a future local-only, read-only lexical retriever over `artifacts/corpus-digest.json` and digest-listed repo-owned source files; advisory only; no RAG code, retrieval/index/corpus folder, embeddings, vector database, external service, CI or quality-gate integration, audit automation, digest regeneration, release automation, MCP/Hermes, or downstream integration added |
 | local RAG implementation contract | PRESENT / CONTRACT-ONLY | `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md` defines Phase 7B allowed inputs, forbidden inputs, output shape, citation rules, no-answer behavior, and future verification requirements; no retrieval code, index, corpus folder, retrieval folder, embeddings, vector database, external service, MCP/Hermes, release automation, digest regeneration, or downstream integration added |
 | Phase 7B Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `ecdcae277ab8affaa63f2f7ebe629e73041a7a2c`; run `27669744955`; job `81831232940`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded |
@@ -1155,16 +1161,16 @@ Stage 0 current-main gap review basis:
 Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
 sequencing handoff.
 
-The Phase 9Q Hermes git-push preflight schema-alignment review is ready for
-local commit, push, and clean Local Verify. After that passes, the next Hermes
-step should be either a separately approved Phase 9R writer or capture review
-using exact allowed files, output policy, cleanup policy, and verification
-commands, or a pause before any durable evidence writer or caller/runtime
-expansion. Any further Hermes task must not add real `git push` execution,
-staging, commit, tag, release, workflow dispatch, artifact upload, MCP
-execution, background service behavior, quality-gate or CI integration beyond
-approved schema checks, audit automation, release automation, external service,
-memory/AgentOps behavior, or downstream integration by default.
+The Phase 9Q Hermes git-push preflight schema-alignment review has passed clean
+Local Verify. The next Hermes step should be either a separately approved Phase
+9R writer or capture review using exact allowed files, output policy, cleanup
+policy, and verification commands, or a pause before any durable evidence writer
+or caller/runtime expansion. Any further Hermes task must not add real
+`git push` execution, staging, commit, tag, release, workflow dispatch,
+artifact upload, MCP execution, background service behavior, quality-gate or CI
+integration beyond approved schema checks, audit automation, release automation,
+external service, memory/AgentOps behavior, or downstream integration by
+default.
 
 If the owner wants more Phase 7D evidence first, it must be separately approved
 as a narrower Phase 7D.2 task with exact allowed files, commands, artifacts, and
