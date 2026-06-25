@@ -369,6 +369,18 @@ The Phase 9L clean Local Verify evidence is recorded as workflow run
 `fa9e6959ae32e2256b808c2a6990282222fc9a27`, with 251 tests, quality gate, and
 the three render dry-runs passing; contents permission remained read-only and
 no artifacts were uploaded.
+Phase 9M Hermes Git Push Preflight Output Contract is documented in
+`docs/HERMES_GIT_PUSH_PREFLIGHT_OUTPUT_CONTRACT.md` with focused synthetic
+checks in `tests/test_hermes_git_push_preflight_output_contract.py`. It freezes
+the current non-executing caller output shape for the Phase 9L dry-run
+git-push preflight caller, including `STOP`-only decision semantics,
+`would_run_git_push=false`, empty `performed_actions`, bounded evidence
+references, sanitized nested Hermes summaries, fail-closed reason codes,
+redaction rules, and non-persistence. It does not change runtime behavior,
+run Git commands, wire quality-gate or CI integration, execute MCP tools,
+create audit automation, generate real receipt/log or trace files, persist
+results, regenerate artifacts or digests, call external services, add AgentOps
+or memory behavior, publish releases, or edit downstream repositories.
 
 ## Current Verification Snapshot
 
@@ -438,6 +450,7 @@ Core foundation.
 | Phase 9K Local Verify evidence | PASS | commit `0a35e69b62b2d046fc684bbf5703ad369a2f47b7`; workflow `Local Verify`; run `28134703352`; job `83318811265`; tests passed with 242 cases; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
 | Phase 9L minimal standalone git-push preflight caller | PASS WITH NOTES / STANDALONE DRY-RUN | `scripts/hermes_git_push_preflight.py` and `tests/test_hermes_git_push_preflight.py`; calls the existing no-op Hermes sidecar in memory for `git_push`, emits stdout JSON, checks required result fields, and always returns fail-closed `STOP` for current git-push preflight outcomes; no real `git push`, staging, commit, tag, workflow dispatch, artifact upload, MCP execution, audit automation, receipt/log/trace generation, result persistence, quality-gate or CI integration, artifact or digest regeneration, external service, AgentOps, memory runtime, release automation, or downstream integration added |
 | Phase 9L Local Verify evidence | PASS | commit `fa9e6959ae32e2256b808c2a6990282222fc9a27`; workflow `Local Verify`; run `28143299217`; job `83344989508`; tests passed with 251 cases; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
+| Phase 9M Hermes git-push preflight output contract | PASS WITH NOTES / SYNTHETIC TESTS | `docs/HERMES_GIT_PUSH_PREFLIGHT_OUTPUT_CONTRACT.md` and `tests/test_hermes_git_push_preflight_output_contract.py`; documents the current non-executing caller JSON output fields, `STOP`-only decision semantics, fail-closed reason codes, sanitized nested Hermes summary, scoped evidence references, redaction rules, non-persistence, and explicit non-goals; no runtime change, real `git push`, staging, commit, tag, workflow dispatch, artifact upload, MCP execution, audit automation, receipt/log/trace generation, quality-gate or CI integration, artifact or digest regeneration, external service, AgentOps, memory runtime, release automation, or downstream integration added |
 | local RAG design | PLANNED / DOCUMENTATION-ONLY | `docs/LOCAL_RAG_DESIGN.md` defines a future local-only, read-only lexical retriever over `artifacts/corpus-digest.json` and digest-listed repo-owned source files; advisory only; no RAG code, retrieval/index/corpus folder, embeddings, vector database, external service, CI or quality-gate integration, audit automation, digest regeneration, release automation, MCP/Hermes, or downstream integration added |
 | local RAG implementation contract | PRESENT / CONTRACT-ONLY | `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md` defines Phase 7B allowed inputs, forbidden inputs, output shape, citation rules, no-answer behavior, and future verification requirements; no retrieval code, index, corpus folder, retrieval folder, embeddings, vector database, external service, MCP/Hermes, release automation, digest regeneration, or downstream integration added |
 | Phase 7B Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `ecdcae277ab8affaa63f2f7ebe629e73041a7a2c`; run `27669744955`; job `81831232940`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded |
@@ -1068,14 +1081,15 @@ Stage 0 current-main gap review basis:
 Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
 sequencing handoff.
 
-The Phase 9L minimal standalone dry-run git-push preflight caller has passed
-clean Local Verify. The next Hermes step should be a separately approved Phase
-9M review that decides whether the non-executing caller output contract should
-be documented before further runtime expansion. Any further Hermes task must
-not add real `git push` execution, staging, commit, tag, release, workflow
-dispatch, artifact upload, MCP execution, background service behavior,
-quality-gate or CI integration, audit automation, release automation, external
-service, memory/AgentOps behavior, or downstream integration by default.
+The Phase 9M Hermes git-push preflight output contract is ready for local
+commit, push, and clean Local Verify. After that passes, the next Hermes step
+should be documentation-only closeout for the Phase 9M Local Verify evidence,
+or a separately approved Phase 9N review before any further caller/runtime
+expansion. Any further Hermes task must not add real `git push` execution,
+staging, commit, tag, release, workflow dispatch, artifact upload, MCP
+execution, background service behavior, quality-gate or CI integration, audit
+automation, release automation, external service, memory/AgentOps behavior, or
+downstream integration by default.
 
 If the owner wants more Phase 7D evidence first, it must be separately approved
 as a narrower Phase 7D.2 task with exact allowed files, commands, artifacts, and
