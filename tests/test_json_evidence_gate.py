@@ -65,6 +65,72 @@ def schema(required_fields: list[str], evidence_kind: str) -> dict:
                 "notes_or_failures_summary": {"type": "string"},
             },
         }
+        properties["hermes_git_push_preflight_evidence"] = {
+            "type": "object",
+            "additionalProperties": False,
+            "required": [
+                "preflight_evidence_status",
+                "preflight_output_mode",
+                "caller_schema_version",
+                "caller_mode",
+                "decision",
+                "side_effect_requested",
+                "guarded_command",
+                "would_run_git_push",
+                "performed_actions_empty",
+                "reason_code",
+                "stop_reasons",
+                "approval_ref_present",
+                "evidence_refs",
+                "output_capture",
+                "preflight_integration_status",
+            ],
+            "properties": {
+                "preflight_evidence_status": {"type": "string"},
+                "preflight_output_mode": {"type": "string"},
+                "caller_schema_version": {"type": "string"},
+                "caller_mode": {"type": "string"},
+                "decision": {"type": "string"},
+                "side_effect_requested": {"type": "string"},
+                "guarded_command": {"type": "string"},
+                "would_run_git_push": {"type": "boolean"},
+                "performed_actions_empty": {"type": "boolean"},
+                "reason_code": {"type": "string"},
+                "stop_reasons": {"type": "array", "items": {"type": "string"}},
+                "approval_ref_present": {"type": "boolean"},
+                "evidence_refs": {"type": "array", "items": {"$ref": "#/$defs/repo_relative_path"}},
+                "hermes_result_summary": {"type": "string"},
+                "safe_task_summary": {"type": "string"},
+                "safety_notes": {"type": "array", "items": {"type": "string"}},
+                "observed_head_commit": {"$ref": "#/$defs/commit_or_unknown"},
+                "local_verify_run_id": {"type": "string"},
+                "local_verify_job_id": {"type": "string"},
+                "output_capture": {"type": "string"},
+                "preflight_integration_status": {"type": "string"},
+            },
+        }
+    if evidence_kind == "trace_event":
+        properties["hermes_git_push_preflight_evidence_ref"] = {
+            "type": "object",
+            "additionalProperties": False,
+            "required": [
+                "preflight_evidence_status",
+                "decision",
+                "reason_code",
+                "side_effect_requested",
+                "receipt_evidence_key",
+                "summary",
+            ],
+            "properties": {
+                "preflight_evidence_status": {"type": "string"},
+                "decision": {"type": "string"},
+                "reason_code": {"type": "string"},
+                "side_effect_requested": {"type": "string"},
+                "receipt_evidence_key": {"type": "string", "const": "hermes_git_push_preflight_evidence"},
+                "observed_head_commit": {"$ref": "#/$defs/commit_or_unknown"},
+                "summary": {"type": "string"},
+            },
+        }
     return {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "$id": f"https://example.invalid/{evidence_kind}.schema.json",
@@ -96,6 +162,10 @@ def schema(required_fields: list[str], evidence_kind: str) -> dict:
             "sha256_value": {
                 "type": "string",
                 "pattern": "^[0-9a-fA-F]{64}$",
+            },
+            "commit_or_unknown": {
+                "type": "string",
+                "pattern": "^([0-9a-fA-F]{7,40}|unknown|not checked|not applicable)$",
             },
         },
     }
@@ -230,6 +300,33 @@ def test_json_evidence_gate_reports_missing_eval_evidence_reference_shape(tmp_pa
 
     assert result.passed is False
     assert any("eval_evidence missing property: cases_sha256" in message for message in result.messages)
+
+
+def test_json_evidence_gate_reports_missing_hermes_preflight_receipt_shape(tmp_path: Path) -> None:
+    write_valid_bundle(tmp_path)
+    bad_schema = schema(receipt_required_fields(), "receipt_summary")
+    del bad_schema["properties"]["hermes_git_push_preflight_evidence"]["properties"]["evidence_refs"]
+    write(tmp_path / "audits" / "receipt-summary.schema.json", json.dumps(bad_schema))
+
+    result = json_evidence_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert any("hermes_git_push_preflight_evidence missing property: evidence_refs" in message for message in result.messages)
+
+
+def test_json_evidence_gate_reports_missing_hermes_preflight_trace_ref_shape(tmp_path: Path) -> None:
+    write_valid_bundle(tmp_path)
+    bad_schema = schema(trace_required_fields(), "trace_event")
+    del bad_schema["properties"]["hermes_git_push_preflight_evidence_ref"]["properties"]["receipt_evidence_key"]
+    write(tmp_path / "audits" / "trace-event.schema.json", json.dumps(bad_schema))
+
+    result = json_evidence_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert any(
+        "hermes_git_push_preflight_evidence_ref missing property: receipt_evidence_key" in message
+        for message in result.messages
+    )
 
 
 def test_json_evidence_gate_reports_missing_policy_boundary(tmp_path: Path) -> None:

@@ -96,6 +96,26 @@ change retriever runtime behavior, create indexes, add embeddings or vector
 storage, call external services, integrate MCP/Hermes, or authorize downstream
 work.
 
+Phase 9Q Hermes git-push preflight schema alignment adds optional
+`hermes_git_push_preflight_evidence` references to receipt summaries and
+optional `hermes_git_push_preflight_evidence_ref` pointers to trace events.
+These fields may record selected fail-closed preflight fields such as
+`preflight_evidence_status`, `decision`, `side_effect_requested`, safe reason
+codes, repo-relative evidence references, booleans that confirm no git push
+would run and no actions were performed, reviewed commit identifiers, and
+reviewed Local Verify run/job identifiers.
+
+Trace events should continue to use `related_receipt_id` to point to
+`receipt_summary.receipt_id`; `hermes_git_push_preflight_evidence_ref` is a
+compact pointer to the receipt evidence key, not a transcript or stdout dump.
+
+These Phase 9Q references do not implement a writer, create receipt files,
+write trace files, write audit logs, persist preflight output, execute real
+`git push`, stage or commit files as evidence, wire Hermes preflight into
+`scripts/quality_gate.py` or CI, execute MCP tools, regenerate artifacts or
+digests, call external services, integrate AgentOps or memory, release
+automation, or authorize downstream work.
+
 Schema files must be plain JSON and parse with the Python standard library.
 The quality gate checks schema presence and core shape only. It is not a
 general-purpose JSON Schema validator for generated evidence records.

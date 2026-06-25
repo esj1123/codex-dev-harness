@@ -149,6 +149,61 @@
         }
       }
     },
+    "hermes_git_push_preflight_evidence_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Optional Phase 9Q Hermes git-push preflight evidence pointer for trace review. Use related_receipt_id to link the trace event to receipt_summary.receipt_id and keep this object compact; do not store raw preflight stdout, raw prompts, private data, command logs, tool-call bodies, secrets, live values, local absolute paths, or approval conversation text.",
+      "required": [
+        "preflight_evidence_status",
+        "decision",
+        "reason_code",
+        "side_effect_requested",
+        "receipt_evidence_key",
+        "summary"
+      ],
+      "properties": {
+        "preflight_evidence_status": {
+          "type": "string",
+          "enum": [
+            "stopped",
+            "blocked",
+            "not_run",
+            "not_applicable"
+          ]
+        },
+        "decision": {
+          "type": "string",
+          "enum": [
+            "STOP",
+            "not checked",
+            "not applicable"
+          ]
+        },
+        "reason_code": {
+          "$ref": "#/$defs/safe_summary"
+        },
+        "side_effect_requested": {
+          "type": "string",
+          "enum": [
+            "git_push",
+            "none",
+            "not checked",
+            "not applicable"
+          ]
+        },
+        "receipt_evidence_key": {
+          "type": "string",
+          "const": "hermes_git_push_preflight_evidence"
+        },
+        "observed_head_commit": {
+          "$ref": "#/$defs/commit_or_unknown"
+        },
+        "summary": {
+          "$ref": "#/$defs/safe_summary",
+          "description": "Compact safe review summary only; do not store transcript or preflight stdout."
+        }
+      }
+    },
     "hashes": {
       "type": "array",
       "items": {

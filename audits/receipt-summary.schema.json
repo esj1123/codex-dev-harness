@@ -429,6 +429,157 @@
         }
       }
     },
+    "hermes_git_push_preflight_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Optional Phase 9Q Hermes git-push preflight evidence reference. Use only for explicitly reviewed safe selected fields or an explicit not-run record. Store bounded summaries, booleans, repo-relative evidence references, commit identifiers, and Local Verify run/job identifiers only; do not copy raw preflight stdout, raw prompts, private data, command logs, tool-call bodies, secrets, live values, local absolute paths, or approval conversation text.",
+      "required": [
+        "preflight_evidence_status",
+        "preflight_output_mode",
+        "caller_schema_version",
+        "caller_mode",
+        "decision",
+        "side_effect_requested",
+        "guarded_command",
+        "would_run_git_push",
+        "performed_actions_empty",
+        "reason_code",
+        "stop_reasons",
+        "approval_ref_present",
+        "evidence_refs",
+        "output_capture",
+        "preflight_integration_status"
+      ],
+      "properties": {
+        "preflight_evidence_status": {
+          "type": "string",
+          "enum": [
+            "stopped",
+            "blocked",
+            "not_run",
+            "not_applicable"
+          ]
+        },
+        "preflight_output_mode": {
+          "type": "string",
+          "enum": [
+            "stdout_only",
+            "manual_summary",
+            "selected_fields",
+            "none"
+          ]
+        },
+        "caller_schema_version": {
+          "$ref": "#/$defs/safe_summary",
+          "description": "Expected current value is hermes_git_push_preflight.v0. Store a short schema identifier only."
+        },
+        "caller_mode": {
+          "type": "string",
+          "enum": [
+            "dry_run",
+            "not checked",
+            "not applicable"
+          ]
+        },
+        "decision": {
+          "type": "string",
+          "enum": [
+            "STOP",
+            "not checked",
+            "not applicable"
+          ]
+        },
+        "side_effect_requested": {
+          "type": "string",
+          "enum": [
+            "git_push",
+            "none",
+            "not checked",
+            "not applicable"
+          ]
+        },
+        "guarded_command": {
+          "type": "string",
+          "enum": [
+            "git push",
+            "not checked",
+            "not applicable"
+          ],
+          "description": "Safe command label only; do not store a raw command log."
+        },
+        "would_run_git_push": {
+          "type": "boolean"
+        },
+        "performed_actions_empty": {
+          "type": "boolean"
+        },
+        "reason_code": {
+          "$ref": "#/$defs/safe_summary"
+        },
+        "stop_reasons": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/$defs/safe_summary"
+          }
+        },
+        "approval_ref_present": {
+          "type": "boolean",
+          "description": "Boolean only; do not store approval conversation text."
+        },
+        "evidence_refs": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/$defs/repo_relative_path"
+          }
+        },
+        "hermes_result_summary": {
+          "$ref": "#/$defs/safe_summary",
+          "description": "Selected safe nested Hermes fields only; do not store full raw sidecar output."
+        },
+        "safe_task_summary": {
+          "$ref": "#/$defs/safe_summary",
+          "description": "Sanitized task summary only; do not store prompt transcripts."
+        },
+        "safety_notes": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/$defs/safe_summary"
+          }
+        },
+        "observed_head_commit": {
+          "$ref": "#/$defs/commit_or_unknown"
+        },
+        "local_verify_run_id": {
+          "$ref": "#/$defs/safe_summary",
+          "description": "Safe reviewed workflow run identifier when relevant."
+        },
+        "local_verify_job_id": {
+          "$ref": "#/$defs/safe_summary",
+          "description": "Safe reviewed workflow job identifier when relevant."
+        },
+        "output_capture": {
+          "type": "string",
+          "enum": [
+            "none",
+            "redacted_summary",
+            "selected_fields"
+          ]
+        },
+        "preflight_integration_status": {
+          "type": "string",
+          "enum": [
+            "receipt-summary-only",
+            "trace-reference-only",
+            "not integrated",
+            "not applicable",
+            "not checked"
+          ]
+        }
+      }
+    },
     "status_label": {
       "$ref": "#/$defs/status_label"
     },

@@ -73,6 +73,46 @@ EVAL_EVIDENCE_EXPECTED_PROPERTIES = EVAL_EVIDENCE_REQUIRED_FIELDS | {
     "notes_or_failures_summary",
 }
 
+HERMES_PREFLIGHT_RECEIPT_REQUIRED_FIELDS = {
+    "preflight_evidence_status",
+    "preflight_output_mode",
+    "caller_schema_version",
+    "caller_mode",
+    "decision",
+    "side_effect_requested",
+    "guarded_command",
+    "would_run_git_push",
+    "performed_actions_empty",
+    "reason_code",
+    "stop_reasons",
+    "approval_ref_present",
+    "evidence_refs",
+    "output_capture",
+    "preflight_integration_status",
+}
+
+HERMES_PREFLIGHT_RECEIPT_EXPECTED_PROPERTIES = HERMES_PREFLIGHT_RECEIPT_REQUIRED_FIELDS | {
+    "hermes_result_summary",
+    "safe_task_summary",
+    "safety_notes",
+    "observed_head_commit",
+    "local_verify_run_id",
+    "local_verify_job_id",
+}
+
+HERMES_PREFLIGHT_TRACE_REQUIRED_FIELDS = {
+    "preflight_evidence_status",
+    "decision",
+    "reason_code",
+    "side_effect_requested",
+    "receipt_evidence_key",
+    "summary",
+}
+
+HERMES_PREFLIGHT_TRACE_EXPECTED_PROPERTIES = HERMES_PREFLIGHT_TRACE_REQUIRED_FIELDS | {
+    "observed_head_commit",
+}
+
 SENSITIVE_VALUE_PATTERNS = [
     re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b"),
     re.compile(r"\b[A-Za-z]:[\\/][^\s`'\"]+"),
@@ -227,6 +267,101 @@ def check_eval_evidence_shape(schema: dict[str, Any]) -> list[str]:
     return findings
 
 
+def check_hermes_preflight_receipt_shape(schema: dict[str, Any]) -> list[str]:
+    relative = "audits/receipt-summary.schema.json"
+    findings: list[str] = []
+    top_required = set(schema.get("required", []))
+    if "hermes_git_push_preflight_evidence" in top_required:
+        findings.append(f"{relative} hermes_git_push_preflight_evidence must be optional, not required")
+
+    properties = schema.get("properties", {})
+    evidence = properties.get("hermes_git_push_preflight_evidence")
+    if not isinstance(evidence, dict):
+        return [f"{relative} missing optional hermes_git_push_preflight_evidence property"]
+
+    if evidence.get("type") != "object":
+        findings.append(f"{relative} hermes_git_push_preflight_evidence type must be object")
+    if evidence.get("additionalProperties") is not False:
+        findings.append(f"{relative} hermes_git_push_preflight_evidence must set additionalProperties to false")
+
+    required = set(evidence.get("required", []))
+    missing_required = sorted(HERMES_PREFLIGHT_RECEIPT_REQUIRED_FIELDS - required)
+    findings.extend(
+        f"{relative} hermes_git_push_preflight_evidence missing required field: {field}"
+        for field in missing_required
+    )
+
+    evidence_properties = evidence.get("properties", {})
+    if not isinstance(evidence_properties, dict):
+        findings.append(f"{relative} hermes_git_push_preflight_evidence must define properties")
+        return findings
+
+    missing_properties = sorted(HERMES_PREFLIGHT_RECEIPT_EXPECTED_PROPERTIES - set(evidence_properties))
+    findings.extend(
+        f"{relative} hermes_git_push_preflight_evidence missing property: {field}"
+        for field in missing_properties
+    )
+
+    if evidence_properties.get("evidence_refs", {}).get("items", {}).get("$ref") != "#/$defs/repo_relative_path":
+        findings.append(
+            f"{relative} hermes_git_push_preflight_evidence evidence_refs must reference repo_relative_path"
+        )
+    if evidence_properties.get("observed_head_commit", {}).get("$ref") != "#/$defs/commit_or_unknown":
+        findings.append(
+            f"{relative} hermes_git_push_preflight_evidence observed_head_commit must reference commit_or_unknown"
+        )
+
+    return findings
+
+
+def check_hermes_preflight_trace_ref_shape(schema: dict[str, Any]) -> list[str]:
+    relative = "audits/trace-event.schema.json"
+    findings: list[str] = []
+    top_required = set(schema.get("required", []))
+    if "hermes_git_push_preflight_evidence_ref" in top_required:
+        findings.append(f"{relative} hermes_git_push_preflight_evidence_ref must be optional, not required")
+
+    properties = schema.get("properties", {})
+    evidence_ref = properties.get("hermes_git_push_preflight_evidence_ref")
+    if not isinstance(evidence_ref, dict):
+        return [f"{relative} missing optional hermes_git_push_preflight_evidence_ref property"]
+
+    if evidence_ref.get("type") != "object":
+        findings.append(f"{relative} hermes_git_push_preflight_evidence_ref type must be object")
+    if evidence_ref.get("additionalProperties") is not False:
+        findings.append(f"{relative} hermes_git_push_preflight_evidence_ref must set additionalProperties to false")
+
+    required = set(evidence_ref.get("required", []))
+    missing_required = sorted(HERMES_PREFLIGHT_TRACE_REQUIRED_FIELDS - required)
+    findings.extend(
+        f"{relative} hermes_git_push_preflight_evidence_ref missing required field: {field}"
+        for field in missing_required
+    )
+
+    evidence_ref_properties = evidence_ref.get("properties", {})
+    if not isinstance(evidence_ref_properties, dict):
+        findings.append(f"{relative} hermes_git_push_preflight_evidence_ref must define properties")
+        return findings
+
+    missing_properties = sorted(HERMES_PREFLIGHT_TRACE_EXPECTED_PROPERTIES - set(evidence_ref_properties))
+    findings.extend(
+        f"{relative} hermes_git_push_preflight_evidence_ref missing property: {field}"
+        for field in missing_properties
+    )
+
+    receipt_key = evidence_ref_properties.get("receipt_evidence_key", {})
+    if receipt_key.get("const") != "hermes_git_push_preflight_evidence":
+        findings.append(
+            f"{relative} hermes_git_push_preflight_evidence_ref receipt_evidence_key must be hermes_git_push_preflight_evidence"
+        )
+    if evidence_ref_properties.get("observed_head_commit", {}).get("$ref") != "#/$defs/commit_or_unknown":
+        findings.append(
+            f"{relative} hermes_git_push_preflight_evidence_ref observed_head_commit must reference commit_or_unknown"
+        )
+
+    return findings
+
+
 def check_receipt_schema(schema: dict[str, Any]) -> list[str]:
     relative = "audits/receipt-summary.schema.json"
     required_fields = {
@@ -255,6 +390,7 @@ def check_receipt_schema(schema: dict[str, Any]) -> list[str]:
     if evidence_kind.get("const") != "receipt_summary":
         findings.append(f"{relative} evidence_kind must be receipt_summary")
     findings.extend(check_eval_evidence_shape(schema))
+    findings.extend(check_hermes_preflight_receipt_shape(schema))
     return findings
 
 
@@ -283,6 +419,7 @@ def check_trace_schema(schema: dict[str, Any]) -> list[str]:
     enum_values = set(payload_capture.get("enum", []))
     if not {"none", "redacted_summary_only"} <= enum_values:
         findings.append(f"{relative} payload_capture must allow none and redacted_summary_only")
+    findings.extend(check_hermes_preflight_trace_ref_shape(schema))
     return findings
 
 
