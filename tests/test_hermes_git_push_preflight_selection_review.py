@@ -76,20 +76,13 @@ def test_review_selects_git_push_and_defers_broader_candidates() -> None:
         assert deferred in matrix
 
 
-def test_review_names_later_candidate_files_without_creating_them() -> None:
+def test_review_names_later_candidate_files_as_historical_phase_9k_scope() -> None:
     text = review_text()
     decision = normalize_ws(section(text, "Decision"))
 
     assert "candidate script: `scripts/hermes_git_push_preflight.py`" in decision
     assert "candidate tests: `tests/test_hermes_git_push_preflight.py`" in decision
     assert "This review does not create those files." in decision
-
-    forbidden_paths = [
-        REPO_ROOT / "scripts" / "hermes_git_push_preflight.py",
-        REPO_ROOT / "tests" / "test_hermes_git_push_preflight.py",
-    ]
-    for forbidden_path in forbidden_paths:
-        assert not forbidden_path.exists(), f"unexpected implementation path: {forbidden_path}"
 
 
 def test_review_requires_fail_closed_memory_only_non_executing_behavior() -> None:
