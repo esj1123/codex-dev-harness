@@ -397,6 +397,11 @@ execute MCP tools, create audit automation, generate real receipt/log or trace
 files, persist results, regenerate artifacts or digests, call external
 services, add AgentOps or memory behavior, publish releases, or edit
 downstream repositories.
+The Phase 9N clean Local Verify evidence is recorded as workflow run
+`28145973633`, job `83353141986`, for commit
+`b6c2545e054483e3342877418554765bfb78c860`, with 264 tests, quality gate, and
+the three render dry-runs passing; contents permission remained read-only and
+no artifacts were uploaded.
 
 ## Current Verification Snapshot
 
@@ -469,6 +474,7 @@ Core foundation.
 | Phase 9M Hermes git-push preflight output contract | PASS WITH NOTES / SYNTHETIC TESTS | `docs/HERMES_GIT_PUSH_PREFLIGHT_OUTPUT_CONTRACT.md` and `tests/test_hermes_git_push_preflight_output_contract.py`; documents the current non-executing caller JSON output fields, `STOP`-only decision semantics, fail-closed reason codes, sanitized nested Hermes summary, scoped evidence references, redaction rules, non-persistence, and explicit non-goals; no runtime change, real `git push`, staging, commit, tag, workflow dispatch, artifact upload, MCP execution, audit automation, receipt/log/trace generation, quality-gate or CI integration, artifact or digest regeneration, external service, AgentOps, memory runtime, release automation, or downstream integration added |
 | Phase 9M Local Verify evidence | PASS | commit `b20b373b21c11f5f279cbe4f404222bc82135069`; workflow `Local Verify`; run `28144889936`; job `83349878210`; tests passed with 257 cases; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
 | Phase 9N Hermes git-push preflight usage probe | PASS WITH NOTES / SYNTHETIC TESTS | `docs/HERMES_GIT_PUSH_PREFLIGHT_USAGE_PROBE.md` and `tests/test_hermes_git_push_preflight_usage_probe.py`; reviews the current standalone dry-run caller behavior for missing approval, approved-but-not-executable requests, unsafe input, missing or invalid evidence, out-of-scope evidence, and CLI stdout JSON; no runtime change, real `git push`, staging, commit, tag, workflow dispatch, artifact upload, MCP execution, audit automation, receipt/log/trace generation, quality-gate or CI integration, artifact or digest regeneration, external service, AgentOps, memory runtime, release automation, or downstream integration added |
+| Phase 9N Local Verify evidence | PASS | commit `b6c2545e054483e3342877418554765bfb78c860`; workflow `Local Verify`; run `28145973633`; job `83353141986`; tests passed with 264 cases; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
 | local RAG design | PLANNED / DOCUMENTATION-ONLY | `docs/LOCAL_RAG_DESIGN.md` defines a future local-only, read-only lexical retriever over `artifacts/corpus-digest.json` and digest-listed repo-owned source files; advisory only; no RAG code, retrieval/index/corpus folder, embeddings, vector database, external service, CI or quality-gate integration, audit automation, digest regeneration, release automation, MCP/Hermes, or downstream integration added |
 | local RAG implementation contract | PRESENT / CONTRACT-ONLY | `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md` defines Phase 7B allowed inputs, forbidden inputs, output shape, citation rules, no-answer behavior, and future verification requirements; no retrieval code, index, corpus folder, retrieval folder, embeddings, vector database, external service, MCP/Hermes, release automation, digest regeneration, or downstream integration added |
 | Phase 7B Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `ecdcae277ab8affaa63f2f7ebe629e73041a7a2c`; run `27669744955`; job `81831232940`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded |
@@ -1099,12 +1105,11 @@ Stage 0 current-main gap review basis:
 Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
 sequencing handoff.
 
-The Phase 9N Hermes git-push preflight usage probe is ready for local commit,
-push, and clean Local Verify. After that passes, the next Hermes step should be
-a separately approved Phase 9O decision about whether preflight output should
-remain stdout-only or gain explicit receipt/trace evidence planning before any
-further caller/runtime expansion. Any further Hermes task must not add real
-`git push` execution,
+The Phase 9N Hermes git-push preflight usage probe has passed clean Local
+Verify. The next Hermes step should be a separately approved Phase 9O decision
+about whether preflight output should remain stdout-only or gain explicit
+receipt/trace evidence planning before any further caller/runtime expansion.
+Any further Hermes task must not add real `git push` execution,
 staging, commit, tag, release, workflow dispatch, artifact upload, MCP
 execution, background service behavior, quality-gate or CI integration, audit
 automation, release automation, external service, memory/AgentOps behavior, or
