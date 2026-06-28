@@ -58,11 +58,14 @@ digest source-basis commit recorded inside the artifact is
 current-authority files, adds four normative Local RAG policy/contract sources,
 and keeps historical review/probe documents out of the stable digest. The
 digest is not a release artifact unless separately approved and does not
-authorize RAG. No corpus folder, retrieval folder, index folder, embeddings,
-vector database, external service, MCP/Hermes implementation, release
-automation, or downstream integration was added. Phase 6G digest check/refresh
-tooling is present as `scripts/generate_corpus_digest.py` with focused
-synthetic tests in `tests/test_generate_corpus_digest.py`. Check mode is
+authorize RAG. The approved 34-source digest and v2 source-set specification
+exist, and later approved work added standalone local lexical retrieval plus a
+committed-HEAD volatile authority overlay. Integrated RAG tooling, persistent
+retrieval indexes, embeddings, vector stores, and retrieval integration into
+CI, quality gates, release automation, audit automation, MCP/Hermes, AgentOps,
+memory runtime, or downstream repositories do not exist. Phase 6G digest
+check/refresh tooling is present as `scripts/generate_corpus_digest.py` with
+focused synthetic tests in `tests/test_generate_corpus_digest.py`. Check mode is
 read-only and reviewable. Write mode is guarded, restricted to
 `artifacts/corpus-digest.json`, requires a clean digest-listed source basis,
 and was used only for the separately approved Phase 6H.3 real digest
@@ -725,6 +728,12 @@ Core foundation.
   `docs/APPROVED_CORPUS_SOURCE_SET.v2.json`, exact ordered 34-source stable
   source set with `STATUS.md` and `ACCEPTANCE_TRACE.md` excluded as volatile
   current-authority sources.
+- Standalone local lexical retriever:
+  `scripts/local_rag_retriever.py`, local-only, read-only, advisory-only, over
+  `artifacts/corpus-digest.json` and digest-listed repo-owned sources.
+- Committed-HEAD volatile authority overlay:
+  current/mixed retrieval paths can cite `STATUS.md` and `ACCEPTANCE_TRACE.md`
+  from committed HEAD while those files remain excluded from the stable digest.
 - Model and prompt change planning: `docs/MODEL_CHANGE_POLICY.md`.
 - AI readiness scanner:
   - `docs/AI_READINESS_SCANNER_v0.md`
@@ -759,9 +768,12 @@ Core foundation.
 - Further `stock` probes by default.
 - `stock` target repository writes, reports, tests, or generated artifacts from
   this harness repository.
-- Retrieval indexes, embeddings, vector stores, or RAG tooling.
+- Persistent retrieval indexes, embeddings, vector stores, or integrated RAG
+  tooling.
 - `corpus/`, `retrieval/`, and `index/` directories.
-- Local RAG runtime implementation.
+- Retrieval integration into `scripts/quality_gate.py`, CI, release automation,
+  audit automation, MCP/Hermes, AgentOps, memory runtime, or downstream
+  repositories.
 - Model comparison code, model observability tooling, prompt capture, or model
   output capture.
 - SBOM/provenance external metadata resolution.
