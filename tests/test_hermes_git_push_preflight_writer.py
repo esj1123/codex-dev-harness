@@ -27,6 +27,10 @@ def selected_fixture() -> dict[str, object]:
 
 
 IP_LIKE_VALUE = "connect " + ".".join(["10", "0", "0", "1"])
+WINDOWS_ABSOLUTE_VALUE = "C:" + "\\" + "Users" + "\\" + "name" + "\\" + "private.txt"
+POSIX_ABSOLUTE_VALUE = "/" + "Users" + "/name/private.txt"
+WINDOWS_ABSOLUTE_EVIDENCE_REF = "C:" + "\\" + "Users" + "\\" + "name" + "\\" + "evidence.md"
+BACKSLASH_EVIDENCE_REF = "docs" + "\\" + "evidence.md"
 
 
 def read_plan() -> str:
@@ -138,14 +142,29 @@ def test_rejects_forbidden_and_unknown_keys_explicitly() -> None:
 @pytest.mark.parametrize(
     ("field", "bad_value", "match"),
     [
-        ("safe_summary", r"C:\\Users\\name\\secret.txt", "local absolute path"),
+        ("safe_summary", "x" * (writer.SAFE_SUMMARY_MAX_LENGTH + 1), "exceeds bounded length"),
+        ("safe_summary", "   ", "must not be empty"),
+        ("safe_summary", "first line\nsecond line", "multiline raw content"),
+        ("safe_summary", POSIX_ABSOLUTE_VALUE, "local absolute path"),
+        ("safe_summary", WINDOWS_ABSOLUTE_VALUE, "local absolute path"),
         ("safe_summary", "token=abc123", "forbidden"),
         ("safe_summary", IP_LIKE_VALUE, "IP-like"),
         ("evidence_refs", ["../outside.md"], "parent traversal"),
+        ("evidence_refs", [WINDOWS_ABSOLUTE_EVIDENCE_REF], "local absolute path"),
+        ("evidence_refs", [BACKSLASH_EVIDENCE_REF], "POSIX separators"),
         ("evidence_refs", ["logs/raw.txt"], "private/raw/local"),
+        ("evidence_refs", ["private/evidence.md"], "private/raw/local"),
+        ("evidence_refs", ["raw/evidence.md"], "private/raw/local"),
+        ("evidence_refs", ["secrets/evidence.md"], "private/raw/local"),
+        ("evidence_refs", [f"docs/evidence-{i}.md" for i in range(writer.MAX_EVIDENCE_REFS + 1)], "bounded item count"),
+        ("evidence_refs", "docs/evidence.md", "must be a list"),
         ("checked_commit", "5F665343567FD87B69B41AB1097BC0E9E44B9E35", "checked_commit"),
+        ("checked_commit", 54846, "checked_commit must be a string"),
         ("local_verify_run_id", "run-28307218463", "local_verify_run_id"),
+        ("local_verify_run_id", 28307218463, "local_verify_run_id must be a string"),
+        ("local_verify_job_id", 83865467492, "local_verify_job_id must be a string"),
         ("created_at", "2026-06-28 01:23:45", "created_at"),
+        ("created_at", 20260628, "created_at must be a string"),
     ],
 )
 def test_rejects_unsafe_or_malformed_selected_fields(field: str, bad_value: object, match: str) -> None:
@@ -156,20 +175,37 @@ def test_rejects_unsafe_or_malformed_selected_fields(field: str, bad_value: obje
         writer.build_not_run_record(payload)
 
 
+@pytest.mark.parametrize(
+    "forbidden_key",
+    ["receipt_path", "trace_path", "audit_log_path", "artifact_path"],
+)
+def test_rejects_forbidden_output_path_key_variants(forbidden_key: str) -> None:
+    payload = selected_fixture() | {forbidden_key: "not allowed"}
+
+    with pytest.raises(writer.WriterValidationError, match="forbidden selected-field keys"):
+        writer.build_not_run_record(payload)
+
+
 def test_write_uses_deterministic_json_and_cleanup_proves_no_persistence(tmp_path: Path) -> None:
     first = tmp_path / "first.json"
     second = tmp_path / "second.json"
 
     first_record = writer.write_not_run_record(selected_fixture(), first, repo_root=REPO_ROOT)
     second_record = writer.write_not_run_record(selected_fixture(), second, repo_root=REPO_ROOT)
+    expected = json.dumps(first_record, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
 
     assert first_record == second_record
     assert first.read_text(encoding="utf-8") == second.read_text(encoding="utf-8")
-    assert first.read_text(encoding="utf-8").endswith("\n")
+    assert first.read_text(encoding="utf-8") == expected
     assert writer.cleanup_temporary_output(first) == "PASS"
     assert writer.cleanup_temporary_output(second) == "PASS"
     assert not first.exists()
     assert not second.exists()
+
+
+def test_output_path_without_json_suffix_is_rejected(tmp_path: Path) -> None:
+    with pytest.raises(writer.WriterValidationError, match=".json suffix"):
+        writer.write_not_run_record(selected_fixture(), tmp_path / "record.txt", repo_root=REPO_ROOT)
 
 
 def test_output_path_inside_repo_or_existing_file_is_rejected(tmp_path: Path) -> None:
@@ -183,9 +219,9 @@ def test_output_path_inside_repo_or_existing_file_is_rejected(tmp_path: Path) ->
         writer.write_not_run_record(selected_fixture(), existing, repo_root=REPO_ROOT)
 
 
-def test_missing_cleanup_is_fail() -> None:
-    with pytest.raises(writer.WriterValidationError, match="cleanup target is missing"):
-        writer.cleanup_temporary_output(Path("missing-phase-9s-output.json"))
+def test_missing_cleanup_is_fail(tmp_path: Path) -> None:
+    with pytest.raises(writer.WriterValidationError, match="FAIL: cleanup target is missing"):
+        writer.cleanup_temporary_output(tmp_path / "missing-phase-9s-output.json")
 
 
 def test_cli_accepts_synthetic_fixture_and_stdout_is_summary_only(tmp_path: Path, capsys) -> None:
@@ -204,6 +240,38 @@ def test_cli_accepts_synthetic_fixture_and_stdout_is_summary_only(tmp_path: Path
     assert record["status"] == "NOT_RUN"
     assert "raw_stdout" not in json.dumps(record, sort_keys=True)
     assert writer.cleanup_temporary_output(output) == "PASS"
+
+
+def test_cli_invalid_json_returns_environment_blocked_and_creates_no_output(tmp_path: Path, capsys) -> None:
+    fixture = tmp_path / "fixture.json"
+    output = tmp_path / "record.json"
+    fixture.write_text("{not valid json\n", encoding="utf-8")
+
+    exit_code = writer.main(["--fixture-json", str(fixture), "--output-json", str(output)])
+    captured = capsys.readouterr()
+    error = json.loads(captured.err)
+
+    assert exit_code == 2
+    assert captured.out == ""
+    assert error == {"status": "ENVIRONMENT BLOCKED", "reason": "fixture_unavailable_or_invalid_json"}
+    assert not output.exists()
+
+
+def test_cli_validation_failure_returns_fail_and_creates_no_output(tmp_path: Path, capsys) -> None:
+    fixture = tmp_path / "fixture.json"
+    output = tmp_path / "record.json"
+    payload = selected_fixture() | {"artifact_path": "not allowed"}
+    fixture.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+
+    exit_code = writer.main(["--fixture-json", str(fixture), "--output-json", str(output)])
+    captured = capsys.readouterr()
+    error = json.loads(captured.err)
+
+    assert exit_code == 2
+    assert captured.out == ""
+    assert error["status"] == "FAIL"
+    assert "forbidden selected-field keys" in error["reason"]
+    assert not output.exists()
 
 
 def test_script_uses_standard_library_and_does_not_import_live_preflight_or_subprocess() -> None:
