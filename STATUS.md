@@ -455,6 +455,16 @@ The Phase 9Q clean Local Verify evidence is recorded as workflow run
 `801c7fed81b9861be59d020a7f66b8b04681bb3b`, with 284 tests, quality gate, and
 the three render dry-runs passing; contents permission remained read-only and
 no artifacts were uploaded.
+Phase 9R Hermes Git Push Preflight Writer Capture Boundary Review is documented
+in `docs/HERMES_GIT_PUSH_PREFLIGHT_WRITER_CAPTURE_BOUNDARY_REVIEW.md`. It
+defines the approval, output, capture, cleanup, and verification boundaries
+required before any future writer can persist selected Hermes git-push preflight
+receipt or trace evidence. It does not add a writer or capture script, create
+receipt or trace files, create audit logs, persist preflight output, execute
+real `git push` through Hermes, change schemas, change Hermes runtime, wire
+quality-gate/CI integration, execute MCP tools, regenerate artifacts or digests,
+call external services, add AgentOps or memory behavior, publish releases, or
+edit downstream repositories.
 
 ## Current Verification Snapshot
 
@@ -534,6 +544,7 @@ Core foundation.
 | Phase 9P Local Verify evidence | PASS | commit `6a385cee88e80ea642f6b987ee5afdc4607abcca`; workflow `Local Verify`; run `28151264949`; job `83369296241`; tests passed with 277 cases; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
 | Phase 9Q Hermes git-push preflight schema alignment review | PASS WITH NOTES / SCHEMA-ALIGNMENT TESTS | `audits/receipt-summary.schema.json`, `audits/trace-event.schema.json`, `scripts/gates/json_evidence_gate.py`, `tests/test_json_evidence_gate.py`, `docs/HERMES_GIT_PUSH_PREFLIGHT_SCHEMA_ALIGNMENT_REVIEW.md`, and `tests/test_hermes_git_push_preflight_schema_alignment.py`; adds optional selected-field receipt evidence and compact trace reference shapes for Hermes git-push preflight summaries; no writer, receipt/trace generation, audit automation, preflight output persistence, real `git push`, Hermes runtime change, quality-gate/CI integration beyond existing schema-bundle checks, MCP execution, artifact or digest regeneration, external service, AgentOps, memory runtime, release automation, or downstream integration added |
 | Phase 9Q Local Verify evidence | PASS | commit `801c7fed81b9861be59d020a7f66b8b04681bb3b`; workflow `Local Verify`; run `28154089083`; job `83378355128`; tests passed with 284 cases; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
+| Phase 9R Hermes git-push preflight writer/capture boundary review | PASS WITH NOTES / DOCUMENTATION-ONLY | `docs/HERMES_GIT_PUSH_PREFLIGHT_WRITER_CAPTURE_BOUNDARY_REVIEW.md`; defines exact future approval, output path, selected-field capture, cleanup, redaction, and verification requirements before any writer can persist Hermes git-push preflight receipt or trace evidence; no writer or capture script, receipt/trace generation, audit automation, preflight output persistence, real `git push` through Hermes, schema change, Hermes runtime change, quality-gate/CI integration, MCP execution, artifact or digest regeneration, external service, AgentOps, memory runtime, release automation, or downstream integration added |
 | local RAG design | PLANNED / DOCUMENTATION-ONLY | `docs/LOCAL_RAG_DESIGN.md` defines a future local-only, read-only lexical retriever over `artifacts/corpus-digest.json` and digest-listed repo-owned source files; advisory only; no RAG code, retrieval/index/corpus folder, embeddings, vector database, external service, CI or quality-gate integration, audit automation, digest regeneration, release automation, MCP/Hermes, or downstream integration added |
 | local RAG implementation contract | PRESENT / CONTRACT-ONLY | `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md` defines Phase 7B allowed inputs, forbidden inputs, output shape, citation rules, no-answer behavior, and future verification requirements; no retrieval code, index, corpus folder, retrieval folder, embeddings, vector database, external service, MCP/Hermes, release automation, digest regeneration, or downstream integration added |
 | Phase 7B Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `ecdcae277ab8affaa63f2f7ebe629e73041a7a2c`; run `27669744955`; job `81831232940`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded |
@@ -1173,16 +1184,17 @@ Stage 0 current-main gap review basis:
 Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
 sequencing handoff.
 
-The Phase 9Q Hermes git-push preflight schema-alignment review has passed clean
-Local Verify. The next Hermes step should be either a separately approved Phase
-9R writer or capture review using exact allowed files, output policy, cleanup
-policy, and verification commands, or a pause before any durable evidence writer
-or caller/runtime expansion. Any further Hermes task must not add real
-`git push` execution, staging, commit, tag, release, workflow dispatch,
-artifact upload, MCP execution, background service behavior, quality-gate or CI
-integration beyond approved schema checks, audit automation, release automation,
-external service, memory/AgentOps behavior, or downstream integration by
-default.
+The Phase 9R Hermes git-push preflight writer/capture boundary review is
+documented. After clean Local Verify passes for the Phase 9R commit, the next
+Hermes step should be either a separately approved Phase 9S writer
+implementation task using exact allowed files, exact temporary or tracked output
+paths, cleanup policy, and verification commands, or a pause before any durable
+writer, CI integration, MCP integration, or caller/runtime expansion. Any
+further Hermes task must not add real `git push` execution through Hermes,
+staging, commit, tag, release, workflow dispatch, artifact upload, MCP
+execution, background service behavior, quality-gate or CI integration beyond
+approved schema checks, audit automation, release automation, external service,
+memory/AgentOps behavior, or downstream integration by default.
 
 If the owner wants more Phase 7D evidence first, it must be separately approved
 as a narrower Phase 7D.2 task with exact allowed files, commands, artifacts, and
