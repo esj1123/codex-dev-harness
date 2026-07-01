@@ -1,0 +1,115 @@
+{
+  "approval": {
+    "approval_class": "owner_approved_local_commit",
+    "approval_reference": "Owner requested recommended Phase 9Y receipt-only generation after clean Phase 9Y.1 Local Verify."
+  },
+  "artifacts": {
+    "artifact_upload_status": "none",
+    "generated": [],
+    "release_artifact_status": "not generated"
+  },
+  "basis": {
+    "branch": "main",
+    "branch_ahead_count": 0,
+    "branch_behind_count": 0,
+    "head_commit": "1ae6e207a315397d02b91334bee1c5f78bbea05f",
+    "local_remote_relationship": "equal",
+    "origin_commit": "1ae6e207a315397d02b91334bee1c5f78bbea05f"
+  },
+  "changed_files": [
+    {
+      "change_type": "added",
+      "path": "audits/receipts/hermes-git-push-preflight/phase-9y-hermes-git-push-preflight-tracked-receipt-synthetic-not-run.json"
+    }
+  ],
+  "commands": {
+    "not_run": [
+      {
+        "command_summary": "Hermes git push execution",
+        "reason": "Receipt records non-executing synthetic evidence only.",
+        "result": "NOT RUN"
+      },
+      {
+        "command_summary": "Embed same-commit Local Verify for this receipt",
+        "reason": "Same-commit workflow evidence belongs in task closeout after push.",
+        "result": "NOT RUN"
+      }
+    ],
+    "run": [
+      {
+        "command_summary": "Build selected Hermes preflight evidence from synthetic fixture",
+        "note": "Selected fields matched the Phase 9X contract and writer constraints.",
+        "result": "PASS"
+      },
+      {
+        "command_summary": "Validate candidate receipt schema and redaction boundary",
+        "note": "Candidate receipt was validated before repository copy.",
+        "result": "PASS"
+      },
+      {
+        "command_summary": "Copy receipt to exact Phase 9X path",
+        "note": "Only the approved tracked receipt path was written.",
+        "result": "PASS"
+      }
+    ]
+  },
+  "evidence_kind": "receipt_summary",
+  "hermes_git_push_preflight_evidence": {
+    "approval_ref_present": true,
+    "caller_mode": "dry_run",
+    "caller_schema_version": "hermes_git_push_preflight.v0",
+    "decision": "STOP",
+    "evidence_refs": [
+      "docs/HERMES_GIT_PUSH_PREFLIGHT_TRACKED_RECEIPT_GENERATION_POLICY.md",
+      "docs/HERMES_GIT_PUSH_PREFLIGHT_TRACKED_RECEIPT_GENERATION_CONTRACT.md"
+    ],
+    "guarded_command": "git push",
+    "hermes_result_summary": "No Hermes side effect was executed; this receipt records contract-only synthetic evidence.",
+    "local_verify_job_id": "84659286610",
+    "local_verify_run_id": "28554625970",
+    "observed_head_commit": "1ae6e207a315397d02b91334bee1c5f78bbea05f",
+    "output_capture": "selected_fields",
+    "performed_actions_empty": true,
+    "preflight_evidence_status": "not_run",
+    "preflight_integration_status": "receipt-summary-only",
+    "preflight_output_mode": "selected_fields",
+    "reason_code": "tracked_receipt_generation_contract_only",
+    "safe_task_summary": "Phase 9Y creates one tracked synthetic receipt under the exact Phase 9X path.",
+    "safety_notes": [
+      "Source uses synthetic selected fields only.",
+      "Owner approval is stored as a safe reference only.",
+      "No Hermes side effect or downstream access was performed."
+    ],
+    "side_effect_requested": "git_push",
+    "stop_reasons": [
+      "Tracked receipt is synthetic contract evidence only.",
+      "No Hermes git push action was performed."
+    ],
+    "would_run_git_push": false
+  },
+  "next_step": "Commit this receipt locally, then pause before any push, workflow dispatch, trace, audit, runtime, or downstream expansion.",
+  "receipt_id": "phase-9y-hermes-git-push-preflight-tracked-receipt-synthetic-not-run",
+  "repository": "esj1123/codex-dev-harness",
+  "safety": {
+    "exclusions": [
+      "Only synthetic selected fields and safe summaries are retained.",
+      "No live target, credential, account, endpoint, or downstream source values are retained.",
+      "No detailed interaction payload is retained."
+    ],
+    "redaction_status": {
+      "notes": "Receipt stores safe summaries, repo-relative references, booleans, commit id, and prerequisite Local Verify ids only.",
+      "status": "approved_summary_only"
+    }
+  },
+  "schema_version": "1.0",
+  "side_effect_class": "documentation_edit",
+  "status_label": "PASS WITH NOTES",
+  "task_id": "Phase 9Y Hermes Git-Push Preflight Tracked Receipt Synthetic Generation",
+  "unresolved_risks": [
+    "This receipt intentionally does not embed the future post-push Local Verify run for its own commit."
+  ],
+  "verification": {
+    "result": "PASS WITH NOTES",
+    "summary": "Candidate receipt passed selected-field validation, schema validation, and redaction review before repository copy; post-push Local Verify belongs to task closeout."
+  }
+}
