@@ -206,6 +206,8 @@ def _validate_enum(value: Any, *, field_name: str, allowed: set[str]) -> str:
 
 def _validate_fixed_value(payload: Mapping[str, Any], field_name: str, expected: Any) -> Any:
     value = payload[field_name]
+    if isinstance(expected, bool) and not isinstance(value, bool):
+        _fail(f"{field_name} must be a boolean")
     if value != expected:
         _fail(f"{field_name} must be {expected!r}")
     return value
