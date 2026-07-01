@@ -36,6 +36,15 @@ def receipt_schema() -> dict[str, object]:
     return json.loads(RECEIPT_SCHEMA_PATH.read_text(encoding="utf-8"))
 
 
+
+def assert_receipts_absent_or_exact_phase_9y_only() -> None:
+    receipts_root = REPO_ROOT / "audits" / "receipts"
+    if not receipts_root.exists():
+        return
+
+    files = sorted(path.relative_to(REPO_ROOT).as_posix() for path in receipts_root.rglob("*") if path.is_file())
+    assert files == [OUTPUT_PATH]
+
 def test_contract_documents_phase_9x_scope_basis_and_decision() -> None:
     text = contract_text()
     purpose = normalize_ws(section(text, "Purpose"))
@@ -93,7 +102,7 @@ def test_exact_future_receipt_target_is_single_repo_relative_json_path() -> None
     assert pure_path.suffix == ".json"
     assert pure_path.parts[:3] == ("audits", "receipts", "hermes-git-push-preflight")
     assert ".." not in pure_path.parts
-    assert not (REPO_ROOT / "audits" / "receipts").exists()
+    assert_receipts_absent_or_exact_phase_9y_only()
 
     with pytest.raises(receipt_writer.ReceiptWriterValidationError, match="inside the repository"):
         receipt_writer.validate_temporary_output_path(REPO_ROOT / OUTPUT_PATH, repo_root=REPO_ROOT)

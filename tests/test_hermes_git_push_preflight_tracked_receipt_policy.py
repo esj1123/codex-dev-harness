@@ -12,6 +12,10 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 POLICY_PATH = REPO_ROOT / "docs" / "HERMES_GIT_PUSH_PREFLIGHT_TRACKED_RECEIPT_GENERATION_POLICY.md"
 RECEIPT_SCHEMA_PATH = REPO_ROOT / "audits" / "receipt-summary.schema.json"
 PROPOSED_PREFIX = "audits/receipts/hermes-git-push-preflight/"
+APPROVED_PHASE_9Y_RECEIPT = (
+    "audits/receipts/hermes-git-push-preflight/"
+    "phase-9y-hermes-git-push-preflight-tracked-receipt-synthetic-not-run.json"
+)
 
 
 def policy_text() -> str:
@@ -34,6 +38,15 @@ def normalize_ws(text: str) -> str:
 def receipt_schema() -> dict[str, object]:
     return json.loads(RECEIPT_SCHEMA_PATH.read_text(encoding="utf-8"))
 
+
+
+def assert_receipts_absent_or_exact_phase_9y_only() -> None:
+    receipts_root = REPO_ROOT / "audits" / "receipts"
+    if not receipts_root.exists():
+        return
+
+    files = sorted(path.relative_to(REPO_ROOT).as_posix() for path in receipts_root.rglob("*") if path.is_file())
+    assert files == [APPROVED_PHASE_9Y_RECEIPT]
 
 def test_policy_documents_phase_9w_scope_basis_and_decision() -> None:
     text = policy_text()
@@ -111,7 +124,7 @@ def test_proposed_location_is_policy_only_and_current_writer_still_rejects_repo_
     assert "path pattern is a policy placeholder only" in location
     assert "Existing output overwrite is forbidden" in location
 
-    assert not (REPO_ROOT / "audits" / "receipts").exists()
+    assert_receipts_absent_or_exact_phase_9y_only()
 
     repo_internal_output = REPO_ROOT / "audits" / "receipts" / "hermes-git-push-preflight" / "phase-9w.json"
     with pytest.raises(receipt_writer.ReceiptWriterValidationError, match="inside the repository"):
