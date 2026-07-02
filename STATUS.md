@@ -545,6 +545,27 @@ Core foundation.
 | Phase 9Q Hermes git-push preflight schema alignment review | PASS WITH NOTES / SCHEMA-ALIGNMENT TESTS | `audits/receipt-summary.schema.json`, `audits/trace-event.schema.json`, `scripts/gates/json_evidence_gate.py`, `tests/test_json_evidence_gate.py`, `docs/HERMES_GIT_PUSH_PREFLIGHT_SCHEMA_ALIGNMENT_REVIEW.md`, and `tests/test_hermes_git_push_preflight_schema_alignment.py`; adds optional selected-field receipt evidence and compact trace reference shapes for Hermes git-push preflight summaries; no writer, receipt/trace generation, audit automation, preflight output persistence, real `git push`, Hermes runtime change, quality-gate/CI integration beyond existing schema-bundle checks, MCP execution, artifact or digest regeneration, external service, AgentOps, memory runtime, release automation, or downstream integration added |
 | Phase 9Q Local Verify evidence | PASS | commit `801c7fed81b9861be59d020a7f66b8b04681bb3b`; workflow `Local Verify`; run `28154089083`; job `83378355128`; tests passed with 284 cases; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
 | Phase 9R Hermes git-push preflight writer/capture boundary review | PASS WITH NOTES / DOCUMENTATION-ONLY | `docs/HERMES_GIT_PUSH_PREFLIGHT_WRITER_CAPTURE_BOUNDARY_REVIEW.md`; defines exact future approval, output path, selected-field capture, cleanup, redaction, and verification requirements before any writer can persist Hermes git-push preflight receipt or trace evidence; no writer or capture script, receipt/trace generation, audit automation, preflight output persistence, real `git push` through Hermes, schema change, Hermes runtime change, quality-gate/CI integration, MCP execution, artifact or digest regeneration, external service, AgentOps, memory runtime, release automation, or downstream integration added |
+| Phase 9R Local Verify evidence | PASS | commit `5f665343567fd87b69b41ab1097bc0e9e44b9e35`; workflow `Local Verify`; run `28307218463`; job `83865467492`; tests passed, quality gate passed, `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
+| Phase 9S Hermes git-push preflight not-run writer skeleton | PASS WITH NOTES / STANDALONE TEMP-OUTPUT WRITER | `docs/HERMES_GIT_PUSH_PREFLIGHT_WRITER_IMPLEMENTATION_PLAN.md`, `scripts/hermes_git_push_preflight_writer.py`, and `tests/test_hermes_git_push_preflight_writer.py`; implements only `not_run_record_only` synthetic temporary JSON output with explicit validation, forbidden-key rejection, cleanup checks, deterministic JSON, and no durable receipt/trace/audit persistence; no `STATUS.md`, `ACCEPTANCE_TRACE.md`, schema, gate, workflow, artifact, audit, eval, template, profile, example, dependency, real `git push`, MCP execution, release automation, or downstream change added |
+| Phase 9S Local Verify evidence | PASS | commit `54846ee461daa6da2cef7837039934388bb6c739`; workflow `Local Verify`; run `28312237624`; job `83878969480`; tests passed, quality gate passed, `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
+| Phase 9S.1 Hermes git-push preflight writer failure matrix | PASS / SYNTHETIC TESTS | `tests/test_hermes_git_push_preflight_writer.py`; expands synthetic safety coverage for oversized, empty, multiline, path-like, malformed, forbidden-key, invalid JSON, output-path, overwrite, cleanup-failure, and deterministic JSON cases; no writer runtime change, documentation change, status/trace edit, schema/gate/workflow/artifact/audit/eval/template/profile/example/dependency change, real `git push`, MCP execution, release automation, or downstream change added |
+| Phase 9S.1 Local Verify evidence | PASS | commit `f19d3bd20e4f926b6e0e13a1336c19a04503dbc9`; workflow `Local Verify`; run `28494811674`; job `84458787551`; tests passed, quality gate passed, `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
+| Phase 9T Hermes git-push preflight writer persistence hold | PASS WITH NOTES / DOCUMENTATION-ONLY | `docs/HERMES_GIT_PUSH_PREFLIGHT_WRITER_PERSISTENCE_HOLD_DECISION.md` and `tests/test_hermes_git_push_preflight_writer_persistence_hold.py`; holds durable writer, trace writer, manual-summary persistence, audit log, preflight stdout capture, quality-gate/CI integration, MCP/runtime expansion, release automation, and downstream mutation until a concrete consumer and exact persistence path are separately approved |
+| Phase 9T Local Verify evidence | PASS | commit `e2f882d9dad592db09f8a12c3a45458413949dbd`; workflow `Local Verify`; run `28495663622`; job `84461272582`; tests passed, quality gate passed, `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
+| Phase 9U Hermes git-push preflight durable writer proposal | PASS WITH NOTES / DOCUMENTATION-ONLY | `docs/HERMES_GIT_PUSH_PREFLIGHT_DURABLE_WRITER_PROPOSAL.md` and focused synthetic tests; proposes a future `selected_fields_receipt_writer` limited to safe receipt evidence fields while deferring trace writer, durable manual-summary persistence, schema edits, generated receipts, audit logs, preflight stdout capture, quality-gate/CI integration, MCP/runtime expansion, release automation, and downstream mutation |
+| Phase 9U Local Verify evidence | PASS | commit `a101bc704acfdd7f34e1161275010c9a0bea3c19`; workflow `Local Verify`; run `28496626209`; job `84464169619`; tests passed, quality gate passed, `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
+| Phase 9V selected-fields receipt writer | PASS WITH NOTES / STANDALONE TEMP-OUTPUT WRITER | `docs/HERMES_GIT_PUSH_PREFLIGHT_SELECTED_RECEIPT_WRITER_IMPLEMENTATION_PLAN.md`, `scripts/hermes_git_push_preflight_receipt_writer.py`, and `tests/test_hermes_git_push_preflight_receipt_writer.py`; implements synthetic selected-field receipt evidence generation to temporary JSON only, validates allowed fields and redaction boundaries, and leaves tracked receipt generation separately approval-gated |
+| Phase 9V Local Verify evidence | PASS | commit `e73be9459c274ed32f7f2139a23f6216c41ce150`; workflow `Local Verify`; run `28497941281`; job `84468186031`; tests passed, quality gate passed, `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
+| Phase 9V.1 selected-fields receipt writer boolean hardening | PASS / SYNTHETIC TESTS | `scripts/hermes_git_push_preflight_receipt_writer.py` and `tests/test_hermes_git_push_preflight_receipt_writer.py`; hardens boolean handling for selected synthetic receipt fields without opening durable receipt, trace, audit, workflow, quality-gate/CI, MCP/runtime, release, or downstream behavior |
+| Phase 9V.1 Local Verify evidence | PASS | commit `31ee09d7db6bbe7ea079a6cc90a31b6029a19089`; workflow `Local Verify`; run `28498555756`; job `84470173481`; tests passed, quality gate passed, `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
+| Phase 9W tracked receipt generation policy | PASS WITH NOTES / DOCUMENTATION-ONLY | `docs/HERMES_GIT_PUSH_PREFLIGHT_TRACKED_RECEIPT_GENERATION_POLICY.md` and `tests/test_hermes_git_push_preflight_tracked_receipt_policy.py`; defines future tracked-receipt policy, path constraints, required explicit approval fields, schema/redaction procedure, cleanup, and failure statuses without creating `audits/receipts`, writing a receipt, trace, audit log, artifact, workflow, runtime integration, release automation, or downstream output |
+| Phase 9W Local Verify evidence | PASS | commit `d48a6e311027ca21cbda44e206d95f6906787986`; workflow `Local Verify`; run `28499585606`; job `84473490892`; tests passed, quality gate passed, `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
+| Phase 9X tracked receipt generation contract | PASS WITH NOTES / DOCUMENTATION-ONLY | `docs/HERMES_GIT_PUSH_PREFLIGHT_TRACKED_RECEIPT_GENERATION_CONTRACT.md` and `tests/test_hermes_git_push_preflight_tracked_receipt_contract.py`; names the exact Phase 9Y receipt id, exact output path, directory and overwrite policy, synthetic selected-field fixture contract, schema/redaction procedure, cleanup, retention, and Local Verify evidence handling without generating a receipt or opening trace/audit/CI/MCP/runtime/downstream behavior |
+| Phase 9X Local Verify evidence | PASS | commit `57d885bcaab35b64f0c840ae237df69e07c4908c`; workflow `Local Verify`; run `28552431368`; job `84652477431`; tests passed, quality gate passed, `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
+| Phase 9Y.1 tracked receipt test alignment | PASS / SYNTHETIC TESTS | `tests/test_hermes_git_push_preflight_tracked_receipt_contract.py` and related focused receipt-policy checks; aligns synthetic tests with the already-approved Phase 9Y receipt generation contract without creating receipt output, editing status/trace, changing schemas, workflows, scripts, artifacts, audits, evals, templates, profiles, examples, dependencies, release automation, or downstream behavior |
+| Phase 9Y.1 Local Verify evidence | PASS | commit `1ae6e207a315397d02b91334bee1c5f78bbea05f`; workflow `Local Verify`; run `28554625970`; job `84659286610`; tests passed, quality gate passed, `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
+| Phase 9Y tracked receipt synthetic generation | PASS WITH NOTES / SINGLE TRACKED RECEIPT | `audits/receipts/hermes-git-push-preflight/phase-9y-hermes-git-push-preflight-tracked-receipt-synthetic-not-run.json`; creates the exact approved synthetic receipt file after temporary outside-repo validation and cleanup; the receipt intentionally cites prerequisite Local Verify evidence and does not embed the future post-push Local Verify for its own commit, avoiding recursive evidence |
+| Phase 9Y Local Verify evidence | PASS | commit `7551cb2973ba545922bcb9edb55d8d4e3ca98f75`; workflow `Local Verify`; run `28561574671`; job `84680140069`; tests passed with 398 cases; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission remained read-only; no artifacts uploaded |
 | local RAG design | PLANNED / DOCUMENTATION-ONLY | `docs/LOCAL_RAG_DESIGN.md` defines a future local-only, read-only lexical retriever over `artifacts/corpus-digest.json` and digest-listed repo-owned source files; advisory only; no RAG code, retrieval/index/corpus folder, embeddings, vector database, external service, CI or quality-gate integration, audit automation, digest regeneration, release automation, MCP/Hermes, or downstream integration added |
 | local RAG implementation contract | PRESENT / CONTRACT-ONLY | `docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md` defines Phase 7B allowed inputs, forbidden inputs, output shape, citation rules, no-answer behavior, and future verification requirements; no retrieval code, index, corpus folder, retrieval folder, embeddings, vector database, external service, MCP/Hermes, release automation, digest regeneration, or downstream integration added |
 | Phase 7B Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `ecdcae277ab8affaa63f2f7ebe629e73041a7a2c`; run `27669744955`; job `81831232940`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded |
@@ -1182,34 +1203,46 @@ Stage 0 current-main gap review basis:
 ## Next Recommended Step
 
 Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
-sequencing handoff.
+sequencing handoff, with the Hermes Phase 9Y tracked receipt now treated as the
+current verified baseline.
 
-The Phase 9R Hermes git-push preflight writer/capture boundary review is
-documented. After clean Local Verify passes for the Phase 9R commit, the next
-Hermes step should be either a separately approved Phase 9S writer
-implementation task using exact allowed files, exact temporary or tracked output
-paths, cleanup policy, and verification commands, or a pause before any durable
-writer, CI integration, MCP integration, or caller/runtime expansion. Any
-further Hermes task must not add real `git push` execution through Hermes,
-staging, commit, tag, release, workflow dispatch, artifact upload, MCP
-execution, background service behavior, quality-gate or CI integration beyond
-approved schema checks, audit automation, release automation, external service,
-memory/AgentOps behavior, or downstream integration by default.
+Current remote `main` is commit
+`7551cb2973ba545922bcb9edb55d8d4e3ca98f75`. The Phase 9Y tracked receipt
+commit passed clean read-only Local Verify in run `28561574671`, job
+`84680140069`; tests passed with 398 cases, quality gate passed,
+`python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed, contents
+permission remained read-only, and no artifacts were uploaded.
+
+The next safe Hermes step should be either:
+
+- a separately approved Phase 9Z tracked-receipt post-generation boundary review
+  using documentation and focused synthetic tests only; or
+- a pause before any trace, audit, CI, MCP, runtime, release, or downstream
+  expansion.
+
+A Phase 9Z boundary review should not edit the Phase 9Y receipt file merely to
+embed the Phase 9Y post-push Local Verify run. That evidence belongs in closeout
+records unless a separate owner approval explicitly names the existing receipt
+file and replacement rule. Any later task that creates a trace event, audit log,
+workflow integration, quality-gate integration, durable preflight persistence,
+Hermes runtime expansion, real `git push` execution through Hermes, release
+publication, artifact upload, or downstream mutation must name exact allowed
+files, exact output paths, retention and cleanup rules, verification commands,
+and push/workflow permissions before work begins.
 
 If the owner wants more Phase 7D evidence first, it must be separately approved
 as a narrower Phase 7D.2 task with exact allowed files, commands, artifacts, and
-cleanup rules. By default, no receipt generation, audit logging, query-matrix
-automation, digest refresh, corpus allow-list expansion, or CI/quality-gate
-integration is authorized.
+cleanup rules. By default, no new receipt generation, audit logging,
+query-matrix automation, digest refresh, corpus allow-list expansion, or
+CI/quality-gate integration is authorized.
 
-Phase 7C and Phase 7D do not, by default,
-authorize persistent index, corpus, or retrieval folders; embeddings; vector
-storage; external services; MCP/Hermes; AgentOps; memory runtime; release
-automation; downstream integration; CI or quality-gate integration; artifact
-regeneration; digest regeneration; eval report generation; tag or release
-publication; deployment; or private/raw corpus ingestion. `08_Study` raw notes,
-RSID raw evidence, and downstream raw evidence remain excluded unless
-separately redacted and approved.
+Phase 7C and Phase 7D do not, by default, authorize persistent index, corpus, or
+retrieval folders; embeddings; vector storage; external services; MCP/Hermes;
+AgentOps; memory runtime; release automation; downstream integration; CI or
+quality-gate integration; artifact regeneration; digest regeneration; eval
+report generation; tag or release publication; deployment; or private/raw corpus
+ingestion. `08_Study` raw notes, RSID raw evidence, and downstream raw evidence
+remain excluded unless separately redacted and approved.
 
 Treat Stage 5B stock probe records, optional CI/RAG/audit decisions, and the
 post-v0.1.0 evidence baseline as historical risk evidence for the roadmap, not
