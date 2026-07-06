@@ -1,0 +1,217 @@
+# Release Automation And Provenance Boundary Review
+
+## Purpose
+
+Record the Phase 10A boundary review for future release automation and
+provenance work.
+
+Phase 10A is documentation and focused synthetic-test only. It reviews the
+existing local release evidence surfaces and defines the approval boundary before
+any release automation, publication, tag movement, artifact upload, signing,
+release archive generation, CI-generated provenance, external metadata lookup,
+or downstream release behavior is considered.
+
+## Allowed Files
+
+Phase 10A is limited to:
+
+- `docs/RELEASE_AUTOMATION_PROVENANCE_BOUNDARY_REVIEW.md`
+- `tests/test_release_automation_provenance_boundary.py`
+
+`STATUS.md`, `ACCEPTANCE_TRACE.md`, `.github/workflows`, scripts, schemas,
+generated artifacts, audits, evals, templates, profiles, examples,
+dependencies, tags, releases, and downstream repositories are intentionally
+excluded from this boundary task.
+
+## Basis
+
+This review depends on:
+
+- `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`
+- `docs/CI_POLICY.md`
+- `docs/RELEASE_BUNDLE_POLICY.md`
+- `docs/RELEASE_MANIFEST_POLICY.md`
+- `docs/SBOM_PROVENANCE_PLAN.md`
+- `scripts/run_release_verify.ps1`
+- `scripts/generate_manifest.py`
+- `scripts/generate_checksums.py`
+- `scripts/generate_sbom.py`
+- `scripts/generate_provenance.py`
+- `tests/test_generate_manifest.py`
+- `tests/test_generate_checksums.py`
+- `tests/test_generate_sbom.py`
+- `tests/test_generate_provenance.py`
+
+The clean Local Verify evidence for the preceding Phase 9Z boundary review is
+run `28827967885`, job `85495348285`, for commit
+`4be8839a3b36ab3be9fc0f92b468da2de28158e3`.
+
+## Boundary Decision
+
+Decision: `release_automation_provenance_boundary_documented_without_automation`.
+
+The repository already has local-only release evidence generators and a local
+release verification wrapper. Phase 10A does not expand those surfaces. It
+records that automation-adjacent release work must remain exact-file,
+exact-command, local-first, and approval-gated until a later task names the
+specific automation target and side effects.
+
+Phase 10A does not approve a GitHub Release, release archive, tag creation, tag
+movement, artifact upload, signing, CI workflow, required check, external
+metadata lookup, cloud attestation, package publication, downstream release, or
+release-blocking gate.
+
+## Existing Local Evidence Surfaces
+
+The current local evidence surfaces are:
+
+- `artifacts/release-manifest.json`
+- `artifacts/checksums.sha256`
+- `artifacts/sbom.spdx.json`
+- `artifacts/sbom.cdx.json`
+- `artifacts/provenance.intoto.jsonl`
+- `scripts/run_release_verify.ps1`
+- `scripts/generate_manifest.py`
+- `scripts/generate_checksums.py`
+- `scripts/generate_sbom.py`
+- `scripts/generate_provenance.py`
+
+These surfaces are local evidence only. Their presence does not authorize
+regeneration, publication, upload, tag movement, signing, release archives,
+workflow installation, external metadata lookup, or downstream mutation.
+
+## Future Approval Requirements
+
+A later release automation or provenance expansion task must explicitly define:
+
+- exact allowed files;
+- exact generated artifact paths;
+- exact commands;
+- whether generated artifacts may be created, overwritten, committed, uploaded,
+  archived, signed, or discarded;
+- source-basis commit semantics;
+- artifact-containing commit semantics;
+- push, tag, release, and rollback behavior;
+- retention and cleanup rules;
+- whether CI workflow changes are allowed;
+- whether network, external metadata lookup, cloud attestation, or package
+  registry calls are allowed;
+- whether eval, audit, retrieval, MCP, or Hermes evidence joins the release
+  evidence bundle;
+- verification commands;
+- closeout evidence requirements;
+- artifact upload policy;
+- explicit exclusions for private data, secrets, local absolute paths, live
+  targets, publication, tags, downstream edits, and raw command logs.
+
+If any required item is absent, release automation or provenance expansion is
+`BLOCKED`.
+
+## Local Evidence Safety Rules
+
+Release evidence must stay local-first and summary-oriented unless separately
+approved. It must not include raw source bundles, private inputs, prompt or
+session transcripts, raw command logs, unredacted tool-call bodies, secrets,
+credential material, account values, local absolute paths, IPs, ports, endpoints,
+live configuration, device values, downstream raw evidence, generated downstream
+source, or release publication tokens.
+
+Release evidence must distinguish:
+
+- source-basis commit;
+- artifact-containing commit;
+- pushed commit;
+- tag target;
+- published release target;
+- generated but uncommitted local artifact;
+- committed local evidence artifact;
+- uploaded artifact.
+
+These states must not be collapsed into a single "released" status.
+
+## Boundary Checks
+
+Phase 10A checks:
+
+1. Existing local release evidence generators remain local-only.
+2. Existing generated artifacts are not regenerated by this task.
+3. Release automation remains unapproved.
+4. Publication, tag movement, artifact upload, signing, and release archives
+   remain unapproved.
+5. CI-generated provenance and release workflows remain unapproved.
+6. External metadata lookup and package registry calls remain unapproved.
+7. Downstream release behavior remains unapproved.
+8. Future release expansion requires exact-file, exact-command, cleanup,
+   retention, rollback, and verification approval.
+
+## Failure Modes
+
+Future release automation and provenance work must use explicit statuses:
+
+- `PASS`
+- `PASS WITH NOTES`
+- `BLOCKED`
+- `FAIL`
+- `NOT RUN`
+- `ENVIRONMENT BLOCKED`
+
+Missing exact owner approval, unexpected artifact regeneration, unexpected
+workflow edits, artifact upload drift, tag movement, release publication, signing
+behavior, external metadata lookup, downstream access, unsafe raw material, and
+cleanup failure are not silent success.
+
+## Verification
+
+Phase 10A verification must include at least:
+
+- `python -m pytest tests/test_release_automation_provenance_boundary.py`
+- `python -m pytest tests/test_generate_manifest.py`
+- `python -m pytest tests/test_generate_checksums.py`
+- `python -m pytest tests/test_generate_sbom.py`
+- `python -m pytest tests/test_generate_provenance.py`
+- `python -m pytest tests`
+- `python scripts/quality_gate.py`
+- `git diff --check`
+- `git ls-files --others --exclude-standard`
+
+Clean GitHub Actions Local Verify evidence should be recorded separately after
+this review is committed and pushed.
+
+## Non-goals
+
+Phase 10A does not:
+
+- run `scripts/run_release_verify.ps1`;
+- run release evidence generators;
+- regenerate `artifacts/release-manifest.json`;
+- regenerate `artifacts/checksums.sha256`;
+- regenerate `artifacts/sbom.spdx.json`;
+- regenerate `artifacts/sbom.cdx.json`;
+- regenerate `artifacts/provenance.intoto.jsonl`;
+- create release archives;
+- create or move tags;
+- create a GitHub Release;
+- upload artifacts;
+- sign artifacts;
+- add or edit workflows;
+- add required checks;
+- perform external metadata lookup;
+- call package registries;
+- change release, SBOM, provenance, eval, audit, MCP, Hermes, RAG, or downstream
+  runtime behavior;
+- publish, deploy, or mutate downstream repositories.
+
+## Next Step
+
+After Phase 10A is committed and clean Local Verify passes, the next safe release
+step should be either:
+
+- pause before any release automation, publication, tag, upload, signing,
+  archive, workflow, external metadata, or downstream behavior; or
+- a separately approved Phase 10B task that names one narrow local release
+  automation candidate, exact allowed files, exact generated artifact paths,
+  source-basis semantics, cleanup and overwrite rules, rollback behavior,
+  verification commands, and closeout evidence before any implementation.
+
+Phase 10A does not authorize release automation or provenance expansion by
+itself.
