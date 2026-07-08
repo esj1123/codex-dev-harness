@@ -13,6 +13,24 @@ Current regression examples:
 
 These examples verify that the base template, profile overlays, safety policy, and quality gates remain coherent. They are not full applications.
 
+## Regression Example Contract
+
+The regression examples are curated regression skeletons, not byte-for-byte
+rendered snapshots.
+
+Each example must contain every file the renderer would produce for its
+`template.config.yml`, but the example files may include reviewed,
+profile-specific wording that differs from the raw template output.
+
+`example_render_drift_gate` therefore verifies rendered file-set coverage only:
+it checks that expected rendered paths exist and does not compare rendered file
+content.
+
+Future content-level drift enforcement must use a separate golden render
+fixture or an explicitly approved example regeneration task. Do not point a
+content-hash gate at the curated `examples/*_minimal` directories unless that
+task also approves replacing their curated content with generated snapshots.
+
 ## Template-Level Validation
 
 The template should support project types that need:

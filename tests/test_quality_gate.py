@@ -84,6 +84,18 @@ def test_docs_gate_requires_current_post_v0_1_governance_docs() -> None:
     assert len(docs_gate.REQUIRED_DOCS) == len(required_docs)
 
 
+def test_validation_scope_defines_curated_example_contract() -> None:
+    text = Path("docs/VALIDATION_SCOPE.md").read_text(encoding="utf-8")
+
+    assert "curated regression skeletons" in text
+    assert "not byte-for-byte" in text
+    assert "example_render_drift_gate" in text
+    assert "file-set coverage only" in text
+    assert "separate golden render" in text
+    assert "fixture" in text
+    assert "generated snapshots" in text
+
+
 def test_template_schema_gate_requires_seed_config(tmp_path: Path) -> None:
     minimal_repo(tmp_path)
     write(tmp_path / "template.config.example.yml", "project:\n  name: demo\n  status: draft\n")
