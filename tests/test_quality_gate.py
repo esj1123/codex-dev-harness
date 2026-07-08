@@ -1,7 +1,17 @@
+import json
 from pathlib import Path
 
-from scripts.gates import docs_gate, example_gate, example_render_drift_gate, repo_hygiene_gate, secret_scan_gate, template_schema_gate
+from scripts.gates import (
+    docs_gate,
+    example_gate,
+    example_render_drift_gate,
+    rendered_golden_content_gate,
+    repo_hygiene_gate,
+    secret_scan_gate,
+    template_schema_gate,
+)
 from scripts.quality_gate import run_quality_gate
+from scripts.render_template import TemplateConfig
 
 
 REQUIRED_DOC_CONTENT = "# doc\n"
@@ -18,6 +28,14 @@ POST_V0_1_GOVERNANCE_DOCS = {
     "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md",
 }
 
+PYTHON_CLI_PROFILE_TEMPLATES = [
+    "profiles/python_cli/AGENTS.override.md.template",
+    "profiles/python_cli/README.profile.md.template",
+    "profiles/python_cli/SAFETY_POLICY.profile.md.template",
+    "profiles/python_cli/STATUS.profile.md.template",
+    "profiles/python_cli/VERIFICATION.profile.md.template",
+]
+
 
 def write(path: Path, content: str = REQUIRED_DOC_CONTENT) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -29,10 +47,34 @@ def minimal_repo(root: Path) -> None:
         write(root / relative)
     for relative in template_schema_gate.REQUIRED_BASE_TEMPLATES:
         write(root / relative)
+    for relative in PYTHON_CLI_PROFILE_TEMPLATES:
+        write(root / relative, "profile {{ profile.name }} for {{ project.name }}\n")
     write(
         root / "template.config.example.yml",
         "project:\n  name: demo\n  status: seed\nprofile:\n  name: python_cli\n",
     )
+    write_golden_render_fixture(root)
+
+
+def write_golden_render_fixture(root: Path) -> None:
+    config = TemplateConfig(project_name="golden_render_python_cli", project_status="seed", profile="python_cli")
+    records = [
+        {"path": path, "sha256": digest}
+        for path, digest in rendered_golden_content_gate.rendered_file_hashes(root, config).items()
+    ]
+    fixture = {
+        "schema_version": "1",
+        "description": "Synthetic python_cli render content fixture for the quality gate.",
+        "render": {
+            "project_name": config.project_name,
+            "project_status": config.project_status,
+            "profile": config.profile,
+        },
+        "hash_algorithm": "sha256",
+        "newline_policy": "lf-normalized",
+        "expected_files": records,
+    }
+    write(root / rendered_golden_content_gate.FIXTURE_RELATIVE, json.dumps(fixture, indent=2) + "\n")
 
 
 def write_valid_example(root: Path, example_name: str, profile: str) -> None:
@@ -54,6 +96,9 @@ def write_valid_example(root: Path, example_name: str, profile: str) -> None:
             )
         else:
             write(example_dir / relative, "# example\n")
+
+    write(example_dir / "README.profile.md", "# example profile\n")
+    write(example_dir / "STATUS.profile.md", "# example profile status\n")
 
     if profile == "python_cli":
         write(example_dir / "STATUS.md", "pytest NOT RUN\nCLI smoke NOT RUN\nsynthetic fixtures only\n")
@@ -91,8 +136,8 @@ def test_validation_scope_defines_curated_example_contract() -> None:
     assert "not byte-for-byte" in text
     assert "example_render_drift_gate" in text
     assert "file-set coverage only" in text
-    assert "separate golden render" in text
-    assert "fixture" in text
+    assert "separate golden render fixture" in text
+    assert "`evals/golden/`" in text
     assert "generated snapshots" in text
 
 
@@ -176,6 +221,42 @@ def test_example_render_drift_gate_detects_missing_rendered_file(tmp_path: Path)
 
     assert result.passed is False
     assert any("SOURCE_INDEX.md" in message for message in result.messages)
+
+
+def test_rendered_golden_content_gate_detects_content_drift(tmp_path: Path) -> None:
+    minimal_repo(tmp_path)
+    write(tmp_path / "templates" / "base" / "README.md.template", "# changed\n")
+
+    result = rendered_golden_content_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert any("README.md" in message for message in result.messages)
+
+
+def test_rendered_golden_content_gate_rejects_examples_fixture_paths(tmp_path: Path) -> None:
+    minimal_repo(tmp_path)
+    fixture = {
+        "schema_version": "1",
+        "render": {
+            "project_name": "golden_render_python_cli",
+            "project_status": "seed",
+            "profile": "python_cli",
+        },
+        "hash_algorithm": "sha256",
+        "newline_policy": "lf-normalized",
+        "expected_files": [
+            {
+                "path": "examples/python_cli_minimal/README.md",
+                "sha256": "0" * 64,
+            }
+        ],
+    }
+    write(tmp_path / rendered_golden_content_gate.FIXTURE_RELATIVE, json.dumps(fixture, indent=2) + "\n")
+
+    result = rendered_golden_content_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert any("not examples/" in message for message in result.messages)
 
 
 def test_example_gate_validates_config_values(tmp_path: Path) -> None:

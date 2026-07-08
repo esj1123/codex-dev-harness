@@ -354,6 +354,11 @@ def test_quality_gate_runs_json_evidence_gate(monkeypatch, tmp_path: Path) -> No
     monkeypatch.setattr(quality_gate.template_schema_gate, "run", passing_gate("template_schema_gate"))
     monkeypatch.setattr(quality_gate.example_gate, "run", passing_gate("example_gate"))
     monkeypatch.setattr(quality_gate.example_render_drift_gate, "run", passing_gate("example_render_drift_gate"))
+    monkeypatch.setattr(
+        quality_gate.rendered_golden_content_gate,
+        "run",
+        passing_gate("rendered_golden_content_gate"),
+    )
     monkeypatch.setattr(quality_gate.secret_scan_gate, "run", passing_gate("secret_scan_gate"))
     monkeypatch.setattr(quality_gate.json_evidence_gate, "run", passing_gate("json_evidence_gate"))
 

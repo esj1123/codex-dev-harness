@@ -10,7 +10,8 @@ Record known limitations for the current codex-dev-harness baseline after the fo
 - Secret scanning is a lightweight heuristic and can produce false positives or false negatives.
 - Example projects are skeletons only and intentionally contain no real application code.
 - Example validation checks required files, config values, and required safety phrases; it does not execute real project builds.
-- Render drift checking is file-presence-only and does not compare rendered content.
+- Curated example render drift checking is file-presence-only and does not compare rendered content.
+- Golden render fixture checking covers one synthetic rendered target for content-level drift.
 - Python CLI examples do not implement a CLI command.
 - C# desktop examples do not include solution files, project files, source files, or build/test/smoke scripts.
 - PLC/device examples do not include polling, connection, tag maps, control actions, or live device write support.

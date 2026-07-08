@@ -26,10 +26,10 @@ profile-specific wording that differs from the raw template output.
 it checks that expected rendered paths exist and does not compare rendered file
 content.
 
-Future content-level drift enforcement must use a separate golden render
-fixture or an explicitly approved example regeneration task. Do not point a
-content-hash gate at the curated `examples/*_minimal` directories unless that
-task also approves replacing their curated content with generated snapshots.
+Content-level drift enforcement uses a separate golden render fixture under
+`evals/golden/`. Do not point a content-hash gate at the curated
+`examples/*_minimal` directories unless that task also approves replacing their
+curated content with generated snapshots.
 
 ## Template-Level Validation
 

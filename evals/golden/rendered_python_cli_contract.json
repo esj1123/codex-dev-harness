@@ -1,0 +1,77 @@
+{
+  "schema_version": "1",
+  "description": "Synthetic python_cli render content fixture for the quality gate. Paths are relative to the synthetic render target, not examples/.",
+  "render": {
+    "project_name": "golden_render_python_cli",
+    "project_status": "seed",
+    "profile": "python_cli"
+  },
+  "hash_algorithm": "sha256",
+  "newline_policy": "lf-normalized",
+  "expected_files": [
+    {
+      "path": "ACCEPTANCE_TRACE.md",
+      "sha256": "fbaff6e368f690451cd111c520043573d77576dbac7ea0bc19645cfa319105c6"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "838e5d7127e65944bba15d6d8d871a0a5ac37052abbb2afdf620e008032a7ef0"
+    },
+    {
+      "path": "AGENTS.override.md",
+      "sha256": "cbaa7c37a184e9e32809b3f7a47536003f86c415504dbc20659308a51395e7c6"
+    },
+    {
+      "path": "APPROVALS.md",
+      "sha256": "0829947e5c97c8c09c86ba0bf7b08278260f622d354c6b0710c4dc457ce590b1"
+    },
+    {
+      "path": "DATA_SCOPE.md",
+      "sha256": "fb2cbfd22b0d56770328edc5c086fc3ccbd8574d70f77efff9c10c944c8ba4cd"
+    },
+    {
+      "path": "MVP.md",
+      "sha256": "827763f0ce99b5f3111c10489522aafb37853296da0d137da12aa5de72121a23"
+    },
+    {
+      "path": "PHASE_PLAN.md",
+      "sha256": "79ee06174751ae191452041e2227d50721fb3b871ab3ec4cf7f41a46024da4dc"
+    },
+    {
+      "path": "PRODUCT.md",
+      "sha256": "91cfcf88e025db3685efe3c6ccb8355bb30bf651593a5d2a23a0a7e4a096a517"
+    },
+    {
+      "path": "PROJECT_BOUNDARY.md",
+      "sha256": "ec0d6fb7a6d075576c12a7b480ac02b63e797c096105a0d57b14e263d7a02c9a"
+    },
+    {
+      "path": "README.md",
+      "sha256": "c8f392650596be5fc1aa0422cf3109fc0c89a5749e0d9ffc18bab37ebb95b64a"
+    },
+    {
+      "path": "README.profile.md",
+      "sha256": "dfa1b43d99cbc96c750f4db5cb86ab3a8ac90aeaffcf64c584424facc836fe30"
+    },
+    {
+      "path": "SAFETY_POLICY.profile.md",
+      "sha256": "484901d26eb803ba9c464956db1e3640bdbe41725cb62c8d4edc74d261156fba"
+    },
+    {
+      "path": "SOURCE_INDEX.md",
+      "sha256": "f3a0fabd35045f239b9281f7047b1d951adb788aee023bdf43f6dccafb86ecac"
+    },
+    {
+      "path": "STATUS.md",
+      "sha256": "475fc6ca684c36e079817da6bfce13ab9d06c4c5cff96a1a81400349896dfcb0"
+    },
+    {
+      "path": "STATUS.profile.md",
+      "sha256": "d22b79958b12e17340403ab0aafc47a2d6a47a179afad0ecc377a353feecf5a0"
+    },
+    {
+      "path": "VERIFICATION.profile.md",
+      "sha256": "b41a8caf1971c1d7ed55c4f8cb92ba5ff7ee549be589503eca3aba3ada5f0f60"
+    }
+  ]
+}

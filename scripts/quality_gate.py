@@ -14,7 +14,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
-from gates import docs_gate, example_gate, example_render_drift_gate, json_evidence_gate, repo_hygiene_gate, secret_scan_gate, template_schema_gate  # noqa: E402
+from gates import docs_gate, example_gate, example_render_drift_gate, json_evidence_gate, rendered_golden_content_gate, repo_hygiene_gate, secret_scan_gate, template_schema_gate  # noqa: E402
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -33,6 +33,7 @@ def run_quality_gate(repo_root: Path = REPO_ROOT) -> GateSummary:
         template_schema_gate.run,
         example_gate.run,
         example_render_drift_gate.run,
+        rendered_golden_content_gate.run,
         secret_scan_gate.run,
         json_evidence_gate.run,
     ]
