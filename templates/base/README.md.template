@@ -11,14 +11,18 @@ State the current project phase.
 ## Read Order
 
 1. AGENTS.md
-2. PRODUCT.md
-3. MVP.md
-4. STATUS.md
-5. ACCEPTANCE_TRACE.md
-6. docs/SAFETY_POLICY.md
-7. docs/VERIFICATION.md
-8. docs/PROFILE_MATRIX.md
-9. docs/AI_HANDOFF.md
+2. AGENTS.override.md, if a profile is rendered
+3. PRODUCT.md
+4. MVP.md
+5. PROJECT_BOUNDARY.md
+6. DATA_SCOPE.md
+7. APPROVALS.md
+8. PHASE_PLAN.md
+9. STATUS.md
+10. ACCEPTANCE_TRACE.md
+11. SOURCE_INDEX.md
+12. SAFETY_POLICY.profile.md, if a profile is rendered
+13. VERIFICATION.profile.md, if a profile is rendered
 
 ## Quick Start
 

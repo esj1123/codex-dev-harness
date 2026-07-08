@@ -14,11 +14,15 @@ Override base AGENTS.md guidance for a C# desktop or local tool project with sol
 2. AGENTS.override.md
 3. PRODUCT.md
 4. MVP.md
-5. STATUS.md
-6. ACCEPTANCE_TRACE.md
-7. docs/SAFETY_POLICY.md
-8. docs/VERIFICATION.md
-9. docs/AI_HANDOFF.md
+5. PROJECT_BOUNDARY.md
+6. DATA_SCOPE.md
+7. APPROVALS.md
+8. PHASE_PLAN.md
+9. STATUS.md
+10. ACCEPTANCE_TRACE.md
+11. SOURCE_INDEX.md
+12. SAFETY_POLICY.profile.md
+13. VERIFICATION.profile.md
 
 ## Expected Layout
 

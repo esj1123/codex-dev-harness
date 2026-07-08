@@ -41,10 +41,13 @@ SKIPPED_DIR_NAMES = {
 SAFE_TEXT_FILES = {
     "README.md",
     "AGENTS.md",
+    "AGENTS.override.md",
     "STATUS.md",
     "ACCEPTANCE_TRACE.md",
     "docs/SAFETY_POLICY.md",
     "docs/VERIFICATION.md",
+    "SAFETY_POLICY.profile.md",
+    "VERIFICATION.profile.md",
 }
 
 QUALITY_GATE_NAMES = {
@@ -191,7 +194,7 @@ def score_ai_rules(root: Path) -> ScoreDimension:
 
 
 def score_safety(root: Path) -> ScoreDimension:
-    candidates = ["docs/SAFETY_POLICY.md", "SAFETY_POLICY.md"]
+    candidates = ["docs/SAFETY_POLICY.md", "SAFETY_POLICY.md", "SAFETY_POLICY.profile.md"]
     present = [path for path in candidates if has_file(root, path)]
     if not present:
         return ScoreDimension("Safety boundary", 0, "INSUFFICIENT_EVIDENCE", ["safety policy missing"])
@@ -207,7 +210,11 @@ def score_verification(root: Path, path_texts: list[str]) -> ScoreDimension:
         for path in path_texts
         if Path(path).name.lower() in QUALITY_GATE_NAMES or "quality_gate" in path or "verify" in path
     ]
-    has_verification_doc = has_file(root, "docs/VERIFICATION.md") or has_file(root, "VERIFICATION.md")
+    has_verification_doc = (
+        has_file(root, "docs/VERIFICATION.md")
+        or has_file(root, "VERIFICATION.md")
+        or has_file(root, "VERIFICATION.profile.md")
+    )
     if has_verification_doc and script_hits:
         return ScoreDimension("Verification script", 2, "PASS", ["verification doc and local verification script present"])
     if has_verification_doc or script_hits:

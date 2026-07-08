@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 
+from scripts import ai_readiness_scanner as scanner
 from scripts.render_template import load_config, render_templates
 
 
@@ -109,3 +110,50 @@ def test_render_allows_examples_target(tmp_path: Path) -> None:
 
     assert target / "README.md" in rendered
     assert target.exists() is False
+
+
+def test_rendered_profile_contract_matches_scanner_layout(tmp_path: Path) -> None:
+    repo_root = Path(__file__).resolve().parents[1]
+    config = tmp_path / "template.config.yml"
+    config.write_text(
+        "project:\n  name: rendered_demo\n  status: seed\nprofile:\n  name: python_cli\n",
+        encoding="utf-8",
+    )
+    target = tmp_path / "rendered_demo"
+
+    render_templates(config_path=config, target=target, repo_root=repo_root, dry_run=False)
+
+    rendered_files = {
+        "AGENTS.override.md",
+        "PRODUCT.md",
+        "MVP.md",
+        "PROJECT_BOUNDARY.md",
+        "DATA_SCOPE.md",
+        "APPROVALS.md",
+        "PHASE_PLAN.md",
+        "STATUS.md",
+        "ACCEPTANCE_TRACE.md",
+        "SOURCE_INDEX.md",
+        "SAFETY_POLICY.profile.md",
+        "VERIFICATION.profile.md",
+    }
+    assert all((target / relative).is_file() for relative in rendered_files)
+
+    broken_refs = {
+        "docs/SAFETY_POLICY.md",
+        "docs/VERIFICATION.md",
+        "docs/PROFILE_MATRIX.md",
+        "docs/AI_HANDOFF.md",
+    }
+    for relative in ["AGENTS.md", "README.md", "AGENTS.override.md"]:
+        text = (target / relative).read_text(encoding="utf-8")
+        assert not any(reference in text for reference in broken_refs)
+        assert "SAFETY_POLICY.profile.md" in text
+        assert "VERIFICATION.profile.md" in text
+
+    result = scanner.scan_target(target)
+    safety = next(dimension for dimension in result.dimensions if dimension.name == "Safety boundary")
+    verification = next(dimension for dimension in result.dimensions if dimension.name == "Verification script")
+    assert result.score >= 13
+    assert safety.status == "PASS"
+    assert verification.status != "INSUFFICIENT_EVIDENCE"

@@ -135,3 +135,26 @@ def test_cli_json_output_is_stdout_only(tmp_path: Path, capsys) -> None:
     assert exit_code == 0
     assert payload[0]["score"] == 16
     assert captured.err == ""
+
+
+def test_profile_policy_docs_count_as_equivalent_safety_and_verification(tmp_path: Path) -> None:
+    write(tmp_path / "README.md", "# Demo\n\nPurpose: project overview and current state.\n")
+    write(tmp_path / "AGENTS.md", "read-only first\nside effects require approval\nverification required\n")
+    write(tmp_path / "STATUS.md", "Current phase: seed\nNext recommended step: plan small batch work.\n")
+    write(tmp_path / "ACCEPTANCE_TRACE.md", "acceptance evidence PASS FAIL NOT RUN\n")
+    write(
+        tmp_path / "SAFETY_POLICY.profile.md",
+        "side effects\nprivate data\nsecrets prohibited\nread-only\n",
+    )
+    write(tmp_path / "VERIFICATION.profile.md", "document local verification expectations\n")
+
+    result = scanner.scan_target(tmp_path)
+
+    safety = next(dimension for dimension in result.dimensions if dimension.name == "Safety boundary")
+    verification = next(dimension for dimension in result.dimensions if dimension.name == "Verification script")
+    assert safety.score == 2
+    assert safety.status == "PASS"
+    assert verification.score == 1
+    assert verification.status == "PARTIAL"
+    assert "SAFETY_POLICY.profile.md" in result.inspected_paths
+    assert "VERIFICATION.profile.md" in result.inspected_paths
