@@ -7,6 +7,13 @@ from scripts import ai_readiness_scanner as scanner
 from scripts.render_template import MAX_DIFF_PREVIEW_PATHS, load_config, main, render_templates
 
 
+TIER_CONTRACT = Path(__file__).resolve().parents[1] / "docs" / "RENDER_TIER_CONTRACT.md"
+
+
+def tier_contract_text() -> str:
+    return TIER_CONTRACT.read_text(encoding="utf-8")
+
+
 def write(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
@@ -252,6 +259,53 @@ def test_render_template_cli_diff_preview_requires_dry_run(tmp_path: Path) -> No
             ]
         )
 
+
+def test_render_tier_contract_is_docs_only_before_implementation() -> None:
+    text = tier_contract_text()
+
+    assert "documentation and focused-test only" in text
+    for blocked_surface in [
+        "`scripts/render_template.py`",
+        "generated examples",
+        "quality gates",
+        "workflows",
+        "artifacts",
+        "downstream repositories",
+    ]:
+        assert blocked_surface in text
+
+
+def test_render_tier_contract_defines_minimal_standard_full() -> None:
+    text = tier_contract_text()
+
+    for tier in ["`minimal`", "`standard`", "`full`"]:
+        assert tier in text
+    for minimal_doc in [
+        "`AGENTS.md`",
+        "`README.md`",
+        "`PRODUCT.md`",
+        "`MVP.md`",
+        "`PROJECT_BOUNDARY.md`",
+    ]:
+        assert minimal_doc in text
+    assert "All currently rendered base templates and all selected profile templates" in text
+
+
+def test_render_tier_contract_preserves_default_preview_and_safety_rules() -> None:
+    text = tier_contract_text()
+
+    for required_phrase in [
+        "`render.tier`",
+        "omitted tier as `full`",
+        "Unknown values must fail closed",
+        "`--dry-run`",
+        "`--provenance-preview`",
+        "`--diff-preview`",
+        "no automatic target overwrite",
+        "no raw target content in preview output",
+        "no local absolute paths",
+    ]:
+        assert required_phrase in text
 
 def test_render_templates_writes_base_and_profile(tmp_path: Path) -> None:
     repo = tmp_path / "repo"
