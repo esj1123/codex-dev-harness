@@ -139,6 +139,23 @@ def test_validation_scope_defines_curated_example_contract() -> None:
     assert "separate golden render fixture" in text
     assert "`evals/golden/`" in text
     assert "generated snapshots" in text
+    assert "RENDER_PROVENANCE_AND_UPGRADE_PLAN.md" in text
+    assert "blanket overwrite" in text
+
+
+def test_render_provenance_upgrade_plan_defines_safe_update_path() -> None:
+    text = Path("docs/RENDER_PROVENANCE_AND_UPGRADE_PLAN.md").read_text(encoding="utf-8")
+
+    assert "harness_commit" in text
+    assert "render_profile" in text
+    assert "config_source" in text
+    assert "generated snapshot basis" in text
+    assert "user-editable project docs" in text
+    assert "temporary directory" in text
+    assert "Compare" in text or "compare" in text
+    assert "Do not use blanket `--force` overwrite" in text
+    assert "does not authorize" in text
+    assert "downstream repository access" in text
 
 
 def test_template_schema_gate_requires_seed_config(tmp_path: Path) -> None:

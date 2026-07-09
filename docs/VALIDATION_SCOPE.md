@@ -31,6 +31,11 @@ Content-level drift enforcement uses a separate golden render fixture under
 `examples/*_minimal` directories unless that task also approves replacing their
 curated content with generated snapshots.
 
+Downstream update propagation is governed separately by
+`docs/RENDER_PROVENANCE_AND_UPGRADE_PLAN.md`. That plan keeps curated examples
+separate from generated snapshots and requires compare-first upgrades instead
+of blanket overwrite.
+
 ## Template-Level Validation
 
 The template should support project types that need:
