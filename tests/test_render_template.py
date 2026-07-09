@@ -1,9 +1,10 @@
+import json
 from pathlib import Path
 
 import pytest
 
 from scripts import ai_readiness_scanner as scanner
-from scripts.render_template import load_config, render_templates
+from scripts.render_template import load_config, main, render_templates
 
 
 def write(path: Path, content: str) -> None:
@@ -43,6 +44,110 @@ def test_render_templates_dry_run_does_not_write(tmp_path: Path, capsys: pytest.
     assert target.exists() is False
     assert target / "README.md" in rendered
     assert "DRY-RUN render" in capsys.readouterr().out
+
+
+def test_render_templates_dry_run_provenance_preview_is_safe_and_deterministic(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    repo = tmp_path / "repo"
+    write(repo / "templates/base/README.md.template", "# {{ project.name }}\n")
+    config = repo / "template.config.yml"
+    config.write_text("project:\n  name: demo\n  status: seed\n", encoding="utf-8")
+    target = repo / "examples" / "demo"
+
+    render_templates(
+        config_path=config,
+        target=target,
+        repo_root=repo,
+        dry_run=True,
+        provenance_preview=True,
+    )
+
+    output = capsys.readouterr().out
+    prefix = "DRY-RUN provenance-preview "
+    preview_line = next(line for line in output.splitlines() if line.startswith(prefix))
+    preview_json = preview_line.removeprefix(prefix)
+    preview = json.loads(preview_json)
+
+    assert preview == {
+        "config_source": "template.config.yml",
+        "harness_commit": "UNKNOWN",
+        "mode": "DRY_RUN_PREVIEW",
+        "output_policy": "no_provenance_stamp_written",
+        "render_profile": "base",
+        "rendered_file_count": 1,
+        "schema_version": "render_provenance_preview.v0",
+        "target_root": "examples/demo",
+    }
+    assert preview_json == json.dumps(preview, sort_keys=True, separators=(",", ":"))
+    assert str(tmp_path) not in preview_json
+    assert "\\" not in preview_json
+    assert target.exists() is False
+
+
+def test_render_templates_provenance_preview_summarizes_external_paths(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    repo = tmp_path / "repo"
+    write(repo / "templates/base/README.md.template", "# {{ project.name }}\n")
+    write(repo / "profiles/python_cli/README.profile.md.template", "profile {{ profile.name }}\n")
+    config = tmp_path / "external" / "template.config.yml"
+    write(config, "project:\n  name: demo\n  status: seed\nprofile:\n  name: python_cli\n")
+    target = tmp_path / "external-target"
+
+    render_templates(
+        config_path=config,
+        target=target,
+        repo_root=repo,
+        dry_run=True,
+        provenance_preview=True,
+    )
+
+    output = capsys.readouterr().out
+    preview_line = next(line for line in output.splitlines() if line.startswith("DRY-RUN provenance-preview "))
+    preview = json.loads(preview_line.removeprefix("DRY-RUN provenance-preview "))
+
+    assert preview["config_source"] == "external_config"
+    assert preview["target_root"] == "external_target"
+    assert preview["render_profile"] == "python_cli"
+    assert str(tmp_path) not in preview_line
+    assert target.exists() is False
+
+
+def test_render_templates_provenance_preview_is_dry_run_only(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    write(repo / "templates/base/README.md.template", "# {{ project.name }}\n")
+    config = repo / "template.config.yml"
+    config.write_text("project:\n  name: demo\n  status: seed\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="provenance preview is dry-run only"):
+        render_templates(
+            config_path=config,
+            target=tmp_path / "target",
+            repo_root=repo,
+            dry_run=False,
+            provenance_preview=True,
+        )
+
+
+def test_render_template_cli_provenance_preview_requires_dry_run(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    write(repo / "templates/base/README.md.template", "# {{ project.name }}\n")
+    config = repo / "template.config.yml"
+    config.write_text("project:\n  name: demo\n  status: seed\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="provenance preview is dry-run only"):
+        main(
+            [
+                "--repo-root",
+                str(repo),
+                "--config",
+                str(config),
+                "--target",
+                str(tmp_path / "target"),
+                "--provenance-preview",
+            ]
+        )
 
 
 def test_render_templates_writes_base_and_profile(tmp_path: Path) -> None:

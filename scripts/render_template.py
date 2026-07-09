@@ -9,12 +9,15 @@ P2 implementation constraints:
 from __future__ import annotations
 
 import argparse
+import json
+import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+PROVENANCE_PREVIEW_SCHEMA_VERSION = "render_provenance_preview.v0"
 
 
 @dataclass(frozen=True)
@@ -107,6 +110,61 @@ def validate_target(target: Path, repo_root: Path) -> None:
             raise ValueError("refusing to render into the template repository outside examples/<name>")
 
 
+def safe_repo_relative_or_summary(path: Path, repo_root: Path, external_summary: str) -> str:
+    resolved_path = path.resolve()
+    resolved_root = repo_root.resolve()
+    try:
+        return resolved_path.relative_to(resolved_root).as_posix() or "."
+    except ValueError:
+        return external_summary
+
+
+def current_git_commit(repo_root: Path) -> str:
+    if not (repo_root / ".git").exists():
+        return "UNKNOWN"
+
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(repo_root), "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=5,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return "UNKNOWN"
+
+    commit = result.stdout.strip()
+    if result.returncode == 0 and len(commit) == 40 and all(char in "0123456789abcdefABCDEF" for char in commit):
+        return commit.lower()
+    return "UNKNOWN"
+
+
+def build_render_provenance_preview(
+    *,
+    config: TemplateConfig,
+    config_path: Path,
+    target: Path,
+    repo_root: Path,
+    rendered_file_count: int,
+) -> dict[str, str | int]:
+    return {
+        "schema_version": PROVENANCE_PREVIEW_SCHEMA_VERSION,
+        "mode": "DRY_RUN_PREVIEW",
+        "harness_commit": current_git_commit(repo_root),
+        "render_profile": config.profile or "base",
+        "config_source": safe_repo_relative_or_summary(config_path, repo_root, "external_config"),
+        "target_root": safe_repo_relative_or_summary(target, repo_root, "external_target"),
+        "rendered_file_count": rendered_file_count,
+        "output_policy": "no_provenance_stamp_written",
+    }
+
+
+def print_render_provenance_preview(preview: dict[str, str | int]) -> None:
+    payload = json.dumps(preview, sort_keys=True, separators=(",", ":"))
+    print(f"DRY-RUN provenance-preview {payload}")
+
+
 def render_templates(
     *,
     config_path: Path,
@@ -115,12 +173,15 @@ def render_templates(
     profile_override: str | None = None,
     dry_run: bool = True,
     force: bool = False,
+    provenance_preview: bool = False,
 ) -> list[Path]:
     config = load_config(config_path)
     if profile_override:
         config = TemplateConfig(config.project_name, config.project_status, profile_override)
 
     validate_target(target, repo_root)
+    if provenance_preview and not dry_run:
+        raise ValueError("provenance preview is dry-run only")
 
     base_dir = repo_root / "templates" / "base"
     profile_dir = repo_root / "profiles" / config.profile if config.profile else None
@@ -142,8 +203,18 @@ def render_templates(
         destination.write_text(render_text(source.read_text(encoding="utf-8"), config), encoding="utf-8")
         print(f"rendered {source.relative_to(repo_root)} -> {destination}")
 
-    return rendered_paths
+    if dry_run and provenance_preview:
+        print_render_provenance_preview(
+            build_render_provenance_preview(
+                config=config,
+                config_path=config_path,
+                target=target,
+                repo_root=repo_root,
+                rendered_file_count=len(rendered_paths),
+            )
+        )
 
+    return rendered_paths
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Render markdown templates into a target folder.")
@@ -151,6 +222,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--target", required=True, help="Target folder for rendered files")
     parser.add_argument("--profile", default=None, help="Override profile.name from config")
     parser.add_argument("--dry-run", action="store_true", help="Preview files without writing")
+    parser.add_argument(
+        "--provenance-preview",
+        action="store_true",
+        help="With --dry-run, print safe render provenance metadata without writing a stamp",
+    )
     parser.add_argument("--force", action="store_true", help="Allow overwriting existing files")
     parser.add_argument("--repo-root", default=str(REPO_ROOT), help="Template repo root")
     return parser
@@ -170,6 +246,7 @@ def main(argv: list[str] | None = None) -> int:
         profile_override=args.profile,
         dry_run=args.dry_run,
         force=args.force,
+        provenance_preview=args.provenance_preview,
     )
     return 0
 

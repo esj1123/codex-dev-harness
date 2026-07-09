@@ -98,8 +98,8 @@ This plan does not authorize:
 ## Implementation Sequence
 
 1. Document this contract and keep examples curated.
-2. Add dry-run provenance preview support only after a separate implementation
-   approval.
+2. Keep dry-run provenance preview support limited to safe summary output; it
+   must not write tracked provenance stamps or downstream files.
 3. Add a temporary re-render diff helper only after preview semantics are clear.
 4. Add target-root central audit support only after downstream access and data
    boundary rules are explicitly approved.
