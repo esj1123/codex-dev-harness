@@ -7,23 +7,28 @@ on the Python standard library.
 from __future__ import annotations
 
 import argparse
+from contextlib import redirect_stdout
 from dataclasses import dataclass
 from datetime import datetime, timezone
 import fnmatch
 import hashlib
+import io
 import json
 from pathlib import Path
 import re
 import sys
+import tempfile
 from typing import Any
 
 
 sys.dont_write_bytecode = True
 
 try:
-    from render_template import iter_templates, load_config, template_destination
+    from ai_readiness_scanner import scan_target
+    from render_template import iter_templates, load_config, render_templates, template_destination
 except ModuleNotFoundError:
-    from scripts.render_template import iter_templates, load_config, template_destination
+    from scripts.ai_readiness_scanner import scan_target
+    from scripts.render_template import iter_templates, load_config, render_templates, template_destination
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -136,6 +141,43 @@ def run_render_structure(repo_root: Path, case: dict[str, Any]) -> EvalResult:
     if findings:
         return EvalResult(case_result_name(case, "render_structure"), False, findings)
     return EvalResult(case_result_name(case, "render_structure"), True, [f"validated render path lists: {len(all_planned)}"])
+
+
+def run_rendered_readiness(repo_root: Path, case: dict[str, Any]) -> EvalResult:
+    name = case_result_name(case, "rendered_readiness")
+    findings: list[str] = []
+    checked = 0
+
+    for render_case in case.get("renders", []):
+        render_name = str(render_case.get("name", f"render_{checked + 1}"))
+        config_relative = str(render_case["config"])
+        config_path = repo_root / config_relative
+        min_score = int(render_case.get("min_score", 13))
+        allowed_results = set(render_case.get("allowed_results", ["READY_FOR_AI_ASSISTED_WORK"]))
+
+        if not config_path.is_file():
+            findings.append(f"{render_name}: missing render config: {config_relative}")
+            continue
+
+        with tempfile.TemporaryDirectory(prefix="codex_harness_render_eval_") as temp_dir:
+            target = Path(temp_dir) / render_name
+            try:
+                with redirect_stdout(io.StringIO()):
+                    render_templates(config_path=config_path, target=target, repo_root=repo_root, dry_run=False)
+            except Exception as exc:  # noqa: BLE001 - eval should report render failures.
+                findings.append(f"{render_name}: render failed: {exc}")
+                continue
+
+            scan = scan_target(target)
+            checked += 1
+            if scan.score < min_score:
+                findings.append(f"{render_name}: readiness score {scan.score}/16 below minimum {min_score}")
+            if allowed_results and scan.result not in allowed_results:
+                findings.append(f"{render_name}: readiness result {scan.result} not in allowed results")
+
+    if findings:
+        return EvalResult(name, False, findings)
+    return EvalResult(name, True, [f"validated rendered readiness scans: {checked}"])
 
 
 def run_policy_phrases(repo_root: Path, case: dict[str, Any]) -> EvalResult:
@@ -354,6 +396,8 @@ def run_case(repo_root: Path, case_path: Path) -> EvalResult:
     eval_name = case.get("eval")
     if eval_name == "render_structure":
         return run_render_structure(repo_root, case)
+    if eval_name == "rendered_readiness":
+        return run_rendered_readiness(repo_root, case)
     if eval_name == "policy_phrases":
         return run_policy_phrases(repo_root, case)
     if eval_name == "forbidden_artifacts":

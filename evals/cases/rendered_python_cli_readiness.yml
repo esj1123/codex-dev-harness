@@ -1,0 +1,15 @@
+{
+  "name": "rendered_python_cli_readiness",
+  "eval": "rendered_readiness",
+  "description": "Render the python_cli profile into a temporary target and verify it meets the AI readiness scanner threshold.",
+  "renders": [
+    {
+      "name": "python_cli_synthetic",
+      "config": "examples/python_cli_minimal/template.config.yml",
+      "min_score": 13,
+      "allowed_results": [
+        "READY_FOR_AI_ASSISTED_WORK"
+      ]
+    }
+  ]
+}

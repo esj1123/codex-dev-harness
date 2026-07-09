@@ -47,6 +47,43 @@ def render_case() -> dict[str, object]:
     }
 
 
+def rendered_readiness_repo(root: Path) -> None:
+    write(
+        root / "templates/base/README.md.template",
+        "# {{ project.name }}\n\nProject purpose and current state.\n",
+    )
+    write(
+        root / "templates/base/AGENTS.md.template",
+        "Read-only first. Side effect scope, verification, and no-touch rules.\n",
+    )
+    write(root / "templates/base/STATUS.md.template", "Current state. Next recommended action.\n")
+    write(root / "templates/base/ACCEPTANCE_TRACE.md.template", "Acceptance evidence: PASS / FAIL / NOT RUN.\n")
+    write(
+        root / "profiles/python_cli/SAFETY_POLICY.profile.md.template",
+        "Private data, secrets, and live target writes are prohibited.\n",
+    )
+    write(root / "profiles/python_cli/VERIFICATION.profile.md.template", "Run local verification with synthetic fixtures only.\n")
+    write(
+        root / "examples/demo/template.config.yml",
+        "project:\n  name: demo\n  status: seed\nprofile:\n  name: python_cli\n",
+    )
+
+
+def rendered_readiness_case(min_score: int = 13) -> dict[str, object]:
+    return {
+        "name": "rendered_demo_readiness",
+        "eval": "rendered_readiness",
+        "renders": [
+            {
+                "name": "demo_render",
+                "config": "examples/demo/template.config.yml",
+                "min_score": min_score,
+                "allowed_results": ["READY_FOR_AI_ASSISTED_WORK"],
+            }
+        ],
+    }
+
+
 def write_passing_eval_case(root: Path, name: str = "alpha_case") -> Path:
     write(root / "AGENTS.md", "explicit confirmation\n")
     case_path = root / "evals/cases/policy.yml"
@@ -81,6 +118,24 @@ def test_render_structure_detects_missing_expected_file(tmp_path: Path) -> None:
 
     assert result.passed is False
     assert any("STATUS.md" in message for message in result.messages)
+
+
+def test_rendered_readiness_passes_scanner_threshold(tmp_path: Path) -> None:
+    rendered_readiness_repo(tmp_path)
+
+    result = run_eval.run_rendered_readiness(tmp_path, rendered_readiness_case())
+
+    assert result.passed is True
+    assert "1" in result.messages[0]
+
+
+def test_rendered_readiness_detects_low_score(tmp_path: Path) -> None:
+    rendered_readiness_repo(tmp_path)
+
+    result = run_eval.run_rendered_readiness(tmp_path, rendered_readiness_case(min_score=16))
+
+    assert result.passed is False
+    assert any("below minimum 16" in message for message in result.messages)
 
 
 def test_policy_phrases_detects_missing_phrase(tmp_path: Path) -> None:
@@ -165,6 +220,7 @@ def test_default_eval_case_discovery_has_expanded_named_cases() -> None:
 
     assert len(case_paths) >= 10
     assert "render_structure_base_docs" in case_names
+    assert "rendered_python_cli_readiness" in case_names
     assert "checksum_shape" in case_names
     assert "provenance_shape" in case_names
     assert all(case_names)
