@@ -100,6 +100,8 @@ This plan does not authorize:
 1. Document this contract and keep examples curated.
 2. Keep dry-run provenance preview support limited to safe summary output; it
    must not write tracked provenance stamps or downstream files.
-3. Add a temporary re-render diff helper only after preview semantics are clear.
+3. Keep dry-run re-render diff preview support limited to bounded
+   target-relative summaries; it must not write files or print raw target
+   content.
 4. Add target-root central audit support only after downstream access and data
    boundary rules are explicitly approved.

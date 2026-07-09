@@ -18,6 +18,8 @@ from typing import Iterable
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PROVENANCE_PREVIEW_SCHEMA_VERSION = "render_provenance_preview.v0"
+DIFF_PREVIEW_SCHEMA_VERSION = "render_diff_preview.v0"
+MAX_DIFF_PREVIEW_PATHS = 50
 
 
 @dataclass(frozen=True)
@@ -165,6 +167,52 @@ def print_render_provenance_preview(preview: dict[str, str | int]) -> None:
     print(f"DRY-RUN provenance-preview {payload}")
 
 
+def target_relative_path(path: Path, target: Path) -> str:
+    return path.relative_to(target).as_posix()
+
+
+def build_render_diff_preview(*, expected_rendered: list[tuple[Path, str]], target: Path) -> dict[str, object]:
+    missing_paths: list[str] = []
+    changed_paths: list[str] = []
+    unchanged_count = 0
+
+    for destination, rendered_text in expected_rendered:
+        relative = target_relative_path(destination, target)
+        if not destination.exists():
+            missing_paths.append(relative)
+            continue
+        if not destination.is_file():
+            changed_paths.append(relative)
+            continue
+        try:
+            existing_text = destination.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            changed_paths.append(relative)
+            continue
+        if existing_text == rendered_text:
+            unchanged_count += 1
+        else:
+            changed_paths.append(relative)
+
+    path_count = len(missing_paths) + len(changed_paths)
+    return {
+        "schema_version": DIFF_PREVIEW_SCHEMA_VERSION,
+        "mode": "DRY_RUN_PREVIEW",
+        "rendered_file_count": len(expected_rendered),
+        "missing_count": len(missing_paths),
+        "changed_count": len(changed_paths),
+        "unchanged_count": unchanged_count,
+        "missing_paths": missing_paths[:MAX_DIFF_PREVIEW_PATHS],
+        "changed_paths": changed_paths[:MAX_DIFF_PREVIEW_PATHS],
+        "paths_truncated": path_count > MAX_DIFF_PREVIEW_PATHS,
+        "output_policy": "no_files_written",
+    }
+
+
+def print_render_diff_preview(preview: dict[str, object]) -> None:
+    payload = json.dumps(preview, sort_keys=True, separators=(",", ":"))
+    print(f"DRY-RUN diff-preview {payload}")
+
 def render_templates(
     *,
     config_path: Path,
@@ -174,6 +222,7 @@ def render_templates(
     dry_run: bool = True,
     force: bool = False,
     provenance_preview: bool = False,
+    diff_preview: bool = False,
 ) -> list[Path]:
     config = load_config(config_path)
     if profile_override:
@@ -182,6 +231,8 @@ def render_templates(
     validate_target(target, repo_root)
     if provenance_preview and not dry_run:
         raise ValueError("provenance preview is dry-run only")
+    if diff_preview and not dry_run:
+        raise ValueError("diff preview is dry-run only")
 
     base_dir = repo_root / "templates" / "base"
     profile_dir = repo_root / "profiles" / config.profile if config.profile else None
@@ -191,17 +242,28 @@ def render_templates(
         raise FileNotFoundError(f"missing profile template directory: {profile_dir}")
 
     rendered_paths: list[Path] = []
+    expected_rendered: list[tuple[Path, str]] = []
     for source, source_root in iter_templates(base_dir, profile_dir):
         destination = template_destination(source, source_root, target)
         rendered_paths.append(destination)
+        rendered_text = ""
+        if diff_preview or not dry_run:
+            rendered_text = render_text(source.read_text(encoding="utf-8"), config)
+        if diff_preview:
+            expected_rendered.append((destination, rendered_text))
         if dry_run:
             print(f"DRY-RUN render {source.relative_to(repo_root)} -> {destination}")
             continue
         if destination.exists() and not force:
             raise FileExistsError(f"refusing to overwrite existing file: {destination}")
         destination.parent.mkdir(parents=True, exist_ok=True)
-        destination.write_text(render_text(source.read_text(encoding="utf-8"), config), encoding="utf-8")
+        destination.write_text(rendered_text, encoding="utf-8")
         print(f"rendered {source.relative_to(repo_root)} -> {destination}")
+
+    if dry_run and diff_preview:
+        print_render_diff_preview(
+            build_render_diff_preview(expected_rendered=expected_rendered, target=target)
+        )
 
     if dry_run and provenance_preview:
         print_render_provenance_preview(
@@ -216,6 +278,7 @@ def render_templates(
 
     return rendered_paths
 
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Render markdown templates into a target folder.")
     parser.add_argument("--config", default="template.config.yml", help="Path to template.config.yml")
@@ -226,6 +289,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--provenance-preview",
         action="store_true",
         help="With --dry-run, print safe render provenance metadata without writing a stamp",
+    )
+    parser.add_argument(
+        "--diff-preview",
+        action="store_true",
+        help="With --dry-run, print bounded target-relative render diff metadata without writing",
     )
     parser.add_argument("--force", action="store_true", help="Allow overwriting existing files")
     parser.add_argument("--repo-root", default=str(REPO_ROOT), help="Template repo root")
@@ -247,6 +315,7 @@ def main(argv: list[str] | None = None) -> int:
         dry_run=args.dry_run,
         force=args.force,
         provenance_preview=args.provenance_preview,
+        diff_preview=args.diff_preview,
     )
     return 0
 

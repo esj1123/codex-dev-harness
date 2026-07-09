@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from scripts import ai_readiness_scanner as scanner
-from scripts.render_template import load_config, main, render_templates
+from scripts.render_template import MAX_DIFF_PREVIEW_PATHS, load_config, main, render_templates
 
 
 def write(path: Path, content: str) -> None:
@@ -146,6 +146,109 @@ def test_render_template_cli_provenance_preview_requires_dry_run(tmp_path: Path)
                 "--target",
                 str(tmp_path / "target"),
                 "--provenance-preview",
+            ]
+        )
+
+
+def test_render_templates_dry_run_diff_preview_reports_summary_without_raw_content(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    repo = tmp_path / "repo"
+    write(repo / "templates/base/GUIDE.md.template", "expected {{ project.name }}\n")
+    write(repo / "templates/base/MISSING.md.template", "missing {{ project.name }}\n")
+    write(repo / "templates/base/README.md.template", "# {{ project.name }}\n")
+    config = repo / "template.config.yml"
+    config.write_text("project:\n  name: demo\n  status: seed\n", encoding="utf-8")
+    target = repo / "examples" / "demo"
+    write(target / "README.md", "# demo\n")
+    write(target / "GUIDE.md", "PRIVATE RAW TARGET CONTENT\n")
+
+    render_templates(config_path=config, target=target, repo_root=repo, dry_run=True, diff_preview=True)
+
+    output = capsys.readouterr().out
+    prefix = "DRY-RUN diff-preview "
+    preview_line = next(line for line in output.splitlines() if line.startswith(prefix))
+    preview_json = preview_line.removeprefix(prefix)
+    preview = json.loads(preview_json)
+
+    assert preview == {
+        "changed_count": 1,
+        "changed_paths": ["GUIDE.md"],
+        "missing_count": 1,
+        "missing_paths": ["MISSING.md"],
+        "mode": "DRY_RUN_PREVIEW",
+        "output_policy": "no_files_written",
+        "paths_truncated": False,
+        "rendered_file_count": 3,
+        "schema_version": "render_diff_preview.v0",
+        "unchanged_count": 1,
+    }
+    assert preview_json == json.dumps(preview, sort_keys=True, separators=(",", ":"))
+    assert "PRIVATE RAW TARGET CONTENT" not in preview_json
+    assert str(tmp_path) not in preview_json
+    assert "\\" not in preview_json
+    assert (target / "GUIDE.md").read_text(encoding="utf-8") == "PRIVATE RAW TARGET CONTENT\n"
+    assert (target / "MISSING.md").exists() is False
+
+
+def test_render_templates_dry_run_diff_preview_bounds_path_lists(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    repo = tmp_path / "repo"
+    for index in range(MAX_DIFF_PREVIEW_PATHS + 2):
+        write(repo / "templates/base" / f"file_{index:02}.md.template", f"file {index}\n")
+    config = repo / "template.config.yml"
+    config.write_text("project:\n  name: demo\n  status: seed\n", encoding="utf-8")
+    target = repo / "examples" / "demo"
+
+    render_templates(config_path=config, target=target, repo_root=repo, dry_run=True, diff_preview=True)
+
+    output = capsys.readouterr().out
+    preview_line = next(line for line in output.splitlines() if line.startswith("DRY-RUN diff-preview "))
+    preview = json.loads(preview_line.removeprefix("DRY-RUN diff-preview "))
+
+    assert preview["rendered_file_count"] == MAX_DIFF_PREVIEW_PATHS + 2
+    assert preview["missing_count"] == MAX_DIFF_PREVIEW_PATHS + 2
+    assert preview["changed_count"] == 0
+    assert preview["unchanged_count"] == 0
+    assert len(preview["missing_paths"]) == MAX_DIFF_PREVIEW_PATHS
+    assert preview["changed_paths"] == []
+    assert preview["paths_truncated"] is True
+    assert str(tmp_path) not in preview_line
+
+
+def test_render_templates_diff_preview_is_dry_run_only(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    write(repo / "templates/base/README.md.template", "# {{ project.name }}\n")
+    config = repo / "template.config.yml"
+    config.write_text("project:\n  name: demo\n  status: seed\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="diff preview is dry-run only"):
+        render_templates(
+            config_path=config,
+            target=tmp_path / "target",
+            repo_root=repo,
+            dry_run=False,
+            diff_preview=True,
+        )
+
+
+def test_render_template_cli_diff_preview_requires_dry_run(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    write(repo / "templates/base/README.md.template", "# {{ project.name }}\n")
+    config = repo / "template.config.yml"
+    config.write_text("project:\n  name: demo\n  status: seed\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="diff preview is dry-run only"):
+        main(
+            [
+                "--repo-root",
+                str(repo),
+                "--config",
+                str(config),
+                "--target",
+                str(tmp_path / "target"),
+                "--diff-preview",
             ]
         )
 
