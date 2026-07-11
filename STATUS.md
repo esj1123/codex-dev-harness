@@ -1224,11 +1224,19 @@ read-only Local Verify workflow. Workflow run and job identifiers belong in the
 task closeout rather than this file so that verification evidence does not
 create another recursive documentation commit.
 
-After the cumulative checksum, handoff, and digest closeout passes, the next
-recommended separate task is the repository license and security-policy
-baseline. That task should select an owner-approved license and define a safe
-vulnerability-reporting path in `SECURITY.md`. The exact license choice and
-reporting contact or mechanism require owner approval before implementation.
+The repository license and security-policy baseline is implemented by source
+commit `0fcc0886b218011915db8248bd4e437834b4906b`. It adds the owner-approved
+MIT license, a `SECURITY.md` private-reporting contract, 75-document gate
+enforcement, and local-only MIT detection for future SBOM generation.
+
+GitHub Private Vulnerability Reporting activation is an external repository
+setting. Its enabled state belongs in task closeout evidence rather than this
+tracked handoff document.
+
+Existing manifest, SBOM, provenance, and checksum artifacts were intentionally
+not regenerated and retain their historical source-basis semantics. The next
+recommended separate task is an owner-approved release-evidence refresh from a
+license-bearing source basis when current release evidence is required.
 
 Historical Stage 5B, Phase 7, Hermes, receipt, audit, MCP, release, and downstream
 records remain risk and boundary evidence. They do not authorize runtime

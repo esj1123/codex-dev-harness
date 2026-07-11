@@ -576,9 +576,17 @@ The source-set membership and allow-list must remain unchanged. Only the final
 digest-valid cumulative tip should be pushed and used for Local Verify. Run and
 job identifiers belong in closeout evidence rather than another roadmap edit.
 
-After that cumulative closeout passes, the next recommended governance task is a
-separate repository license and `SECURITY.md` baseline. The owner must select
-the license and vulnerability-reporting contact or mechanism before those files
-are added. This sequencing note does not authorize release publication, signing,
-tag movement, artifact upload, workflow expansion, audit automation, MCP or
-Hermes runtime expansion, downstream access, or live behavior.
+The repository license and `SECURITY.md` baseline is implemented by source
+commit `0fcc0886b218011915db8248bd4e437834b4906b`. It adds the MIT license,
+a private vulnerability-reporting contract, required-document enforcement, and
+local-only MIT detection for future SBOM generation.
+
+Private Vulnerability Reporting activation is external repository state and
+must be verified in task closeout rather than another tracked documentation
+commit.
+
+Existing release evidence remains historical. The next recommended task is a
+separate owner-approved refresh from a license-bearing source basis when current
+release evidence is needed. This completion does not authorize release
+publication, signing, tag movement, artifact upload, workflow expansion, audit
+automation, MCP or Hermes runtime expansion, downstream access, or live behavior.
