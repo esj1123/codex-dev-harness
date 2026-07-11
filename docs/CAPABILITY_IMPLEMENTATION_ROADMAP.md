@@ -559,56 +559,26 @@ For this roadmap task, closeout must confirm:
 - path, sensitive-term, and IP-like scans were run and results were reported
   honestly.
 
-## 12. Next task prompt
+## 12. Current sequencing handoff
 
-```text
-Repository:
-esj1123/codex-dev-harness
+The former Phase 3 read-only CI prompt is retired. The owner-approved manual
+read-only `.github/workflows/local-verify.yml` workflow is implemented, and its
+current boundaries are documented in `docs/CI_POLICY.md`.
 
-Task:
-Implement Phase 3: read-only CI + verification hygiene.
+The concrete next-task state is tracked in `STATUS.md`. The active cumulative
+closeout sequence is:
 
-Goal:
-Create the smallest approved read-only verification hygiene path after the
-Capability Implementation Roadmap. Mirror existing local verification without
-release behavior.
+1. the checkout-independent checksum implementation source commit;
+2. a documentation-only current handoff synchronization commit;
+3. an exact same-34-source corpus digest freshness commit.
 
-Read first:
-- AGENTS.md
-- STATUS.md
-- docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md
-- docs/CI_POLICY.md
-- docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md
-- docs/VERIFICATION.md
-- docs/AUDIT_RECEIPT_PILOT_REVIEW.md
+The source-set membership and allow-list must remain unchanged. Only the final
+digest-valid cumulative tip should be pushed and used for Local Verify. Run and
+job identifiers belong in closeout evidence rather than another roadmap edit.
 
-Before editing:
-- report branch and local/remote state
-- report existing working-tree changes
-- identify expected touch files
-- identify forbidden actions
-- identify verification commands
-
-Required boundaries:
-- read-only verification only
-- no secrets
-- no artifact upload
-- no release publication
-- no signing
-- no tag creation or movement
-- no deployment
-- no downstream repo edit
-- no RAG, embeddings, vector DB, or retrieval/index folder
-- no audit automation
-- no eval quality-gate integration
-- no MCP or Hermes implementation
-- no live write
-
-Closeout:
-- PASS / PASS WITH NOTES / BLOCKED
-- changed files
-- verification results command by command
-- safety exclusions
-- whether local commit, push, tag, release, or artifact generation occurred
-- next recommended task
-```
+After that cumulative closeout passes, the next recommended governance task is a
+separate repository license and `SECURITY.md` baseline. The owner must select
+the license and vulnerability-reporting contact or mechanism before those files
+are added. This sequencing note does not authorize release publication, signing,
+tag movement, artifact upload, workflow expansion, audit automation, MCP or
+Hermes runtime expansion, downstream access, or live behavior.

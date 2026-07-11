@@ -1202,48 +1202,35 @@ Stage 0 current-main gap review basis:
 
 ## Next Recommended Step
 
-Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
-sequencing handoff, with the Hermes Phase 9Y tracked receipt now treated as the
-current verified baseline.
+The current locally verified implementation source baseline is commit
+`e8fcc6c533433fc0b23c10b392797d2779bc465d`
+(`Make release checksums checkout-independent`). It establishes LF-normalized
+release evidence hashing, read-only checksum verification, a ninth standing
+quality gate, release-wrapper verification, and the corresponding focused and
+full regression coverage.
 
-Current remote `main` is commit
-`7551cb2973ba545922bcb9edb55d8d4e3ca98f75`. The Phase 9Y tracked receipt
-commit passed clean read-only Local Verify in run `28561574671`, job
-`84680140069`; tests passed with 398 cases, quality gate passed,
-`python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed, contents
-permission remained read-only, and no artifacts were uploaded.
+The checksum source commit and this handoff synchronization intentionally do not
+refresh `artifacts/corpus-digest.json`. The cumulative closeout must finish with
+a separate same-source-set digest freshness commit. The approved corpus remains
+the exact existing 34-source set; source membership and the allow-list must not
+change. After this handoff update, the expected stale sources are:
 
-The next safe Hermes step should be either:
+- `README.md`
+- `docs/VERIFICATION.md`
+- `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`
 
-- a separately approved Phase 9Z tracked-receipt post-generation boundary review
-  using documentation and focused synthetic tests only; or
-- a pause before any trace, audit, CI, MCP, runtime, release, or downstream
-  expansion.
+Only the final digest-valid cumulative tip should be pushed and used for the
+read-only Local Verify workflow. Workflow run and job identifiers belong in the
+task closeout rather than this file so that verification evidence does not
+create another recursive documentation commit.
 
-A Phase 9Z boundary review should not edit the Phase 9Y receipt file merely to
-embed the Phase 9Y post-push Local Verify run. That evidence belongs in closeout
-records unless a separate owner approval explicitly names the existing receipt
-file and replacement rule. Any later task that creates a trace event, audit log,
-workflow integration, quality-gate integration, durable preflight persistence,
-Hermes runtime expansion, real `git push` execution through Hermes, release
-publication, artifact upload, or downstream mutation must name exact allowed
-files, exact output paths, retention and cleanup rules, verification commands,
-and push/workflow permissions before work begins.
+After the cumulative checksum, handoff, and digest closeout passes, the next
+recommended separate task is the repository license and security-policy
+baseline. That task should select an owner-approved license and define a safe
+vulnerability-reporting path in `SECURITY.md`. The exact license choice and
+reporting contact or mechanism require owner approval before implementation.
 
-If the owner wants more Phase 7D evidence first, it must be separately approved
-as a narrower Phase 7D.2 task with exact allowed files, commands, artifacts, and
-cleanup rules. By default, no new receipt generation, audit logging,
-query-matrix automation, digest refresh, corpus allow-list expansion, or
-CI/quality-gate integration is authorized.
-
-Phase 7C and Phase 7D do not, by default, authorize persistent index, corpus, or
-retrieval folders; embeddings; vector storage; external services; MCP/Hermes;
-AgentOps; memory runtime; release automation; downstream integration; CI or
-quality-gate integration; artifact regeneration; digest regeneration; eval
-report generation; tag or release publication; deployment; or private/raw corpus
-ingestion. `08_Study` raw notes, RSID raw evidence, and downstream raw evidence
-remain excluded unless separately redacted and approved.
-
-Treat Stage 5B stock probe records, optional CI/RAG/audit decisions, and the
-post-v0.1.0 evidence baseline as historical risk evidence for the roadmap, not
-as permanent blockers to the final implementation targets.
+Historical Stage 5B, Phase 7, Hermes, receipt, audit, MCP, release, and downstream
+records remain risk and boundary evidence. They do not authorize runtime
+expansion, durable trace or audit persistence, release publication, artifact
+upload, downstream mutation, private/raw corpus ingestion, or live behavior.
