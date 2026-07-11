@@ -585,8 +585,15 @@ Private Vulnerability Reporting activation is external repository state and
 must be verified in task closeout rather than another tracked documentation
 commit.
 
-Existing release evidence remains historical. The next recommended task is a
-separate owner-approved refresh from a license-bearing source basis when current
-release evidence is needed. This completion does not authorize release
-publication, signing, tag movement, artifact upload, workflow expansion, audit
-automation, MCP or Hermes runtime expansion, downstream access, or live behavior.
+The license-bearing release-evidence refresh uses a source-alignment commit, an
+exact same-34-source corpus digest refresh, and a follow-on generated-evidence
+commit. Manifest inventory must include `LICENSE` and `SECURITY.md` before the
+five approved release artifacts are regenerated from the clean cumulative
+source basis.
+
+`artifacts/eval-report.json` remains existing evidence and is not regenerated in
+this sequence. Source-basis, artifact-containing commit, local verification, and
+workflow identifiers belong in task closeout. This sequence does not authorize
+release publication, signing, tag movement, artifact upload, workflow expansion,
+audit automation, MCP or Hermes runtime expansion, downstream access, or live
+behavior.

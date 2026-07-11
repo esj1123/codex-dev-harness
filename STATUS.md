@@ -1233,10 +1233,17 @@ GitHub Private Vulnerability Reporting activation is an external repository
 setting. Its enabled state belongs in task closeout evidence rather than this
 tracked handoff document.
 
-Existing manifest, SBOM, provenance, and checksum artifacts were intentionally
-not regenerated and retain their historical source-basis semantics. The next
-recommended separate task is an owner-approved release-evidence refresh from a
-license-bearing source basis when current release evidence is required.
+The license-bearing release-evidence refresh uses a controlled source/evidence
+sequence. The source-alignment commit adds `LICENSE` and `SECURITY.md` to the
+release-manifest inventory and records the handoff contract. The exact approved
+34-source corpus digest is refreshed before evidence generation. A follow-on
+artifact commit may then regenerate only the release manifest, checksums, SPDX
+SBOM, CycloneDX SBOM, and provenance from that clean source basis.
+
+`artifacts/eval-report.json` remains existing evidence and is not regenerated
+without separate approval. Source-basis and artifact-containing commit SHAs,
+verification results, and any workflow run identifiers belong in task closeout
+rather than another recursive documentation commit.
 
 Historical Stage 5B, Phase 7, Hermes, receipt, audit, MCP, release, and downstream
 records remain risk and boundary evidence. They do not authorize runtime

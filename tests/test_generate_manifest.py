@@ -63,6 +63,17 @@ def test_manifest_includes_runtime_reproducibility_files(tmp_path: Path) -> None
     assert "requirements-dev.lock" in paths
 
 
+def test_manifest_includes_repository_license_and_security_policy(tmp_path: Path) -> None:
+    write(tmp_path / "LICENSE", "MIT License\n")
+    write(tmp_path / "SECURITY.md", "# Security Policy\n")
+
+    manifest = generate_manifest.build_manifest(tmp_path)
+    paths = {entry["path"] for entry in manifest["files"]}
+
+    assert "LICENSE" in paths
+    assert "SECURITY.md" in paths
+
+
 def test_manifest_has_required_top_level_fields(tmp_path: Path) -> None:
     write(tmp_path / "README.md", "hello\n")
 

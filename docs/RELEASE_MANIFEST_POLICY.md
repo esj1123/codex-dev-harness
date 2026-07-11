@@ -58,6 +58,10 @@ Runtime reproducibility evidence such as `.python-version`,
 `requirements-dev.txt`, and `requirements-dev.lock` should be included when
 present.
 
+Repository governance evidence such as `LICENSE` and `SECURITY.md` should also
+be included when present so the legal and vulnerability-reporting baseline is
+covered by manifest file hashes.
+
 `excluded_patterns` should record the exclusion policy applied to the bundle.
 
 `verification_commands` should summarize commands used to validate the release
