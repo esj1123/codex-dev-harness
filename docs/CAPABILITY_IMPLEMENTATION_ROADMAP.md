@@ -78,7 +78,7 @@ not capabilities to abandon.
 | Local RAG | Phase 7B contract, Phase 7C standalone local lexical retriever, Phase 7C.4 ranking correction, and Phase 7D retrieval receipt evidence planning are complete; retrieval remains local-only, read-only, advisory-only, and not integrated into CI, quality gates, release, audit automation, MCP/Hermes, AgentOps, memory, or downstream repositories. | Local-first retrieval over the approved corpus, with retrieval output treated as advisory context and any receipt evidence implementation separately approval-gated. | Approved corpus digest and JSON evidence policy. |
 | MCP tool boundary | Phase 8A boundary contract is documented and Phase 8B synthetic contract tests/review checks are present; no MCP runtime, Hermes sidecar, tool execution, quality-gate or CI integration, audit automation, external service, release automation, or downstream integration. | Explicit allowed tool classes, input/output rules, approval boundaries, redaction rules, and audit hooks. | Local RAG and audit rules. |
 | Hermes sidecar | Phase 9A planning contract, Phase 9B synthetic contract tests/review checks, and Phase 9C implementation boundary planning are present; no sidecar runtime, background daemon, MCP runtime, tool execution, quality-gate or CI integration, audit automation, external service, release automation, or downstream integration. | Local sidecar constrained by the MCP boundary, audit model, eval evidence, and approval rules. | MCP tool boundary. |
-| Release automation / provenance | Local evidence generators and release wrapper exist; no release automation or publication. | Approval-gated release automation and provenance flow after earlier evidence surfaces are stable. | CI, audit, eval, digest, RAG, MCP, and Hermes stability. |
+| Release automation / provenance | Phase 10A boundary review, Phase 10B candidate contract, Phase 10C standalone read-only preflight, Phase 10C.1 usage probe, and Phase 10D refresh `HOLD` decision are complete; local evidence generators remain unautomated and no publication exists. | Approval-gated release automation and provenance flow after a stable digest-valid Phase 10 checkpoint satisfies the Phase 10D Proceed Conditions. | Current handoff synchronization, exact same-34-source digest freshness, and separate owner approval. |
 | Downstream product integration | Downstream adoption and probe records exist; no downstream edit in this task. | Product-specific integration under downstream repo rules and separate approvals. | Release automation / provenance readiness. |
 
 ## 5. Dependency order
@@ -413,6 +413,20 @@ Gate:
 - Local source-basis commit, artifact-containing commit, push, tag, and release
   states are distinguished.
 
+Current implementation state:
+
+- Phase 10A records the release automation and provenance boundary without
+  automation or publication.
+- Phase 10B selects the local release evidence preflight dry-run candidate.
+- Phase 10C implements the standalone standard-library, local-only, read-only
+  preflight without generator execution or persistence.
+- Phase 10C.1 records a synchronized-tip `PASS WITH NOTES` usage probe with
+  `EVIDENCE_REFRESH_RECOMMENDED` and no runtime patch.
+- Phase 10D keeps release evidence regeneration at `HOLD` until a stable Phase
+  10 checkpoint satisfies every documented Proceed Condition.
+- Tag movement, release creation, signing, upload, publication, workflow
+  expansion, and downstream behavior remain separately approval-gated.
+
 ### Phase 11: downstream product integration
 
 Goal:
@@ -561,39 +575,30 @@ For this roadmap task, closeout must confirm:
 
 ## 12. Current sequencing handoff
 
-The former Phase 3 read-only CI prompt is retired. The owner-approved manual
-read-only `.github/workflows/local-verify.yml` workflow is implemented, and its
-current boundaries are documented in `docs/CI_POLICY.md`.
+The current locally verified implementation source baseline is Phase 10D commit
+`ddc1c45f9f36b7e2ecc5cc7589a1be5fade80c3e`. The active cumulative closeout
+sequence is:
 
-The concrete next-task state is tracked in `STATUS.md`. The active cumulative
-closeout sequence is:
+1. the Phase 10D release evidence refresh `HOLD` source commit;
+2. this documentation-only current handoff synchronization commit;
+3. an exact same-34-source corpus digest freshness commit;
+4. a digest-valid stable checkpoint review against the Phase 10D Proceed
+   Conditions.
 
-1. the checkout-independent checksum implementation source commit;
-2. a documentation-only current handoff synchronization commit;
-3. an exact same-34-source corpus digest freshness commit.
+The handoff commit may change only `STATUS.md` and this roadmap. `STATUS.md` is
+excluded from the approved stable corpus; this roadmap is included. The expected
+post-handoff digest state is therefore 34 sources, 33 valid sources, and this
+roadmap as the only stale source.
 
-The source-set membership and allow-list must remain unchanged. Only the final
-digest-valid cumulative tip should be pushed and used for Local Verify. Run and
-job identifiers belong in closeout evidence rather than another roadmap edit.
+The digest refresh must preserve exact source membership, ordering, and the
+allow-list. Only the final digest-valid cumulative tip should be pushed and used
+for Local Verify. Run and job identifiers belong in closeout evidence rather
+than another roadmap edit.
 
-The repository license and `SECURITY.md` baseline is implemented by source
-commit `0fcc0886b218011915db8248bd4e437834b4906b`. It adds the MIT license,
-a private vulnerability-reporting contract, required-document enforcement, and
-local-only MIT detection for future SBOM generation.
-
-Private Vulnerability Reporting activation is external repository state and
-must be verified in task closeout rather than another tracked documentation
-commit.
-
-The license-bearing release-evidence refresh uses a source-alignment commit, an
-exact same-34-source corpus digest refresh, and a follow-on generated-evidence
-commit. Manifest inventory must include `LICENSE` and `SECURITY.md` before the
-five approved release artifacts are regenerated from the clean cumulative
-source basis.
-
-`artifacts/eval-report.json` remains existing evidence and is not regenerated in
-this sequence. Source-basis, artifact-containing commit, local verification, and
-workflow identifiers belong in task closeout. This sequence does not authorize
+Release evidence regeneration remains `HOLD` after digest freshness. A later
+refresh requires a separate owner-approved task that names the exact stable
+source basis, five output paths, generation command, backup and rollback rules,
+verification, and every permitted side effect. This sequence does not authorize
 release publication, signing, tag movement, artifact upload, workflow expansion,
 audit automation, MCP or Hermes runtime expansion, downstream access, or live
 behavior.

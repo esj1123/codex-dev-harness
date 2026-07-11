@@ -51,9 +51,9 @@ full case details into receipts.
 Phase 6 approved corpus digest planning, tooling, and re-baselining are
 complete through Phase 6H.3. The current digest artifact exists at
 `artifacts/corpus-digest.json` and is metadata/hash-only. The current
-artifact-containing commit is `8febedead5da6cfd863dd1cbb1c87b0f8d8fab4b`; the
+artifact-containing commit is `28b416f9d46dc421c6e87dbc1562110a40224824`; the
 digest source-basis commit recorded inside the artifact is
-`e35f4649dad430678980714c6827a63668b7b125`. The current stable source set has
+`c13aac998b89eda33e25889576536308978a289d`. The current stable source set has
 34 sources, removes `STATUS.md` and `ACCEPTANCE_TRACE.md` as volatile
 current-authority files, adds four normative Local RAG policy/contract sources,
 and keeps historical review/probe documents out of the stable digest. The
@@ -466,31 +466,44 @@ quality-gate/CI integration, execute MCP tools, regenerate artifacts or digests,
 call external services, add AgentOps or memory behavior, publish releases, or
 edit downstream repositories.
 
+Phase 10 release automation / provenance work is complete through the Phase 10D
+decision boundary. Phase 10A records the release automation and provenance
+boundary, Phase 10B selects the local release evidence preflight dry-run
+candidate, Phase 10C implements the standalone read-only preflight, and Phase
+10C.1 records its synchronized-tip usage probe. The preflight distinguishes
+source basis, artifact-containing commit, local HEAD, local tracking state, and
+external release states without running generators or performing release
+actions. Phase 10D keeps release evidence regeneration at `HOLD` until a stable
+Phase 10 checkpoint exists. The current evidence remains internally valid
+historical source-basis evidence, and `EVIDENCE_REFRESH_RECOMMENDED` remains an
+informational note rather than a blocker.
+
 ## Current Verification Snapshot
 
-Snapshot purpose: document the Stage 2 final local post-v0.1.0 evidence
-baseline refresh after the Stage 1 documentation drift cleanup and the current
-Phase 4 audit / trace / receipt schema state plus the Phase 4B JSON Evidence
-Core foundation.
+Snapshot purpose: record the current Phase 10 handoff while preserving older
+stage and phase rows as historical evidence. Current release evidence remains
+local-only, the approved corpus remains the exact stable 34-source set, and
+release evidence regeneration remains `HOLD`.
 
 | item | status | evidence |
 |---|---|---|
 | basis branch/ref | PRESENT | `main` / `origin/main` |
 | capability implementation roadmap | PRESENT / CURRENT SEQUENCING SOURCE | `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`; historical optional/deferred decisions are risk evidence, not permanent blockers |
 | first implementation target | IMPLEMENTED | Read-only CI + verification hygiene is installed as manual `workflow_dispatch` workflow `.github/workflows/local-verify.yml` |
-| current repository commit before Stage 2 evidence regeneration | PRESENT | `9ae69c5fbf65953db2b0efb82b4904098f8a7581` |
+| current Phase 10 implementation baseline | PASS WITH NOTES / HOLD | commit `ddc1c45f9f36b7e2ecc5cc7589a1be5fade80c3e`; Phase 10A-D boundary, candidate, standalone preflight, usage probe, and refresh-hold decision are present; current full suite has 470 tests and the standing quality gate has 9 gates |
+| current repository commit before Stage 2 evidence regeneration | HISTORICAL | `9ae69c5fbf65953db2b0efb82b4904098f8a7581` |
 | previous artifact-containing commit observed during Stage 0 read-only review | HISTORICAL | `ab77ab0a0b44c2f1bd700820bfeb358c6ec1bbe7` |
 | current repository commit before `csharp_desktop` experiment | PRESENT | `76d88b842852635c95adcd8f3534f95e8bdc3ff5` |
 | Priority 2 checksum coverage commit | PRESENT | `eaba8687b68051f490b6287ab7a629c82ae7c80d` |
 | current repository commit before Priority 3 edits | PRESENT | `eaba8687b68051f490b6287ab7a629c82ae7c80d` |
-| release manifest source basis commit | PRESENT | `artifacts/release-manifest.json` records `git_commit` as `9ae69c5fbf65953db2b0efb82b4904098f8a7581` |
-| artifact-containing commit | PENDING UNTIL STAGE 2 EVIDENCE COMMIT | Regenerated artifacts and closeout updates are modified in the working tree and not yet committed |
-| manifest generated timestamp | PRESENT | `2026-05-26T23:51:44Z` |
-| manifest files recorded | PRESENT | `211` |
+| release manifest source basis commit | PRESENT / HISTORICAL BASIS | `artifacts/release-manifest.json` records `git_commit` as `28b416f9d46dc421c6e87dbc1562110a40224824` |
+| release artifact-containing commit | PRESENT | the five approved release evidence files share commit `588db911099d19de4d37b11b17f9a269b1157d77` |
+| manifest generated timestamp | PRESENT | `2026-07-11T12:53:52Z` |
+| manifest files recorded | PRESENT | `324` |
 | checksum coverage | PRESENT | `artifacts/checksums.sha256` records 5 entries: eval report, provenance, manifest, CycloneDX SBOM, and SPDX SBOM; checksum file self-reference excluded |
-| standalone eval case count | PRESENT | `scripts/run_eval.py` discovers 14 named local-only non-LLM eval cases under `evals/cases/` |
+| standalone eval case count | PRESENT | `scripts/run_eval.py` discovers 15 named local-only non-LLM eval cases under `evals/cases/` |
 | eval / report integration | PHASE 5B RECEIPT-ALIGNED / STANDALONE | `scripts/run_eval.py`, `tests/test_run_eval.py`, `docs/EVAL_REPORT_INTEGRATION_PLAN.md`, `docs/EVAL_INTEGRATION_DECISION.md`, `docs/EVAL_POLICY.md`, and `audits/receipt-summary.schema.json`; legacy `--report` remains backward-compatible, paired `--summary-report` / `--cases-report` outputs are explicit opt-in only, receipts may cite split eval evidence by repo-relative path and SHA-256, and evals remain separate from `scripts/quality_gate.py`, CI, and release-blocking behavior |
-| approved corpus digest | REBASELINED / VERIFIED | `artifacts/corpus-digest.json`; `artifact_type` is `approved_corpus_digest`; current source count is 34; artifact-containing commit `8febedead5da6cfd863dd1cbb1c87b0f8d8fab4b`; source-basis commit `e35f4649dad430678980714c6827a63668b7b125`; metadata/hash-only; stable digest excludes `STATUS.md` and `ACCEPTANCE_TRACE.md` as volatile current-authority files; `release_artifact_status` is `not_release_artifact_without_separate_approval`; `rag_authorization_status` is `not_authorized` |
+| approved corpus digest | REBASELINED / VERIFIED | `artifacts/corpus-digest.json`; `artifact_type` is `approved_corpus_digest`; current source count is 34; artifact-containing commit `28b416f9d46dc421c6e87dbc1562110a40224824`; source-basis commit `c13aac998b89eda33e25889576536308978a289d`; metadata/hash-only; stable digest excludes `STATUS.md` and `ACCEPTANCE_TRACE.md` as volatile current-authority files; `release_artifact_status` is `not_release_artifact_without_separate_approval`; `rag_authorization_status` is `not_authorized` |
 | approved corpus digest Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `8febedead5da6cfd863dd1cbb1c87b0f8d8fab4b`; run `27890277121`; job `82532492491`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded; contents permission remained read-only |
 | Phase 6G digest tooling boundary | IMPLEMENTED / WRITE-GATED | `scripts/generate_corpus_digest.py` and `tests/test_generate_corpus_digest.py`; default check mode is read-only; write mode is restricted to `artifacts/corpus-digest.json`, requires a non-empty approval reference and clean digest-listed source basis, preserves exact source membership and ordering, records scans/gates as not run when not executed, and was used only for the separately approved Phase 6H.3 real digest re-baseline |
 | Phase 6G digest tooling boundary Local Verify evidence | PASS | commit `940a8a5de13d84b25627ece3ae814730e1b8c3e2`; workflow `Local Verify`; run `27865330352`; job `82468393525`; tests, quality gate, and three render dry-runs passed; contents permission remained read-only; no artifacts uploaded; workflow did not run digest refresh, digest check/write, release verification, retrieval query-matrix verification, or artifact generation |
@@ -1202,48 +1215,30 @@ Stage 0 current-main gap review basis:
 
 ## Next Recommended Step
 
-The current locally verified implementation source baseline is commit
-`e8fcc6c533433fc0b23c10b392797d2779bc465d`
-(`Make release checksums checkout-independent`). It establishes LF-normalized
-release evidence hashing, read-only checksum verification, a ninth standing
-quality gate, release-wrapper verification, and the corresponding focused and
-full regression coverage.
+The current locally verified Phase 10 implementation baseline is commit
+`ddc1c45f9f36b7e2ecc5cc7589a1be5fade80c3e`
+(`Hold release evidence refresh until Phase 10 checkpoint`). Release automation
+and provenance work is complete through the boundary, candidate, standalone
+preflight, usage-probe, and refresh-decision layers. The current decision remains
+`HOLD`; no release evidence generator, tag, release, upload, publication, or
+downstream action is authorized.
 
-The checksum source commit and this handoff synchronization intentionally do not
-refresh `artifacts/corpus-digest.json`. The cumulative closeout must finish with
-a separate same-source-set digest freshness commit. The approved corpus remains
-the exact existing 34-source set; source membership and the allow-list must not
-change. After this handoff update, the expected stale sources are:
-
-- `README.md`
-- `docs/VERIFICATION.md`
-- `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`
+This handoff synchronization intentionally does not refresh
+`artifacts/corpus-digest.json`. The next controlled step is a separate exact
+same-source-set digest freshness commit. The approved corpus must remain the
+existing 34-source set with unchanged membership, ordering, and allow-list.
+Because `STATUS.md` is excluded from the stable corpus and the capability
+roadmap is included, this handoff should make only
+`docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` stale.
 
 Only the final digest-valid cumulative tip should be pushed and used for the
-read-only Local Verify workflow. Workflow run and job identifiers belong in the
-task closeout rather than this file so that verification evidence does not
-create another recursive documentation commit.
+read-only Local Verify workflow. Workflow run and job identifiers belong in task
+closeout rather than this file so verification evidence does not create another
+recursive documentation commit.
 
-The repository license and security-policy baseline is implemented by source
-commit `0fcc0886b218011915db8248bd4e437834b4906b`. It adds the owner-approved
-MIT license, a `SECURITY.md` private-reporting contract, 75-document gate
-enforcement, and local-only MIT detection for future SBOM generation.
-
-GitHub Private Vulnerability Reporting activation is an external repository
-setting. Its enabled state belongs in task closeout evidence rather than this
-tracked handoff document.
-
-The license-bearing release-evidence refresh uses a controlled source/evidence
-sequence. The source-alignment commit adds `LICENSE` and `SECURITY.md` to the
-release-manifest inventory and records the handoff contract. The exact approved
-34-source corpus digest is refreshed before evidence generation. A follow-on
-artifact commit may then regenerate only the release manifest, checksums, SPDX
-SBOM, CycloneDX SBOM, and provenance from that clean source basis.
-
-`artifacts/eval-report.json` remains existing evidence and is not regenerated
-without separate approval. Source-basis and artifact-containing commit SHAs,
-verification results, and any workflow run identifiers belong in task closeout
-rather than another recursive documentation commit.
+After the digest-valid checkpoint is verified, the Phase 10D Proceed Conditions
+may be reviewed under a separate exact-file, exact-command owner approval.
+Release evidence regeneration remains `HOLD` until that approval exists.
 
 Historical Stage 5B, Phase 7, Hermes, receipt, audit, MCP, release, and downstream
 records remain risk and boundary evidence. They do not authorize runtime
