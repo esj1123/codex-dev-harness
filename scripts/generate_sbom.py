@@ -18,6 +18,15 @@ ARTIFACTS_ROOT = "artifacts"
 SCHEMA_VERSION = "1"
 TOOL_NAME = "codex-dev-harness generate_sbom.py"
 DEFAULT_CHECKSUMS_PATH = "artifacts/checksums.sha256"
+MIT_LICENSE_ID = "MIT"
+MIT_COPYRIGHT_TEXT = "Copyright (c) 2026 esj1123"
+MIT_LICENSE_MARKERS = (
+    "MIT License",
+    MIT_COPYRIGHT_TEXT,
+    "Permission is hereby granted, free of charge, to any person obtaining a copy",
+    "The above copyright notice and this permission notice shall be included",
+    'THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND',
+)
 PROTECTED_RELEASE_ARTIFACT_PATHS = [
     DEFAULT_CHECKSUMS_PATH,
     "artifacts/checksums.txt",
@@ -146,6 +155,19 @@ def repository_name(manifest: dict[str, Any]) -> str:
     return str(repository)
 
 
+def detect_repository_license(repo_root: Path) -> tuple[str, str]:
+    license_path = repo_root / "LICENSE"
+    if not license_path.is_file():
+        return "UNKNOWN", "UNKNOWN"
+    try:
+        license_text = license_path.read_text(encoding="utf-8").replace("\r\n", "\n").replace("\r", "\n")
+    except (OSError, UnicodeDecodeError):
+        return "UNKNOWN", "UNKNOWN"
+    if all(marker in license_text for marker in MIT_LICENSE_MARKERS):
+        return MIT_LICENSE_ID, MIT_COPYRIGHT_TEXT
+    return "UNKNOWN", "UNKNOWN"
+
+
 def build_spdx(
     manifest: dict[str, Any],
     manifest_path: Path,
@@ -156,6 +178,7 @@ def build_spdx(
     created = created_at or utc_now()
     repo_name = repository_name(manifest)
     repo_spdx_id = "SPDXRef-Package-codex-dev-harness"
+    repo_license, repo_copyright = detect_repository_license(repo_root)
     dependencies = read_dev_dependencies(repo_root)
     files = manifest_files(manifest)
 
@@ -165,9 +188,9 @@ def build_spdx(
             "SPDXID": repo_spdx_id,
             "downloadLocation": "NOASSERTION",
             "filesAnalyzed": True,
-            "licenseConcluded": "UNKNOWN",
-            "licenseDeclared": "UNKNOWN",
-            "copyrightText": "UNKNOWN",
+            "licenseConcluded": repo_license,
+            "licenseDeclared": repo_license,
+            "copyrightText": repo_copyright,
             "versionInfo": str(manifest.get("git_commit") or "UNKNOWN"),
         }
     ]
@@ -238,6 +261,7 @@ def build_cyclonedx(
 ) -> dict[str, Any]:
     created = created_at or utc_now()
     repo_name = repository_name(manifest)
+    repo_license, _ = detect_repository_license(repo_root)
     dependencies = read_dev_dependencies(repo_root)
     components: list[dict[str, Any]] = []
 
@@ -262,6 +286,19 @@ def build_cyclonedx(
         components.append(component)
 
     manifest_digest = sha256_file(manifest_path)
+    repository_component: dict[str, Any] = {
+        "type": "application",
+        "name": repo_name,
+        "version": str(manifest.get("git_commit") or "UNKNOWN"),
+        "properties": [
+            {"name": "git_ref", "value": str(manifest.get("git_ref") or "UNKNOWN")},
+            {"name": "manifest_path", "value": relpath(manifest_path, repo_root)},
+            {"name": "manifest_sha256", "value": manifest_digest},
+            {"name": "checksum_entries", "value": str(len(checksums))},
+        ],
+    }
+    if repo_license != "UNKNOWN":
+        repository_component["licenses"] = [{"license": {"id": repo_license}}]
     return {
         "bomFormat": "CycloneDX",
         "specVersion": "1.5",
@@ -277,17 +314,7 @@ def build_cyclonedx(
                     }
                 ]
             },
-            "component": {
-                "type": "application",
-                "name": repo_name,
-                "version": str(manifest.get("git_commit") or "UNKNOWN"),
-                "properties": [
-                    {"name": "git_ref", "value": str(manifest.get("git_ref") or "UNKNOWN")},
-                    {"name": "manifest_path", "value": relpath(manifest_path, repo_root)},
-                    {"name": "manifest_sha256", "value": manifest_digest},
-                    {"name": "checksum_entries", "value": str(len(checksums))},
-                ],
-            },
+            "component": repository_component,
         },
         "components": sorted(components, key=lambda item: (item["type"], item["name"])),
         "dependencies": [],

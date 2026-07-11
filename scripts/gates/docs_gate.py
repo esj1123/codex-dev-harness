@@ -9,6 +9,8 @@ from pathlib import Path
 REQUIRED_DOCS = [
     "AGENTS.md",
     "README.md",
+    "LICENSE",
+    "SECURITY.md",
     "PRODUCT.md",
     "MVP.md",
     "ROADMAP.md",

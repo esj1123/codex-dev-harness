@@ -63,6 +63,15 @@ SBOM and provenance artifacts build on that baseline:
   - known repository license value if the repository records one
   - `UNKNOWN` for unknown dependency licenses
 
+The local generator recognizes the repository's MIT license only from the
+repo-root `LICENSE` file and its expected MIT and copyright markers. Missing,
+unreadable, or unrecognized license text remains `UNKNOWN`. No registry,
+network, or external license lookup is performed.
+
+Committed SBOM artifacts retain their recorded source-basis semantics. Adding
+or detecting the repository license does not by itself authorize regeneration
+of historical SBOM, provenance, manifest, or checksum artifacts.
+
 The SPDX scope must not include private source, prompt/session text, tool-call
 bodies, secrets, live configuration, or downstream generated target output.
 

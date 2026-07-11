@@ -57,6 +57,8 @@ Those items are no longer described as current absence. Render script, quality g
 
 - AGENTS.md
 - README.md
+- LICENSE
+- SECURITY.md
 - PRODUCT.md
 - MVP.md
 - ROADMAP.md
@@ -146,3 +148,15 @@ into `scripts/quality_gate.py`, does not write generated reports, does not run
 target repository scripts, and does not authorize implementation work. Domain
 risk flags are conservative path-level indicators for review; they are not
 automatic failures.
+
+## Security
+
+Report suspected vulnerabilities through the private process in
+[`SECURITY.md`](SECURITY.md). Do not disclose vulnerability details in a public
+issue.
+
+## License
+
+This repository is licensed under the [MIT License](LICENSE). That license
+applies to the harness repository itself; a rendered or adapted downstream
+project must select and record its own license.

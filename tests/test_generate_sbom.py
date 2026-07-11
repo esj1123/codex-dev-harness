@@ -1,7 +1,13 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from scripts import generate_sbom
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+MIT_LICENSE_TEXT = (REPO_ROOT / "LICENSE").read_text(encoding="utf-8")
 
 
 def write(path: Path, content: str) -> None:
@@ -52,8 +58,9 @@ def assert_sbom_paths_rejected(
         raise AssertionError("SBOM paths should be rejected")
 
 
-def test_spdx_uses_manifest_files_and_unknown_licenses(tmp_path: Path) -> None:
+def test_spdx_uses_manifest_files_and_repository_license(tmp_path: Path) -> None:
     manifest_path = write_manifest(tmp_path)
+    write(tmp_path / "LICENSE", MIT_LICENSE_TEXT)
     write(tmp_path / "requirements-dev.txt", "pytest>=9\n")
     checksums = [{"path": "artifacts/release-manifest.json", "sha256": "c" * 64}]
 
@@ -61,20 +68,38 @@ def test_spdx_uses_manifest_files_and_unknown_licenses(tmp_path: Path) -> None:
 
     assert spdx["spdxVersion"] == "SPDX-2.3"
     assert any(file_entry["fileName"] == "README.md" for file_entry in spdx["files"])
+    repository_package = next(package for package in spdx["packages"] if package["name"] == "esj1123/codex-dev-harness")
+    assert repository_package["licenseDeclared"] == "MIT"
+    assert repository_package["licenseConcluded"] == "MIT"
+    assert repository_package["copyrightText"] == "Copyright (c) 2026 esj1123"
     assert any(package["name"] == "pytest" and package["licenseDeclared"] == "UNKNOWN" for package in spdx["packages"])
     assert "checksum_entries=1" in spdx["annotations"][0]["comment"]
 
 
 def test_cyclonedx_uses_manifest_files_and_dev_dependencies(tmp_path: Path) -> None:
     manifest_path = write_manifest(tmp_path)
+    write(tmp_path / "LICENSE", MIT_LICENSE_TEXT)
     write(tmp_path / "requirements-dev.txt", "pytest==9.0.3\n")
 
     cdx = generate_sbom.build_cyclonedx(sample_manifest(), manifest_path, tmp_path, [], "2026-01-01T00:00:00Z")
 
     assert cdx["bomFormat"] == "CycloneDX"
     assert cdx["metadata"]["component"]["name"] == "esj1123/codex-dev-harness"
+    assert cdx["metadata"]["component"]["licenses"] == [{"license": {"id": "MIT"}}]
     assert any(component["type"] == "file" and component["name"] == "README.md" for component in cdx["components"])
     assert any(component["type"] == "library" and component["name"] == "pytest" for component in cdx["components"])
+
+
+def test_current_repository_license_is_detected_as_mit() -> None:
+    assert generate_sbom.detect_repository_license(REPO_ROOT) == ("MIT", "Copyright (c) 2026 esj1123")
+
+
+@pytest.mark.parametrize("license_text", [None, "Custom license\n"])
+def test_repository_license_detection_defaults_to_unknown(tmp_path: Path, license_text: str | None) -> None:
+    if license_text is not None:
+        write(tmp_path / "LICENSE", license_text)
+
+    assert generate_sbom.detect_repository_license(tmp_path) == ("UNKNOWN", "UNKNOWN")
 
 
 def test_sbom_writers_use_final_newline(tmp_path: Path) -> None:

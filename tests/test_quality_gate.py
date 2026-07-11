@@ -18,6 +18,8 @@ from scripts.render_template import TemplateConfig
 REQUIRED_DOC_CONTENT = "# doc\n"
 
 POST_V0_1_GOVERNANCE_DOCS = {
+    "LICENSE",
+    "SECURITY.md",
     "docs/RELEASE_BUNDLE_POLICY.md",
     "docs/RELEASE_MANIFEST_POLICY.md",
     "docs/SBOM_PROVENANCE_PLAN.md",
@@ -140,6 +142,22 @@ def test_docs_gate_requires_current_post_v0_1_governance_docs() -> None:
 
     assert POST_V0_1_GOVERNANCE_DOCS <= required_docs
     assert len(docs_gate.REQUIRED_DOCS) == len(required_docs)
+
+
+def test_security_policy_defines_private_reporting_contract() -> None:
+    text = Path("SECURITY.md").read_text(encoding="utf-8")
+
+    for expected in [
+        "security/advisories/new",
+        "Do not open a public issue",
+        "`main`",
+        "`v0.1.0`",
+        "7 calendar days",
+        "14 calendar days",
+        "downstream projects",
+        "Do not submit secrets",
+    ]:
+        assert expected in text
 
 
 def test_validation_scope_defines_curated_example_contract() -> None:
