@@ -151,6 +151,11 @@ Bundle checksums must:
   present
 - be regenerated only after all included files are final
 
+The current checksum generator hashes repository-owned UTF-8 text artifacts
+after canonicalizing CRLF and CR to LF. Its `--verify` mode recomputes the same
+canonical hashes without writing and reports missing, stale, or mismatched
+entries.
+
 The current checksum generator records the full present local release evidence
 bundle except the checksum file itself. The strict release evidence set requires:
 
@@ -165,7 +170,8 @@ not make routine eval report generation part of the baseline.
 The local release verification wrapper may run an intermediate checksum
 generation step with explicit missing-artifact allowance after manifest
 generation. Its final checksum regeneration runs after SBOM and provenance
-generation and uses the strict full-bundle requirement.
+generation, uses the strict full-bundle requirement, and is followed by
+read-only checksum verification.
 
 ## Local Artifact Path Boundary
 

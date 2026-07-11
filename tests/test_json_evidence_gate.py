@@ -361,8 +361,14 @@ def test_quality_gate_runs_json_evidence_gate(monkeypatch, tmp_path: Path) -> No
     )
     monkeypatch.setattr(quality_gate.secret_scan_gate, "run", passing_gate("secret_scan_gate"))
     monkeypatch.setattr(quality_gate.json_evidence_gate, "run", passing_gate("json_evidence_gate"))
+    monkeypatch.setattr(
+        quality_gate.checksum_verify_gate,
+        "run",
+        passing_gate("checksum_verify_gate"),
+    )
 
     summary = quality_gate.run_quality_gate(tmp_path)
 
     assert summary.passed is True
-    assert calls[-1] == "json_evidence_gate"
+    assert "json_evidence_gate" in calls
+    assert calls[-1] == "checksum_verify_gate"

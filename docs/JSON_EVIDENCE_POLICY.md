@@ -48,6 +48,11 @@ JSON evidence must use:
 - commit identifiers
 - approved document references
 
+Release-bundle checksums over repository-owned UTF-8 text artifacts must
+canonicalize CRLF and CR to LF before SHA-256 hashing. This changes only
+line-ending treatment; it does not authorize JSON reserialization, compact
+serialization, schema changes, or regeneration of other evidence artifacts.
+
 JSON evidence must not use local absolute paths, raw transcripts, raw command
 logs, raw source bundles, or unredacted tool-call payloads.
 

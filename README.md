@@ -107,7 +107,9 @@ Python runtime and dependency reproducibility are documented in
 `requirements-dev.txt`, and exact local verification pins are recorded in
 `requirements-dev.lock`.
 
-CI policy is documented in `docs/CI_POLICY.md`. No workflow is included in the current baseline. Per `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`, the first implementation target after the roadmap is read-only CI and verification hygiene.
+CI policy is documented in `docs/CI_POLICY.md`. The repository includes the
+manual read-only `.github/workflows/local-verify.yml` workflow. It uses
+`workflow_dispatch` with `contents: read` and does not upload artifacts.
 
 ## Local-First Usage
 

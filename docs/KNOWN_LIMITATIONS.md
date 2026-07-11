@@ -16,13 +16,12 @@ Record known limitations for the current codex-dev-harness baseline after the fo
 - C# desktop examples do not include solution files, project files, source files, or build/test/smoke scripts.
 - PLC/device examples do not include polling, connection, tag maps, control actions, or live device write support.
 - The eval harness is minimal and standalone; it is not wired into `quality_gate.py`, CI, or release blocking.
-- GitHub Actions workflow is not installed.
-- Read-only CI + verification hygiene is the first implementation target in
-  `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`, but no workflow or CI-adjacent
-  hygiene path has been implemented yet.
-- Release manifest and full-bundle checksum generation exists as local-only
-  evidence; broader release archive, publication, signing, and upload behavior
-  is not implemented.
+- The installed Local Verify GitHub Actions workflow is manual
+  `workflow_dispatch` and read-only; automatic push/PR triggers, required-check
+  policy, and artifact upload remain absent.
+- Release manifest and full-bundle checksum generation plus read-only canonical
+  checksum verification exist as local-only evidence; broader release archive,
+  publication, signing, and upload behavior is not implemented.
 - The release verification wrapper exists as a local-only command; it does not
   create release archives, publish releases, sign artifacts, move tags, upload
   artifacts, or install CI workflows.
@@ -51,9 +50,9 @@ Record known limitations for the current codex-dev-harness baseline after the fo
   only after explicit approval.
 - Expand SBOM/provenance beyond the minimal local generators only after
   explicit approval and a concrete distribution, audit, or compliance need.
-- Implement read-only CI + verification hygiene as the first roadmap target
-  after separate owner approval names the exact workflow or hygiene path,
-  triggers, permissions, commands, and exclusions.
+- Broaden the manual read-only Local Verify workflow only after separate owner
+  approval names the exact triggers, permissions, required-check policy,
+  commands, and exclusions.
 - Split `docs_gate` into baseline, release-record, and optional-document groups if the required-doc list becomes too release-specific.
 - Add stricter config schema validation if template config grows beyond scalar values.
 - Add optional design-stage render integration only if manual-use friction appears.
@@ -62,7 +61,7 @@ Record known limitations for the current codex-dev-harness baseline after the fo
 
 ## Non-Goals
 
-- Do not add a GitHub Actions workflow as part of this limitation refresh.
+- Do not broaden GitHub Actions workflows as part of this limitation refresh.
 - Do not expand or integrate the eval harness as part of this limitation refresh.
 - Do not generate release bundles, release archives, or refreshed release
   evidence artifacts as part of this limitation refresh.

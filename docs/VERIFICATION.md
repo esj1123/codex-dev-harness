@@ -68,11 +68,14 @@ The release wrapper is local-only. It runs, in order:
 5. `scripts/generate_sbom.py`, if present
 6. `scripts/generate_provenance.py`, if present
 7. final checksum regeneration using the current full-bundle checksum policy
+8. read-only `scripts/generate_checksums.py --verify`
 
 The intermediate checksum step may allow missing optional later evidence while
 the bundle is still being produced. The final checksum step is strict for the
 current local release evidence bundle and covers all present release evidence
-artifacts except `artifacts/checksums.sha256` itself. The expected strict set is
+artifacts except `artifacts/checksums.sha256` itself. The following verify step
+recomputes canonical LF hashes without writing and must match every entry. The
+expected strict set is
 `artifacts/release-manifest.json`, `artifacts/sbom.spdx.json`,
 `artifacts/sbom.cdx.json`, and `artifacts/provenance.intoto.jsonl`.
 `artifacts/eval-report.json` is included only if it was explicitly generated
@@ -190,7 +193,8 @@ outputs, or live target details.
 
 If `artifacts/eval-report.json` is present, the checksum policy treats it as a
 present optional release evidence artifact. Regenerate `artifacts/checksums.sha256`
-after creating the report when checksum coverage is being asserted.
+and run `python scripts/generate_checksums.py --verify` after creating the
+report when checksum coverage is being asserted.
 
 Do not generate eval reports routinely. Do not treat evals as release-blocking,
 CI-integrated, or part of `scripts/quality_gate.py` unless a separate task

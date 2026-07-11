@@ -36,7 +36,7 @@ def write_release_bundle(tmp_path: Path) -> dict[str, Path]:
 
 
 def expected_line(path: Path, repo_root: Path) -> str:
-    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    digest = generate_checksums.sha256_file(path)
     relative_path = path.relative_to(repo_root).as_posix()
     return f"{digest}  {relative_path}"
 
@@ -66,12 +66,66 @@ def test_checksums_include_optional_eval_report_when_present(tmp_path: Path) -> 
     assert expected_line(eval_report, tmp_path) in lines
 
 
-def test_checksums_writer_uses_final_newline(tmp_path: Path) -> None:
+def test_checksums_writer_uses_lf_final_newline(tmp_path: Path) -> None:
     output = tmp_path / "artifacts" / "checksums.sha256"
 
     generate_checksums.write_checksums(["abc  artifacts/release-manifest.json"], output)
 
-    assert output.read_text(encoding="utf-8") == "abc  artifacts/release-manifest.json\n"
+    assert output.read_bytes() == b"abc  artifacts/release-manifest.json\n"
+
+
+def test_checksums_normalize_lf_crlf_and_cr_before_hashing(tmp_path: Path) -> None:
+    lf_path = tmp_path / "lf.json"
+    crlf_path = tmp_path / "crlf.json"
+    cr_path = tmp_path / "cr.json"
+    canonical = b'{"first":1}\n{"second":2}\n'
+    lf_path.write_bytes(canonical)
+    crlf_path.write_bytes(canonical.replace(b"\n", b"\r\n"))
+    cr_path.write_bytes(canonical.replace(b"\n", b"\r"))
+    expected = hashlib.sha256(canonical).hexdigest()
+
+    assert generate_checksums.sha256_file(lf_path) == expected
+    assert generate_checksums.sha256_file(crlf_path) == expected
+    assert generate_checksums.sha256_file(cr_path) == expected
+
+
+def test_verify_mode_passes_current_tree(capsys) -> None:
+    result = generate_checksums.main(["--verify"])
+
+    output = capsys.readouterr().out
+    assert result == 0
+    assert "MATCH artifacts/release-manifest.json" in output
+    assert "verified checksum entries: 5" in output
+    assert "Checksum verification passed." in output
+
+
+def test_verify_mode_fails_without_rewriting_tampered_bundle(tmp_path: Path, capsys) -> None:
+    bundle = write_release_bundle(tmp_path)
+    output = tmp_path / "artifacts" / "checksums.sha256"
+    generate_checksums.write_checksums(
+        generate_checksums.build_checksum_lines(tmp_path, bundle["manifest"], output),
+        output,
+    )
+    original_checksums = output.read_bytes()
+    bundle["manifest"].write_bytes(bundle["manifest"].read_bytes() + b" ")
+
+    result = generate_checksums.main(
+        [
+            "--repo-root",
+            str(tmp_path),
+            "--manifest",
+            "artifacts/release-manifest.json",
+            "--output",
+            "artifacts/checksums.sha256",
+            "--verify",
+        ]
+    )
+
+    captured = capsys.readouterr().out
+    assert result == 1
+    assert "MISMATCH artifacts/release-manifest.json" in captured
+    assert "Checksum verification failed." in captured
+    assert output.read_bytes() == original_checksums
 
 
 def test_checksums_do_not_self_reference(tmp_path: Path) -> None:

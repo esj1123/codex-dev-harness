@@ -161,6 +161,7 @@ Invoke-PythonStep "checksum generation" @("scripts/generate_checksums.py", "--ma
 Invoke-OptionalPythonScript "optional SBOM generation" (Join-Path $RepoRoot "scripts/generate_sbom.py") @("scripts/generate_sbom.py", "--manifest", $ManifestPath, "--spdx", $SpdxPath, "--cyclonedx", $CycloneDxPath)
 Invoke-OptionalPythonScript "optional provenance generation" (Join-Path $RepoRoot "scripts/generate_provenance.py") @("scripts/generate_provenance.py", "--manifest", $ManifestPath, "--output", $ProvenancePath)
 Invoke-PythonStep "final checksum regeneration" @("scripts/generate_checksums.py", "--manifest", $ManifestPath, "--output", $ChecksumsPath)
+Invoke-PythonStep "checksum verification" @("scripts/generate_checksums.py", "--verify")
 
 Write-ArtifactPaths
 Write-Summary

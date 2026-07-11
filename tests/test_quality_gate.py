@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+from scripts import generate_checksums
 from scripts.gates import (
     docs_gate,
     example_gate,
@@ -54,6 +55,18 @@ def minimal_repo(root: Path) -> None:
         "project:\n  name: demo\n  status: seed\nprofile:\n  name: python_cli\n",
     )
     write_golden_render_fixture(root)
+    write_checksum_fixture(root)
+
+
+def write_checksum_fixture(root: Path) -> None:
+    for relative_path in generate_checksums.REQUIRED_RELEASE_ARTIFACTS:
+        write(root / relative_path, "{}\n")
+    manifest = root / generate_checksums.DEFAULT_MANIFEST_PATH
+    output = root / generate_checksums.DEFAULT_CHECKSUMS_PATH
+    generate_checksums.write_checksums(
+        generate_checksums.build_checksum_lines(root, manifest, output),
+        output,
+    )
 
 
 def write_golden_render_fixture(root: Path) -> None:
@@ -312,3 +325,5 @@ def test_quality_gate_passes_minimal_repo(tmp_path: Path) -> None:
     summary = run_quality_gate(tmp_path)
 
     assert summary.passed is True
+    assert len(summary.results) == 9
+    assert summary.results[-1].name == "checksum_verify_gate"

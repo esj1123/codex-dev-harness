@@ -110,7 +110,8 @@ The manifest should avoid self-reference problems:
 - do not include a checksum file in its own checksum input
 - include `release-manifest.json` in the local release evidence checksum set
 - write the manifest, SBOM, and provenance evidence first, then write
-  `checksums.sha256` from their final stable byte representation
+  `checksums.sha256` from their UTF-8 text bytes after canonicalizing CRLF and
+  CR to LF
 
 `checksums.sha256` covers the present local release evidence bundle and excludes
 itself. The release manifest file inventory still excludes generated artifacts
