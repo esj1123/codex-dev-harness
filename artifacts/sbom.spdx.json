@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "esj1123/codex-dev-harness local release SBOM",
-  "documentNamespace": "https://example.invalid/codex-dev-harness/spdx/ecb9eae80aca6758993747a90ea05d036a4ac00ebec566fba91457d0e13949e5",
+  "documentNamespace": "https://example.invalid/codex-dev-harness/spdx/412845a20941f6a54829b5100021aa1102a055a3848809fc559542f4a67efc2b",
   "creationInfo": {
-    "created": "2026-05-26T23:51:45Z",
+    "created": "2026-07-11T12:53:53Z",
     "creators": [
       "Tool: codex-dev-harness generate_sbom.py"
     ]
@@ -17,10 +17,10 @@
       "SPDXID": "SPDXRef-Package-codex-dev-harness",
       "downloadLocation": "NOASSERTION",
       "filesAnalyzed": true,
-      "licenseConcluded": "UNKNOWN",
-      "licenseDeclared": "UNKNOWN",
-      "copyrightText": "UNKNOWN",
-      "versionInfo": "9ae69c5fbf65953db2b0efb82b4904098f8a7581"
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "copyrightText": "Copyright (c) 2026 esj1123",
+      "versionInfo": "28b416f9d46dc421c6e87dbc1562110a40224824"
     },
     {
       "name": "pytest",
@@ -53,7 +53,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "1b304402f9bfdf7472af7c1c29d6cd73357b9e52e8898387c4a929a8f258941b"
+          "checksumValue": "46fa17863de395883bf41277ceb2be51b42b0788b656ce75e2aa12658fc00abc"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -65,7 +65,19 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "abff6df7d0fa87458aa389a05ddaf54b2980dd3653bf78d1f921d00e9c91aea8"
+          "checksumValue": "ade6f15f30baa801aa662f15f2c519b3cb99d59da0ee21970080fa082a10a239"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "LICENSE",
+      "SPDXID": "SPDXRef-File-LICENSE",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "d118bd71efb782d07237531c95e681010d9b7a66e2aeed3728094286864199dc"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -101,7 +113,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "ef07ff7ea257291121a7a2525224686935d77199c7fb17a84e1b8bfe2e8329d7"
+          "checksumValue": "3d5a27981aff778ac785e5044c922fcad44910d14a5a61ce5f6b7caed831269d"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -113,7 +125,19 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "6331904fe8d58d58b3d2a2ef01a6174da65545d68cecf7a2fff27b6f857b61bd"
+          "checksumValue": "b1a519b6d483a0bfc385b597bc951303c377c251652bf3dcbcd3d773dedb5d07"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "SECURITY.md",
+      "SPDXID": "SPDXRef-File-SECURITY.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "e7b71361fe566dafdd1b4e161f0c801993b1dffab1aaaa61e5eebfd607952d3d"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -125,7 +149,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "0f09e53d7cbecc3c745b176c2d9521e04c7176acd5ada6338b685657e531e07d"
+          "checksumValue": "fd1d983e079899ec49810545c3fb303c3889e54d508036121c743059888b7b01"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -144,6 +168,42 @@
       "copyrightText": "UNKNOWN"
     },
     {
+      "fileName": "audits/receipt-summary.schema.json",
+      "SPDXID": "SPDXRef-File-audits-receipt-summary.schema.json",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "4e26c19f86213bd028c0381baba1227e5d712669937086af0ec2de36f4fb9cb3"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "audits/receipts/hermes-git-push-preflight/phase-9y-hermes-git-push-preflight-tracked-receipt-synthetic-not-run.json",
+      "SPDXID": "SPDXRef-File-audits-receipts-hermes-git-push-preflight-phase-9y-hermes-git-push-preflight-tracked-receipt-synthetic-not-run.json",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "ee240350f3a0adf12393e84a2cd46675163078fecd680a4902d6cf883c4aae87"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "audits/trace-event.schema.json",
+      "SPDXID": "SPDXRef-File-audits-trace-event.schema.json",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "4f35f8526ffe7bd94bb639cfccef1d607ad4392cdd3d476ff34750ce75f3c8b9"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
       "fileName": "code_review.md",
       "SPDXID": "SPDXRef-File-code-review.md",
       "checksums": [
@@ -156,12 +216,60 @@
       "copyrightText": "UNKNOWN"
     },
     {
+      "fileName": "docs/ACCEPTANCE_TRACE_STATUS_VOCABULARY.md",
+      "SPDXID": "SPDXRef-File-docs-ACCEPTANCE-TRACE-STATUS-VOCABULARY.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "1135044343d0c4169daed5b3a36cb4b5110b69adcbdc2e84088542c5c9ae73be"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
       "fileName": "docs/AI_HANDOFF.md",
       "SPDXID": "SPDXRef-File-docs-AI-HANDOFF.md",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "8cc86c6d8c4d9eef0e663bb0bc0497e50ecc552540839fb4f4f0141fb118bf35"
+          "checksumValue": "457b799726d27039b076aca64f0d186b2b3ca3b1e46b23b4d07a481347906dfc"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/AI_READINESS_REPORT_INITIAL.md",
+      "SPDXID": "SPDXRef-File-docs-AI-READINESS-REPORT-INITIAL.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "cb3a0b71dca3c43e29bc3b0df5af3fa95349ce551d282fb8da58eefec14f77c3"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/AI_READINESS_SCANNER_v0.md",
+      "SPDXID": "SPDXRef-File-docs-AI-READINESS-SCANNER-v0.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "fea37c411903be6ab8f552f8d1cad7878f882967e66ab2ad7f01a866e2a4c1b9"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/APPROVED_CORPUS_DIGEST_PLAN.md",
+      "SPDXID": "SPDXRef-File-docs-APPROVED-CORPUS-DIGEST-PLAN.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "3f3d43776893a51fc061bbca8645644b1a65f11fec2b8541783ee2f80faa3e2d"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -173,7 +281,19 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "c84167cc86e0bdf0d7edb996cc0243d6bcc730fc5fc433b0c88fe434ce2774cc"
+          "checksumValue": "44d52c3692f345baf5cc371fb5464c6e559d30c847a2b179034df637e03f947a"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/APPROVED_CORPUS_SOURCE_SET.v2.json",
+      "SPDXID": "SPDXRef-File-docs-APPROVED-CORPUS-SOURCE-SET.v2.json",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "529bf6901ea7c983aba9c65b3b1bca2ee76af2486d0fcad55e02e50559d28079"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -185,7 +305,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "e3ebdb23b63a43454ae8fc612cb2ff60370bbb9511302dbcf8fa9b0e198aa072"
+          "checksumValue": "23e0f37c76be43313d007a287949bf515e17de6eb4480cffd35b517d763ada3f"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -197,7 +317,31 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "62c1146a867ff6d2db1f1263b7395b53ebf5084a998589ca9261951fa550c85c"
+          "checksumValue": "a603954b09cb5af50df215c7d75dcae6e0186450521c9a21553a89bd5060a5ef"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/AUDIT_RECEIPT_PILOT_REVIEW.md",
+      "SPDXID": "SPDXRef-File-docs-AUDIT-RECEIPT-PILOT-REVIEW.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "cd34407b89b7d3370784f002949145760f41e2a26440f16ca985a2a6127b0e43"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/AUDIT_TRACE_SCHEMA.md",
+      "SPDXID": "SPDXRef-File-docs-AUDIT-TRACE-SCHEMA.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "2f761ad6d0c2133afe2620badbe3654c22b48f46596c4ef0079787dac5d1ed00"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -210,6 +354,18 @@
         {
           "algorithm": "SHA256",
           "checksumValue": "35d484d7910333319ce4e870e3eaea0292c1add929ec6c5dfbe16c7b34ad82e4"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md",
+      "SPDXID": "SPDXRef-File-docs-CAPABILITY-IMPLEMENTATION-ROADMAP.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "07352e3da90afaa74ae7c4f4ea6eaa5260e35753b583336a38bcc38460f711d3"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -233,7 +389,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "3bf941cdd735058ebddfa7518b0899e55556b35fae456635ec4cde13385e93d1"
+          "checksumValue": "2fe847a446123a1cc1752824010a5a9da4423d04b8a3c6ef04394717cde24f76"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -324,12 +480,72 @@
       "copyrightText": "UNKNOWN"
     },
     {
+      "fileName": "docs/DOWNSTREAM_READINESS_IMPROVEMENT_BACKLOG.md",
+      "SPDXID": "SPDXRef-File-docs-DOWNSTREAM-READINESS-IMPROVEMENT-BACKLOG.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "4404e66dfcf8ce2bec17c370288ecc28809eddd39380f1887806a74fa4430e6e"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/DOWNSTREAM_READINESS_PROMPT_USE_VALIDATION.md",
+      "SPDXID": "SPDXRef-File-docs-DOWNSTREAM-READINESS-PROMPT-USE-VALIDATION.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "ae31ba4535c440aa1ad2f5bb61b43542fe92ca76ad0c55e7cdd21dec511a7387"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/DOWNSTREAM_READINESS_REVIEW_CHECKLIST.md",
+      "SPDXID": "SPDXRef-File-docs-DOWNSTREAM-READINESS-REVIEW-CHECKLIST.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "586eb7d97f2d7c3323bbe5480908606ae010b217735148939ff5ad4482285636"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/EVAL_INTEGRATION_DECISION.md",
+      "SPDXID": "SPDXRef-File-docs-EVAL-INTEGRATION-DECISION.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "532449dd7eeef68d80f6ab5244b4d3af45c7f762108e924636f963f979bebd7d"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
       "fileName": "docs/EVAL_POLICY.md",
       "SPDXID": "SPDXRef-File-docs-EVAL-POLICY.md",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "95b2764441b5d07b186da539b7aa3e6aba1cf3e9441475ab1cc1839f1eeb3d9e"
+          "checksumValue": "533a3b65f095b05d6c341abeb93bfcb7df5fd96cb5f58fbc5e07456f6ffb9a87"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/EVAL_REPORT_INTEGRATION_PLAN.md",
+      "SPDXID": "SPDXRef-File-docs-EVAL-REPORT-INTEGRATION-PLAN.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "e592a7585493444223c846104519a2df0db2b535315207f30b15bccb45509cbc"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -384,6 +600,294 @@
       "copyrightText": "UNKNOWN"
     },
     {
+      "fileName": "docs/HERMES_GIT_PUSH_PREFLIGHT_CALLER_SELECTION_REVIEW.md",
+      "SPDXID": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-CALLER-SELECTION-REVIEW.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "3832b36edfff271305b3425dc634b9eab45bbdf1ac79806409a8c57837b7567b"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/HERMES_GIT_PUSH_PREFLIGHT_DURABLE_WRITER_PROPOSAL.md",
+      "SPDXID": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-DURABLE-WRITER-PROPOSAL.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "95ac862aabec0f7a671f8757e1cb807c7aa50efd2f200ab3d69fde47ec901524"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/HERMES_GIT_PUSH_PREFLIGHT_EVIDENCE_DECISION.md",
+      "SPDXID": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-EVIDENCE-DECISION.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "d51868aac154cc4abef732a7f9e77b4ac6fd7cf98aab66ebbaac1ab32cb6d3f9"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/HERMES_GIT_PUSH_PREFLIGHT_OUTPUT_CONTRACT.md",
+      "SPDXID": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-OUTPUT-CONTRACT.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "6de76e9426fb734afef75525d6a493d27f7b8d61e8199c6462844d042d743006"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/HERMES_GIT_PUSH_PREFLIGHT_RECEIPT_TRACE_PLAN.md",
+      "SPDXID": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-RECEIPT-TRACE-PLAN.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "153b95eca73730d1fa53c3ea99fa3ea548210a95e5b4e477b92f89c68769fe5e"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/HERMES_GIT_PUSH_PREFLIGHT_SCHEMA_ALIGNMENT_REVIEW.md",
+      "SPDXID": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-SCHEMA-ALIGNMENT-REVIEW.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "aa1400ee2811321d1de90960549b6d58fa45f5262ce38b23377a950b7ed05e66"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/HERMES_GIT_PUSH_PREFLIGHT_SELECTED_RECEIPT_WRITER_IMPLEMENTATION_PLAN.md",
+      "SPDXID": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-SELECTED-RECEIPT-WRITER-IMPLEMENTATION-PLAN.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "e701500fecce0d891a0243018a5352439a0f62f936343d560a8f507260c2fbfc"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/HERMES_GIT_PUSH_PREFLIGHT_TRACKED_RECEIPT_GENERATION_CONTRACT.md",
+      "SPDXID": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-TRACKED-RECEIPT-GENERATION-CONTRACT.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "de52d8494ebcf53ae946d19c064d26761feb6ea4bb076cb5471011f6b23e80d8"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/HERMES_GIT_PUSH_PREFLIGHT_TRACKED_RECEIPT_GENERATION_POLICY.md",
+      "SPDXID": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-TRACKED-RECEIPT-GENERATION-POLICY.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "b01096c70e092761e5dcf1aa9360a07612c7037982dcd818f18ff425ae5a0bbd"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/HERMES_GIT_PUSH_PREFLIGHT_TRACKED_RECEIPT_POST_GENERATION_BOUNDARY_REVIEW.md",
+      "SPDXID": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-TRACKED-RECEIPT-POST-GENERATION-BOUNDARY-REVIEW.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "92f874b657063cb962b22e7ac9a331c30909a2adede121747d42538187cd56e5"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/HERMES_GIT_PUSH_PREFLIGHT_USAGE_PROBE.md",
+      "SPDXID": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-USAGE-PROBE.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "c8b4b697d6f8c726fb454667a190d0c44c03d52e89e3dd17e6d8ec29f402c586"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/HERMES_GIT_PUSH_PREFLIGHT_WRITER_CAPTURE_BOUNDARY_REVIEW.md",
+      "SPDXID": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-WRITER-CAPTURE-BOUNDARY-REVIEW.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "de701af4178a16c3ccc5beadace6c522032d8b6190c6a6eb97e7968b99eea8fc"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/HERMES_GIT_PUSH_PREFLIGHT_WRITER_IMPLEMENTATION_PLAN.md",
+      "SPDXID": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-WRITER-IMPLEMENTATION-PLAN.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "cd88ea19c171afd761a4745960d7ab75795f9e571cf3ebc6db9aa90f72ea7b90"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/HERMES_GIT_PUSH_PREFLIGHT_WRITER_PERSISTENCE_HOLD_DECISION.md",
+      "SPDXID": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-WRITER-PERSISTENCE-HOLD-DECISION.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "b4cfe745a29c95a56353378d2c4817d2282c43dedfc5ee811326647fd18d27fb"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/HERMES_MCP_SECURITY_ALIGNMENT_REVIEW.md",
+      "SPDXID": "SPDXRef-File-docs-HERMES-MCP-SECURITY-ALIGNMENT-REVIEW.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "f57d02d9fd14e8b7e06789d340a83e3cc848f9df8560be3a9e34a708d04cdf85"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/HERMES_PREFLIGHT_CALLER_IMPLEMENTATION_BOUNDARY.md",
+      "SPDXID": "SPDXRef-File-docs-HERMES-PREFLIGHT-CALLER-IMPLEMENTATION-BOUNDARY.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "2e813366cea336e409c7547e99870426beabd375ebf39db24a048188b69138b6"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/HERMES_PREFLIGHT_SYNTHETIC_MATRIX_REVIEW.md",
+      "SPDXID": "SPDXRef-File-docs-HERMES-PREFLIGHT-SYNTHETIC-MATRIX-REVIEW.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "32fced520609f1fba084dc44cf58dd5d4409bf264b06a59503b3e22e8bf3c237"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/HERMES_PREFLIGHT_USE_PLANNING_CONTRACT.md",
+      "SPDXID": "SPDXRef-File-docs-HERMES-PREFLIGHT-USE-PLANNING-CONTRACT.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "4b1f82a1023a5c2586f20a520795f36f004e64e0ea03e8353ccb74c733ae8f75"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/HERMES_RESULT_SCHEMA_ARTIFACT_DECISION.md",
+      "SPDXID": "SPDXRef-File-docs-HERMES-RESULT-SCHEMA-ARTIFACT-DECISION.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "aaf78aa146db99bb539d2bcacdd94ef580d42c20174d11a952a1ded064db05ff"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/HERMES_SIDECAR_IMPLEMENTATION_BOUNDARY.md",
+      "SPDXID": "SPDXRef-File-docs-HERMES-SIDECAR-IMPLEMENTATION-BOUNDARY.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "a2340b1138d2b3342dc2ce8053baadf310d58efa7e6f76a3873b9c3dd68f2222"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/HERMES_SIDECAR_PLANNING_CONTRACT.md",
+      "SPDXID": "SPDXRef-File-docs-HERMES-SIDECAR-PLANNING-CONTRACT.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "82a119e7413730099a8b39aa79d4d162c28c3820798114db0e5a9dece48a827f"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/HERMES_SIDECAR_RESULT_SCHEMA_CONTRACT.md",
+      "SPDXID": "SPDXRef-File-docs-HERMES-SIDECAR-RESULT-SCHEMA-CONTRACT.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "59bee0864ff57cf468764507b399ba19c43b425ddb59dec8050730f24c06538f"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/HERMES_SIDECAR_SYNTHETIC_REVIEW.md",
+      "SPDXID": "SPDXRef-File-docs-HERMES-SIDECAR-SYNTHETIC-REVIEW.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "9cfbcfbf7f8227a9c4f82d55618e743f5111d5acd2468ba76129005fa1e991eb"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/HERMES_SIDECAR_USAGE_PROBE.md",
+      "SPDXID": "SPDXRef-File-docs-HERMES-SIDECAR-USAGE-PROBE.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "6990f7b8c1b05717e984f3dcc69b11c285bf320d8d2008dc142042b698ca3a06"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
       "fileName": "docs/HUMAN_APPROVALS.md",
       "SPDXID": "SPDXRef-File-docs-HUMAN-APPROVALS.md",
       "checksums": [
@@ -396,12 +900,24 @@
       "copyrightText": "UNKNOWN"
     },
     {
+      "fileName": "docs/JSON_EVIDENCE_POLICY.md",
+      "SPDXID": "SPDXRef-File-docs-JSON-EVIDENCE-POLICY.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "e8bdc7633663742e5940709fbb219c36ca5e8efebb324a03c84fdbb62c0a0141"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
       "fileName": "docs/KNOWN_LIMITATIONS.md",
       "SPDXID": "SPDXRef-File-docs-KNOWN-LIMITATIONS.md",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "4c0e9d5cfce3ebf123c4a5716552b499f02dd5748a78df88403d77d1fda22750"
+          "checksumValue": "2e20a916de4a1efd9f82a44e3bf0bb52c48cde75b305c4ca53e160ad279f12f6"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -438,6 +954,138 @@
         {
           "algorithm": "SHA256",
           "checksumValue": "cd884c583f7e10c14783b30f3d8257ce805b011c56a473daec47615aec240070"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/LOCAL_RAG_DESIGN.md",
+      "SPDXID": "SPDXRef-File-docs-LOCAL-RAG-DESIGN.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "787aa88838dfd1c579d337e4b2f330e913a5abf17d0b53684584191beb2e7baf"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md",
+      "SPDXID": "SPDXRef-File-docs-LOCAL-RAG-IMPLEMENTATION-CONTRACT.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "3cc8732477e78ca3ca70b3938633c45b6008e197f9d0640decb5f1538eab67f5"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/LOCAL_RAG_POLICY_APPLICATION_REVIEW.md",
+      "SPDXID": "SPDXRef-File-docs-LOCAL-RAG-POLICY-APPLICATION-REVIEW.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "908467d3da8dcb904bd184c05aee15c2ff2f5d1cea5d5672a16fac507ea650fd"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/LOCAL_RAG_POST_REBASELINE_RETRIEVAL_VERIFICATION.md",
+      "SPDXID": "SPDXRef-File-docs-LOCAL-RAG-POST-REBASELINE-RETRIEVAL-VERIFICATION.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "fbb3b126fc1807daff87bceeb7dbb6e8d0a980f0c1a972fb286dcaa8507f278a"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/LOCAL_RAG_REAL_REPO_OVERLAY_VERIFICATION.md",
+      "SPDXID": "SPDXRef-File-docs-LOCAL-RAG-REAL-REPO-OVERLAY-VERIFICATION.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "a9806ddefb25c910c0c4b3345e0c5221a90ec5d94a2c2c4ffc4a00b94157bdcd"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/LOCAL_RAG_RETRIEVER_LOGICAL_VERIFICATION.md",
+      "SPDXID": "SPDXRef-File-docs-LOCAL-RAG-RETRIEVER-LOGICAL-VERIFICATION.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "9eee65e42cd7acee5880dd64b7705bef129582f1e21e78f31aeebf0d4ddd7b50"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/LOCAL_RAG_RETRIEVER_POST_REFRESH_LOGICAL_VERIFICATION.md",
+      "SPDXID": "SPDXRef-File-docs-LOCAL-RAG-RETRIEVER-POST-REFRESH-LOGICAL-VERIFICATION.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "396aa8968b415de3db3560d03811984cb060d0029807f07f4c429d88c4bf7229"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/LOCAL_RAG_RETRIEVER_USAGE_PROBE.md",
+      "SPDXID": "SPDXRef-File-docs-LOCAL-RAG-RETRIEVER-USAGE-PROBE.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "6eb92ec8c123de2fb493b33ce6c3260598e757d5fa377c57abb66075c3d2fb89"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/LOCAL_RAG_STABLE_CORPUS_REBASELINE_CONTRACT.md",
+      "SPDXID": "SPDXRef-File-docs-LOCAL-RAG-STABLE-CORPUS-REBASELINE-CONTRACT.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "b03fbd3ce6570454efd03b0a1c23b659504793387decab023898805fce1e958f"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/LOCAL_RAG_VOLATILE_AUTHORITY_POLICY.md",
+      "SPDXID": "SPDXRef-File-docs-LOCAL-RAG-VOLATILE-AUTHORITY-POLICY.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "61abbc154c5b4fdcdfc31108028e4a40fb87b52cb0c3a4fb90821054fc2a82a2"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/LOCAL_RAG_VOLATILE_OVERLAY_CONTRACT.md",
+      "SPDXID": "SPDXRef-File-docs-LOCAL-RAG-VOLATILE-OVERLAY-CONTRACT.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "026ea504a3532b6009d5cccdd368c27c3d12d7b1844bc6748a20ae735f900ed8"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -528,12 +1176,36 @@
       "copyrightText": "UNKNOWN"
     },
     {
+      "fileName": "docs/MCP_TOOL_BOUNDARY_CONTRACT.md",
+      "SPDXID": "SPDXRef-File-docs-MCP-TOOL-BOUNDARY-CONTRACT.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "2c3ca8e2ea936a53c8a51b23cc6423a923701b88d68404bb440b9d2cdc51b752"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/MCP_TOOL_BOUNDARY_SYNTHETIC_REVIEW.md",
+      "SPDXID": "SPDXRef-File-docs-MCP-TOOL-BOUNDARY-SYNTHETIC-REVIEW.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "591b3263d52601d880b43d8e845a67db18293feae149c7f5111f8a32cf943a49"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
       "fileName": "docs/MINIMAL_EVAL_HARNESS_DESIGN.md",
       "SPDXID": "SPDXRef-File-docs-MINIMAL-EVAL-HARNESS-DESIGN.md",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "9d97af77e7c023d3c0b07676a02010a7b5f34a062d1bc4cf1c6728e3e44b4b8a"
+          "checksumValue": "b177d81dd779c46a65406f525ac9d234cafc129b2b5527a3dfda3be1271ae22e"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -552,12 +1224,24 @@
       "copyrightText": "UNKNOWN"
     },
     {
+      "fileName": "docs/NEXT_DIRECTION_DECISION.md",
+      "SPDXID": "SPDXRef-File-docs-NEXT-DIRECTION-DECISION.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "5390d18b655c2894ca4c70ac349d8309c1893ee5d31a257526c0799f63662a29"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
       "fileName": "docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md",
       "SPDXID": "SPDXRef-File-docs-OPTIONAL-CI-ACTUALIZATION-DECISION.md",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "42bfc59225f658484a9649f609cf1860eda1bfc838bad31f423a08a7de78733c"
+          "checksumValue": "9c5928eb58ccba3d01845a458b7ce06a01afaa09efe489c5aeebf37433904c0b"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -653,7 +1337,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "70d76ca1cb4f519e09b18c52aabd0f883a7b429f0230264b8588c7c9cf00cdae"
+          "checksumValue": "ab22a45ebf60f0bca39f265b710b69380382b152454633f24571912d42b72348"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -665,7 +1349,19 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "9e08a3d4d442894f3cb44fd24c019d9c004c7c491cdf1f773f1821cef9c4ee22"
+          "checksumValue": "dcf7bc4d3600dffc544de488e19bb5d1b13b685f7e3064912ca79e089793b8ce"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/OPTIONAL_RAG_PILOT_DECISION.md",
+      "SPDXID": "SPDXRef-File-docs-OPTIONAL-RAG-PILOT-DECISION.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "3500f4c4b770d14bee597505575a0d9d5ab19c1a8622306a3d7385cad4d1bfc1"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -689,7 +1385,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "041c827ddbc24888c734afb9bcecd754110836488b13080a41101e5181c1d936"
+          "checksumValue": "98fab3eb3d71b761b0874c7e6801cac68355353f89b4d451fca1e6727ea861bf"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -701,7 +1397,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "c5bcb934ad1540ddb35e1f4752cc6048aaef88a706ee7297a5cf278d52f598a4"
+          "checksumValue": "6f8753fc5cc0a2df840142ff177661d9b8646f1b30d08c46c39d753e89d1a3ff"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -725,7 +1421,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "996bd5bc9c6f4023aa9359cb4383f1a5f2d2b0675802f7de4e46c43d30eaf85f"
+          "checksumValue": "79a71b1a9d6f61c282ee9f4d29f6523cee315b037f002dec0e368f046915bff8"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -756,12 +1452,36 @@
       "copyrightText": "UNKNOWN"
     },
     {
+      "fileName": "docs/RELEASE_AUTOMATION_CANDIDATE_CONTRACT.md",
+      "SPDXID": "SPDXRef-File-docs-RELEASE-AUTOMATION-CANDIDATE-CONTRACT.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "0908fd4df76930300ab177b066625d8b65a2b90505cebd92a58963916a2c16ee"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/RELEASE_AUTOMATION_PROVENANCE_BOUNDARY_REVIEW.md",
+      "SPDXID": "SPDXRef-File-docs-RELEASE-AUTOMATION-PROVENANCE-BOUNDARY-REVIEW.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "ab9b21c5f288f8bae74d0569f5f1c30b058219b0f23bfcf864fe026734e21885"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
       "fileName": "docs/RELEASE_BUNDLE_POLICY.md",
       "SPDXID": "SPDXRef-File-docs-RELEASE-BUNDLE-POLICY.md",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "9a20ab3641eaa8b4433e4e0113d37d5ef18efe1221619ef7bcefd77cdff338ea"
+          "checksumValue": "845b07bbcd8527ba0b5fec4db3dfe6d6cd56b792622654d0eaf5d5f1505bb7aa"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -773,7 +1493,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "e7db625fc06aace8c5619f6ecd20324500e559467e33926e768947a61ba62ef9"
+          "checksumValue": "6e35e960a3211c83617a1a3e39cd2deabc5cfdce6249674013a739dcb9ad2617"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -785,7 +1505,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "33b147c1bfe3754a3952b1023e9d5f0a8fe8091eeb572257b3854716e9e3c6e8"
+          "checksumValue": "efa9fb7870c68349f8ca2dfaf7a341c554179a35bf20cd19c699a47761bdab86"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -864,6 +1584,66 @@
       "copyrightText": "UNKNOWN"
     },
     {
+      "fileName": "docs/RENDER_PROVENANCE_AND_UPGRADE_PLAN.md",
+      "SPDXID": "SPDXRef-File-docs-RENDER-PROVENANCE-AND-UPGRADE-PLAN.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "a901c9b9e82d528e9c62f2e2bb771d98ee612b720afadbbb8bc2b4337e29c9ed"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/RENDER_TIER_CONTRACT.md",
+      "SPDXID": "SPDXRef-File-docs-RENDER-TIER-CONTRACT.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "86b9abc35023442a4fb9015eac3fc95e835d47f49326889798e8e5d15cf5c169"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/RETRIEVAL_RECEIPT_EVIDENCE_IMPLEMENTATION_BOUNDARY_REVIEW.md",
+      "SPDXID": "SPDXRef-File-docs-RETRIEVAL-RECEIPT-EVIDENCE-IMPLEMENTATION-BOUNDARY-REVIEW.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "6852162829f5f8f8af942bbd44e46821181c8e0d54406a69aefa43258cba5b06"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/RETRIEVAL_RECEIPT_EVIDENCE_PLAN.md",
+      "SPDXID": "SPDXRef-File-docs-RETRIEVAL-RECEIPT-EVIDENCE-PLAN.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "a8de450aa07daf796123934bf4e1ae772c71d9137908a2fb02cff8dc6023b450"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/SAFETY_PATTERN_CHECKS.md",
+      "SPDXID": "SPDXRef-File-docs-SAFETY-PATTERN-CHECKS.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "8b8b70ea45d2aa20267416e348f1ac1db4e4b2562ee9cc63f37b6d617e1203e7"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
       "fileName": "docs/SAFETY_POLICY.md",
       "SPDXID": "SPDXRef-File-docs-SAFETY-POLICY.md",
       "checksums": [
@@ -881,7 +1661,19 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "47c548e88e24a0292dbca82c20e2804979d1169159d3d52de125fedd11b1252e"
+          "checksumValue": "d02f0c4b65cc514c62d415231dbf3594eb2b35a0a0fb77ba8cd7f632c6810746"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/SCENARIO_SIMULATOR_READINESS_IMPROVEMENT_PLAN.md",
+      "SPDXID": "SPDXRef-File-docs-SCENARIO-SIMULATOR-READINESS-IMPROVEMENT-PLAN.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "367ab85c4f7254f9563eaedf5b46b709a07e78e3d5ae9d5539e92e8166da6db1"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -893,7 +1685,31 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "f2b21dcbc289792bb32779df2a6ef88652c528be47f4799b83963f39793a6a66"
+          "checksumValue": "4302cfd0b2348dc107bf727167bff5440532fe5050a37ddf81fbfa83370aa00b"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md",
+      "SPDXID": "SPDXRef-File-docs-STAGE-5B-STOCK-PRACTICAL-PROBE-CLOSEOUT.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "332847d7352325b6de36f3118d60c7d191fe9dc4073b007645617cb001e5782b"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md",
+      "SPDXID": "SPDXRef-File-docs-STAGE-5B-TARGET-REPO-SELECTION-AND-PROBE-PLAN.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "c33f001840342ebc8c91dad5faf601767138bcb0c8cb11601b85242706e4f2d6"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -917,7 +1733,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "7315e8dd041304642a22e60aa009ac0ee11c22602a6c2046ec3dc6534b2b9912"
+          "checksumValue": "8a9cea11be0092ce0322aa8e0de8e7e05035f4816d55a3130f7c303c0e6fff3d"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -929,7 +1745,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "ec0cdb2c5399c34cc3e76a05fb83e2d370785fa131e48f0adbec6b8d248648d9"
+          "checksumValue": "18fbbe1a540f83a168151e28e30a0be1686e0808c6414cac7b4cc5372257bfbe"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -1128,6 +1944,18 @@
       "copyrightText": "UNKNOWN"
     },
     {
+      "fileName": "evals/cases/rendered_python_cli_readiness.yml",
+      "SPDXID": "SPDXRef-File-evals-cases-rendered-python-cli-readiness.yml",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "eb6beb79b2ee37835ab002fd575400164fb739df99efdbfd5fc83c912b249561"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
       "fileName": "evals/cases/sbom_shape.yml",
       "SPDXID": "SPDXRef-File-evals-cases-sbom-shape.yml",
       "checksums": [
@@ -1146,6 +1974,18 @@
         {
           "algorithm": "SHA256",
           "checksumValue": "7be70dadce14bb425cd0c54f7fa5452f2a23beda7575fa1bd2b7e1d5f738054f"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "evals/golden/rendered_python_cli_contract.json",
+      "SPDXID": "SPDXRef-File-evals-golden-rendered-python-cli-contract.json",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "524aa9afa049c37a6c8ff0009f97c33bf2a51de9da75830eec1ab3296d336915"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -1769,7 +2609,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "e0657da397bd5b1763b51fba7b7900aaa36921f7ec1c6f629befe1ad2c54793a"
+          "checksumValue": "cfc899747a9b9bb03818fa781f98579bdff02c5a251f3a4269145932328e35e2"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -1829,7 +2669,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "a0745497053b69c3b143cf58eb6221ea9f8764a0da0a6bc729f53191cd52f44b"
+          "checksumValue": "328dac048ed2924f8f72acd790ba3c4003b3933c60f91a6e1014a1e2025a4f3b"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -1889,7 +2729,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "c175b883176a286d7dae93055e080bfc1a4d778b8064048c8c60d17e3dcb0c79"
+          "checksumValue": "cbaa7c37a184e9e32809b3f7a47536003f86c415504dbc20659308a51395e7c6"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -2028,12 +2868,36 @@
       "copyrightText": "UNKNOWN"
     },
     {
+      "fileName": "scripts/ai_readiness_scanner.py",
+      "SPDXID": "SPDXRef-File-scripts-ai-readiness-scanner.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "a8ffe574bac3d203d08fff37ba9379ec2977a58dd6de19dda453d8bfa3d1acc2"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "scripts/gates/checksum_verify_gate.py",
+      "SPDXID": "SPDXRef-File-scripts-gates-checksum-verify-gate.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "c0eaaf9bc59040271a108c70c94e4fa8172e02280e3546e4f5191556e1ac7e8a"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
       "fileName": "scripts/gates/docs_gate.py",
       "SPDXID": "SPDXRef-File-scripts-gates-docs-gate.py",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "64be6e22651361e0b8295a138c196197691226c079dea098e036db7cfd038f75"
+          "checksumValue": "a5acf04c84ad5a402ca576b6009d2514b52d99231f38c3fc29c400d88c2e1637"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -2070,6 +2934,30 @@
         {
           "algorithm": "SHA256",
           "checksumValue": "bf74c3260471392e3b6c6107d2f53eb03949ecebbf9a854d73fb7d366e56cf1b"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "scripts/gates/json_evidence_gate.py",
+      "SPDXID": "SPDXRef-File-scripts-gates-json-evidence-gate.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "e75e582502b358ed7ae6fb875b764ef82c57f8bfe3f7b6ba0b59964c77400408"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "scripts/gates/rendered_golden_content_gate.py",
+      "SPDXID": "SPDXRef-File-scripts-gates-rendered-golden-content-gate.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "da71db5fdcea4245879b83a44d3c2f342714b722bad12c6983172e8563d6daf8"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -2117,7 +3005,19 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "2ad725711b392c5cc5c1edc314f2160100988b643217bcef088ee17679f6831b"
+          "checksumValue": "9526f0037204d91065931de2c47c46aafcb50febceac025876788811d5467a54"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "scripts/generate_corpus_digest.py",
+      "SPDXID": "SPDXRef-File-scripts-generate-corpus-digest.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "6f4488618d254d4277685512623014a68d2e1cd17be54b85a82b58c1f59c8299"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -2129,7 +3029,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "d3334317eaab6a951d1f0c78e5d70505fa7f835e9f004d2ac937c2bcaf32b060"
+          "checksumValue": "8a18972b31ebdd1fff58813f5b0de536904abb8e2247cbcea511ffe585b0ed1f"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -2153,7 +3053,67 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "93606f7abddd6920f73ee988fa67c46d096bb7318304c3aeefd7f9443bcbb50b"
+          "checksumValue": "adeb0e71eecb45b79ac477c2d838bce504ce0151a2df3bed691a98b05e234939"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "scripts/hermes_git_push_preflight.py",
+      "SPDXID": "SPDXRef-File-scripts-hermes-git-push-preflight.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "270ee582e6179afbfafef424b76b97da6ad9959f1abe037d79f92678f8b1ce0a"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "scripts/hermes_git_push_preflight_receipt_writer.py",
+      "SPDXID": "SPDXRef-File-scripts-hermes-git-push-preflight-receipt-writer.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "24e6213b4696dd67ffb6bb8eb21020ab5ec4fd6e424e65b29856f73aa74eaf1c"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "scripts/hermes_git_push_preflight_writer.py",
+      "SPDXID": "SPDXRef-File-scripts-hermes-git-push-preflight-writer.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "89f52ca3e8be81edd32850662ce5e0d48cddc37733d45bfa65bee68b4cbace6f"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "scripts/hermes_sidecar.py",
+      "SPDXID": "SPDXRef-File-scripts-hermes-sidecar.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "1c94745eaa7895f609e6654c9738bfbba86c6905d8dd4b1c710cabc587ff76ef"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "scripts/local_rag_retriever.py",
+      "SPDXID": "SPDXRef-File-scripts-local-rag-retriever.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "91add31159ebff93fb13b792aca859c2b5d91e2e5d85d00cc3ede64977293c4f"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -2165,7 +3125,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "6c29b7839c989e378fa57dc4e475ae42aea7ca94b4d1408f51c933447926b387"
+          "checksumValue": "1e594e865aa15a51b827e417e90c5b6b67632580ee4a3caef1ef28b72a2de03f"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -2177,7 +3137,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "8d1c3a9e635f7ef31a9f19b216f7fd728a9984a7ade3d336baf7f69076ae8f05"
+          "checksumValue": "3f9bcfb33b39bc5e3d681982399c5ab818007fe13a8dd4a94f032f7950b4a5f4"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -2189,7 +3149,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "e479a76d12d15b4a145d7b4741f917c9b1d9c78d52447334a5b8b2b4ab651d36"
+          "checksumValue": "a4256922223ba5eba1691c6a533c0e1350c465a03eefef9ddb3f48ba5d768b23"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -2213,7 +3173,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "6e0461f1c64824837ffaff8340c1acf18ae5c799e66b89e01d021875c2bd8de2"
+          "checksumValue": "2804d8bd12489735000f6a1cd7611db4d23ee7d34c88999e119e844ad1ab1fb6"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -2249,7 +3209,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "29d40a24f81ee40628a8a98048fecf8f65daf54ac08593e769cb3c6c76b85de5"
+          "checksumValue": "838e5d7127e65944bba15d6d8d871a0a5ac37052abbb2afdf620e008032a7ef0"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -2333,7 +3293,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "aa71abd07ddd6b7d837a591c283748a3fc602dc71581b9e9e695262c6ab819ee"
+          "checksumValue": "c8f392650596be5fc1aa0422cf3109fc0c89a5749e0d9ffc18bab37ebb95b64a"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -2369,7 +3329,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "896e37d5bf45f16089c8bf42f11fb5afb79ee207c352052c4a4e87979ea19157"
+          "checksumValue": "0810ef2b295e24d5ba5682a3e21998001a395d19937f8eaeda8bc648bd84855e"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -2381,7 +3341,55 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "8e04721e88f5a040b6921735301ee016c1cb508c4b472fcd25399488a9b67ba4"
+          "checksumValue": "bc292c0d96e94d3b6846f97c9f82074b96f650ee7ad583996dd3b8d1f8171834"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "templates/downstream_readiness/ACCEPTANCE_TRACE.md",
+      "SPDXID": "SPDXRef-File-templates-downstream-readiness-ACCEPTANCE-TRACE.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "ff862a69899fec17a213ae35ba73a8422251958e31df1fab6b5baffb64889456"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "templates/downstream_readiness/AI_HANDOFF.md",
+      "SPDXID": "SPDXRef-File-templates-downstream-readiness-AI-HANDOFF.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "e47c698596c0dd69a2438cdddd93a9f5782c8e7b38d8c1ea1bbcb356aee99050"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "templates/downstream_readiness/SAFETY_POLICY.md",
+      "SPDXID": "SPDXRef-File-templates-downstream-readiness-SAFETY-POLICY.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "b128a196932665a8c991d53a7109653dd6684618f6d7db7307b6a4872e30fe72"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "templates/downstream_readiness/VERIFICATION.md",
+      "SPDXID": "SPDXRef-File-templates-downstream-readiness-VERIFICATION.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "00df5ec985b092f620859d648b0ad327d763d0579f13b5f764ecabb5a75852c2"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -2472,6 +3480,42 @@
       "copyrightText": "UNKNOWN"
     },
     {
+      "fileName": "templates/prompts/downstream_readiness_baseline.md",
+      "SPDXID": "SPDXRef-File-templates-prompts-downstream-readiness-baseline.md",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "ab6cfc9420b6b639cb93fa225407670ebf24c6d615f9d448a090c09b6dab735e"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_ai_readiness_scanner.py",
+      "SPDXID": "SPDXRef-File-tests-test-ai-readiness-scanner.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "243160d1b499182beeacf961ca6af06958ceb243d9364bd634deec074e89e9be"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_checksum_verify_gate.py",
+      "SPDXID": "SPDXRef-File-tests-test-checksum-verify-gate.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "4ee5bc37c6886dbf028799f94c338740493a710d5f6c89c983990427c3625d65"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
       "fileName": "tests/test_eval_gate.py",
       "SPDXID": "SPDXRef-File-tests-test-eval-gate.py",
       "checksums": [
@@ -2489,7 +3533,19 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "a2a7068c42628d9a78b9e1cea3d3f87abd8d9c6a02a5760f30231b7df46e6728"
+          "checksumValue": "8f2bb96cf3e5983eabad0b1d19c73f2cd79e046f6968cea636bb2f13e12244bf"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_generate_corpus_digest.py",
+      "SPDXID": "SPDXRef-File-tests-test-generate-corpus-digest.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "08e95fa8c864af529fa2a8ec2e56500e318fd04189832425c39b23ae22a9c006"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -2501,7 +3557,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5acbb651c084d084c89c0849f32981df40d3e7f98290ff788dbf6b76b65f27f5"
+          "checksumValue": "b5e5e2c619e46b0b14552d32f8f44f168054cea7518b2cc2fe4a1ec41609783e"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -2525,7 +3581,283 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "e9466ade0aa3cbf3e1a8eb81c5e500b72ba01b5c61752393543e4aa3d4264452"
+          "checksumValue": "aefb89ac3882ca40e44779d3ca35f0773f47b41631217297553191731324db78"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_hermes_git_push_preflight.py",
+      "SPDXID": "SPDXRef-File-tests-test-hermes-git-push-preflight.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "cf96f4938a112f3ca367b6565a26b0e7f743ae934e7d5e5331c39dabdb80ed45"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_hermes_git_push_preflight_durable_writer_proposal.py",
+      "SPDXID": "SPDXRef-File-tests-test-hermes-git-push-preflight-durable-writer-proposal.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "0e95d668951c381b505de18221c42f85cd83e7e54e0adfbb9423b0ec7eed438e"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_hermes_git_push_preflight_evidence_decision.py",
+      "SPDXID": "SPDXRef-File-tests-test-hermes-git-push-preflight-evidence-decision.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "1d9cb8d7966f2d894fa01b08adc9bf69eeaca220e5657f479758f422d2c995ed"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_hermes_git_push_preflight_output_contract.py",
+      "SPDXID": "SPDXRef-File-tests-test-hermes-git-push-preflight-output-contract.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "72030ae1cb65b3c9ffca39b4093bcb0933b617ea31e6b53eaa8d484f880d2476"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_hermes_git_push_preflight_receipt_trace_plan.py",
+      "SPDXID": "SPDXRef-File-tests-test-hermes-git-push-preflight-receipt-trace-plan.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "583b17aefa2a23e9b9b0796b9ef19cbea45ad5aed866464db299076960593ac7"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_hermes_git_push_preflight_receipt_writer.py",
+      "SPDXID": "SPDXRef-File-tests-test-hermes-git-push-preflight-receipt-writer.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "a6613bb824c540cb1ef8aad6a73abea57e4a4e0c26a837feecbe1510f30d9c65"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_hermes_git_push_preflight_schema_alignment.py",
+      "SPDXID": "SPDXRef-File-tests-test-hermes-git-push-preflight-schema-alignment.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "122b9d9bebbea182c8d378af20b6c10167c213599443d1a7b99bb86dd6a2b747"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_hermes_git_push_preflight_selection_review.py",
+      "SPDXID": "SPDXRef-File-tests-test-hermes-git-push-preflight-selection-review.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "fd27fdc5499c45a4a589d4597f004a4c6035ed975ee91ae5893a752d41175acd"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_hermes_git_push_preflight_tracked_receipt_contract.py",
+      "SPDXID": "SPDXRef-File-tests-test-hermes-git-push-preflight-tracked-receipt-contract.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "98f78d25f1a11681faeb06f5d3ca9cfb677a9897c5cce0a2adb6dd3f48a1c187"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_hermes_git_push_preflight_tracked_receipt_policy.py",
+      "SPDXID": "SPDXRef-File-tests-test-hermes-git-push-preflight-tracked-receipt-policy.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "5a5956d4da45c01d5fbccbf738b2e323755882f7443d897284e2042d3f3fe9c1"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_hermes_git_push_preflight_tracked_receipt_post_generation_review.py",
+      "SPDXID": "SPDXRef-File-tests-test-hermes-git-push-preflight-tracked-receipt-post-generation-review.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "ed3ceb7b7d751584f320e2b943945568c45588212cb44525001c7e968dea37b2"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_hermes_git_push_preflight_usage_probe.py",
+      "SPDXID": "SPDXRef-File-tests-test-hermes-git-push-preflight-usage-probe.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "19dfe09fac524326aae56b45ebe9c211aebd5c2ef6f379c17dbad92664abc5b9"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_hermes_git_push_preflight_writer.py",
+      "SPDXID": "SPDXRef-File-tests-test-hermes-git-push-preflight-writer.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "45673776bce4401f1f6e3f745bb8b80a8a02fd340f196be33e58985308d10b29"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_hermes_git_push_preflight_writer_persistence_hold.py",
+      "SPDXID": "SPDXRef-File-tests-test-hermes-git-push-preflight-writer-persistence-hold.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "252d099bd6569b0b5207561ae7b4aae2e5f8536b04a2fe6d27e84da7ca53d1bb"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_hermes_mcp_security_alignment.py",
+      "SPDXID": "SPDXRef-File-tests-test-hermes-mcp-security-alignment.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "690ada44dea42d5a4e36c7a48e5f03bb4e8ec04194ca8b8c85bf44247ad79733"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_hermes_preflight_caller_boundary.py",
+      "SPDXID": "SPDXRef-File-tests-test-hermes-preflight-caller-boundary.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "ddebdbef9c7c062e0d3d3b24b4a721db640cd9c3dc2a06028f2ce68c42582f9a"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_hermes_preflight_use_planning_contract.py",
+      "SPDXID": "SPDXRef-File-tests-test-hermes-preflight-use-planning-contract.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "5dfc72015c0fc4a716d23fb46ab421e96d35253fac01817bff07eade3aef9b6a"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_hermes_sidecar.py",
+      "SPDXID": "SPDXRef-File-tests-test-hermes-sidecar.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "6ee856d52e5cb46f662324366b4fa0540c2bc474b944d5706fe54cd4adcb3435"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_hermes_sidecar_planning_contract.py",
+      "SPDXID": "SPDXRef-File-tests-test-hermes-sidecar-planning-contract.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "cdab6e063bb19f49b4d7b9128793d3bd3416044af178befe3c329590788ffffb"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_hermes_sidecar_result_schema_contract.py",
+      "SPDXID": "SPDXRef-File-tests-test-hermes-sidecar-result-schema-contract.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "932aa060837220fce078f24f65d1b8cf1c3d71c5d88bef735f05c9b037519331"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_json_evidence_gate.py",
+      "SPDXID": "SPDXRef-File-tests-test-json-evidence-gate.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "13a33f81c1098a341cb5e9f6cc81fac20b278906585a23e5c2a92cdf1068c26b"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_local_rag_retriever.py",
+      "SPDXID": "SPDXRef-File-tests-test-local-rag-retriever.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "523ae99610e3c17a7eaf04c35c1d4977b44df5002704a18854b1b2bd91ad3ece"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_mcp_tool_boundary_contract.py",
+      "SPDXID": "SPDXRef-File-tests-test-mcp-tool-boundary-contract.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "bee74e1dbf42512203d4e8dc3cfb294164776362d34e3620ce5b3625bb5ed22d"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -2537,7 +3869,31 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "ab8c7a2e03e859f2c36390115829cc3e694cb5620de1021336332e1546899ad6"
+          "checksumValue": "830f3046ade5093edffbb066437d7d00df1b8d4f6bb308b9821a2b574a33cf73"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_release_automation_candidate_contract.py",
+      "SPDXID": "SPDXRef-File-tests-test-release-automation-candidate-contract.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "29d8c3e6a0067fe82665bed1ec0e67bc08381c9a49eac94896b857cf49683edb"
+        }
+      ],
+      "licenseConcluded": "UNKNOWN",
+      "copyrightText": "UNKNOWN"
+    },
+    {
+      "fileName": "tests/test_release_automation_provenance_boundary.py",
+      "SPDXID": "SPDXRef-File-tests-test-release-automation-provenance-boundary.py",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "5308a21b6e80bd63af977573a610e4b13e17f5fd90970fde3a89968eda6b09d2"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -2549,7 +3905,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "14956f28e8ebbfa1d4d103afbba528d48bc83e95d2f8a282057091caf9402d4f"
+          "checksumValue": "58b88a4602835539fee4d8e445697b22c2545611076e72903d0fb093ac8e0d21"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -2561,7 +3917,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "a44741e35dafea44e13f65705e6a5ef8d385ff750e72f7f9d7c23a40e8da1a3a"
+          "checksumValue": "e5791f58c125f3bd317c819ffaa80dd6b818db652757ccdd1499eac2b00105f5"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -2592,6 +3948,11 @@
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-LICENSE"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-MVP.md"
     },
     {
@@ -2612,6 +3973,11 @@
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-SECURITY.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-STATUS.md"
     },
     {
@@ -2622,7 +3988,27 @@
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-audits-receipt-summary.schema.json"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-audits-receipts-hermes-git-push-preflight-phase-9y-hermes-git-push-preflight-tracked-receipt-synthetic-not-run.json"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-audits-trace-event.schema.json"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-code-review.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-ACCEPTANCE-TRACE-STATUS-VOCABULARY.md"
     },
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
@@ -2632,7 +4018,27 @@
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-AI-READINESS-REPORT-INITIAL.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-AI-READINESS-SCANNER-v0.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-APPROVED-CORPUS-DIGEST-PLAN.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-docs-APPROVED-CORPUS-RAG-PLAN.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-APPROVED-CORPUS-SOURCE-SET.v2.json"
     },
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
@@ -2647,7 +4053,22 @@
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-AUDIT-RECEIPT-PILOT-REVIEW.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-AUDIT-TRACE-SCHEMA.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-docs-BUG-REVIEW-TEMPLATE.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-CAPABILITY-IMPLEMENTATION-ROADMAP.md"
     },
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
@@ -2697,7 +4118,32 @@
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-DOWNSTREAM-READINESS-IMPROVEMENT-BACKLOG.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-DOWNSTREAM-READINESS-PROMPT-USE-VALIDATION.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-DOWNSTREAM-READINESS-REVIEW-CHECKLIST.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-EVAL-INTEGRATION-DECISION.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-docs-EVAL-POLICY.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-EVAL-REPORT-INTEGRATION-PLAN.md"
     },
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
@@ -2722,7 +4168,132 @@
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-CALLER-SELECTION-REVIEW.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-DURABLE-WRITER-PROPOSAL.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-EVIDENCE-DECISION.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-OUTPUT-CONTRACT.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-RECEIPT-TRACE-PLAN.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-SCHEMA-ALIGNMENT-REVIEW.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-SELECTED-RECEIPT-WRITER-IMPLEMENTATION-PLAN.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-TRACKED-RECEIPT-GENERATION-CONTRACT.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-TRACKED-RECEIPT-GENERATION-POLICY.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-TRACKED-RECEIPT-POST-GENERATION-BOUNDARY-REVIEW.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-USAGE-PROBE.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-WRITER-CAPTURE-BOUNDARY-REVIEW.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-WRITER-IMPLEMENTATION-PLAN.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-HERMES-GIT-PUSH-PREFLIGHT-WRITER-PERSISTENCE-HOLD-DECISION.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-HERMES-MCP-SECURITY-ALIGNMENT-REVIEW.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-HERMES-PREFLIGHT-CALLER-IMPLEMENTATION-BOUNDARY.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-HERMES-PREFLIGHT-SYNTHETIC-MATRIX-REVIEW.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-HERMES-PREFLIGHT-USE-PLANNING-CONTRACT.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-HERMES-RESULT-SCHEMA-ARTIFACT-DECISION.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-HERMES-SIDECAR-IMPLEMENTATION-BOUNDARY.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-HERMES-SIDECAR-PLANNING-CONTRACT.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-HERMES-SIDECAR-RESULT-SCHEMA-CONTRACT.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-HERMES-SIDECAR-SYNTHETIC-REVIEW.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-HERMES-SIDECAR-USAGE-PROBE.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-docs-HUMAN-APPROVALS.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-JSON-EVIDENCE-POLICY.md"
     },
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
@@ -2743,6 +4314,61 @@
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-docs-LOCAL-PACKAGE-CHECKLIST.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-LOCAL-RAG-DESIGN.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-LOCAL-RAG-IMPLEMENTATION-CONTRACT.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-LOCAL-RAG-POLICY-APPLICATION-REVIEW.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-LOCAL-RAG-POST-REBASELINE-RETRIEVAL-VERIFICATION.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-LOCAL-RAG-REAL-REPO-OVERLAY-VERIFICATION.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-LOCAL-RAG-RETRIEVER-LOGICAL-VERIFICATION.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-LOCAL-RAG-RETRIEVER-POST-REFRESH-LOGICAL-VERIFICATION.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-LOCAL-RAG-RETRIEVER-USAGE-PROBE.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-LOCAL-RAG-STABLE-CORPUS-REBASELINE-CONTRACT.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-LOCAL-RAG-VOLATILE-AUTHORITY-POLICY.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-LOCAL-RAG-VOLATILE-OVERLAY-CONTRACT.md"
     },
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
@@ -2782,12 +4408,27 @@
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-MCP-TOOL-BOUNDARY-CONTRACT.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-MCP-TOOL-BOUNDARY-SYNTHETIC-REVIEW.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-docs-MINIMAL-EVAL-HARNESS-DESIGN.md"
     },
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-docs-MODEL-CHANGE-POLICY.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-NEXT-DIRECTION-DECISION.md"
     },
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
@@ -2842,6 +4483,11 @@
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-OPTIONAL-RAG-PILOT-DECISION.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-docs-P6-RELEASE-CLOSEOUT.md"
     },
     {
@@ -2873,6 +4519,16 @@
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-docs-RC2-CANDIDATE-CLOSEOUT.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-RELEASE-AUTOMATION-CANDIDATE-CONTRACT.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-RELEASE-AUTOMATION-PROVENANCE-BOUNDARY-REVIEW.md"
     },
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
@@ -2922,6 +4578,31 @@
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-RENDER-PROVENANCE-AND-UPGRADE-PLAN.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-RENDER-TIER-CONTRACT.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-RETRIEVAL-RECEIPT-EVIDENCE-IMPLEMENTATION-BOUNDARY-REVIEW.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-RETRIEVAL-RECEIPT-EVIDENCE-PLAN.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-SAFETY-PATTERN-CHECKS.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-docs-SAFETY-POLICY.md"
     },
     {
@@ -2932,7 +4613,22 @@
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-SCENARIO-SIMULATOR-READINESS-IMPROVEMENT-PLAN.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-docs-SIMPLIFICATION-CHECKLIST.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-STAGE-5B-STOCK-PRACTICAL-PROBE-CLOSEOUT.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-docs-STAGE-5B-TARGET-REPO-SELECTION-AND-PROBE-PLAN.md"
     },
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
@@ -3032,12 +4728,22 @@
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-evals-cases-rendered-python-cli-readiness.yml"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-evals-cases-sbom-shape.yml"
     },
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-evals-golden-render-structure-paths.txt"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-evals-golden-rendered-python-cli-contract.json"
     },
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
@@ -3407,6 +5113,16 @@
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-scripts-ai-readiness-scanner.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-scripts-gates-checksum-verify-gate.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-scripts-gates-docs-gate.py"
     },
     {
@@ -3423,6 +5139,16 @@
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-scripts-gates-example-render-drift-gate.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-scripts-gates-json-evidence-gate.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-scripts-gates-rendered-golden-content-gate.py"
     },
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
@@ -3447,6 +5173,11 @@
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-scripts-generate-corpus-digest.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-scripts-generate-manifest.py"
     },
     {
@@ -3458,6 +5189,31 @@
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-scripts-generate-sbom.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-scripts-hermes-git-push-preflight.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-scripts-hermes-git-push-preflight-receipt-writer.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-scripts-hermes-git-push-preflight-writer.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-scripts-hermes-sidecar.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-scripts-local-rag-retriever.py"
     },
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
@@ -3557,6 +5313,26 @@
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-templates-downstream-readiness-ACCEPTANCE-TRACE.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-templates-downstream-readiness-AI-HANDOFF.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-templates-downstream-readiness-SAFETY-POLICY.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-templates-downstream-readiness-VERIFICATION.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-templates-optional-design-stage-ACCEPTANCE-EVIDENCE-PLAN.md.template"
     },
     {
@@ -3592,12 +5368,32 @@
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-templates-prompts-downstream-readiness-baseline.md"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-ai-readiness-scanner.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-checksum-verify-gate.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-tests-test-eval-gate.py"
     },
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-tests-test-generate-checksums.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-generate-corpus-digest.py"
     },
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
@@ -3617,7 +5413,132 @@
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
       "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-hermes-git-push-preflight.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-hermes-git-push-preflight-durable-writer-proposal.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-hermes-git-push-preflight-evidence-decision.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-hermes-git-push-preflight-output-contract.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-hermes-git-push-preflight-receipt-trace-plan.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-hermes-git-push-preflight-receipt-writer.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-hermes-git-push-preflight-schema-alignment.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-hermes-git-push-preflight-selection-review.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-hermes-git-push-preflight-tracked-receipt-contract.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-hermes-git-push-preflight-tracked-receipt-policy.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-hermes-git-push-preflight-tracked-receipt-post-generation-review.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-hermes-git-push-preflight-usage-probe.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-hermes-git-push-preflight-writer.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-hermes-git-push-preflight-writer-persistence-hold.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-hermes-mcp-security-alignment.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-hermes-preflight-caller-boundary.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-hermes-preflight-use-planning-contract.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-hermes-sidecar.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-hermes-sidecar-planning-contract.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-hermes-sidecar-result-schema-contract.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-json-evidence-gate.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-local-rag-retriever.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-mcp-tool-boundary-contract.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-tests-test-quality-gate.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-release-automation-candidate-contract.py"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-codex-dev-harness",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tests-test-release-automation-provenance-boundary.py"
     },
     {
       "spdxElementId": "SPDXRef-Package-codex-dev-harness",
@@ -3633,10 +5554,10 @@
   "externalDocumentRefs": [],
   "annotations": [
     {
-      "annotationDate": "2026-05-26T23:51:45Z",
+      "annotationDate": "2026-07-11T12:53:53Z",
       "annotationType": "OTHER",
       "annotator": "Tool: codex-dev-harness generate_sbom.py",
-      "comment": "manifest=artifacts/release-manifest.json sha256=ecb9eae80aca6758993747a90ea05d036a4ac00ebec566fba91457d0e13949e5; checksum_entries=5"
+      "comment": "manifest=artifacts/release-manifest.json sha256=412845a20941f6a54829b5100021aa1102a055a3848809fc559542f4a67efc2b; checksum_entries=5"
     }
   ]
 }

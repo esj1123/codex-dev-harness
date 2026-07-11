@@ -3,7 +3,7 @@
   "specVersion": "1.5",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-05-26T23:51:45Z",
+    "timestamp": "2026-07-11T12:53:53Z",
     "tools": {
       "components": [
         {
@@ -16,7 +16,7 @@
     "component": {
       "type": "application",
       "name": "esj1123/codex-dev-harness",
-      "version": "9ae69c5fbf65953db2b0efb82b4904098f8a7581",
+      "version": "28b416f9d46dc421c6e87dbc1562110a40224824",
       "properties": [
         {
           "name": "git_ref",
@@ -28,11 +28,18 @@
         },
         {
           "name": "manifest_sha256",
-          "value": "ecb9eae80aca6758993747a90ea05d036a4ac00ebec566fba91457d0e13949e5"
+          "value": "412845a20941f6a54829b5100021aa1102a055a3848809fc559542f4a67efc2b"
         },
         {
           "name": "checksum_entries",
           "value": "5"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
         }
       ]
     }
@@ -60,13 +67,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "1b304402f9bfdf7472af7c1c29d6cd73357b9e52e8898387c4a929a8f258941b"
+          "content": "46fa17863de395883bf41277ceb2be51b42b0788b656ce75e2aa12658fc00abc"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "54416"
+          "value": "152202"
         }
       ]
     },
@@ -76,13 +83,29 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "abff6df7d0fa87458aa389a05ddaf54b2980dd3653bf78d1f921d00e9c91aea8"
+          "content": "ade6f15f30baa801aa662f15f2c519b3cb99d59da0ee21970080fa082a10a239"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "2574"
+          "value": "2934"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "LICENSE",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d118bd71efb782d07237531c95e681010d9b7a66e2aeed3728094286864199dc"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "1064"
         }
       ]
     },
@@ -124,13 +147,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "ef07ff7ea257291121a7a2525224686935d77199c7fb17a84e1b8bfe2e8329d7"
+          "content": "3d5a27981aff778ac785e5044c922fcad44910d14a5a61ce5f6b7caed831269d"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "4761"
+          "value": "6523"
         }
       ]
     },
@@ -140,13 +163,29 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "6331904fe8d58d58b3d2a2ef01a6174da65545d68cecf7a2fff27b6f857b61bd"
+          "content": "b1a519b6d483a0bfc385b597bc951303c377c251652bf3dcbcd3d773dedb5d07"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "2612"
+          "value": "3075"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "SECURITY.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e7b71361fe566dafdd1b4e161f0c801993b1dffab1aaaa61e5eebfd607952d3d"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "1998"
         }
       ]
     },
@@ -156,13 +195,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "0f09e53d7cbecc3c745b176c2d9521e04c7176acd5ada6338b685657e531e07d"
+          "content": "fd1d983e079899ec49810545c3fb303c3889e54d508036121c743059888b7b01"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "43746"
+          "value": "133957"
         }
       ]
     },
@@ -184,6 +223,54 @@
     },
     {
       "type": "file",
+      "name": "audits/receipt-summary.schema.json",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "4e26c19f86213bd028c0381baba1227e5d712669937086af0ec2de36f4fb9cb3"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "20992"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "audits/receipts/hermes-git-push-preflight/phase-9y-hermes-git-push-preflight-tracked-receipt-synthetic-not-run.json",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ee240350f3a0adf12393e84a2cd46675163078fecd680a4902d6cf883c4aae87"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "4850"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "audits/trace-event.schema.json",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "4f35f8526ffe7bd94bb639cfccef1d607ad4392cdd3d476ff34750ce75f3c8b9"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "8189"
+        }
+      ]
+    },
+    {
+      "type": "file",
       "name": "code_review.md",
       "hashes": [
         {
@@ -200,17 +287,81 @@
     },
     {
       "type": "file",
-      "name": "docs/AI_HANDOFF.md",
+      "name": "docs/ACCEPTANCE_TRACE_STATUS_VOCABULARY.md",
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "8cc86c6d8c4d9eef0e663bb0bc0497e50ecc552540839fb4f4f0141fb118bf35"
+          "content": "1135044343d0c4169daed5b3a36cb4b5110b69adcbdc2e84088542c5c9ae73be"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "3981"
+          "value": "10887"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/AI_HANDOFF.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "457b799726d27039b076aca64f0d186b2b3ca3b1e46b23b4d07a481347906dfc"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "7784"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/AI_READINESS_REPORT_INITIAL.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "cb3a0b71dca3c43e29bc3b0df5af3fa95349ce551d282fb8da58eefec14f77c3"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "7589"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/AI_READINESS_SCANNER_v0.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "fea37c411903be6ab8f552f8d1cad7878f882967e66ab2ad7f01a866e2a4c1b9"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "7056"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/APPROVED_CORPUS_DIGEST_PLAN.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "3f3d43776893a51fc061bbca8645644b1a65f11fec2b8541783ee2f80faa3e2d"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "40071"
         }
       ]
     },
@@ -220,13 +371,29 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "c84167cc86e0bdf0d7edb996cc0243d6bcc730fc5fc433b0c88fe434ce2774cc"
+          "content": "44d52c3692f345baf5cc371fb5464c6e559d30c847a2b179034df637e03f947a"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "4039"
+          "value": "7011"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/APPROVED_CORPUS_SOURCE_SET.v2.json",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "529bf6901ea7c983aba9c65b3b1bca2ee76af2486d0fcad55e02e50559d28079"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "11317"
         }
       ]
     },
@@ -236,13 +403,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "e3ebdb23b63a43454ae8fc612cb2ff60370bbb9511302dbcf8fa9b0e198aa072"
+          "content": "23e0f37c76be43313d007a287949bf515e17de6eb4480cffd35b517d763ada3f"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "7321"
+          "value": "7739"
         }
       ]
     },
@@ -252,13 +419,45 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "62c1146a867ff6d2db1f1263b7395b53ebf5084a998589ca9261951fa550c85c"
+          "content": "a603954b09cb5af50df215c7d75dcae6e0186450521c9a21553a89bd5060a5ef"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "4510"
+          "value": "5606"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/AUDIT_RECEIPT_PILOT_REVIEW.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "cd34407b89b7d3370784f002949145760f41e2a26440f16ca985a2a6127b0e43"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "7765"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/AUDIT_TRACE_SCHEMA.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2f761ad6d0c2133afe2620badbe3654c22b48f46596c4ef0079787dac5d1ed00"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "15308"
         }
       ]
     },
@@ -275,6 +474,22 @@
         {
           "name": "size_bytes",
           "value": "2002"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "07352e3da90afaa74ae7c4f4ea6eaa5260e35753b583336a38bcc38460f711d3"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "28152"
         }
       ]
     },
@@ -300,13 +515,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "3bf941cdd735058ebddfa7518b0899e55556b35fae456635ec4cde13385e93d1"
+          "content": "2fe847a446123a1cc1752824010a5a9da4423d04b8a3c6ef04394717cde24f76"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "1438"
+          "value": "4567"
         }
       ]
     },
@@ -424,17 +639,97 @@
     },
     {
       "type": "file",
-      "name": "docs/EVAL_POLICY.md",
+      "name": "docs/DOWNSTREAM_READINESS_IMPROVEMENT_BACKLOG.md",
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "95b2764441b5d07b186da539b7aa3e6aba1cf3e9441475ab1cc1839f1eeb3d9e"
+          "content": "4404e66dfcf8ce2bec17c370288ecc28809eddd39380f1887806a74fa4430e6e"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "4015"
+          "value": "11560"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/DOWNSTREAM_READINESS_PROMPT_USE_VALIDATION.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ae31ba4535c440aa1ad2f5bb61b43542fe92ca76ad0c55e7cdd21dec511a7387"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "9343"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/DOWNSTREAM_READINESS_REVIEW_CHECKLIST.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "586eb7d97f2d7c3323bbe5480908606ae010b217735148939ff5ad4482285636"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "11242"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/EVAL_INTEGRATION_DECISION.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "532449dd7eeef68d80f6ab5244b4d3af45c7f762108e924636f963f979bebd7d"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "7370"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/EVAL_POLICY.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "533a3b65f095b05d6c341abeb93bfcb7df5fd96cb5f58fbc5e07456f6ffb9a87"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "5387"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/EVAL_REPORT_INTEGRATION_PLAN.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e592a7585493444223c846104519a2df0db2b535315207f30b15bccb45509cbc"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "12048"
         }
       ]
     },
@@ -504,6 +799,390 @@
     },
     {
       "type": "file",
+      "name": "docs/HERMES_GIT_PUSH_PREFLIGHT_CALLER_SELECTION_REVIEW.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "3832b36edfff271305b3425dc634b9eab45bbdf1ac79806409a8c57837b7567b"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "6364"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/HERMES_GIT_PUSH_PREFLIGHT_DURABLE_WRITER_PROPOSAL.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "95ac862aabec0f7a671f8757e1cb807c7aa50efd2f200ab3d69fde47ec901524"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "8325"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/HERMES_GIT_PUSH_PREFLIGHT_EVIDENCE_DECISION.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d51868aac154cc4abef732a7f9e77b4ac6fd7cf98aab66ebbaac1ab32cb6d3f9"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "6624"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/HERMES_GIT_PUSH_PREFLIGHT_OUTPUT_CONTRACT.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "6de76e9426fb734afef75525d6a493d27f7b8d61e8199c6462844d042d743006"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "7826"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/HERMES_GIT_PUSH_PREFLIGHT_RECEIPT_TRACE_PLAN.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "153b95eca73730d1fa53c3ea99fa3ea548210a95e5b4e477b92f89c68769fe5e"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "8129"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/HERMES_GIT_PUSH_PREFLIGHT_SCHEMA_ALIGNMENT_REVIEW.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "aa1400ee2811321d1de90960549b6d58fa45f5262ce38b23377a950b7ed05e66"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "6714"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/HERMES_GIT_PUSH_PREFLIGHT_SELECTED_RECEIPT_WRITER_IMPLEMENTATION_PLAN.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e701500fecce0d891a0243018a5352439a0f62f936343d560a8f507260c2fbfc"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "6685"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/HERMES_GIT_PUSH_PREFLIGHT_TRACKED_RECEIPT_GENERATION_CONTRACT.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "de52d8494ebcf53ae946d19c064d26761feb6ea4bb076cb5471011f6b23e80d8"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "12687"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/HERMES_GIT_PUSH_PREFLIGHT_TRACKED_RECEIPT_GENERATION_POLICY.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b01096c70e092761e5dcf1aa9360a07612c7037982dcd818f18ff425ae5a0bbd"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "8953"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/HERMES_GIT_PUSH_PREFLIGHT_TRACKED_RECEIPT_POST_GENERATION_BOUNDARY_REVIEW.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "92f874b657063cb962b22e7ac9a331c30909a2adede121747d42538187cd56e5"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "9033"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/HERMES_GIT_PUSH_PREFLIGHT_USAGE_PROBE.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c8b4b697d6f8c726fb454667a190d0c44c03d52e89e3dd17e6d8ec29f402c586"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "4754"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/HERMES_GIT_PUSH_PREFLIGHT_WRITER_CAPTURE_BOUNDARY_REVIEW.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "de701af4178a16c3ccc5beadace6c522032d8b6190c6a6eb97e7968b99eea8fc"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "6616"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/HERMES_GIT_PUSH_PREFLIGHT_WRITER_IMPLEMENTATION_PLAN.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "cd88ea19c171afd761a4745960d7ab75795f9e571cf3ebc6db9aa90f72ea7b90"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "3994"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/HERMES_GIT_PUSH_PREFLIGHT_WRITER_PERSISTENCE_HOLD_DECISION.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b4cfe745a29c95a56353378d2c4817d2282c43dedfc5ee811326647fd18d27fb"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "6962"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/HERMES_MCP_SECURITY_ALIGNMENT_REVIEW.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f57d02d9fd14e8b7e06789d340a83e3cc848f9df8560be3a9e34a708d04cdf85"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "7083"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/HERMES_PREFLIGHT_CALLER_IMPLEMENTATION_BOUNDARY.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2e813366cea336e409c7547e99870426beabd375ebf39db24a048188b69138b6"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "7110"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/HERMES_PREFLIGHT_SYNTHETIC_MATRIX_REVIEW.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "32fced520609f1fba084dc44cf58dd5d4409bf264b06a59503b3e22e8bf3c237"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "5758"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/HERMES_PREFLIGHT_USE_PLANNING_CONTRACT.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "4b1f82a1023a5c2586f20a520795f36f004e64e0ea03e8353ccb74c733ae8f75"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "5185"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/HERMES_RESULT_SCHEMA_ARTIFACT_DECISION.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "aaf78aa146db99bb539d2bcacdd94ef580d42c20174d11a952a1ded064db05ff"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "4143"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/HERMES_SIDECAR_IMPLEMENTATION_BOUNDARY.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a2340b1138d2b3342dc2ce8053baadf310d58efa7e6f76a3873b9c3dd68f2222"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "8918"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/HERMES_SIDECAR_PLANNING_CONTRACT.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "82a119e7413730099a8b39aa79d4d162c28c3820798114db0e5a9dece48a827f"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "6763"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/HERMES_SIDECAR_RESULT_SCHEMA_CONTRACT.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "59bee0864ff57cf468764507b399ba19c43b425ddb59dec8050730f24c06538f"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "8054"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/HERMES_SIDECAR_SYNTHETIC_REVIEW.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "9cfbcfbf7f8227a9c4f82d55618e743f5111d5acd2468ba76129005fa1e991eb"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "5441"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/HERMES_SIDECAR_USAGE_PROBE.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "6990f7b8c1b05717e984f3dcc69b11c285bf320d8d2008dc142042b698ca3a06"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "3405"
+        }
+      ]
+    },
+    {
+      "type": "file",
       "name": "docs/HUMAN_APPROVALS.md",
       "hashes": [
         {
@@ -520,17 +1199,33 @@
     },
     {
       "type": "file",
-      "name": "docs/KNOWN_LIMITATIONS.md",
+      "name": "docs/JSON_EVIDENCE_POLICY.md",
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "4c0e9d5cfce3ebf123c4a5716552b499f02dd5748a78df88403d77d1fda22750"
+          "content": "e8bdc7633663742e5940709fbb219c36ca5e8efebb324a03c84fdbb62c0a0141"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "3890"
+          "value": "8361"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/KNOWN_LIMITATIONS.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2e20a916de4a1efd9f82a44e3bf0bb52c48cde75b305c4ca53e160ad279f12f6"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "4257"
         }
       ]
     },
@@ -579,6 +1274,182 @@
         {
           "name": "size_bytes",
           "value": "2473"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/LOCAL_RAG_DESIGN.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "787aa88838dfd1c579d337e4b2f330e913a5abf17d0b53684584191beb2e7baf"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "14405"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/LOCAL_RAG_IMPLEMENTATION_CONTRACT.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "3cc8732477e78ca3ca70b3938633c45b6008e197f9d0640decb5f1538eab67f5"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "11566"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/LOCAL_RAG_POLICY_APPLICATION_REVIEW.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "908467d3da8dcb904bd184c05aee15c2ff2f5d1cea5d5672a16fac507ea650fd"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "11725"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/LOCAL_RAG_POST_REBASELINE_RETRIEVAL_VERIFICATION.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "fbb3b126fc1807daff87bceeb7dbb6e8d0a980f0c1a972fb286dcaa8507f278a"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "10299"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/LOCAL_RAG_REAL_REPO_OVERLAY_VERIFICATION.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a9806ddefb25c910c0c4b3345e0c5221a90ec5d94a2c2c4ffc4a00b94157bdcd"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "10120"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/LOCAL_RAG_RETRIEVER_LOGICAL_VERIFICATION.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "9eee65e42cd7acee5880dd64b7705bef129582f1e21e78f31aeebf0d4ddd7b50"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "14153"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/LOCAL_RAG_RETRIEVER_POST_REFRESH_LOGICAL_VERIFICATION.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "396aa8968b415de3db3560d03811984cb060d0029807f07f4c429d88c4bf7229"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "22565"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/LOCAL_RAG_RETRIEVER_USAGE_PROBE.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "6eb92ec8c123de2fb493b33ce6c3260598e757d5fa377c57abb66075c3d2fb89"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "3155"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/LOCAL_RAG_STABLE_CORPUS_REBASELINE_CONTRACT.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b03fbd3ce6570454efd03b0a1c23b659504793387decab023898805fce1e958f"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "20666"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/LOCAL_RAG_VOLATILE_AUTHORITY_POLICY.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "61abbc154c5b4fdcdfc31108028e4a40fb87b52cb0c3a4fb90821054fc2a82a2"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "28330"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/LOCAL_RAG_VOLATILE_OVERLAY_CONTRACT.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "026ea504a3532b6009d5cccdd368c27c3d12d7b1844bc6748a20ae735f900ed8"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "12761"
         }
       ]
     },
@@ -696,17 +1567,49 @@
     },
     {
       "type": "file",
-      "name": "docs/MINIMAL_EVAL_HARNESS_DESIGN.md",
+      "name": "docs/MCP_TOOL_BOUNDARY_CONTRACT.md",
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "9d97af77e7c023d3c0b07676a02010a7b5f34a062d1bc4cf1c6728e3e44b4b8a"
+          "content": "2c3ca8e2ea936a53c8a51b23cc6423a923701b88d68404bb440b9d2cdc51b752"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "7806"
+          "value": "9028"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/MCP_TOOL_BOUNDARY_SYNTHETIC_REVIEW.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "591b3263d52601d880b43d8e845a67db18293feae149c7f5111f8a32cf943a49"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "4092"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/MINIMAL_EVAL_HARNESS_DESIGN.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b177d81dd779c46a65406f525ac9d234cafc129b2b5527a3dfda3be1271ae22e"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "8170"
         }
       ]
     },
@@ -728,17 +1631,33 @@
     },
     {
       "type": "file",
-      "name": "docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md",
+      "name": "docs/NEXT_DIRECTION_DECISION.md",
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "42bfc59225f658484a9649f609cf1860eda1bfc838bad31f423a08a7de78733c"
+          "content": "5390d18b655c2894ca4c70ac349d8309c1893ee5d31a257526c0799f63662a29"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "3478"
+          "value": "13407"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/OPTIONAL_CI_ACTUALIZATION_DECISION.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "9c5928eb58ccba3d01845a458b7ce06a01afaa09efe489c5aeebf37433904c0b"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "4974"
         }
       ]
     },
@@ -860,13 +1779,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "70d76ca1cb4f519e09b18c52aabd0f883a7b429f0230264b8588c7c9cf00cdae"
+          "content": "ab22a45ebf60f0bca39f265b710b69380382b152454633f24571912d42b72348"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "4149"
+          "value": "4878"
         }
       ]
     },
@@ -876,13 +1795,29 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "9e08a3d4d442894f3cb44fd24c019d9c004c7c491cdf1f773f1821cef9c4ee22"
+          "content": "dcf7bc4d3600dffc544de488e19bb5d1b13b685f7e3064912ca79e089793b8ce"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "2491"
+          "value": "4213"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/OPTIONAL_RAG_PILOT_DECISION.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "3500f4c4b770d14bee597505575a0d9d5ab19c1a8622306a3d7385cad4d1bfc1"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "9520"
         }
       ]
     },
@@ -908,13 +1843,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "041c827ddbc24888c734afb9bcecd754110836488b13080a41101e5181c1d936"
+          "content": "98fab3eb3d71b761b0874c7e6801cac68355353f89b4d451fca1e6727ea861bf"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "17156"
+          "value": "18881"
         }
       ]
     },
@@ -924,13 +1859,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "c5bcb934ad1540ddb35e1f4752cc6048aaef88a706ee7297a5cf278d52f598a4"
+          "content": "6f8753fc5cc0a2df840142ff177661d9b8646f1b30d08c46c39d753e89d1a3ff"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "14914"
+          "value": "21173"
         }
       ]
     },
@@ -956,13 +1891,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "996bd5bc9c6f4023aa9359cb4383f1a5f2d2b0675802f7de4e46c43d30eaf85f"
+          "content": "79a71b1a9d6f61c282ee9f4d29f6523cee315b037f002dec0e368f046915bff8"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "5114"
+          "value": "8634"
         }
       ]
     },
@@ -1000,17 +1935,49 @@
     },
     {
       "type": "file",
-      "name": "docs/RELEASE_BUNDLE_POLICY.md",
+      "name": "docs/RELEASE_AUTOMATION_CANDIDATE_CONTRACT.md",
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "9a20ab3641eaa8b4433e4e0113d37d5ef18efe1221619ef7bcefd77cdff338ea"
+          "content": "0908fd4df76930300ab177b066625d8b65a2b90505cebd92a58963916a2c16ee"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "8012"
+          "value": "8782"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/RELEASE_AUTOMATION_PROVENANCE_BOUNDARY_REVIEW.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ab9b21c5f288f8bae74d0569f5f1c30b058219b0f23bfcf864fe026734e21885"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "7799"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/RELEASE_BUNDLE_POLICY.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "845b07bbcd8527ba0b5fec4db3dfe6d6cd56b792622654d0eaf5d5f1505bb7aa"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "8165"
         }
       ]
     },
@@ -1020,13 +1987,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "e7db625fc06aace8c5619f6ecd20324500e559467e33926e768947a61ba62ef9"
+          "content": "6e35e960a3211c83617a1a3e39cd2deabc5cfdce6249674013a739dcb9ad2617"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "1094"
+          "value": "1222"
         }
       ]
     },
@@ -1036,13 +2003,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "33b147c1bfe3754a3952b1023e9d5f0a8fe8091eeb572257b3854716e9e3c6e8"
+          "content": "efa9fb7870c68349f8ca2dfaf7a341c554179a35bf20cd19c699a47761bdab86"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "6397"
+          "value": "6473"
         }
       ]
     },
@@ -1144,6 +2111,86 @@
     },
     {
       "type": "file",
+      "name": "docs/RENDER_PROVENANCE_AND_UPGRADE_PLAN.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a901c9b9e82d528e9c62f2e2bb771d98ee612b720afadbbb8bc2b4337e29c9ed"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "4063"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/RENDER_TIER_CONTRACT.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "86b9abc35023442a4fb9015eac3fc95e835d47f49326889798e8e5d15cf5c169"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "2374"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/RETRIEVAL_RECEIPT_EVIDENCE_IMPLEMENTATION_BOUNDARY_REVIEW.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "6852162829f5f8f8af942bbd44e46821181c8e0d54406a69aefa43258cba5b06"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "4005"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/RETRIEVAL_RECEIPT_EVIDENCE_PLAN.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a8de450aa07daf796123934bf4e1ae772c71d9137908a2fb02cff8dc6023b450"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "5587"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/SAFETY_PATTERN_CHECKS.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "8b8b70ea45d2aa20267416e348f1ac1db4e4b2562ee9cc63f37b6d617e1203e7"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "9527"
+        }
+      ]
+    },
+    {
+      "type": "file",
       "name": "docs/SAFETY_POLICY.md",
       "hashes": [
         {
@@ -1164,13 +2211,29 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "47c548e88e24a0292dbca82c20e2804979d1169159d3d52de125fedd11b1252e"
+          "content": "d02f0c4b65cc514c62d415231dbf3594eb2b35a0a0fb77ba8cd7f632c6810746"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "6384"
+          "value": "6711"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/SCENARIO_SIMULATOR_READINESS_IMPROVEMENT_PLAN.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "367ab85c4f7254f9563eaedf5b46b709a07e78e3d5ae9d5539e92e8166da6db1"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "13005"
         }
       ]
     },
@@ -1180,13 +2243,45 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "f2b21dcbc289792bb32779df2a6ef88652c528be47f4799b83963f39793a6a66"
+          "content": "4302cfd0b2348dc107bf727167bff5440532fe5050a37ddf81fbfa83370aa00b"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "2842"
+          "value": "3994"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "332847d7352325b6de36f3118d60c7d191fe9dc4073b007645617cb001e5782b"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "7259"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "docs/STAGE_5B_TARGET_REPO_SELECTION_AND_PROBE_PLAN.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c33f001840342ebc8c91dad5faf601767138bcb0c8cb11601b85242706e4f2d6"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "10874"
         }
       ]
     },
@@ -1212,13 +2307,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "7315e8dd041304642a22e60aa009ac0ee11c22602a6c2046ec3dc6534b2b9912"
+          "content": "8a9cea11be0092ce0322aa8e0de8e7e05035f4816d55a3130f7c303c0e6fff3d"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "1854"
+          "value": "2884"
         }
       ]
     },
@@ -1228,13 +2323,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "ec0cdb2c5399c34cc3e76a05fb83e2d370785fa131e48f0adbec6b8d248648d9"
+          "content": "18fbbe1a540f83a168151e28e30a0be1686e0808c6414cac7b4cc5372257bfbe"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "6408"
+          "value": "13682"
         }
       ]
     },
@@ -1496,6 +2591,22 @@
     },
     {
       "type": "file",
+      "name": "evals/cases/rendered_python_cli_readiness.yml",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "eb6beb79b2ee37835ab002fd575400164fb739df99efdbfd5fc83c912b249561"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "455"
+        }
+      ]
+    },
+    {
+      "type": "file",
       "name": "evals/cases/sbom_shape.yml",
       "hashes": [
         {
@@ -1523,6 +2634,22 @@
         {
           "name": "size_bytes",
           "value": "2123"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "evals/golden/rendered_python_cli_contract.json",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "524aa9afa049c37a6c8ff0009f97c33bf2a51de9da75830eec1ab3296d336915"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "2532"
         }
       ]
     },
@@ -2348,13 +3475,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "e0657da397bd5b1763b51fba7b7900aaa36921f7ec1c6f629befe1ad2c54793a"
+          "content": "cfc899747a9b9bb03818fa781f98579bdff02c5a251f3a4269145932328e35e2"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "1289"
+          "value": "1323"
         }
       ]
     },
@@ -2428,13 +3555,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "a0745497053b69c3b143cf58eb6221ea9f8764a0da0a6bc729f53191cd52f44b"
+          "content": "328dac048ed2924f8f72acd790ba3c4003b3933c60f91a6e1014a1e2025a4f3b"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "1042"
+          "value": "1077"
         }
       ]
     },
@@ -2508,13 +3635,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "c175b883176a286d7dae93055e080bfc1a4d778b8064048c8c60d17e3dcb0c79"
+          "content": "cbaa7c37a184e9e32809b3f7a47536003f86c415504dbc20659308a51395e7c6"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "1369"
+          "value": "1399"
         }
       ]
     },
@@ -2696,17 +3823,49 @@
     },
     {
       "type": "file",
-      "name": "scripts/gates/docs_gate.py",
+      "name": "scripts/ai_readiness_scanner.py",
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "64be6e22651361e0b8295a138c196197691226c079dea098e036db7cfd038f75"
+          "content": "a8ffe574bac3d203d08fff37ba9379ec2977a58dd6de19dda453d8bfa3d1acc2"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "3478"
+          "value": "15706"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scripts/gates/checksum_verify_gate.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c0eaaf9bc59040271a108c70c94e4fa8172e02280e3546e4f5191556e1ac7e8a"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "1537"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scripts/gates/docs_gate.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a5acf04c84ad5a402ca576b6009d2514b52d99231f38c3fc29c400d88c2e1637"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "3487"
         }
       ]
     },
@@ -2755,6 +3914,38 @@
         {
           "name": "size_bytes",
           "value": "2057"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scripts/gates/json_evidence_gate.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e75e582502b358ed7ae6fb875b764ef82c57f8bfe3f7b6ba0b59964c77400408"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "17590"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scripts/gates/rendered_golden_content_gate.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "da71db5fdcea4245879b83a44d3c2f342714b722bad12c6983172e8563d6daf8"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "6283"
         }
       ]
     },
@@ -2812,13 +4003,29 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "2ad725711b392c5cc5c1edc314f2160100988b643217bcef088ee17679f6831b"
+          "content": "9526f0037204d91065931de2c47c46aafcb50febceac025876788811d5467a54"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "5695"
+          "value": "8792"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scripts/generate_corpus_digest.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "6f4488618d254d4277685512623014a68d2e1cd17be54b85a82b58c1f59c8299"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "33045"
         }
       ]
     },
@@ -2828,13 +4035,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "d3334317eaab6a951d1f0c78e5d70505fa7f835e9f004d2ac937c2bcaf32b060"
+          "content": "8a18972b31ebdd1fff58813f5b0de536904abb8e2247cbcea511ffe585b0ed1f"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "9599"
+          "value": "9633"
         }
       ]
     },
@@ -2860,13 +4067,93 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "93606f7abddd6920f73ee988fa67c46d096bb7318304c3aeefd7f9443bcbb50b"
+          "content": "adeb0e71eecb45b79ac477c2d838bce504ce0151a2df3bed691a98b05e234939"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "12988"
+          "value": "13793"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scripts/hermes_git_push_preflight.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "270ee582e6179afbfafef424b76b97da6ad9959f1abe037d79f92678f8b1ce0a"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "9225"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scripts/hermes_git_push_preflight_receipt_writer.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "24e6213b4696dd67ffb6bb8eb21020ab5ec4fd6e424e65b29856f73aa74eaf1c"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "15385"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scripts/hermes_git_push_preflight_writer.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "89f52ca3e8be81edd32850662ce5e0d48cddc37733d45bfa65bee68b4cbace6f"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "11827"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scripts/hermes_sidecar.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "1c94745eaa7895f609e6654c9738bfbba86c6905d8dd4b1c710cabc587ff76ef"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "11786"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scripts/local_rag_retriever.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "91add31159ebff93fb13b792aca859c2b5d91e2e5d85d00cc3ede64977293c4f"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "30688"
         }
       ]
     },
@@ -2876,13 +4163,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "6c29b7839c989e378fa57dc4e475ae42aea7ca94b4d1408f51c933447926b387"
+          "content": "1e594e865aa15a51b827e417e90c5b6b67632580ee4a3caef1ef28b72a2de03f"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "1889"
+          "value": "2004"
         }
       ]
     },
@@ -2892,13 +4179,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "8d1c3a9e635f7ef31a9f19b216f7fd728a9984a7ade3d336baf7f69076ae8f05"
+          "content": "3f9bcfb33b39bc5e3d681982399c5ab818007fe13a8dd4a94f032f7950b4a5f4"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "6607"
+          "value": "11681"
         }
       ]
     },
@@ -2908,13 +4195,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "e479a76d12d15b4a145d7b4741f917c9b1d9c78d52447334a5b8b2b4ab651d36"
+          "content": "a4256922223ba5eba1691c6a533c0e1350c465a03eefef9ddb3f48ba5d768b23"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "19011"
+          "value": "24633"
         }
       ]
     },
@@ -2940,13 +4227,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "6e0461f1c64824837ffaff8340c1acf18ae5c799e66b89e01d021875c2bd8de2"
+          "content": "2804d8bd12489735000f6a1cd7611db4d23ee7d34c88999e119e844ad1ab1fb6"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "5497"
+          "value": "5425"
         }
       ]
     },
@@ -2988,13 +4275,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "29d40a24f81ee40628a8a98048fecf8f65daf54ac08593e769cb3c6c76b85de5"
+          "content": "838e5d7127e65944bba15d6d8d871a0a5ac37052abbb2afdf620e008032a7ef0"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "727"
+          "value": "840"
         }
       ]
     },
@@ -3100,13 +4387,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "aa71abd07ddd6b7d837a591c283748a3fc602dc71581b9e9e695262c6ab819ee"
+          "content": "c8f392650596be5fc1aa0422cf3109fc0c89a5749e0d9ffc18bab37ebb95b64a"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "626"
+          "value": "747"
         }
       ]
     },
@@ -3148,13 +4435,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "896e37d5bf45f16089c8bf42f11fb5afb79ee207c352052c4a4e87979ea19157"
+          "content": "0810ef2b295e24d5ba5682a3e21998001a395d19937f8eaeda8bc648bd84855e"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "1659"
+          "value": "1785"
         }
       ]
     },
@@ -3164,13 +4451,77 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "8e04721e88f5a040b6921735301ee016c1cb508c4b472fcd25399488a9b67ba4"
+          "content": "bc292c0d96e94d3b6846f97c9f82074b96f650ee7ad583996dd3b8d1f8171834"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "1173"
+          "value": "1189"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "templates/downstream_readiness/ACCEPTANCE_TRACE.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ff862a69899fec17a213ae35ba73a8422251958e31df1fab6b5baffb64889456"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "4108"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "templates/downstream_readiness/AI_HANDOFF.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e47c698596c0dd69a2438cdddd93a9f5782c8e7b38d8c1ea1bbcb356aee99050"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "3475"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "templates/downstream_readiness/SAFETY_POLICY.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b128a196932665a8c991d53a7109653dd6684618f6d7db7307b6a4872e30fe72"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "3640"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "templates/downstream_readiness/VERIFICATION.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "00df5ec985b092f620859d648b0ad327d763d0579f13b5f764ecabb5a75852c2"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "3626"
         }
       ]
     },
@@ -3288,6 +4639,54 @@
     },
     {
       "type": "file",
+      "name": "templates/prompts/downstream_readiness_baseline.md",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ab6cfc9420b6b639cb93fa225407670ebf24c6d615f9d448a090c09b6dab735e"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "9651"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_ai_readiness_scanner.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "243160d1b499182beeacf961ca6af06958ceb243d9364bd634deec074e89e9be"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "6665"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_checksum_verify_gate.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "4ee5bc37c6886dbf028799f94c338740493a710d5f6c89c983990427c3625d65"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "1481"
+        }
+      ]
+    },
+    {
+      "type": "file",
       "name": "tests/test_eval_gate.py",
       "hashes": [
         {
@@ -3308,13 +4707,29 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "a2a7068c42628d9a78b9e1cea3d3f87abd8d9c6a02a5760f30231b7df46e6728"
+          "content": "8f2bb96cf3e5983eabad0b1d19c73f2cd79e046f6968cea636bb2f13e12244bf"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "5582"
+          "value": "7525"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_generate_corpus_digest.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "08e95fa8c864af529fa2a8ec2e56500e318fd04189832425c39b23ae22a9c006"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "25870"
         }
       ]
     },
@@ -3324,13 +4739,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "5acbb651c084d084c89c0849f32981df40d3e7f98290ff788dbf6b76b65f27f5"
+          "content": "b5e5e2c619e46b0b14552d32f8f44f168054cea7518b2cc2fe4a1ec41609783e"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "4671"
+          "value": "5055"
         }
       ]
     },
@@ -3356,13 +4771,381 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "e9466ade0aa3cbf3e1a8eb81c5e500b72ba01b5c61752393543e4aa3d4264452"
+          "content": "aefb89ac3882ca40e44779d3ca35f0773f47b41631217297553191731324db78"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "5214"
+          "value": "6256"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_hermes_git_push_preflight.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "cf96f4938a112f3ca367b6565a26b0e7f743ae934e7d5e5331c39dabdb80ed45"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "7035"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_hermes_git_push_preflight_durable_writer_proposal.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "0e95d668951c381b505de18221c42f85cd83e7e54e0adfbb9423b0ec7eed438e"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "9280"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_hermes_git_push_preflight_evidence_decision.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "1d9cb8d7966f2d894fa01b08adc9bf69eeaca220e5657f479758f422d2c995ed"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "6500"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_hermes_git_push_preflight_output_contract.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "72030ae1cb65b3c9ffca39b4093bcb0933b617ea31e6b53eaa8d484f880d2476"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "7536"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_hermes_git_push_preflight_receipt_trace_plan.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "583b17aefa2a23e9b9b0796b9ef19cbea45ad5aed866464db299076960593ac7"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "7774"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_hermes_git_push_preflight_receipt_writer.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a6613bb824c540cb1ef8aad6a73abea57e4a4e0c26a837feecbe1510f30d9c65"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "14813"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_hermes_git_push_preflight_schema_alignment.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "122b9d9bebbea182c8d378af20b6c10167c213599443d1a7b99bb86dd6a2b747"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "5381"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_hermes_git_push_preflight_selection_review.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "fd27fdc5499c45a4a589d4597f004a4c6035ed975ee91ae5893a752d41175acd"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "5707"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_hermes_git_push_preflight_tracked_receipt_contract.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "98f78d25f1a11681faeb06f5d3ca9cfb677a9897c5cce0a2adb6dd3f48a1c187"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "11337"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_hermes_git_push_preflight_tracked_receipt_policy.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "5a5956d4da45c01d5fbccbf738b2e323755882f7443d897284e2042d3f3fe9c1"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "9725"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_hermes_git_push_preflight_tracked_receipt_post_generation_review.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ed3ceb7b7d751584f320e2b943945568c45588212cb44525001c7e968dea37b2"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "10938"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_hermes_git_push_preflight_usage_probe.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "19dfe09fac524326aae56b45ebe9c211aebd5c2ef6f379c17dbad92664abc5b9"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "7029"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_hermes_git_push_preflight_writer.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "45673776bce4401f1f6e3f745bb8b80a8a02fd340f196be33e58985308d10b29"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "12247"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_hermes_git_push_preflight_writer_persistence_hold.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "252d099bd6569b0b5207561ae7b4aae2e5f8536b04a2fe6d27e84da7ca53d1bb"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "7758"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_hermes_mcp_security_alignment.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "690ada44dea42d5a4e36c7a48e5f03bb4e8ec04194ca8b8c85bf44247ad79733"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "6442"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_hermes_preflight_caller_boundary.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ddebdbef9c7c062e0d3d3b24b4a721db640cd9c3dc2a06028f2ce68c42582f9a"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "6584"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_hermes_preflight_use_planning_contract.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "5dfc72015c0fc4a716d23fb46ab421e96d35253fac01817bff07eade3aef9b6a"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "8920"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_hermes_sidecar.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "6ee856d52e5cb46f662324366b4fa0540c2bc474b944d5706fe54cd4adcb3435"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "4436"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_hermes_sidecar_planning_contract.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "cdab6e063bb19f49b4d7b9128793d3bd3416044af178befe3c329590788ffffb"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "8975"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_hermes_sidecar_result_schema_contract.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "932aa060837220fce078f24f65d1b8cf1c3d71c5d88bef735f05c9b037519331"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "8683"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_json_evidence_gate.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "13a33f81c1098a341cb5e9f6cc81fac20b278906585a23e5c2a92cdf1068c26b"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "14524"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_local_rag_retriever.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "523ae99610e3c17a7eaf04c35c1d4977b44df5002704a18854b1b2bd91ad3ece"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "29592"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_mcp_tool_boundary_contract.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "bee74e1dbf42512203d4e8dc3cfb294164776362d34e3620ce5b3625bb5ed22d"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "7390"
         }
       ]
     },
@@ -3372,13 +5155,45 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "ab8c7a2e03e859f2c36390115829cc3e694cb5620de1021336332e1546899ad6"
+          "content": "830f3046ade5093edffbb066437d7d00df1b8d4f6bb308b9821a2b574a33cf73"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "7589"
+          "value": "12566"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_release_automation_candidate_contract.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "29d8c3e6a0067fe82665bed1ec0e67bc08381c9a49eac94896b857cf49683edb"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "9458"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "tests/test_release_automation_provenance_boundary.py",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "5308a21b6e80bd63af977573a610e4b13e17f5fd90970fde3a89968eda6b09d2"
+        }
+      ],
+      "properties": [
+        {
+          "name": "size_bytes",
+          "value": "8083"
         }
       ]
     },
@@ -3388,13 +5203,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "14956f28e8ebbfa1d4d103afbba528d48bc83e95d2f8a282057091caf9402d4f"
+          "content": "58b88a4602835539fee4d8e445697b22c2545611076e72903d0fb093ac8e0d21"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "4945"
+          "value": "16441"
         }
       ]
     },
@@ -3404,13 +5219,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "a44741e35dafea44e13f65705e6a5ef8d385ff750e72f7f9d7c23a40e8da1a3a"
+          "content": "e5791f58c125f3bd317c819ffaa80dd6b818db652757ccdd1499eac2b00105f5"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "9524"
+          "value": "17414"
         }
       ]
     },
