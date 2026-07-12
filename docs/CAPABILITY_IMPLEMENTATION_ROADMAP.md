@@ -79,7 +79,7 @@ not capabilities to abandon.
 | MCP tool boundary | Phase 8A boundary contract is documented and Phase 8B synthetic contract tests/review checks are present; no MCP runtime, Hermes sidecar, tool execution, quality-gate or CI integration, audit automation, external service, release automation, or downstream integration. | Explicit allowed tool classes, input/output rules, approval boundaries, redaction rules, and audit hooks. | Local RAG and audit rules. |
 | Hermes sidecar | Phase 9A planning contract, Phase 9B synthetic contract tests/review checks, and Phase 9C implementation boundary planning are present; no sidecar runtime, background daemon, MCP runtime, tool execution, quality-gate or CI integration, audit automation, external service, release automation, or downstream integration. | Local sidecar constrained by the MCP boundary, audit model, eval evidence, and approval rules. | MCP tool boundary. |
 | Release automation / provenance | Phase 10A boundary review, Phase 10B candidate contract, Phase 10C standalone read-only preflight, Phase 10C.1 usage probe, and Phase 10D refresh `HOLD` decision are complete; local evidence generators remain unautomated and no publication exists. | Approval-gated release automation and provenance flow after a stable digest-valid Phase 10 checkpoint satisfies the Phase 10D Proceed Conditions. | Current handoff synchronization, exact same-34-source digest freshness, and separate owner approval. |
-| Downstream product integration | Downstream adoption and probe records exist; no downstream edit in this task. | Product-specific integration under downstream repo rules and separate approvals. | Release automation / provenance readiness. |
+| Downstream product integration | Phase 11A authority/data/access boundary and Phase 11B deterministic placeholder-only JSON task contract are complete; validation remains test-local and no downstream repository has been selected or accessed. | A standalone read-only validator must be separately contracted before filled-contract probes or product-specific integration under downstream repo rules. | Phase 11 handoff synchronization, exact same-34-source digest freshness, and separate owner approval. |
 
 ## 5. Dependency order
 
@@ -448,6 +448,21 @@ Gate:
 - Downstream evidence is summarized safely and does not copy raw sensitive
   content into `codex-dev-harness`.
 
+Current implementation state:
+
+- Phase 11A documents owner and downstream-repository authority precedence,
+  selected-field evidence boundaries, access classes, side-effect separation,
+  fail-closed behavior, and explicit non-goals without downstream access.
+- Phase 11B adds a deterministic placeholder-only JSON task-contract fixture
+  with 16 independent side-effect permission records fixed to unapproved and
+  `NOT RUN`.
+- Phase 11B validation is test-local and synthetic-only. It is not a public or
+  runtime validator for a filled downstream contract.
+- No downstream repository, path, branch, remote, source, private data, render,
+  write, workflow, release, deploy, or live action is selected or executed.
+- A separately approved Phase 11C must contract a standalone read-only validator
+  before any filled-contract usage probe or real downstream access.
+
 ## 7. Safety invariants
 
 All phases preserve these invariants:
@@ -575,15 +590,15 @@ For this roadmap task, closeout must confirm:
 
 ## 12. Current sequencing handoff
 
-The current locally verified implementation source baseline is Phase 10D commit
-`ddc1c45f9f36b7e2ecc5cc7589a1be5fade80c3e`. The active cumulative closeout
+The current locally verified implementation source baseline is Phase 11B commit
+`71951fc3cdbd0f6158f385b409a76d25cd1d3090`. The active cumulative closeout
 sequence is:
 
-1. the Phase 10D release evidence refresh `HOLD` source commit;
+1. the Phase 11B synthetic downstream task-contract source commit;
 2. this documentation-only current handoff synchronization commit;
 3. an exact same-34-source corpus digest freshness commit;
-4. a digest-valid stable checkpoint review against the Phase 10D Proceed
-   Conditions.
+4. a digest-valid stable checkpoint confirmation;
+5. a separately approved Phase 11C standalone validator candidate contract.
 
 The handoff commit may change only `STATUS.md` and this roadmap. `STATUS.md` is
 excluded from the approved stable corpus; this roadmap is included. The expected
@@ -595,10 +610,13 @@ allow-list. Only the final digest-valid cumulative tip should be pushed and used
 for Local Verify. Run and job identifiers belong in closeout evidence rather
 than another roadmap edit.
 
+Phase 11C must remain contract-first. It must not reuse the test-local validator
+as a runtime interface, run a filled-contract usage probe, select or access a
+real downstream repository, or widen schema, quality-gate, workflow, release,
+MCP, Hermes, audit, or live behavior without separate approval.
+
 Release evidence regeneration remains `HOLD` after digest freshness. A later
-refresh requires a separate owner-approved task that names the exact stable
-source basis, five output paths, generation command, backup and rollback rules,
-verification, and every permitted side effect. This sequence does not authorize
-release publication, signing, tag movement, artifact upload, workflow expansion,
-audit automation, MCP or Hermes runtime expansion, downstream access, or live
-behavior.
+refresh still requires a separate owner-approved exact-file and exact-command
+task. This sequence does not authorize release publication, signing, tag
+movement, artifact upload, workflow expansion, audit automation, MCP or Hermes
+runtime expansion, downstream access, deployment, or live behavior.

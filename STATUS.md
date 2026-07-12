@@ -478,19 +478,30 @@ Phase 10 checkpoint exists. The current evidence remains internally valid
 historical source-basis evidence, and `EVIDENCE_REFRESH_RECOMMENDED` remains an
 informational note rather than a blocker.
 
+Phase 11 downstream product integration work is complete through the Phase 11B
+synthetic contract boundary. Phase 11A documents downstream authority, data,
+evidence, repository-access, and side-effect boundaries without selecting or
+accessing a downstream repository. Phase 11B adds a deterministic placeholder-
+only JSON task-contract fixture with 16 independently unapproved side-effect
+classes and focused synthetic validation. The validator remains test-local and
+is not a public or runtime validator for filled downstream contracts. No real
+downstream repository, path, branch, remote, source, render, write, private data,
+or live value was used.
+
 ## Current Verification Snapshot
 
-Snapshot purpose: record the current Phase 10 handoff while preserving older
+Snapshot purpose: record the current Phase 11 handoff while preserving older
 stage and phase rows as historical evidence. Current release evidence remains
-local-only, the approved corpus remains the exact stable 34-source set, and
-release evidence regeneration remains `HOLD`.
+local-only and on `HOLD`; the approved corpus remains the exact stable 34-source
+set; downstream access remains unapproved.
 
 | item | status | evidence |
 |---|---|---|
 | basis branch/ref | PRESENT | `main` / `origin/main` |
 | capability implementation roadmap | PRESENT / CURRENT SEQUENCING SOURCE | `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`; historical optional/deferred decisions are risk evidence, not permanent blockers |
 | first implementation target | IMPLEMENTED | Read-only CI + verification hygiene is installed as manual `workflow_dispatch` workflow `.github/workflows/local-verify.yml` |
-| current Phase 10 implementation baseline | PASS WITH NOTES / HOLD | commit `ddc1c45f9f36b7e2ecc5cc7589a1be5fade80c3e`; Phase 10A-D boundary, candidate, standalone preflight, usage probe, and refresh-hold decision are present; current full suite has 470 tests and the standing quality gate has 9 gates |
+| Phase 11A downstream integration boundary | PASS / DOCUMENTATION-ONLY | commit `c7da80df0e8cb623effbe0d52cf6acdb7056fe32`; `docs/DOWNSTREAM_PRODUCT_INTEGRATION_BOUNDARY_REVIEW.md` and focused contract tests define authority, data, evidence, repository-access, and side-effect boundaries without downstream access |
+| current Phase 11B implementation source baseline | PASS / SYNTHETIC-ONLY | commit `71951fc3cdbd0f6158f385b409a76d25cd1d3090`; deterministic placeholder-only JSON task contract and test-local validator are present; current full suite has 481 tests and the standing quality gate has 9 gates; no filled contract, runtime validator, or downstream access exists |
 | current repository commit before Stage 2 evidence regeneration | HISTORICAL | `9ae69c5fbf65953db2b0efb82b4904098f8a7581` |
 | previous artifact-containing commit observed during Stage 0 read-only review | HISTORICAL | `ab77ab0a0b44c2f1bd700820bfeb358c6ec1bbe7` |
 | current repository commit before `csharp_desktop` experiment | PRESENT | `76d88b842852635c95adcd8f3534f95e8bdc3ff5` |
@@ -503,7 +514,7 @@ release evidence regeneration remains `HOLD`.
 | checksum coverage | PRESENT | `artifacts/checksums.sha256` records 5 entries: eval report, provenance, manifest, CycloneDX SBOM, and SPDX SBOM; checksum file self-reference excluded |
 | standalone eval case count | PRESENT | `scripts/run_eval.py` discovers 15 named local-only non-LLM eval cases under `evals/cases/` |
 | eval / report integration | PHASE 5B RECEIPT-ALIGNED / STANDALONE | `scripts/run_eval.py`, `tests/test_run_eval.py`, `docs/EVAL_REPORT_INTEGRATION_PLAN.md`, `docs/EVAL_INTEGRATION_DECISION.md`, `docs/EVAL_POLICY.md`, and `audits/receipt-summary.schema.json`; legacy `--report` remains backward-compatible, paired `--summary-report` / `--cases-report` outputs are explicit opt-in only, receipts may cite split eval evidence by repo-relative path and SHA-256, and evals remain separate from `scripts/quality_gate.py`, CI, and release-blocking behavior |
-| approved corpus digest | REBASELINED / VERIFIED | `artifacts/corpus-digest.json`; `artifact_type` is `approved_corpus_digest`; current source count is 34; artifact-containing commit `28b416f9d46dc421c6e87dbc1562110a40224824`; source-basis commit `c13aac998b89eda33e25889576536308978a289d`; metadata/hash-only; stable digest excludes `STATUS.md` and `ACCEPTANCE_TRACE.md` as volatile current-authority files; `release_artifact_status` is `not_release_artifact_without_separate_approval`; `rag_authorization_status` is `not_authorized` |
+| approved corpus digest basis before Phase 11 handoff | HISTORICAL / VERIFIED | `artifacts/corpus-digest.json`; exact source count 34; artifact-containing commit `6aabb2a681528b1a2c6e02f2ecadb56b025bf66e`; source-basis commit `aa20c9e5229202933083361c716e1948d66785ac`; metadata/hash-only; stable digest excludes `STATUS.md` and `ACCEPTANCE_TRACE.md`; the final post-handoff digest file and task closeout are authoritative for refreshed SHA values so no recursive STATUS commit is required |
 | approved corpus digest Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `8febedead5da6cfd863dd1cbb1c87b0f8d8fab4b`; run `27890277121`; job `82532492491`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded; contents permission remained read-only |
 | Phase 6G digest tooling boundary | IMPLEMENTED / WRITE-GATED | `scripts/generate_corpus_digest.py` and `tests/test_generate_corpus_digest.py`; default check mode is read-only; write mode is restricted to `artifacts/corpus-digest.json`, requires a non-empty approval reference and clean digest-listed source basis, preserves exact source membership and ordering, records scans/gates as not run when not executed, and was used only for the separately approved Phase 6H.3 real digest re-baseline |
 | Phase 6G digest tooling boundary Local Verify evidence | PASS | commit `940a8a5de13d84b25627ece3ae814730e1b8c3e2`; workflow `Local Verify`; run `27865330352`; job `82468393525`; tests, quality gate, and three render dry-runs passed; contents permission remained read-only; no artifacts uploaded; workflow did not run digest refresh, digest check/write, release verification, retrieval query-matrix verification, or artifact generation |
@@ -1215,13 +1226,11 @@ Stage 0 current-main gap review basis:
 
 ## Next Recommended Step
 
-The current locally verified Phase 10 implementation baseline is commit
-`ddc1c45f9f36b7e2ecc5cc7589a1be5fade80c3e`
-(`Hold release evidence refresh until Phase 10 checkpoint`). Release automation
-and provenance work is complete through the boundary, candidate, standalone
-preflight, usage-probe, and refresh-decision layers. The current decision remains
-`HOLD`; no release evidence generator, tag, release, upload, publication, or
-downstream action is authorized.
+The current locally verified Phase 11 implementation source baseline is commit
+`71951fc3cdbd0f6158f385b409a76d25cd1d3090`. Phase 11A documents the downstream
+integration boundary and Phase 11B provides a deterministic placeholder-only
+JSON task contract with focused synthetic validation. Neither phase authorizes
+or performs real downstream access.
 
 This handoff synchronization intentionally does not refresh
 `artifacts/corpus-digest.json`. The next controlled step is a separate exact
@@ -1236,9 +1245,15 @@ read-only Local Verify workflow. Workflow run and job identifiers belong in task
 closeout rather than this file so verification evidence does not create another
 recursive documentation commit.
 
-After the digest-valid checkpoint is verified, the Phase 10D Proceed Conditions
-may be reviewed under a separate exact-file, exact-command owner approval.
-Release evidence regeneration remains `HOLD` until that approval exists.
+After the digest-valid checkpoint is verified, the next separately approved
+task is a Phase 11C standalone downstream task-contract validator candidate
+contract. Phase 11C must define exact implementation files, validation inputs,
+command and effect-class rules, path and URL handling, failure behavior, and
+verification before code is added. It must not import the test-local validator,
+run a filled-contract usage probe, or access a real downstream repository.
+
+Release evidence regeneration remains `HOLD`. No release generator, tag,
+release, upload, publication, downstream mutation, or live action is authorized.
 
 Historical Stage 5B, Phase 7, Hermes, receipt, audit, MCP, release, and downstream
 records remain risk and boundary evidence. They do not authorize runtime
