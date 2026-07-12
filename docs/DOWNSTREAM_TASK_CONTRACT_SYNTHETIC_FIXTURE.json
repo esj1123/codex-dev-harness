@@ -1,0 +1,241 @@
+{
+  "approvals": {
+    "approval_ref": "<APPROVAL_REF>",
+    "owner_approval_present": false,
+    "target_repository_approval_present": false,
+    "target_rules_reviewed": false
+  },
+  "closeout": {
+    "changed_files": [],
+    "commands_not_run": [
+      "<NOT_RUN_ACTION>"
+    ],
+    "commands_run": [],
+    "next_step": "<NEXT_STEP>",
+    "result": "NOT RUN",
+    "risks": [
+      "<RISK_OR_ASSUMPTION>"
+    ],
+    "safe_evidence_refs": [
+      "<SAFE_EVIDENCE_REF>"
+    ]
+  },
+  "commands": [
+    {
+      "approval_ref": "<COMMAND_APPROVAL_REF>",
+      "command": "<COMMAND>",
+      "effect_classes": [
+        "<EFFECT_CLASS>"
+      ],
+      "status": "NOT RUN"
+    }
+  ],
+  "data_policy": {
+    "allowed_classes": [
+      "generalized_identifier",
+      "repo_relative_reference",
+      "commit_identifier",
+      "bounded_status",
+      "reason_code",
+      "verification_outcome",
+      "safe_summary"
+    ],
+    "forbidden_classes": [
+      "private_repository_identifier",
+      "remote_url",
+      "local_absolute_path",
+      "raw_source",
+      "full_diff",
+      "patch",
+      "prompt",
+      "approval_text",
+      "transcript",
+      "stdout",
+      "stderr",
+      "command_log",
+      "tool_call_body",
+      "secret",
+      "credential",
+      "token",
+      "private_data",
+      "ip_address",
+      "port",
+      "endpoint",
+      "live_configuration",
+      "device_value",
+      "downstream_raw_evidence"
+    ]
+  },
+  "fixture_id": "phase_11b_synthetic_downstream_task_contract",
+  "human_contract_ref": "docs/DOWNSTREAM_PRODUCT_INTEGRATION_BOUNDARY_REVIEW.md#required-downstream-task-contract",
+  "performed_actions": [],
+  "reason_codes": [
+    "SYNTHETIC_CONTRACT_ONLY",
+    "NO_DOWNSTREAM_TARGET_SELECTED",
+    "NO_APPROVAL_REFERENCE"
+  ],
+  "repository": {
+    "access_class": "<ACCESS_CLASS>",
+    "allowed_access_classes": [
+      "local_read_only",
+      "remote_read_only",
+      "local_write",
+      "remote_write"
+    ],
+    "base_commit": "<BASE_COMMIT>",
+    "clean_state": "<CLEAN_OR_DIRTY_STATE>",
+    "head_commit": "<HEAD_COMMIT>",
+    "identifier": "<DOWNSTREAM_REPO_ID>",
+    "upstream_ref": "<UPSTREAM_REF>",
+    "working_branch": "<WORKING_BRANCH>",
+    "worktree_boundary": "<APPROVED_WORKTREE>"
+  },
+  "rollback_cleanup": {
+    "cleanup_plan": "<CLEANUP_PLAN>",
+    "overwrite_allowed": false,
+    "retention_policy": "<RETENTION_POLICY>",
+    "rollback_plan": "<ROLLBACK_PLAN>"
+  },
+  "schema_version": "1",
+  "scope": {
+    "allowed_files": [
+      "<ALLOWED_FILE_LIST>"
+    ],
+    "no_touch_paths": [
+      "<NO_TOUCH_PATHS>"
+    ],
+    "write_scope": "<WRITE_SCOPE>"
+  },
+  "side_effect_permissions": [
+    {
+      "approval_ref": null,
+      "authorized": false,
+      "class": "repository_access",
+      "status": "NOT RUN"
+    },
+    {
+      "approval_ref": null,
+      "authorized": false,
+      "class": "network_read",
+      "status": "NOT RUN"
+    },
+    {
+      "approval_ref": null,
+      "authorized": false,
+      "class": "local_write",
+      "status": "NOT RUN"
+    },
+    {
+      "approval_ref": null,
+      "authorized": false,
+      "class": "execute",
+      "status": "NOT RUN"
+    },
+    {
+      "approval_ref": null,
+      "authorized": false,
+      "class": "stage",
+      "status": "NOT RUN"
+    },
+    {
+      "approval_ref": null,
+      "authorized": false,
+      "class": "commit",
+      "status": "NOT RUN"
+    },
+    {
+      "approval_ref": null,
+      "authorized": false,
+      "class": "push",
+      "status": "NOT RUN"
+    },
+    {
+      "approval_ref": null,
+      "authorized": false,
+      "class": "pull_request",
+      "status": "NOT RUN"
+    },
+    {
+      "approval_ref": null,
+      "authorized": false,
+      "class": "merge",
+      "status": "NOT RUN"
+    },
+    {
+      "approval_ref": null,
+      "authorized": false,
+      "class": "workflow_dispatch",
+      "status": "NOT RUN"
+    },
+    {
+      "approval_ref": null,
+      "authorized": false,
+      "class": "artifact_upload",
+      "status": "NOT RUN"
+    },
+    {
+      "approval_ref": null,
+      "authorized": false,
+      "class": "tag",
+      "status": "NOT RUN"
+    },
+    {
+      "approval_ref": null,
+      "authorized": false,
+      "class": "release",
+      "status": "NOT RUN"
+    },
+    {
+      "approval_ref": null,
+      "authorized": false,
+      "class": "publish",
+      "status": "NOT RUN"
+    },
+    {
+      "approval_ref": null,
+      "authorized": false,
+      "class": "deploy",
+      "status": "NOT RUN"
+    },
+    {
+      "approval_ref": null,
+      "authorized": false,
+      "class": "live_action",
+      "status": "NOT RUN"
+    }
+  ],
+  "status": "NOT RUN",
+  "stop_conditions": [
+    "MISSING_APPROVAL",
+    "REPOSITORY_MISMATCH",
+    "INSTRUCTION_CONFLICT",
+    "DIRTY_STATE_MISMATCH",
+    "ALLOWED_FILE_DRIFT",
+    "UNSAFE_DATA",
+    "UNAUTHORIZED_NETWORK",
+    "UNEXPECTED_OUTPUT",
+    "CLEANUP_FAILURE",
+    "UNAPPROVED_REMOTE_OR_LIVE_SIDE_EFFECT"
+  ],
+  "synthetic": true,
+  "verification": {
+    "commands": [
+      "<VERIFICATION_COMMAND>"
+    ],
+    "expected_statuses": [
+      "PASS",
+      "PASS WITH NOTES",
+      "BLOCKED",
+      "FAIL",
+      "NOT RUN",
+      "ENVIRONMENT BLOCKED"
+    ],
+    "not_run_items": [
+      {
+        "action": "<NOT_RUN_ACTION>",
+        "reason_code": "SEPARATE_APPROVAL_REQUIRED",
+        "status": "NOT RUN"
+      }
+    ]
+  }
+}
