@@ -144,6 +144,15 @@ def test_docs_gate_requires_current_post_v0_1_governance_docs() -> None:
     assert len(docs_gate.REQUIRED_DOCS) == len(required_docs)
 
 
+def test_readme_describes_installed_manual_local_verify_workflow() -> None:
+    text = Path("README.md").read_text(encoding="utf-8")
+
+    assert "manual read-only `.github/workflows/local-verify.yml` workflow" in text
+    assert "`workflow_dispatch` with `contents: read`" in text
+    assert "installed manual read-only Local Verify workflow is the verification hygiene" in text
+    assert "next planned CI step is a read-only verification hygiene path" not in text
+
+
 def test_security_policy_defines_private_reporting_contract() -> None:
     text = Path("SECURITY.md").read_text(encoding="utf-8")
 

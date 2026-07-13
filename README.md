@@ -125,7 +125,10 @@ The intended baseline workflow is local-first:
 
 See `docs/LOCAL_USAGE.md` for the full local usage flow and `docs/LOCAL_RELEASE_PACKAGE.md` for local package boundaries.
 
-CI remains approval-gated and is not a baseline runtime requirement. The next planned CI step is a read-only verification hygiene path, not release publication or deployment.
+CI remains approval-gated and is not a baseline runtime requirement. The
+installed manual read-only Local Verify workflow is the verification hygiene
+path; broader triggers, required checks, artifact upload, release publication,
+and deployment remain separately approval-gated.
 
 ## AI Readiness Scanner
 
