@@ -278,32 +278,130 @@ def test_render_tier_contract_is_docs_only_before_implementation() -> None:
 def test_render_tier_contract_defines_minimal_standard_full() -> None:
     text = tier_contract_text()
 
-    for tier in ["`minimal`", "`standard`", "`full`"]:
-        assert tier in text
-    for minimal_doc in [
-        "`AGENTS.md`",
-        "`README.md`",
-        "`PRODUCT.md`",
-        "`MVP.md`",
-        "`PROJECT_BOUNDARY.md`",
-    ]:
-        assert minimal_doc in text
-    assert "All currently rendered base templates and all selected profile templates" in text
+    expected_rows = [
+        "| `minimal` | `AGENTS.md`, `README.md`, `PRODUCT.md`, `MVP.md`, `PROJECT_BOUNDARY.md` | "
+        "`AGENTS.override.md`, `SAFETY_POLICY.profile.md`, `VERIFICATION.profile.md` | 5 base / 8 profiled |",
+        "| `standard` | `AGENTS.md`, `README.md`, `PRODUCT.md`, `MVP.md`, `PROJECT_BOUNDARY.md`, "
+        "`DATA_SCOPE.md`, `APPROVALS.md`, `PHASE_PLAN.md`, `STATUS.md`, `ACCEPTANCE_TRACE.md` | "
+        "`AGENTS.override.md`, `STATUS.profile.md`, `SAFETY_POLICY.profile.md`, `VERIFICATION.profile.md` | "
+        "10 base / 14 profiled |",
+        "| `full` | `AGENTS.md`, `README.md`, `PRODUCT.md`, `MVP.md`, `PROJECT_BOUNDARY.md`, "
+        "`DATA_SCOPE.md`, `APPROVALS.md`, `PHASE_PLAN.md`, `STATUS.md`, `ACCEPTANCE_TRACE.md`, "
+        "`SOURCE_INDEX.md` | `AGENTS.override.md`, `README.profile.md`, `STATUS.profile.md`, "
+        "`SAFETY_POLICY.profile.md`, `VERIFICATION.profile.md` | 11 base / 16 profiled |",
+    ]
+    for row in expected_rows:
+        assert row in text
+    assert "all currently rendered base\ntemplates and all selected profile templates" in text
 
 
-def test_render_tier_contract_preserves_default_preview_and_safety_rules() -> None:
+def test_render_tier_contract_defines_selection_precedence_and_preview_consistency() -> None:
     text = tier_contract_text()
 
     for required_phrase in [
-        "`render.tier`",
-        "omitted tier as `full`",
+        "render:\n  tier: minimal",
+        "An omitted tier must be\ntreated as `full`",
+        "`--tier` CLI option",
+        "must override `render.tier`",
         "Unknown values must fail closed",
+        "before output planning, preview generation, or\nfile writing",
         "`--dry-run`",
         "`--provenance-preview`",
         "`--diff-preview`",
+        "same resolved tier",
+        "same\nplanned file set",
+    ]:
+        assert required_phrase in text
+
+
+def test_render_tier_contract_requires_tier_specific_reference_closure() -> None:
+    text = tier_contract_text()
+    read_order = text.split("## Read Order And Reference Closure", 1)[1].split("## Readiness Targets", 1)[0]
+
+    expected_order = [
+        "1. `AGENTS.md`",
+        "2. `AGENTS.override.md`, when a profile is selected",
+        "3. `README.md`",
+        "4. `README.profile.md`, when a full-tier profile is selected",
+        "5. `PRODUCT.md`",
+        "6. `MVP.md`",
+        "7. `PROJECT_BOUNDARY.md`",
+        "8. `DATA_SCOPE.md`, when included",
+        "9. `APPROVALS.md`, when included",
+        "10. `PHASE_PLAN.md`, when included",
+        "11. `STATUS.md`, when included",
+        "12. `STATUS.profile.md`, when included",
+        "13. `ACCEPTANCE_TRACE.md`, when included",
+        "14. `SOURCE_INDEX.md`, when included",
+        "15. `SAFETY_POLICY.profile.md`, when a profile is selected",
+        "16. `VERIFICATION.profile.md`, when a profile is selected",
+    ]
+    positions = [read_order.index(entry) for entry in expected_order]
+    assert positions == sorted(positions)
+    for required_phrase in [
+        "generate tier-specific Read Order content",
+        "must list only files emitted",
+        "numbering must be contiguous",
+        "`AGENTS.override.md` follows `AGENTS.md`",
+        "`README.profile.md` follows\n`README.md`",
+        "`STATUS.profile.md` follows `STATUS.md`",
+        "base-only render\nmust contain no profile-file references",
+        "Reference closure is mandatory",
+    ]:
+        assert required_phrase in read_order
+
+
+def test_render_tier_contract_records_scenarios_and_readiness_thresholds() -> None:
+    text = tier_contract_text()
+
+    for archetype in [
+        "`minimal_meta_tool`",
+        "`document_workflow`",
+        "`verified_protocol_tool`",
+        "`legacy_industrial_review`",
+    ]:
+        assert archetype in text
+    for required_phrase in [
+        "read-only, anonymized local archetypes",
+        "No repository identifier, absolute path, raw project content, or private value",
+        "readiness scanner remains advisory",
+        "filename-based\ndimension may under-credit",
+        "broken Read\nOrder references as a hard failure",
+        "Reference closure applies to every base-only and profiled fixture",
+        "thresholds below apply to a selected-profile fixture",
+        "at least `LIMITED_AI_ASSISTED_WORK_ALLOWED`",
+        "scanner verdict is `READY_FOR_AI_ASSISTED_WORK`",
+    ]:
+        assert required_phrase in text
+
+
+def test_render_tier_contract_records_external_precedent_without_dependencies() -> None:
+    text = tier_contract_text()
+
+    for required_phrase in [
+        "https://copier.readthedocs.io/en/stable/updating/",
+        "https://cookiecutter.readthedocs.io/en/stable/advanced/replay.html",
+        "https://cookiecutter.readthedocs.io/en/stable/advanced/nested_config_files.html",
+        "https://github.com/dotnet/templating/wiki/Inside-the-Template-Engine",
+        "remain compare-first",
+        "exact tier-selected\n  file set before any write",
+        "do not approve a Copier, Cookiecutter, or .NET dependency",
+        "must not add hooks, post-actions, network fetches, package installation",
+    ]:
+        assert required_phrase in text
+
+
+def test_render_tier_contract_preserves_safety_and_implementation_boundaries() -> None:
+    text = tier_contract_text()
+
+    for required_phrase in [
         "no automatic target overwrite",
         "no raw target content in preview output",
         "no local absolute paths",
+        "no change to examples unless explicitly approved",
+        "separate implementation task",
+        "must not silently regenerate curated examples",
+        "Renderer implementation is a\nseparate approval boundary",
     ]:
         assert required_phrase in text
 

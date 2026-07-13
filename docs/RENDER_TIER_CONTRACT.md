@@ -3,7 +3,12 @@
 ## Purpose
 
 Define the future minimal / standard / full render tier policy before any
-render behavior changes.
+render behavior changes. The contract is based on representative local project
+shapes and a narrow review of established template-tool behavior.
+
+## Decision Status
+
+`render_tier_scenario_contract_clarified_without_implementation`
 
 ## Current Scope
 
@@ -11,36 +16,137 @@ This contract is documentation and focused-test only. It does not authorize
 changes to `scripts/render_template.py`, generated examples, templates,
 profiles, quality gates, workflows, artifacts, release behavior, or downstream repositories.
 
-## Tier Model
+The current renderer continues to emit all base templates and all templates for
+the selected profile. A future implementation task must make the behavior below
+executable.
 
-| tier | intent | included surface |
+## Scenario Basis
+
+The contract was checked against four read-only, anonymized local archetypes.
+No repository identifier, absolute path, raw project content, or private value
+is part of this contract.
+
+| archetype | observed need | tier implication |
 | --- | --- | --- |
-| `minimal` | Small one-off tools where adoption cost must stay low. | Root orientation and safety-critical docs only: `AGENTS.md`, `README.md`, `PRODUCT.md`, `MVP.md`, `PROJECT_BOUNDARY.md`, plus selected profile safety and verification overlays when a profile is selected. |
-| `standard` | Default for active project work needing handoff and verification. | `minimal` plus `STATUS.md`, `PHASE_PLAN.md`, `DATA_SCOPE.md`, `APPROVALS.md`, `VERIFICATION.profile.md`, and `SAFETY_POLICY.profile.md` when a profile is selected. |
-| `full` | Current-compatible complete documentation skeleton. | All currently rendered base templates and all selected profile templates. |
+| `minimal_meta_tool` | Low adoption cost and a short orientation path are more important than lifecycle records. | Start at `minimal`; add a profile only when its safety and verification overlays match the runtime. |
+| `document_workflow` | Repeatable scripts, tests, and handoff state need explicit scope, verification, and acceptance records. | Start at `standard`; use `full` when source inventory is material. |
+| `verified_protocol_tool` | Strong source/artifact boundaries and repeatable readiness checks justify the complete governance surface. | Prefer `full`. |
+| `legacy_industrial_review` | Safety evidence may live in project-specific files and may not match scanner filename conventions. | Choose from actual dimensions and reference closure, not the aggregate scanner score alone. |
 
-## Default Compatibility
+The readiness scanner remains advisory for real repositories. A filename-based
+dimension may under-credit an equivalent project-specific boundary. Tier
+evaluation must therefore retain dimension evidence and must treat broken Read
+Order references as a hard failure regardless of the aggregate score.
 
-Until implementation is separately approved, the renderer keeps current
-behavior. Future implementation must treat an omitted tier as `full` or as an
-explicitly documented current-compatible default.
+## Tier Output Contract
 
-## Config Shape
+The profile column lists files added only when a profile is selected. The
+profiled total is the base count plus that column.
 
-Future config key: `render.tier`.
+| tier | exact base outputs | exact selected-profile outputs | count |
+| --- | --- | --- | --- |
+| `minimal` | `AGENTS.md`, `README.md`, `PRODUCT.md`, `MVP.md`, `PROJECT_BOUNDARY.md` | `AGENTS.override.md`, `SAFETY_POLICY.profile.md`, `VERIFICATION.profile.md` | 5 base / 8 profiled |
+| `standard` | `AGENTS.md`, `README.md`, `PRODUCT.md`, `MVP.md`, `PROJECT_BOUNDARY.md`, `DATA_SCOPE.md`, `APPROVALS.md`, `PHASE_PLAN.md`, `STATUS.md`, `ACCEPTANCE_TRACE.md` | `AGENTS.override.md`, `STATUS.profile.md`, `SAFETY_POLICY.profile.md`, `VERIFICATION.profile.md` | 10 base / 14 profiled |
+| `full` | `AGENTS.md`, `README.md`, `PRODUCT.md`, `MVP.md`, `PROJECT_BOUNDARY.md`, `DATA_SCOPE.md`, `APPROVALS.md`, `PHASE_PLAN.md`, `STATUS.md`, `ACCEPTANCE_TRACE.md`, `SOURCE_INDEX.md` | `AGENTS.override.md`, `README.profile.md`, `STATUS.profile.md`, `SAFETY_POLICY.profile.md`, `VERIFICATION.profile.md` | 11 base / 16 profiled |
 
-Allowed values:
-- `minimal`
-- `standard`
-- `full`
+`full` is the current-compatible tier: it contains all currently rendered base
+templates and all selected profile templates.
 
-Unknown values must fail closed before rendering or writing files. CLI override,
-if added, should be explicit, for example `--tier`.
+## Default And Selection Contract
 
-## Preview Integration
+The future config shape is:
 
-When implemented, tier selection must apply consistently to normal render,
-`--dry-run`, `--provenance-preview`, and `--diff-preview`.
+```yaml
+render:
+  tier: minimal
+```
+
+Allowed values are `minimal`, `standard`, and `full`. An omitted tier must be
+treated as `full`. If a future `--tier` CLI option is supplied, the CLI value
+must override `render.tier`; otherwise the config value applies.
+
+Unknown values must fail closed before output planning, preview generation, or
+file writing. The same resolved tier must apply to normal render, `--dry-run`,
+`--provenance-preview`, and `--diff-preview` so every mode reports the same
+planned file set.
+
+## Read Order And Reference Closure
+
+Future implementation must generate tier-specific Read Order content; filtering
+the output files while retaining the current full-tier references is invalid.
+Every Read Order in rendered `AGENTS.md`, `README.md`, and
+`AGENTS.override.md` must list only files emitted for the resolved tier and
+profile selection.
+
+The canonical superset order is:
+
+1. `AGENTS.md`
+2. `AGENTS.override.md`, when a profile is selected
+3. `README.md`
+4. `README.profile.md`, when a full-tier profile is selected
+5. `PRODUCT.md`
+6. `MVP.md`
+7. `PROJECT_BOUNDARY.md`
+8. `DATA_SCOPE.md`, when included
+9. `APPROVALS.md`, when included
+10. `PHASE_PLAN.md`, when included
+11. `STATUS.md`, when included
+12. `STATUS.profile.md`, when included
+13. `ACCEPTANCE_TRACE.md`, when included
+14. `SOURCE_INDEX.md`, when included
+15. `SAFETY_POLICY.profile.md`, when a profile is selected
+16. `VERIFICATION.profile.md`, when a profile is selected
+
+After omitted entries are removed, numbering must be contiguous. Profile docs
+remain adjacent to the corresponding root orientation or state doc where one
+exists: `AGENTS.override.md` follows `AGENTS.md`, `README.profile.md` follows
+`README.md`, and `STATUS.profile.md` follows `STATUS.md`. A base-only render
+must contain no profile-file references.
+
+Reference closure is mandatory: every local Markdown path named by a rendered
+Read Order must exist in the planned output set, and the output set must not
+depend on an unrendered tier document.
+
+## Readiness Targets
+
+Reference closure applies to every base-only and profiled fixture. The scanner
+thresholds below apply to a selected-profile fixture because the current
+safety and verification surfaces are profile overlays. A base-only fixture must
+still pass reference closure and receive per-dimension review.
+
+| tier | required selected-profile synthetic fixture result |
+| --- | --- |
+| `minimal` | Reference closure passes and scanner verdict is at least `LIMITED_AI_ASSISTED_WORK_ALLOWED`. |
+| `standard` | Reference closure passes and scanner verdict is `READY_FOR_AI_ASSISTED_WORK`. |
+| `full` | Reference closure passes and scanner verdict is `READY_FOR_AI_ASSISTED_WORK`. |
+
+These thresholds evaluate the generated fixture, not whether an arbitrary real
+repository follows the scanner's preferred filenames. A real target with a low
+aggregate score requires dimension review; it does not by itself invalidate the
+tier contract.
+
+## External Precedent
+
+The future implementation should borrow only these narrow principles:
+
+- [Copier update behavior](https://copier.readthedocs.io/en/stable/updating/)
+  persists template answers, regenerates for comparison, and requires manual
+  review when an update conflicts with project changes. Harness upgrades should
+  remain compare-first and must not blanket-overwrite curated target content.
+- [Cookiecutter replay](https://cookiecutter.readthedocs.io/en/stable/advanced/replay.html)
+  persists prior template input, and
+  [nested template configuration](https://cookiecutter.readthedocs.io/en/stable/advanced/nested_config_files.html)
+  makes template selection explicit in configuration. Harness tier selection
+  should likewise be explicit and reproducible.
+- The [.NET template engine](https://github.com/dotnet/templating/wiki/Inside-the-Template-Engine)
+  exposes creation effects before creation and applies parameter conditions to
+  template selection. Harness previews should report the exact tier-selected
+  file set before any write.
+
+These references do not approve a Copier, Cookiecutter, or .NET dependency.
+Future tier implementation must remain standard-library/local-tooling based and
+must not add hooks, post-actions, network fetches, package installation, or
+external template execution.
 
 ## Safety Rules
 
@@ -55,6 +161,12 @@ When implemented, tier selection must apply consistently to normal render,
 
 ## Future Implementation Gate
 
-A separate implementation task must name exact allowed files, selected default
-behavior, included paths for each tier, test fixtures, verification commands,
-and closeout evidence.
+A separate implementation task must name exact allowed files, implement the
+matrix and Read Order closure above, cover config/CLI precedence and invalid
+values, exercise base-only and profiled fixtures for every tier, and verify the
+readiness targets. It must preserve dry-run-first behavior and compare-first
+upgrade policy.
+
+That task must not silently regenerate curated examples, add an external
+template dependency, or widen downstream access. Renderer implementation is a
+separate approval boundary.
