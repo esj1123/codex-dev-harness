@@ -490,9 +490,19 @@ contract and proves cleanup. No real downstream repository, path, branch,
 remote, source, render, write, private data, approval evidence, or live value
 was used.
 
+The current cross-cutting Render Tier checkpoint is complete. Commit
+`650516c1b56b1001d536fa88c180a738f9073369` defines the `minimal`, `standard`,
+and `full` contract; commit `2ee9f1f66aa204ef2d5de515b8bce0228c2c5028`
+implements exact tier selection, config/CLI precedence, and tier-specific Read
+Order closure; commit `5ed70e13152fc01dfad72dc9fbad50d8b9678527`
+records the OS-temporary usage probe. The probe passed with 8, 14, and 16 files
+respectively, met the documented readiness thresholds, proved cleanup, and
+required no runtime patch. Curated examples, release evidence, workflows, and
+downstream repositories were not changed.
+
 ## Current Verification Snapshot
 
-Snapshot purpose: record the current Phase 11 handoff while preserving older
+Snapshot purpose: record the current Render Tier handoff while preserving older
 stage and phase rows as historical evidence. Current release evidence remains
 local-only and on `HOLD`; the approved corpus remains the exact stable 34-source
 set; downstream access remains unapproved.
@@ -502,12 +512,15 @@ set; downstream access remains unapproved.
 | basis branch/ref | PRESENT | `main` / `origin/main` |
 | capability implementation roadmap | PRESENT / CURRENT SEQUENCING SOURCE | `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`; historical optional/deferred decisions are risk evidence, not permanent blockers |
 | first implementation target | IMPLEMENTED | Read-only CI + verification hygiene is installed as manual `workflow_dispatch` workflow `.github/workflows/local-verify.yml` |
+| Render Tier scenario contract | PASS / CONTRACT | commit `650516c1b56b1001d536fa88c180a738f9073369`; defines exact `minimal`, `standard`, and `full` output matrices, tier-specific Read Order closure, readiness thresholds, default-full compatibility, and compare-first boundaries |
+| Render Tier implementation | PASS / IMPLEMENTED | commit `2ee9f1f66aa204ef2d5de515b8bce0228c2c5028`; implements config and CLI tier selection, exact file planning, generated Read Order content, full-tier golden compatibility, and focused readiness coverage without example regeneration or workflow expansion |
+| current Render Tier usage-probe checkpoint | PASS / NO RUNTIME PATCH REQUIRED | commit `5ed70e13152fc01dfad72dc9fbad50d8b9678527`; `minimal` rendered 8 files and reached `LIMITED_AI_ASSISTED_WORK_ALLOWED`, `standard` rendered 14 files and reached `READY_FOR_AI_ASSISTED_WORK`, and `full` rendered 16 files and reached `READY_FOR_AI_ASSISTED_WORK`; all exact file sets and Read Orders closed, dry-run created no target, temporary output cleanup passed, the current full suite has 577 tests, and the standing quality gate has 9 gates |
 | Phase 11A downstream integration boundary | PASS / DOCUMENTATION-ONLY | commit `c7da80df0e8cb623effbe0d52cf6acdb7056fe32`; `docs/DOWNSTREAM_PRODUCT_INTEGRATION_BOUNDARY_REVIEW.md` and focused contract tests define authority, data, evidence, repository-access, and side-effect boundaries without downstream access |
 | Phase 11B synthetic task contract | PASS / SYNTHETIC-ONLY | commit `71951fc3cdbd0f6158f385b409a76d25cd1d3090`; deterministic placeholder-only JSON task contract and test-local validation are present; all 16 side-effect classes remain independently unapproved and `NOT RUN` |
 | Phase 11C standalone validator candidate | PASS / CONTRACT-ONLY | commit `699849ddae2abd2bb42841727fd50f5dcc62c794`; fixes the future input, path, validation, permission, output, status, and non-goal boundary without implementation or downstream access |
 | Phase 11D standalone downstream contract validator | PASS / STANDALONE DRY-RUN | commit `74c299063effec2746a913a66172bb4fd2a7bbde`; standard-library-only, local-only, read-only validation of one selected JSON contract; no repository inspection, command execution, approval authentication, persistence, or integration |
 | Phase 11D.1 synthetic usage probe | PASS WITH NOTES / REVIEW-ONLY | commit `8e785911234823ed1b756df839bba6daa86502db`; the tracked Phase 11B fixture returns `SYNTHETIC_CONTRACT_VALID`, all 16 permissions remain unauthorized, all external states remain `NOT RUN`, and no runtime patch is required |
-| current Phase 11D.2 implementation source baseline | PASS / TEMPORARY SYNTHETIC FILLED INPUT | commit `0734a87b554eb1da8812e20346305dcdb2a2ae2e`; a temporary synthetic filled contract passes internal validation with two declared local-read-only permission classes, no external action, and successful cleanup; current full suite has 521 tests and the standing quality gate has 9 gates; no tracked filled contract or downstream access exists |
+| Phase 11D.2 historical implementation source baseline | PASS / TEMPORARY SYNTHETIC FILLED INPUT | commit `0734a87b554eb1da8812e20346305dcdb2a2ae2e`; a temporary synthetic filled contract passes internal validation with two declared local-read-only permission classes, no external action, and successful cleanup; no tracked filled contract or downstream access exists |
 | current repository commit before Stage 2 evidence regeneration | HISTORICAL | `9ae69c5fbf65953db2b0efb82b4904098f8a7581` |
 | previous artifact-containing commit observed during Stage 0 read-only review | HISTORICAL | `ab77ab0a0b44c2f1bd700820bfeb358c6ec1bbe7` |
 | current repository commit before `csharp_desktop` experiment | PRESENT | `76d88b842852635c95adcd8f3534f95e8bdc3ff5` |
@@ -520,7 +533,7 @@ set; downstream access remains unapproved.
 | checksum coverage | PRESENT | `artifacts/checksums.sha256` records 5 entries: eval report, provenance, manifest, CycloneDX SBOM, and SPDX SBOM; checksum file self-reference excluded |
 | standalone eval case count | PRESENT | `scripts/run_eval.py` discovers 15 named local-only non-LLM eval cases under `evals/cases/` |
 | eval / report integration | PHASE 5B RECEIPT-ALIGNED / STANDALONE | `scripts/run_eval.py`, `tests/test_run_eval.py`, `docs/EVAL_REPORT_INTEGRATION_PLAN.md`, `docs/EVAL_INTEGRATION_DECISION.md`, `docs/EVAL_POLICY.md`, and `audits/receipt-summary.schema.json`; legacy `--report` remains backward-compatible, paired `--summary-report` / `--cases-report` outputs are explicit opt-in only, receipts may cite split eval evidence by repo-relative path and SHA-256, and evals remain separate from `scripts/quality_gate.py`, CI, and release-blocking behavior |
-| approved corpus digest basis before Phase 11C-D.2 handoff | HISTORICAL / VERIFIED | `artifacts/corpus-digest.json`; exact source count 34; artifact-containing commit `c4374781c71229b0134d28ab4235c36998c1d870`; source-basis commit `3cd992ac788b9fc2f0c7c2549268a5afbdb1b0d3`; metadata/hash-only; stable digest excludes `STATUS.md` and `ACCEPTANCE_TRACE.md`; the final post-handoff digest file and task closeout are authoritative for refreshed SHA values so no recursive STATUS commit is required |
+| approved corpus digest basis before Render Tier handoff | HISTORICAL / VERIFIED | `artifacts/corpus-digest.json`; exact source count 34; artifact-containing commit `d5abce05378d1f68c6f431bd1eaf7a2cb8a1cc0c`; source-basis commit `4703a6532bb9e1d3d006d180372f9267905eab3f`; metadata/hash-only; stable digest excludes `STATUS.md` and `ACCEPTANCE_TRACE.md`; the final post-handoff digest file and task closeout are authoritative for refreshed SHA values so no recursive STATUS commit is required |
 | approved corpus digest Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `8febedead5da6cfd863dd1cbb1c87b0f8d8fab4b`; run `27890277121`; job `82532492491`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded; contents permission remained read-only |
 | Phase 6G digest tooling boundary | IMPLEMENTED / WRITE-GATED | `scripts/generate_corpus_digest.py` and `tests/test_generate_corpus_digest.py`; default check mode is read-only; write mode is restricted to `artifacts/corpus-digest.json`, requires a non-empty approval reference and clean digest-listed source basis, preserves exact source membership and ordering, records scans/gates as not run when not executed, and was used only for the separately approved Phase 6H.3 real digest re-baseline |
 | Phase 6G digest tooling boundary Local Verify evidence | PASS | commit `940a8a5de13d84b25627ece3ae814730e1b8c3e2`; workflow `Local Verify`; run `27865330352`; job `82468393525`; tests, quality gate, and three render dry-runs passed; contents permission remained read-only; no artifacts uploaded; workflow did not run digest refresh, digest check/write, release verification, retrieval query-matrix verification, or artifact generation |
@@ -1232,13 +1245,11 @@ Stage 0 current-main gap review basis:
 
 ## Next Recommended Step
 
-The current locally verified Phase 11 implementation source baseline is commit
-`0734a87b554eb1da8812e20346305dcdb2a2ae2e`. Phase 11A defines the downstream
-boundary, Phase 11B provides the deterministic placeholder-only contract, Phase
-11C fixes the standalone validator contract, Phase 11D implements the read-only
-validator, and Phase 11D.1/D.2 record synthetic and temporary synthetic-filled
-usage probes. None of these phases authorizes or performs real downstream
-access.
+The current locally verified Render Tier usage-probe baseline is commit
+`5ed70e13152fc01dfad72dc9fbad50d8b9678527`. The scenario contract, renderer
+implementation, and OS-temporary usage probe are complete. Config omission
+remains full-compatible, explicit CLI overrides select all three tiers, exact
+file sets and Read Order closure pass, and no runtime patch is required.
 
 This handoff synchronization intentionally does not refresh
 `artifacts/corpus-digest.json`. The next controlled step is a separate exact
@@ -1253,12 +1264,13 @@ read-only Local Verify workflow. Workflow run and job identifiers belong in task
 closeout rather than this file so verification evidence does not create another
 recursive documentation commit.
 
-After the digest-valid checkpoint is verified, the next owner decision is
-either to keep downstream integration on `HOLD` because no target is selected,
-or to approve a Phase 11E downstream target-selection contract. A Phase 11E
-contract must name the target authority, safe repository alias, access class,
-exact commands, allowed files, no-touch paths, verification, cleanup, and every
-permitted side effect before any downstream repository is accessed.
+After the digest-valid checkpoint is verified, any curated example
+regeneration, compare-first upgrade/provenance work, or downstream application
+requires a separate owner decision. Downstream integration remains on `HOLD`
+because no target is selected; any future target-selection contract must name
+the target authority, safe repository alias, access class, exact commands,
+allowed files, no-touch paths, verification, cleanup, and every permitted side
+effect before repository access.
 
 Release evidence regeneration remains `HOLD`. No release generator, tag,
 release, upload, publication, downstream mutation, or live action is authorized.

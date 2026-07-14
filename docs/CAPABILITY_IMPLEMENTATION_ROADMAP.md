@@ -70,6 +70,7 @@ not capabilities to abandon.
 |---|---|---|---|
 | Source of truth cleanup / repo state confirmation | Current and historical docs both exist; some docs still describe deferred defaults. | Confirm branch, local changes, upstream state, source docs, and owner-intent shift before implementation work. | None. |
 | Capability Implementation Roadmap | This document. | Durable owner-intent and sequencing record. | Source of truth cleanup. |
+| Template render tier selection | The `minimal`, `standard`, and `full` contract, renderer selection, exact file planning, tier-specific Read Order closure, focused readiness coverage, and OS-temporary usage probe are complete; no runtime patch is required. | Stable explicit tier selection with full-compatible defaults and compare-first adoption or upgrade decisions. | Source-of-truth confirmation and render safety boundaries. |
 | Read-only CI + verification hygiene | Manual read-only local verification workflow is installed; release CI, artifact upload, required checks, and additional workflows remain separately approval-gated. | Read-only verification mirror for existing local checks, with no secrets, uploads, release, tag, deploy, or live write. | Roadmap and source-of-truth confirmation. |
 | Audit / trace / receipt schema | Audit schema and manual receipt review exist; no automation. | Stable schema, redaction rules, receipt fields, validation plan, and manual examples before automation. | Read-only verification hygiene. |
 | JSON Evidence Core / Evidence Serialization Policy | Manual receipt schema exists; machine-readable receipt and trace schemas are now the next serialization foundation. | Policy, core schemas, and a quality-gate bundle check exist before any audit automation or real logs. | Audit / trace / receipt schema. |
@@ -473,6 +474,23 @@ Current implementation state:
 - Any Phase 11E work must first select `HOLD` or define a separately approved
   target-selection contract before any real downstream access.
 
+### Render Tier checkpoint
+
+The cross-cutting Render Tier checkpoint is complete:
+
+- commit `650516c1b56b1001d536fa88c180a738f9073369` defines the exact
+  `minimal`, `standard`, and `full` contract;
+- commit `2ee9f1f66aa204ef2d5de515b8bce0228c2c5028` implements config and CLI
+  selection, exact planning, tier-specific Read Order generation, and focused
+  readiness checks;
+- commit `5ed70e13152fc01dfad72dc9fbad50d8b9678527` records the OS-temporary
+  usage probe with 8, 14, and 16 files, closed Read Orders, expected readiness
+  results, dry-run non-creation, and successful cleanup;
+- config omission remains full-compatible and the probe decision is
+  `no runtime patch required`;
+- no curated example regeneration, workflow expansion, release evidence
+  refresh, downstream access, or live action is authorized by this checkpoint.
+
 ## 7. Safety invariants
 
 All phases preserve these invariants:
@@ -600,16 +618,16 @@ For this roadmap task, closeout must confirm:
 
 ## 12. Current sequencing handoff
 
-The current locally verified implementation source baseline is Phase 11D.2
-commit `0734a87b554eb1da8812e20346305dcdb2a2ae2e`. The active cumulative closeout
-sequence is:
+The current locally verified implementation source baseline is the Render Tier
+usage-probe commit `5ed70e13152fc01dfad72dc9fbad50d8b9678527`. The active cumulative
+closeout sequence is:
 
-1. the Phase 11D.2 temporary synthetic filled-contract probe source commit;
+1. the Render Tier usage-probe source baseline;
 2. this documentation-only current handoff synchronization commit;
 3. an exact same-34-source corpus digest freshness commit;
-4. a digest-valid stable checkpoint confirmation;
-5. an owner decision to keep downstream integration on `HOLD` or separately
-   approve a Phase 11E downstream target-selection contract.
+4. a digest-valid read-only Local Verify confirmation;
+5. a separate owner decision for any curated example regeneration,
+   compare-first upgrade/provenance work, or downstream application.
 
 The handoff commit may change only `STATUS.md` and this roadmap. `STATUS.md` is
 excluded from the approved stable corpus; this roadmap is included. The expected
@@ -621,13 +639,14 @@ allow-list. Only the final digest-valid cumulative tip should be pushed and used
 for Local Verify. Run and job identifiers belong in closeout evidence rather
 than another roadmap edit.
 
-Phase 11E must remain target-contract-first. Synthetic approval booleans and
-permission records are not authenticated authority. A future task must name the
-target authority, safe repository alias, access class, exact commands, allowed
-files, no-touch paths, verification, cleanup, and each permitted side effect
-before selecting or accessing a real downstream repository. It must not widen
-schema, quality-gate, workflow, release, MCP, Hermes, audit, or live behavior
-without separate approval.
+Downstream work remains target-contract-first and on `HOLD` because no target is
+selected. Synthetic approval booleans and permission records are not
+authenticated authority. A future task must name the target authority, safe
+repository alias, access class, exact commands, allowed files, no-touch paths,
+verification, cleanup, and each permitted side effect before selecting or
+accessing a real downstream repository. It must not widen schema, quality-gate,
+workflow, release, MCP, Hermes, audit, or live behavior without separate
+approval.
 
 Release evidence regeneration remains `HOLD` after digest freshness. A later
 refresh still requires a separate owner-approved exact-file and exact-command
