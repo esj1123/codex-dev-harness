@@ -2,23 +2,24 @@
 
 ## Purpose
 
-Define the future minimal / standard / full render tier policy before any
-render behavior changes. The contract is based on representative local project
+Define and enforce the minimal / standard / full render tier policy for
+local template rendering. The contract is based on representative local project
 shapes and a narrow review of established template-tool behavior.
 
 ## Decision Status
 
-`render_tier_scenario_contract_clarified_without_implementation`
+`render_tier_selection_implemented`
 
 ## Current Scope
 
-This contract is documentation and focused-test only. It does not authorize
-changes to `scripts/render_template.py`, generated examples, templates,
-profiles, quality gates, workflows, artifacts, release behavior, or downstream repositories.
+The local renderer implements this contract for `minimal`, `standard`, and
+`full` selection, including config/CLI precedence, exact file planning,
+tier-specific Read Order generation, and focused readiness checks.
 
-The current renderer continues to emit all base templates and all templates for
-the selected profile. A future implementation task must make the behavior below
-executable.
+Implementation does not authorize curated example regeneration, workflow or release changes,
+artifact generation, downstream repository access, hooks,
+post-actions, network fetches, package installation, or external template
+execution.
 
 ## Scenario Basis
 
@@ -54,7 +55,7 @@ templates and all selected profile templates.
 
 ## Default And Selection Contract
 
-The future config shape is:
+The config shape is:
 
 ```yaml
 render:
@@ -62,17 +63,23 @@ render:
 ```
 
 Allowed values are `minimal`, `standard`, and `full`. An omitted tier must be
-treated as `full`. If a future `--tier` CLI option is supplied, the CLI value
+treated as `full`. If the `--tier` CLI option is supplied, the CLI value
 must override `render.tier`; otherwise the config value applies.
 
-Unknown values must fail closed before output planning, preview generation, or
+Unknown values fail closed before output planning, preview generation, or
 file writing. The same resolved tier must apply to normal render, `--dry-run`,
 `--provenance-preview`, and `--diff-preview` so every mode reports the same
 planned file set.
 
+The committed config example declares `full`, while configs that omit
+`render.tier` remain full-compatible. Provenance and diff preview schemas remain
+at v0 without a new tier key; dry-run render lines, rendered file counts, and
+target-relative diff paths expose the selected plan. The golden Python CLI
+fixture explicitly uses `full` under fixture schema version `1`.
+
 ## Read Order And Reference Closure
 
-Future implementation must generate tier-specific Read Order content; filtering
+The renderer generates tier-specific Read Order content; filtering
 the output files while retaining the current full-tier references is invalid.
 Every Read Order in rendered `AGENTS.md`, `README.md`, and
 `AGENTS.override.md` must list only files emitted for the resolved tier and
@@ -127,7 +134,7 @@ tier contract.
 
 ## External Precedent
 
-The future implementation should borrow only these narrow principles:
+The implementation follows only these narrow principles:
 
 - [Copier update behavior](https://copier.readthedocs.io/en/stable/updating/)
   persists template answers, regenerates for comparison, and requires manual
@@ -144,7 +151,7 @@ The future implementation should borrow only these narrow principles:
   file set before any write.
 
 These references do not approve a Copier, Cookiecutter, or .NET dependency.
-Future tier implementation must remain standard-library/local-tooling based and
+Tier implementation remains standard-library/local-tooling based and
 must not add hooks, post-actions, network fetches, package installation, or
 external template execution.
 
@@ -159,14 +166,14 @@ external template execution.
 - no quality gate, workflow, artifact, release, tag, or publication side effects
   by this contract alone
 
-## Future Implementation Gate
+## Implementation Acceptance Gate
 
-A separate implementation task must name exact allowed files, implement the
-matrix and Read Order closure above, cover config/CLI precedence and invalid
-values, exercise base-only and profiled fixtures for every tier, and verify the
-readiness targets. It must preserve dry-run-first behavior and compare-first
-upgrade policy.
+The implemented renderer must keep the exact matrix and Read Order closure
+above, preserve config/CLI precedence and invalid-value rejection, exercise
+base-only and profiled fixtures for every tier, and verify the readiness
+targets. Dry-run-first behavior and compare-first upgrade policy remain
+unchanged.
 
-That task must not silently regenerate curated examples, add an external
-template dependency, or widen downstream access. Renderer implementation is a
-separate approval boundary.
+Future changes must not silently regenerate curated examples, add an external
+template dependency, widen downstream access, or change preview schemas without
+a separate contract and approval boundary.

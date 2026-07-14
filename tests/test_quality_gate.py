@@ -31,12 +31,12 @@ POST_V0_1_GOVERNANCE_DOCS = {
     "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md",
 }
 
-PYTHON_CLI_PROFILE_TEMPLATES = [
-    "profiles/python_cli/AGENTS.override.md.template",
-    "profiles/python_cli/README.profile.md.template",
-    "profiles/python_cli/SAFETY_POLICY.profile.md.template",
-    "profiles/python_cli/STATUS.profile.md.template",
-    "profiles/python_cli/VERIFICATION.profile.md.template",
+PROFILE_TEMPLATE_NAMES = [
+    "AGENTS.override.md",
+    "README.profile.md",
+    "SAFETY_POLICY.profile.md",
+    "STATUS.profile.md",
+    "VERIFICATION.profile.md",
 ]
 
 
@@ -50,11 +50,15 @@ def minimal_repo(root: Path) -> None:
         write(root / relative)
     for relative in template_schema_gate.REQUIRED_BASE_TEMPLATES:
         write(root / relative)
-    for relative in PYTHON_CLI_PROFILE_TEMPLATES:
-        write(root / relative, "profile {{ profile.name }} for {{ project.name }}\n")
+    for profile in sorted(set(example_gate.REQUIRED_EXAMPLES.values())):
+        for template_name in PROFILE_TEMPLATE_NAMES:
+            write(
+                root / "profiles" / profile / f"{template_name}.template",
+                "profile {{ profile.name }} for {{ project.name }}\n",
+            )
     write(
         root / "template.config.example.yml",
-        "project:\n  name: demo\n  status: seed\nprofile:\n  name: python_cli\n",
+        "project:\n  name: demo\n  status: seed\nprofile:\n  name: python_cli\nrender:\n  tier: full\n",
     )
     write_golden_render_fixture(root)
     write_checksum_fixture(root)
@@ -72,7 +76,12 @@ def write_checksum_fixture(root: Path) -> None:
 
 
 def write_golden_render_fixture(root: Path) -> None:
-    config = TemplateConfig(project_name="golden_render_python_cli", project_status="seed", profile="python_cli")
+    config = TemplateConfig(
+        project_name="golden_render_python_cli",
+        project_status="seed",
+        profile="python_cli",
+        tier="full",
+    )
     records = [
         {"path": path, "sha256": digest}
         for path, digest in rendered_golden_content_gate.rendered_file_hashes(root, config).items()
@@ -84,6 +93,7 @@ def write_golden_render_fixture(root: Path) -> None:
             "project_name": config.project_name,
             "project_status": config.project_status,
             "profile": config.profile,
+            "tier": config.tier,
         },
         "hash_algorithm": "sha256",
         "newline_policy": "lf-normalized",
@@ -208,6 +218,28 @@ def test_template_schema_gate_requires_seed_config(tmp_path: Path) -> None:
     assert "status: seed" in result.messages[0]
 
 
+def test_template_schema_gate_reports_full_render_tier(tmp_path: Path) -> None:
+    minimal_repo(tmp_path)
+
+    result = template_schema_gate.run(tmp_path)
+
+    assert result.passed is True
+    assert "render.tier=full" in result.messages
+
+
+def test_template_schema_gate_rejects_unknown_render_tier(tmp_path: Path) -> None:
+    minimal_repo(tmp_path)
+    write(
+        tmp_path / "template.config.example.yml",
+        "project:\n  name: demo\n  status: seed\nrender:\n  tier: unknown\n",
+    )
+
+    result = template_schema_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert "render tier must be one of" in result.messages[0]
+
+
 def test_secret_scan_gate_detects_private_key(tmp_path: Path) -> None:
     write(tmp_path / "README.md", "-----BEGIN " + "PRIVATE KEY-----\n")
 
@@ -288,6 +320,19 @@ def test_rendered_golden_content_gate_detects_content_drift(tmp_path: Path) -> N
 
     assert result.passed is False
     assert any("README.md" in message for message in result.messages)
+
+
+def test_rendered_golden_content_gate_rejects_unknown_tier(tmp_path: Path) -> None:
+    minimal_repo(tmp_path)
+    fixture_path = tmp_path / rendered_golden_content_gate.FIXTURE_RELATIVE
+    fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
+    fixture["render"]["tier"] = "unknown"
+    write(fixture_path, json.dumps(fixture, indent=2) + "\n")
+
+    result = rendered_golden_content_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert "render tier must be one of" in result.messages[0]
 
 
 def test_rendered_golden_content_gate_rejects_examples_fixture_paths(tmp_path: Path) -> None:

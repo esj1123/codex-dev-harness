@@ -11,7 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import subprocess
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Iterable
 
@@ -20,6 +20,82 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 PROVENANCE_PREVIEW_SCHEMA_VERSION = "render_provenance_preview.v0"
 DIFF_PREVIEW_SCHEMA_VERSION = "render_diff_preview.v0"
 MAX_DIFF_PREVIEW_PATHS = 50
+VALID_RENDER_TIERS = ("minimal", "standard", "full")
+
+BASE_OUTPUTS_BY_TIER = {
+    "minimal": (
+        "AGENTS.md",
+        "README.md",
+        "PRODUCT.md",
+        "MVP.md",
+        "PROJECT_BOUNDARY.md",
+    ),
+    "standard": (
+        "AGENTS.md",
+        "README.md",
+        "PRODUCT.md",
+        "MVP.md",
+        "PROJECT_BOUNDARY.md",
+        "DATA_SCOPE.md",
+        "APPROVALS.md",
+        "PHASE_PLAN.md",
+        "STATUS.md",
+        "ACCEPTANCE_TRACE.md",
+    ),
+    "full": (
+        "AGENTS.md",
+        "README.md",
+        "PRODUCT.md",
+        "MVP.md",
+        "PROJECT_BOUNDARY.md",
+        "DATA_SCOPE.md",
+        "APPROVALS.md",
+        "PHASE_PLAN.md",
+        "STATUS.md",
+        "ACCEPTANCE_TRACE.md",
+        "SOURCE_INDEX.md",
+    ),
+}
+
+PROFILE_OUTPUTS_BY_TIER = {
+    "minimal": (
+        "AGENTS.override.md",
+        "SAFETY_POLICY.profile.md",
+        "VERIFICATION.profile.md",
+    ),
+    "standard": (
+        "AGENTS.override.md",
+        "STATUS.profile.md",
+        "SAFETY_POLICY.profile.md",
+        "VERIFICATION.profile.md",
+    ),
+    "full": (
+        "AGENTS.override.md",
+        "README.profile.md",
+        "STATUS.profile.md",
+        "SAFETY_POLICY.profile.md",
+        "VERIFICATION.profile.md",
+    ),
+}
+
+CANONICAL_READ_ORDER = (
+    "AGENTS.md",
+    "AGENTS.override.md",
+    "README.md",
+    "README.profile.md",
+    "PRODUCT.md",
+    "MVP.md",
+    "PROJECT_BOUNDARY.md",
+    "DATA_SCOPE.md",
+    "APPROVALS.md",
+    "PHASE_PLAN.md",
+    "STATUS.md",
+    "STATUS.profile.md",
+    "ACCEPTANCE_TRACE.md",
+    "SOURCE_INDEX.md",
+    "SAFETY_POLICY.profile.md",
+    "VERIFICATION.profile.md",
+)
 
 
 @dataclass(frozen=True)
@@ -27,6 +103,7 @@ class TemplateConfig:
     project_name: str
     project_status: str
     profile: str | None
+    tier: str = "full"
 
 
 def parse_scalar_config(path: Path) -> dict[str, str]:
@@ -52,9 +129,8 @@ def parse_scalar_config(path: Path) -> dict[str, str]:
             stack.pop()
 
         dotted = ".".join([part for _, part in stack] + [key])
-        if value:
-            values[dotted] = value
-        else:
+        values[dotted] = value
+        if not value:
             stack.append((indent, key))
 
     return values
@@ -65,13 +141,40 @@ def load_config(path: Path) -> TemplateConfig:
     project_name = values.get("project.name", "").strip()
     project_status = values.get("project.status", "").strip()
     profile = values.get("profile.name", "").strip() or None
+    tier = values.get("render.tier", "full").strip()
 
     if not project_name:
         raise ValueError("template config requires project.name")
     if project_status != "seed":
         raise ValueError("template config requires project.status: seed")
+    validate_render_tier(tier)
 
-    return TemplateConfig(project_name=project_name, project_status=project_status, profile=profile)
+    return TemplateConfig(
+        project_name=project_name,
+        project_status=project_status,
+        profile=profile,
+        tier=tier,
+    )
+
+
+def validate_render_tier(tier: str) -> None:
+    if tier not in VALID_RENDER_TIERS:
+        allowed = ", ".join(VALID_RENDER_TIERS)
+        raise ValueError(f"render tier must be one of: {allowed}")
+
+
+def selected_output_names(config: TemplateConfig) -> tuple[str, ...]:
+    validate_render_tier(config.tier)
+    outputs = list(BASE_OUTPUTS_BY_TIER[config.tier])
+    if config.profile:
+        outputs.extend(PROFILE_OUTPUTS_BY_TIER[config.tier])
+    return tuple(outputs)
+
+
+def render_read_order(config: TemplateConfig) -> str:
+    selected = set(selected_output_names(config))
+    ordered = [name for name in CANONICAL_READ_ORDER if name in selected]
+    return "\n".join(f"{index}. {name}" for index, name in enumerate(ordered, start=1))
 
 
 def template_destination(template_path: Path, source_root: Path, target_root: Path) -> Path:
@@ -87,18 +190,34 @@ def render_text(text: str, config: TemplateConfig) -> str:
         "{{ project.name }}": config.project_name,
         "{{ project.status }}": config.project_status,
         "{{ profile.name }}": config.profile or "",
+        "{{ render.read_order }}": render_read_order(config),
     }
     for marker, value in replacements.items():
         text = text.replace(marker, value)
     return text
 
 
-def iter_templates(base_dir: Path, profile_dir: Path | None) -> Iterable[tuple[Path, Path]]:
-    for path in sorted(base_dir.rglob("*.template")):
-        yield path, base_dir
-    if profile_dir and profile_dir.exists():
-        for path in sorted(profile_dir.rglob("*.template")):
-            yield path, profile_dir
+def iter_templates(
+    base_dir: Path,
+    profile_dir: Path | None,
+    tier: str = "full",
+) -> Iterable[tuple[Path, Path]]:
+    validate_render_tier(tier)
+    planned = [
+        (base_dir / f"{name}.template", base_dir)
+        for name in BASE_OUTPUTS_BY_TIER[tier]
+    ]
+    if profile_dir is not None:
+        planned.extend(
+            (profile_dir / f"{name}.template", profile_dir)
+            for name in PROFILE_OUTPUTS_BY_TIER[tier]
+        )
+
+    missing = [path.name for path, _ in planned if not path.is_file()]
+    if missing:
+        raise FileNotFoundError(f"missing selected tier template(s): {', '.join(sorted(missing))}")
+
+    yield from sorted(planned, key=lambda item: item[0].name)
 
 
 def validate_target(target: Path, repo_root: Path) -> None:
@@ -219,6 +338,7 @@ def render_templates(
     target: Path,
     repo_root: Path = REPO_ROOT,
     profile_override: str | None = None,
+    tier_override: str | None = None,
     dry_run: bool = True,
     force: bool = False,
     provenance_preview: bool = False,
@@ -226,7 +346,10 @@ def render_templates(
 ) -> list[Path]:
     config = load_config(config_path)
     if profile_override:
-        config = TemplateConfig(config.project_name, config.project_status, profile_override)
+        config = replace(config, profile=profile_override)
+    if tier_override is not None:
+        validate_render_tier(tier_override)
+        config = replace(config, tier=tier_override)
 
     validate_target(target, repo_root)
     if provenance_preview and not dry_run:
@@ -243,7 +366,7 @@ def render_templates(
 
     rendered_paths: list[Path] = []
     expected_rendered: list[tuple[Path, str]] = []
-    for source, source_root in iter_templates(base_dir, profile_dir):
+    for source, source_root in iter_templates(base_dir, profile_dir, config.tier):
         destination = template_destination(source, source_root, target)
         rendered_paths.append(destination)
         rendered_text = ""
@@ -284,6 +407,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--config", default="template.config.yml", help="Path to template.config.yml")
     parser.add_argument("--target", required=True, help="Target folder for rendered files")
     parser.add_argument("--profile", default=None, help="Override profile.name from config")
+    parser.add_argument(
+        "--tier",
+        choices=VALID_RENDER_TIERS,
+        default=None,
+        help="Override render.tier from config",
+    )
     parser.add_argument("--dry-run", action="store_true", help="Preview files without writing")
     parser.add_argument(
         "--provenance-preview",
@@ -312,6 +441,7 @@ def main(argv: list[str] | None = None) -> int:
         target=target,
         repo_root=repo_root,
         profile_override=args.profile,
+        tier_override=args.tier,
         dry_run=args.dry_run,
         force=args.force,
         provenance_preview=args.provenance_preview,

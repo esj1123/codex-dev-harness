@@ -20,7 +20,13 @@ SCRIPT_DIR = Path(__file__).resolve().parents[1]
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
-from render_template import TemplateConfig, iter_templates, render_text, template_destination  # noqa: E402
+from render_template import (  # noqa: E402
+    TemplateConfig,
+    iter_templates,
+    render_text,
+    template_destination,
+    validate_render_tier,
+)
 
 
 GATE_NAME = "rendered_golden_content_gate"
@@ -55,7 +61,7 @@ def rendered_file_hashes(repo_root: Path, config: TemplateConfig) -> dict[str, s
     if config.profile and (profile_dir is None or not profile_dir.is_dir()):
         raise FileNotFoundError(f"missing profile template directory: {profile_dir}")
 
-    for source, source_root in iter_templates(base_dir, profile_dir):
+    for source, source_root in iter_templates(base_dir, profile_dir, config.tier):
         destination = template_destination(source, source_root, synthetic_target)
         relative = destination.relative_to(synthetic_target).as_posix()
         rendered = render_text(source.read_text(encoding="utf-8"), config)
@@ -92,10 +98,13 @@ def load_fixture(repo_root: Path) -> tuple[TemplateConfig, dict[str, str]]:
         raise ValueError("fixture newline_policy must be lf-normalized")
 
     render = _require_object(data.get("render"), "fixture.render")
+    tier = _require_string(render.get("tier", "full"), "fixture.render.tier")
+    validate_render_tier(tier)
     config = TemplateConfig(
         project_name=_require_string(render.get("project_name"), "fixture.render.project_name"),
         project_status=_require_string(render.get("project_status"), "fixture.render.project_status"),
         profile=_require_string(render.get("profile"), "fixture.render.profile"),
+        tier=tier,
     )
     if config.project_status != "seed":
         raise ValueError("fixture.render.project_status must be seed")

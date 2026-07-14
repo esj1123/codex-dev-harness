@@ -54,5 +54,6 @@ def run(repo_root: Path) -> GateResult:
     messages.append(f"project.name={config.project_name}")
     messages.append(f"project.status={config.project_status}")
     messages.append(f"profile.name={config.profile or 'none'}")
+    messages.append(f"render.tier={config.tier}")
     messages.append(f"base templates present: {len(REQUIRED_BASE_TEMPLATES)}")
     return GateResult("template_schema_gate", True, messages)

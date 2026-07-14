@@ -4,7 +4,8 @@
   "render": {
     "project_name": "golden_render_python_cli",
     "project_status": "seed",
-    "profile": "python_cli"
+    "profile": "python_cli",
+    "tier": "full"
   },
   "hash_algorithm": "sha256",
   "newline_policy": "lf-normalized",
@@ -15,11 +16,11 @@
     },
     {
       "path": "AGENTS.md",
-      "sha256": "838e5d7127e65944bba15d6d8d871a0a5ac37052abbb2afdf620e008032a7ef0"
+      "sha256": "e51478372d45d3bf822368de28e7b26de70e30b3db4840b67723274933cad88c"
     },
     {
       "path": "AGENTS.override.md",
-      "sha256": "cbaa7c37a184e9e32809b3f7a47536003f86c415504dbc20659308a51395e7c6"
+      "sha256": "019f8260c45555c6410b4af2e2b0b1f56d4e43f58e9b4bab83c7a081b37d1dfc"
     },
     {
       "path": "APPROVALS.md",
@@ -47,7 +48,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "c8f392650596be5fc1aa0422cf3109fc0c89a5749e0d9ffc18bab37ebb95b64a"
+      "sha256": "815f375a0aafa0b6cd574da65d11eefe7071a1aef1135c2a7873246b656e6493"
     },
     {
       "path": "README.profile.md",

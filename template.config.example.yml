@@ -6,6 +6,9 @@ project:
 profile:
   name: python_cli
 
+render:
+  tier: full
+
 paths:
   templates: templates/base
   profiles: profiles

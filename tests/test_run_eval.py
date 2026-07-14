@@ -10,20 +10,49 @@ def write(path: Path, content: str) -> None:
     path.write_text(content, encoding="utf-8")
 
 
+FULL_BASE_OUTPUTS = (
+    "AGENTS.md",
+    "README.md",
+    "PRODUCT.md",
+    "MVP.md",
+    "PROJECT_BOUNDARY.md",
+    "DATA_SCOPE.md",
+    "APPROVALS.md",
+    "PHASE_PLAN.md",
+    "STATUS.md",
+    "ACCEPTANCE_TRACE.md",
+    "SOURCE_INDEX.md",
+)
+FULL_PROFILE_OUTPUTS = (
+    "AGENTS.override.md",
+    "README.profile.md",
+    "STATUS.profile.md",
+    "SAFETY_POLICY.profile.md",
+    "VERIFICATION.profile.md",
+)
+FULL_OUTPUTS = tuple(sorted((*FULL_BASE_OUTPUTS, *FULL_PROFILE_OUTPUTS)))
+
+
+def write_full_tier_templates(root: Path) -> None:
+    for output in FULL_BASE_OUTPUTS:
+        write(root / "templates" / "base" / f"{output}.template", f"# {output}\n")
+    for output in FULL_PROFILE_OUTPUTS:
+        write(root / "profiles" / "python_cli" / f"{output}.template", f"# {output}\n")
+
+
 def render_repo(root: Path) -> None:
-    write(root / "templates/base/README.md.template", "# demo\n")
-    write(root / "templates/base/STATUS.md.template", "status\n")
-    write(root / "profiles/python_cli/README.profile.md.template", "profile\n")
+    write_full_tier_templates(root)
     write(
         root / "examples/demo/template.config.yml",
-        "project:\n  name: demo\n  status: seed\nprofile:\n  name: python_cli\n",
+        "project:\n  name: demo\n  status: seed\n"
+        "profile:\n  name: python_cli\n"
+        "render:\n  tier: full\n",
     )
-    write(root / "examples/demo/README.md", "# demo\n")
-    write(root / "examples/demo/STATUS.md", "status\n")
-    write(root / "examples/demo/README.profile.md", "profile\n")
+    for output in FULL_OUTPUTS:
+        write(root / "examples" / "demo" / output, f"# {output}\n")
     write(
         root / "evals/golden/render_structure_paths.txt",
-        "examples/demo/README.md\nexamples/demo/STATUS.md\nexamples/demo/README.profile.md\n",
+        "".join(f"examples/demo/{output}\n" for output in FULL_OUTPUTS),
     )
 
 
@@ -37,17 +66,14 @@ def render_case() -> dict[str, object]:
                 "name": "demo",
                 "config": "examples/demo/template.config.yml",
                 "target": "examples/demo",
-                "expected_files": [
-                    "examples/demo/README.md",
-                    "examples/demo/STATUS.md",
-                    "examples/demo/README.profile.md",
-                ],
+                "expected_files": [f"examples/demo/{output}" for output in FULL_OUTPUTS],
             }
         ],
     }
 
 
 def rendered_readiness_repo(root: Path) -> None:
+    write_full_tier_templates(root)
     write(
         root / "templates/base/README.md.template",
         "# {{ project.name }}\n\nProject purpose and current state.\n",
@@ -65,7 +91,9 @@ def rendered_readiness_repo(root: Path) -> None:
     write(root / "profiles/python_cli/VERIFICATION.profile.md.template", "Run local verification with synthetic fixtures only.\n")
     write(
         root / "examples/demo/template.config.yml",
-        "project:\n  name: demo\n  status: seed\nprofile:\n  name: python_cli\n",
+        "project:\n  name: demo\n  status: seed\n"
+        "profile:\n  name: python_cli\n"
+        "render:\n  tier: full\n",
     )
 
 
@@ -107,7 +135,7 @@ def test_render_structure_passes_expected_paths(tmp_path: Path) -> None:
     result = run_eval.run_render_structure(tmp_path, render_case())
 
     assert result.passed is True
-    assert "3" in result.messages[0]
+    assert "16" in result.messages[0]
 
 
 def test_render_structure_detects_missing_expected_file(tmp_path: Path) -> None:
