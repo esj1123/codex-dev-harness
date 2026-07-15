@@ -31,6 +31,34 @@ FULL_PROFILE_OUTPUTS = (
     "VERIFICATION.profile.md",
 )
 FULL_OUTPUTS = tuple(sorted((*FULL_BASE_OUTPUTS, *FULL_PROFILE_OUTPUTS)))
+TIER_OUTPUTS = {
+    "minimal": (
+        "AGENTS.md",
+        "AGENTS.override.md",
+        "MVP.md",
+        "PRODUCT.md",
+        "PROJECT_BOUNDARY.md",
+        "README.md",
+        "SAFETY_POLICY.profile.md",
+        "VERIFICATION.profile.md",
+    ),
+    "standard": (
+        "ACCEPTANCE_TRACE.md",
+        "AGENTS.md",
+        "AGENTS.override.md",
+        "APPROVALS.md",
+        "DATA_SCOPE.md",
+        "MVP.md",
+        "PHASE_PLAN.md",
+        "PRODUCT.md",
+        "PROJECT_BOUNDARY.md",
+        "README.md",
+        "SAFETY_POLICY.profile.md",
+        "STATUS.md",
+        "STATUS.profile.md",
+        "VERIFICATION.profile.md",
+    ),
+}
 
 
 def write_full_tier_templates(root: Path) -> None:
@@ -136,6 +164,28 @@ def test_render_structure_passes_expected_paths(tmp_path: Path) -> None:
 
     assert result.passed is True
     assert "16" in result.messages[0]
+
+
+def test_planned_render_paths_honors_minimal_tier(tmp_path: Path) -> None:
+    render_repo(tmp_path)
+    config_path = tmp_path / "examples/demo/template.config.yml"
+    config_text = config_path.read_text(encoding="utf-8")
+    write(config_path, config_text.replace("tier: full", "tier: minimal"))
+
+    paths = run_eval.planned_render_paths(tmp_path, config_path, tmp_path / "examples/demo")
+
+    assert paths == [f"examples/demo/{output}" for output in TIER_OUTPUTS["minimal"]]
+
+
+def test_planned_render_paths_honors_standard_tier(tmp_path: Path) -> None:
+    render_repo(tmp_path)
+    config_path = tmp_path / "examples/demo/template.config.yml"
+    config_text = config_path.read_text(encoding="utf-8")
+    write(config_path, config_text.replace("tier: full", "tier: standard"))
+
+    paths = run_eval.planned_render_paths(tmp_path, config_path, tmp_path / "examples/demo")
+
+    assert paths == [f"examples/demo/{output}" for output in TIER_OUTPUTS["standard"]]
 
 
 def test_render_structure_detects_missing_expected_file(tmp_path: Path) -> None:

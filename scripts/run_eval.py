@@ -89,7 +89,7 @@ def planned_render_paths(repo_root: Path, config_path: Path, target: Path) -> li
     profile_dir = repo_root / "profiles" / config.profile if config.profile else None
     paths = [
         relpath(template_destination(source, source_root, target), repo_root)
-        for source, source_root in iter_templates(base_dir, profile_dir)
+        for source, source_root in iter_templates(base_dir, profile_dir, config.tier)
     ]
     return paths
 

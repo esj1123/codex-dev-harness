@@ -31,6 +31,12 @@ Content-level drift enforcement uses a separate golden render fixture under
 `examples/*_minimal` directories unless that task also approves replacing their
 curated content with generated snapshots.
 
+Any renderer or render-planner change must review and, when behavior changes,
+regenerate both `evals/golden/rendered_python_cli_contract.json` and
+`evals/golden/render_structure_paths.txt`. Run
+`python scripts/run_eval.py` afterward; focused renderer tests and the
+quality gate do not replace this standalone golden verification.
+
 Downstream update propagation is governed separately by
 `docs/RENDER_PROVENANCE_AND_UPGRADE_PLAN.md`. That plan keeps curated examples
 separate from generated snapshots and requires compare-first upgrades instead
