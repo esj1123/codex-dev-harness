@@ -29,6 +29,9 @@ jobs:
       - name: Run tests
         run: python -m pytest tests
 
+      - name: Run standalone evals
+        run: python scripts/run_eval.py
+
       - name: Run quality gate
         run: python scripts/quality_gate.py
 

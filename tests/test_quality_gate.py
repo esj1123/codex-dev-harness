@@ -163,6 +163,54 @@ def test_readme_describes_installed_manual_local_verify_workflow() -> None:
     assert "next planned CI step is a read-only verification hygiene path" not in text
 
 
+def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
+    text = Path(".github/workflows/local-verify.yml").read_text(encoding="utf-8")
+    tests_command = "run: python -m pytest tests"
+    eval_command = "run: python scripts/run_eval.py"
+    quality_gate_command = "run: python scripts/quality_gate.py"
+
+    assert "workflow_dispatch:" in text
+    assert "permissions:\n  contents: read" in text
+    assert text.count(eval_command) == 1
+    assert text.index(tests_command) < text.index(eval_command) < text.index(quality_gate_command)
+    for forbidden in [
+        "--report",
+        "--summary-report",
+        "--cases-report",
+        "upload-artifact",
+        "pull_request:",
+        "push:",
+        "secrets:",
+    ]:
+        assert forbidden not in text
+
+
+def test_eval_policy_docs_define_manual_console_integration_boundary() -> None:
+    decision = Path("docs/EVAL_INTEGRATION_DECISION.md").read_text(encoding="utf-8")
+    policy = Path("docs/EVAL_POLICY.md").read_text(encoding="utf-8")
+    ci_policy = Path("docs/CI_POLICY.md").read_text(encoding="utf-8")
+    report_plan = Path("docs/EVAL_REPORT_INTEGRATION_PLAN.md").read_text(encoding="utf-8")
+    design = Path("docs/MINIMAL_EVAL_HARNESS_DESIGN.md").read_text(encoding="utf-8")
+    verification = Path("docs/VERIFICATION.md").read_text(encoding="utf-8")
+    limitations = Path("docs/KNOWN_LIMITATIONS.md").read_text(encoding="utf-8")
+
+    assert "MANUAL_LOCAL_VERIFY_CONSOLE_EVAL_APPROVED" in decision
+    assert "MANUAL_LOCAL_VERIFY_CONSOLE_EVAL_APPROVED" in policy
+    for text in [decision, policy, ci_policy, report_plan, design, verification, limitations]:
+        assert "python scripts/run_eval.py" in text
+        assert "quality_gate.py" in text
+    for text in [decision, policy, ci_policy, report_plan, verification]:
+        assert "workflow_dispatch" in text
+        assert "contents: read" in text
+    for text in [decision, policy, ci_policy, report_plan, design, verification]:
+        normalized = " ".join(text.lower().split())
+        assert any(
+            phrase in normalized
+            for phrase in ["no report", "without report flags", "no eval report"]
+        )
+        assert "release-blocking" in text
+
+
 def test_security_policy_defines_private_reporting_contract() -> None:
     text = Path("SECURITY.md").read_text(encoding="utf-8")
 

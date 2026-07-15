@@ -9,13 +9,14 @@ regression behavior. It checks whether generated or rendered template outputs
 preserve expected file structure, required policy language, forbidden artifact
 boundaries, and deterministic output path behavior.
 
-The implementation is intentionally minimal and standalone. It does not use an
-LLM judge, external services, private input, prompt/session capture, CI, release
-artifacts, or live target behavior.
+The implementation is intentionally minimal and standalone from the quality
+gate. It does not use an LLM judge, external services, private input,
+prompt/session capture, automatic CI triggers, release artifacts, or live
+target behavior.
 
 ## Current State
 
-Status: MINIMAL STANDALONE IMPLEMENTATION PRESENT.
+Status: MINIMAL STANDALONE IMPLEMENTATION WITH MANUAL CONSOLE VERIFICATION.
 
 The repository contains:
 
@@ -26,19 +27,21 @@ The repository contains:
 - `tests/test_run_eval.py`
 - `tests/test_eval_gate.py`
 
-The harness remains separate from `scripts/quality_gate.py`. CI eval integration
-is not installed. No eval report is generated unless `scripts/run_eval.py` is
-called with `--report`.
+The harness remains separate from `scripts/quality_gate.py`. The existing
+manual read-only Local Verify workflow runs exactly
+`python scripts/run_eval.py` without report flags. No eval report is generated
+unless the runner is called explicitly with `--report`.
 
 The default runner discovers `evals/cases/*.yml` in deterministic filename
 order. Each case must have a stable `name` so console output and optional JSON
 reports can be compared across runs.
 
 The Stage 3 integration decision is recorded in
-`docs/EVAL_INTEGRATION_DECISION.md`. The decision keeps the eval harness
-standalone, keeps `scripts/gates/eval_gate.py` separate from
-`scripts/quality_gate.py`, and does not approve routine report generation, CI
-integration, or release-blocking eval behavior.
+`docs/EVAL_INTEGRATION_DECISION.md`. The current decision keeps the eval
+runner and `scripts/gates/eval_gate.py` separate from
+`scripts/quality_gate.py`, approves console-only execution in manual Local
+Verify, and does not approve routine report generation, automatic CI triggers,
+or release-blocking eval behavior.
 
 ## Design Principles
 
@@ -50,7 +53,7 @@ integration, or release-blocking eval behavior.
 - No prompt or session capture.
 - No live target access.
 - No release publication behavior.
-- No CI integration by default.
+- Manual console-only Local Verify execution; no automatic CI trigger.
 - Standalone first; promotion into `quality_gate.py` requires separate approval.
 
 ## Non-Goals
@@ -59,7 +62,8 @@ integration, or release-blocking eval behavior.
 - No benchmark against external models.
 - No private source capture.
 - No prompt or session capture.
-- No CI integration by default.
+- No automatic, report-producing, required-check, or release-blocking CI
+  integration.
 - No downstream application validation.
 - No device, PLC, live target, or runtime behavior.
 - No release manifest, checksum, SBOM, or provenance generation.
@@ -163,6 +167,7 @@ These files are present in the minimal standalone implementation:
 - `evals/cases/render_structure_base_docs.yml`
 - `evals/cases/render_structure_profile_docs.yml`
 - `evals/cases/render_determinism_paths.yml`
+- `evals/cases/rendered_python_cli_readiness.yml`
 - `evals/cases/policy_approval_boundary.yml`
 - `evals/cases/policy_not_run_honesty.yml`
 - `evals/cases/policy_plc_safety.yml`
@@ -180,11 +185,11 @@ These files are present in the minimal standalone implementation:
 - `tests/test_run_eval.py`
 - `tests/test_eval_gate.py`
 
-The named cases cover base render docs, profile render docs, render path
-determinism, approval policy, NOT RUN honesty, PLC/device safety, forbidden C#
-artifacts, forbidden live config, forbidden secret patterns, prompt contract
-completeness, release manifest shape, checksum shape, SBOM shape, and
-provenance shape.
+The 15 named cases cover base render docs, profile render docs, render path
+determinism, rendered Python CLI readiness, approval policy, NOT RUN honesty,
+PLC/device safety, forbidden C# artifacts, forbidden live config, forbidden
+secret patterns, prompt contract completeness, release manifest shape,
+checksum shape, SBOM shape, and provenance shape.
 
 ## Optional Output
 
@@ -225,13 +230,15 @@ Approval must name the implementation surface, including whether the task may:
 - add dependencies
 - integrate with CI
 
-Without that approval, the eval harness remains standalone and local-only.
+The current approval is limited to the exact manual Local Verify console
+command. Every broader integration surface still requires separate approval.
 
 ## Future Boundary
 
 The recommended next boundary is a promotion decision, not automatic expansion.
 
-The current promotion decision is KEEP STANDALONE BASELINE.
+The current promotion decision is
+MANUAL_LOCAL_VERIFY_CONSOLE_EVAL_APPROVED.
 
 Before approving any expansion, decide:
 
@@ -239,7 +246,7 @@ Before approving any expansion, decide:
 - whether report generation should become part of routine verification
 - whether optional report paths remain limited to repo-internal relative paths
 - whether failed evals are advisory or blocking
-- whether CI remains out of scope
+- whether CI remains limited to the current manual console-only command
 
 ## Safety Confirmation
 
@@ -248,7 +255,8 @@ This implementation does not add:
 - eval reports by default
 - audit logging code
 - RAG tooling
-- CI workflows
+- new CI workflows or automatic triggers
+- eval report generation or artifact upload from Local Verify
 - release artifacts
 - real application code
 - C# source, solution, project, XAML, or build assets

@@ -15,10 +15,13 @@ Record known limitations for the current codex-dev-harness baseline after the fo
 - Python CLI examples do not implement a CLI command.
 - C# desktop examples do not include solution files, project files, source files, or build/test/smoke scripts.
 - PLC/device examples do not include polling, connection, tag maps, control actions, or live device write support.
-- The eval harness is minimal and standalone; it is not wired into `quality_gate.py`, CI, or release blocking.
+- The eval harness is minimal and remains separate from `quality_gate.py` and
+  release blocking. The manual Local Verify workflow runs exactly
+  `python scripts/run_eval.py` as a console-only check.
 - The installed Local Verify GitHub Actions workflow is manual
-  `workflow_dispatch` and read-only; automatic push/PR triggers, required-check
-  policy, and artifact upload remain absent.
+  `workflow_dispatch` and read-only; the eval step has no report flags, and
+  automatic push/PR triggers, required-check policy, and artifact upload remain
+  absent.
 - Release manifest and full-bundle checksum generation plus read-only canonical
   checksum verification exist as local-only evidence; broader release archive,
   publication, signing, and upload behavior is not implemented.
@@ -44,15 +47,15 @@ Record known limitations for the current codex-dev-harness baseline after the fo
 
 ## Candidate Future Work
 
-- Expand or integrate the eval harness only after explicit approval and
-  concrete downstream failure modes.
+- Expand eval integration beyond the approved manual console command only after
+  explicit approval and concrete failure evidence.
 - Expand release verification into broader release bundle/archive generation
   only after explicit approval.
 - Expand SBOM/provenance beyond the minimal local generators only after
   explicit approval and a concrete distribution, audit, or compliance need.
-- Broaden the manual read-only Local Verify workflow only after separate owner
-  approval names the exact triggers, permissions, required-check policy,
-  commands, and exclusions.
+- Broaden the manual read-only Local Verify workflow beyond
+  `python scripts/run_eval.py` only after separate owner approval names the
+  exact triggers, permissions, required-check policy, commands, and exclusions.
 - Split `docs_gate` into baseline, release-record, and optional-document groups if the required-doc list becomes too release-specific.
 - Add stricter config schema validation if template config grows beyond scalar values.
 - Add optional design-stage render integration only if manual-use friction appears.
@@ -61,8 +64,11 @@ Record known limitations for the current codex-dev-harness baseline after the fo
 
 ## Non-Goals
 
-- Do not broaden GitHub Actions workflows as part of this limitation refresh.
-- Do not expand or integrate the eval harness as part of this limitation refresh.
+- Do not broaden GitHub Actions beyond the approved manual console eval step as
+  part of this limitation refresh.
+- Do not integrate the eval harness into `quality_gate.py`, report generation,
+  automatic triggers, required checks, or release blocking as part of this
+  limitation refresh.
 - Do not generate release bundles, release archives, or refreshed release
   evidence artifacts as part of this limitation refresh.
 - Do not add a new profile or downstream application implementation as part of this limitation refresh.

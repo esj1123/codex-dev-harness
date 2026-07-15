@@ -40,6 +40,7 @@ The workflow is manual-only through `workflow_dispatch` and uses
 subset:
 
 - `python -m pytest tests`
+- `python scripts/run_eval.py`
 - `python scripts/quality_gate.py`
 - `python scripts/render_template.py --config examples/python_cli_minimal/template.config.yml --target examples/python_cli_minimal --dry-run`
 - `python scripts/render_template.py --config examples/csharp_desktop_minimal/template.config.yml --target examples/csharp_desktop_minimal --dry-run`
@@ -48,10 +49,14 @@ subset:
 It also installs development requirements from `requirements-dev.txt` and uses
 the Python runtime declared in `.python-version`.
 
-The workflow does not run release verification, generate release artifacts,
-upload artifacts, publish releases, sign artifacts, move tags, deploy, check out
-downstream repositories, run eval/report integration, run RAG/index tooling,
-run audit automation, run MCP/Hermes code, or perform live-write behavior.
+The eval step is console-only and runs without report flags after pytest and
+before the quality gate. A nonzero eval exit fails only that manually dispatched
+workflow run. It does not create a required check or release-blocking policy.
+
+The workflow does not run release verification, generate release or eval report
+artifacts, upload artifacts, publish releases, sign artifacts, move tags,
+deploy, check out downstream repositories, run RAG/index tooling, run audit
+automation, run MCP/Hermes code, or perform live-write behavior.
 
 ## Local Release Verification Flow
 
@@ -176,6 +181,10 @@ The runner discovers named `evals/cases/*.yml` files in deterministic filename
 order. It is local-only, non-LLM, and not wired into `scripts/quality_gate.py`
 by default.
 
+The manual `.github/workflows/local-verify.yml` workflow also runs exactly
+`python scripts/run_eval.py` under `workflow_dispatch` with `contents: read`.
+It uses no report flags and creates no eval artifact.
+
 Phase 5 report-only planning is documented in
 `docs/EVAL_REPORT_INTEGRATION_PLAN.md`. Eval evidence may be summarized in
 audit / trace / receipt closeouts using the eval receipt fields in
@@ -196,9 +205,11 @@ present optional release evidence artifact. Regenerate `artifacts/checksums.sha2
 and run `python scripts/generate_checksums.py --verify` after creating the
 report when checksum coverage is being asserted.
 
-Do not generate eval reports routinely. Do not treat evals as release-blocking,
-CI-integrated, or part of `scripts/quality_gate.py` unless a separate task
-explicitly approves that integration.
+Do not generate eval reports routinely. The approved CI boundary is only the
+manual console step above. Do not make evals release-blocking, automatic,
+required-check policy, report-producing in CI, or part of
+`scripts/quality_gate.py` unless a separate task explicitly approves that
+integration.
 
 ## Approved Corpus Digest Planning Flow
 
