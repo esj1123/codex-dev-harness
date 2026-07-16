@@ -500,21 +500,33 @@ respectively, met the documented readiness thresholds, proved cleanup, and
 required no runtime patch. Curated examples, release evidence, workflows, and
 downstream repositories were not changed.
 
+The manual Local Verify eval integration is implemented in commit
+`d6de357aa0b68bac6ad80b33e3041abb08f57f0b`. The existing
+`.github/workflows/local-verify.yml` now runs exactly
+`python scripts/run_eval.py` after pytest and before
+`python scripts/quality_gate.py`. The workflow remains manual
+`workflow_dispatch` with `contents: read`, no report flags, no artifact
+generation or upload, no required-check semantics, and no release-blocking
+policy. Local verification passed with 581 tests, 15/15 standalone eval cases,
+9/9 quality gates, checksum verification for 5 entries, and all three 16-file
+profile dry-runs. No runtime or eval-case patch was required.
+
 ## Current Verification Snapshot
 
-Snapshot purpose: record the current Render Tier handoff while preserving older
-stage and phase rows as historical evidence. Current release evidence remains
-local-only and on `HOLD`; the approved corpus remains the exact stable 34-source
-set; downstream access remains unapproved.
+Snapshot purpose: record the current manual Local Verify console-eval handoff
+while preserving older stage and phase rows as historical evidence. Current
+release evidence remains local-only and on `HOLD`; the approved corpus remains
+the exact stable 34-source set; downstream access remains unapproved.
 
 | item | status | evidence |
 |---|---|---|
 | basis branch/ref | PRESENT | `main` / `origin/main` |
 | capability implementation roadmap | PRESENT / CURRENT SEQUENCING SOURCE | `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`; historical optional/deferred decisions are risk evidence, not permanent blockers |
-| first implementation target | IMPLEMENTED | Read-only CI + verification hygiene is installed as manual `workflow_dispatch` workflow `.github/workflows/local-verify.yml` |
+| first implementation target | IMPLEMENTED / MANUAL CONSOLE EVAL EXTENDED | Read-only CI + verification hygiene is installed as manual `workflow_dispatch` workflow `.github/workflows/local-verify.yml`; commit `d6de357aa0b68bac6ad80b33e3041abb08f57f0b` adds the exact console-only eval command while preserving `contents: read` and no-report/no-upload boundaries |
 | Render Tier scenario contract | PASS / CONTRACT | commit `650516c1b56b1001d536fa88c180a738f9073369`; defines exact `minimal`, `standard`, and `full` output matrices, tier-specific Read Order closure, readiness thresholds, default-full compatibility, and compare-first boundaries |
 | Render Tier implementation | PASS / IMPLEMENTED | commit `2ee9f1f66aa204ef2d5de515b8bce0228c2c5028`; implements config and CLI tier selection, exact file planning, generated Read Order content, full-tier golden compatibility, and focused readiness coverage without example regeneration or workflow expansion |
-| current Render Tier usage-probe checkpoint | PASS / NO RUNTIME PATCH REQUIRED | commit `5ed70e13152fc01dfad72dc9fbad50d8b9678527`; `minimal` rendered 8 files and reached `LIMITED_AI_ASSISTED_WORK_ALLOWED`, `standard` rendered 14 files and reached `READY_FOR_AI_ASSISTED_WORK`, and `full` rendered 16 files and reached `READY_FOR_AI_ASSISTED_WORK`; all exact file sets and Read Orders closed, dry-run created no target, temporary output cleanup passed, the current full suite has 577 tests, and the standing quality gate has 9 gates |
+| Render Tier usage-probe checkpoint | PASS / NO RUNTIME PATCH REQUIRED | commit `5ed70e13152fc01dfad72dc9fbad50d8b9678527`; `minimal` rendered 8 files and reached `LIMITED_AI_ASSISTED_WORK_ALLOWED`, `standard` rendered 14 files and reached `READY_FOR_AI_ASSISTED_WORK`, and `full` rendered 16 files and reached `READY_FOR_AI_ASSISTED_WORK`; all exact file sets and Read Orders closed, dry-run created no target, temporary output cleanup passed, the probe suite had 577 tests, and the standing quality gate had 9 gates |
+| current manual Local Verify eval checkpoint | PASS / LOCAL COMMIT | commit `d6de357aa0b68bac6ad80b33e3041abb08f57f0b`; workflow order is pytest, exact console-only eval, quality gate, and three profile dry-runs; local verification passed with 581 tests, 15/15 evals, 9/9 gates, and 5/5 checksums; push and workflow dispatch remain separately approval-gated |
 | Phase 11A downstream integration boundary | PASS / DOCUMENTATION-ONLY | commit `c7da80df0e8cb623effbe0d52cf6acdb7056fe32`; `docs/DOWNSTREAM_PRODUCT_INTEGRATION_BOUNDARY_REVIEW.md` and focused contract tests define authority, data, evidence, repository-access, and side-effect boundaries without downstream access |
 | Phase 11B synthetic task contract | PASS / SYNTHETIC-ONLY | commit `71951fc3cdbd0f6158f385b409a76d25cd1d3090`; deterministic placeholder-only JSON task contract and test-local validation are present; all 16 side-effect classes remain independently unapproved and `NOT RUN` |
 | Phase 11C standalone validator candidate | PASS / CONTRACT-ONLY | commit `699849ddae2abd2bb42841727fd50f5dcc62c794`; fixes the future input, path, validation, permission, output, status, and non-goal boundary without implementation or downstream access |
@@ -532,8 +544,8 @@ set; downstream access remains unapproved.
 | manifest files recorded | PRESENT | `324` |
 | checksum coverage | PRESENT | `artifacts/checksums.sha256` records 5 entries: eval report, provenance, manifest, CycloneDX SBOM, and SPDX SBOM; checksum file self-reference excluded |
 | standalone eval case count | PRESENT | `scripts/run_eval.py` discovers 15 named local-only non-LLM eval cases under `evals/cases/` |
-| eval / report integration | PHASE 5B RECEIPT-ALIGNED / STANDALONE | `scripts/run_eval.py`, `tests/test_run_eval.py`, `docs/EVAL_REPORT_INTEGRATION_PLAN.md`, `docs/EVAL_INTEGRATION_DECISION.md`, `docs/EVAL_POLICY.md`, and `audits/receipt-summary.schema.json`; legacy `--report` remains backward-compatible, paired `--summary-report` / `--cases-report` outputs are explicit opt-in only, receipts may cite split eval evidence by repo-relative path and SHA-256, and evals remain separate from `scripts/quality_gate.py`, CI, and release-blocking behavior |
-| approved corpus digest basis before Render Tier handoff | HISTORICAL / VERIFIED | `artifacts/corpus-digest.json`; exact source count 34; artifact-containing commit `d5abce05378d1f68c6f431bd1eaf7a2cb8a1cc0c`; source-basis commit `4703a6532bb9e1d3d006d180372f9267905eab3f`; metadata/hash-only; stable digest excludes `STATUS.md` and `ACCEPTANCE_TRACE.md`; the final post-handoff digest file and task closeout are authoritative for refreshed SHA values so no recursive STATUS commit is required |
+| eval / report integration | MANUAL_LOCAL_VERIFY_CONSOLE_EVAL_APPROVED | `scripts/run_eval.py`, `tests/test_run_eval.py`, `docs/EVAL_REPORT_INTEGRATION_PLAN.md`, `docs/EVAL_INTEGRATION_DECISION.md`, `docs/EVAL_POLICY.md`, and `audits/receipt-summary.schema.json`; legacy and split report outputs remain explicit opt-in only, the runner remains separate from `scripts/quality_gate.py`, and only exact console execution in manual Local Verify is approved; automatic triggers, report generation/upload, required checks, and release blocking remain unapproved |
+| approved corpus digest basis before eval-integration handoff | HISTORICAL / VERIFIED | `artifacts/corpus-digest.json`; exact source count 34; artifact-containing commit `abbdbe0b80970da2d98732a22142d62afc08c3c8`; source-basis commit `bf5c735075e1df05ded86df8d3ef770d7279d3ff`; metadata/hash-only; stable digest excludes `STATUS.md` and `ACCEPTANCE_TRACE.md`; the final post-handoff digest file and task closeout are authoritative for refreshed SHA values so no recursive STATUS commit is required |
 | approved corpus digest Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `8febedead5da6cfd863dd1cbb1c87b0f8d8fab4b`; run `27890277121`; job `82532492491`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded; contents permission remained read-only |
 | Phase 6G digest tooling boundary | IMPLEMENTED / WRITE-GATED | `scripts/generate_corpus_digest.py` and `tests/test_generate_corpus_digest.py`; default check mode is read-only; write mode is restricted to `artifacts/corpus-digest.json`, requires a non-empty approval reference and clean digest-listed source basis, preserves exact source membership and ordering, records scans/gates as not run when not executed, and was used only for the separately approved Phase 6H.3 real digest re-baseline |
 | Phase 6G digest tooling boundary Local Verify evidence | PASS | commit `940a8a5de13d84b25627ece3ae814730e1b8c3e2`; workflow `Local Verify`; run `27865330352`; job `82468393525`; tests, quality gate, and three render dry-runs passed; contents permission remained read-only; no artifacts uploaded; workflow did not run digest refresh, digest check/write, release verification, retrieval query-matrix verification, or artifact generation |
@@ -643,7 +655,7 @@ set; downstream access remains unapproved.
 | Scenario-Simulator treatment | DEFERRED ARCHITECTURE / PLANNING CANDIDATE | No `profiles/scenario_simulator` or `examples/scenario_simulator_minimal`; use Scenario-Simulator repo-local planning docs only when separately selected |
 | stock practical probe sequence | COMPLETE / CLOSEOUT RECORDED | Probe #1-#5 were completed in `stock` under separate target-repo tasks; this harness task records privacy-safe evidence summaries only and does not write to `stock` |
 | `plc_or_device_tool` actual experiment | DEFERRED / NOT NEXT DEFAULT | Separate owner approval required; not the current strategic priority |
-| CI workflow | PRESENT / MANUAL READ-ONLY | `.github/workflows/local-verify.yml`; runs tests, quality gate, and three render dry-runs only |
+| CI workflow | PRESENT / MANUAL READ-ONLY / CONSOLE EVAL | `.github/workflows/local-verify.yml`; runs tests, exact `python scripts/run_eval.py`, quality gate, and three render dry-runs; no report flags, automatic triggers, artifact upload, required-check policy, or release blocking |
 | Local Verify smoke run | PASS | workflow `Local Verify` succeeded for commit `026788c1ae5df617ae5b6874c4b4919f76d9e734`; run `27254100041`; no artifacts uploaded |
 | audit / trace / receipt schema | PRESENT / MANUAL SCHEMA | `docs/AUDIT_TRACE_SCHEMA.md`; documentation-only closeout contract; no audit automation or real audit session logs |
 | JSON Evidence Core / Phase 4B | PRESENT / GATED SCHEMA BUNDLE | `docs/JSON_EVIDENCE_POLICY.md`, `audits/receipt-summary.schema.json`, `audits/trace-event.schema.json`, and `scripts/gates/json_evidence_gate.py`; policy and schemas only; no audit automation or real logs |
@@ -1146,8 +1158,8 @@ Stage 0 current-main gap review basis:
 | next priority | DOWNSTREAM FEEDBACK | Roadmap prioritizes downstream adoption feedback before automation |
 | release page decision | DEFERRED | `docs/RELEASE_PAGE_DECISION.md`; GitHub Release page not created |
 | local package checklist | PRESENT | `docs/LOCAL_PACKAGE_CHECKLIST.md`; no package archive generated |
-| optional eval harness | EXPANDED STANDALONE IMPLEMENTED | `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`; `scripts/run_eval.py`, `scripts/gates/eval_gate.py`, 14 named `evals/cases/`, and `evals/golden/` exist |
-| eval / report integration | PHASE 5B RECEIPT-ALIGNED / STANDALONE | `docs/EVAL_REPORT_INTEGRATION_PLAN.md`, `docs/EVAL_INTEGRATION_DECISION.md`, `scripts/run_eval.py`, `tests/test_run_eval.py`, and `audits/receipt-summary.schema.json`; report-only split summary/cases output is explicit opt-in, receipts may cite summary JSON and cases JSONL by repo-relative path and SHA-256, legacy `--report` remains compatible, and no default quality-gate integration, CI integration, routine eval report generation, or release-blocking eval semantics are active now |
+| optional eval harness | EXPANDED STANDALONE IMPLEMENTED | `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`; `scripts/run_eval.py`, `scripts/gates/eval_gate.py`, 15 named `evals/cases/`, and `evals/golden/` exist |
+| eval / report integration | MANUAL LOCAL VERIFY CONSOLE EVAL / REPORTS OPT-IN | `docs/EVAL_REPORT_INTEGRATION_PLAN.md`, `docs/EVAL_INTEGRATION_DECISION.md`, `scripts/run_eval.py`, `tests/test_run_eval.py`, and `audits/receipt-summary.schema.json`; report-only split summary/cases output remains explicit opt-in, receipts may cite safe report evidence, and manual Local Verify runs only the no-report console command while quality-gate, automatic-trigger, required-check, and release-blocking integration remain absent |
 | known limitations | REFRESHED | `docs/KNOWN_LIMITATIONS.md` no longer lists completed CI policy or release tagging guidance as future work |
 | architecture release/record plane | REFRESHED | `docs/ARCHITECTURE.md` lists current v0.1.0 and post-v0.1.0 evidence |
 | architecture optional pack plane | REFRESHED | Optional design-stage pack is documented as manual-use-only, not profile, and not base render |
@@ -1164,7 +1176,7 @@ Stage 0 current-main gap review basis:
 | optional design-stage operating docs | REFRESHED | Architecture, known limitations, and roadmap reflect the closed manual-use-only baseline |
 | lightweight governance docs | ADDED | `PROMPT_PATTERNS`, `BUG_REVIEW_TEMPLATE`, and `SIMPLIFICATION_CHECKLIST` are present; no implementation added |
 | prompt contract templates | ADDED | Four reusable Markdown prompt templates exist under `prompts/task_contract/`; they do not execute prompts or grant approval |
-| minimal eval harness | EXPANDED | Standalone non-LLM local eval runner, 14 named cases, golden path list, gate wrapper, optional report output, and tests are present |
+| minimal eval harness | EXPANDED | Standalone non-LLM local eval runner, 15 named cases, golden path list, gate wrapper, optional report output, and tests are present; manual Local Verify invokes the no-report console command |
 | release bundle policy | PRESENT | `docs/RELEASE_BUNDLE_POLICY.md`; records local manifest/checksum generation boundary and future release evidence components |
 | release manifest/checksum generation | IMPLEMENTED | Local-only manifest and full-bundle checksum scripts, path-boundary tests, runtime reproducibility inventory, and artifacts added; outputs and checksum inputs are restricted to repo-relative `artifacts/` paths; final checksum coverage includes manifest, SBOM, and provenance evidence while excluding self-reference; no archive, release CI artifact generation, tag, release, application, or live-write behavior |
 | SBOM/provenance generation | IMPLEMENTED MINIMAL LOCAL | Standard-library-only SPDX, CycloneDX, and in-toto-style provenance generators and artifacts added; output paths reject release-evidence overlap; no external metadata lookup, signing, archive, CI-based generation, tag, release publication, application, or live-write behavior |
@@ -1190,12 +1202,12 @@ Stage 0 current-main gap review basis:
 | Stage 5B stock practical probe closeout | PRESENT / HISTORICAL RISK EVIDENCE | `docs/STAGE_5B_STOCK_PRACTICAL_PROBE_CLOSEOUT.md`; Probe #1-#5 support the current local-first discipline and inform verification hygiene, docs-only verification policy, and temp-output policy; superseded for implementation sequencing by the capability roadmap |
 | Stage 1 change control policy | PRESENT | `docs/CHANGE_CONTROL.md`; documentation-only |
 | Stage 1 human approvals policy | PRESENT | `docs/HUMAN_APPROVALS.md`; documentation-only |
-| Stage 1 eval policy | PRESENT | `docs/EVAL_POLICY.md`; minimal standalone eval exists; no dependencies, quality-gate integration, or CI integration |
+| Stage 1 eval policy | PRESENT / MANUAL CONSOLE CI BOUNDARY | `docs/EVAL_POLICY.md`; the minimal standalone eval remains dependency-free and separate from the quality gate; exact no-report console execution in manual Local Verify is approved |
 | audit log schema | PRESENT | `docs/AUDIT_TRACE_SCHEMA.md` and `audits/audit-log.schema.json`; manual receipt schema and optional future evidence contract only, no real session logs or automation |
 | JSON Evidence Core / Phase 4B | PRESENT / QUALITY-GATED | `docs/JSON_EVIDENCE_POLICY.md`, `audits/receipt-summary.schema.json`, `audits/trace-event.schema.json`, `scripts/gates/json_evidence_gate.py`, and `tests/test_json_evidence_gate.py`; schemas parse and the quality gate checks the policy/schema bundle, not generated logs |
 | docs gate alignment | PRESENT | `docs_gate` includes Stage 1 policy docs and current post-v0.1.0 governance/release-evidence docs as required documentation |
 | local staging verification compatibility | PRESENT | `pytest.ini` and `scripts/run_local_verify.ps1` scope pytest to `tests`; hygiene and secret-scan gates ignore root `local/` |
-| Stage 4/Priority 3 implementation boundary | PRESERVED | Standalone eval code, 14 named cases, golden path list, gate wrapper, optional report output, and tests are present; report paths are repo-internal relative under `artifacts/`; no eval report generated by default, quality-gate integration, eval CI integration, eval workflow, tags, releases, profiles, application code, C# source/project, PLC/device code, or live-write behavior added |
+| Stage 4/Priority 3 implementation boundary | PRESERVED / HISTORICAL | At that stage, standalone eval code, 14 named cases, golden path list, gate wrapper, optional report output, and tests were present; report paths were repo-internal relative under `artifacts/`, and that stage added no eval report by default, quality-gate integration, eval workflow, tag, release, profile, application code, C# source/project, PLC/device code, or live-write behavior |
 | AI readiness scanner | IMPLEMENTED STANDALONE | `docs/AI_READINESS_SCANNER_v0.md`, `scripts/ai_readiness_scanner.py`, and `tests/test_ai_readiness_scanner.py`; Markdown and JSON stdout output, synthetic tests, forbidden-folder skipping, and conservative domain risk flags are present; no generated reports, quality-gate integration, scanner CI integration, sibling repo scan, RAG/model tooling, target writes, or target command execution added |
 | scenario simulator treatment | DEFERRED ARCHITECTURE / PLANNING CANDIDATE | Remains downstream candidate, not a built-in profile or first practical probe |
 
@@ -1245,32 +1257,43 @@ Stage 0 current-main gap review basis:
 
 ## Next Recommended Step
 
-The current locally verified Render Tier usage-probe baseline is commit
-`5ed70e13152fc01dfad72dc9fbad50d8b9678527`. The scenario contract, renderer
-implementation, and OS-temporary usage probe are complete. Config omission
-remains full-compatible, explicit CLI overrides select all three tiers, exact
-file sets and Read Order closure pass, and no runtime patch is required.
+The current locally verified implementation baseline is the manual Local Verify
+console-eval commit `d6de357aa0b68bac6ad80b33e3041abb08f57f0b`.
+It closes the verification gap by running the 15-case standalone eval after
+pytest and before the quality gate while preserving manual-only, read-only,
+no-report, no-upload, non-required, and non-release-blocking behavior.
 
 This handoff synchronization intentionally does not refresh
 `artifacts/corpus-digest.json`. The next controlled step is a separate exact
 same-source-set digest freshness commit. The approved corpus must remain the
 existing 34-source set with unchanged membership, ordering, and allow-list.
 Because `STATUS.md` is excluded from the stable corpus and the capability
-roadmap is included, this handoff should make only
-`docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` stale.
+roadmap is included, the expected post-handoff check is 34 sources, 27 valid,
+and 7 stale. The exact stale set must be:
+
+- `docs/CI_POLICY.md`
+- `docs/VERIFICATION.md`
+- `docs/EVAL_REPORT_INTEGRATION_PLAN.md`
+- `docs/EVAL_POLICY.md`
+- `docs/EVAL_INTEGRATION_DECISION.md`
+- `docs/MINIMAL_EVAL_HARNESS_DESIGN.md`
+- `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`
+
+Any different count or path set is a blocker. Digest write remains separately
+approval-gated and must use this handoff commit as source basis.
 
 Only the final digest-valid cumulative tip should be pushed and used for the
 read-only Local Verify workflow. Workflow run and job identifiers belong in task
 closeout rather than this file so verification evidence does not create another
 recursive documentation commit.
 
-After the digest-valid checkpoint is verified, any curated example
-regeneration, compare-first upgrade/provenance work, or downstream application
-requires a separate owner decision. Downstream integration remains on `HOLD`
-because no target is selected; any future target-selection contract must name
-the target authority, safe repository alias, access class, exact commands,
-allowed files, no-touch paths, verification, cleanup, and every permitted side
-effect before repository access.
+After the digest-valid checkpoint is verified, repository hygiene such as an
+explicit `.gitignore` baseline may be reviewed as a separate narrow task.
+Digest-write automation is not implied by this handoff. Downstream integration
+remains on `HOLD` because no target is selected; any future target-selection
+contract must name the target authority, safe repository alias, access class,
+exact commands, allowed files, no-touch paths, verification, cleanup, and every
+permitted side effect before repository access.
 
 Release evidence regeneration remains `HOLD`. No release generator, tag,
 release, upload, publication, downstream mutation, or live action is authorized.
