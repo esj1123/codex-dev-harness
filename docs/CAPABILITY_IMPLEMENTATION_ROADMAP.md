@@ -635,50 +635,48 @@ For this roadmap task, closeout must confirm:
 
 ## 12. Current sequencing handoff
 
-The current locally verified implementation source baseline is the manual Local
-Verify console-eval commit
-`d6de357aa0b68bac6ad80b33e3041abb08f57f0b`. The active cumulative closeout
-sequence is:
+The synchronized digest-valid baseline is
+`4ed55336bc59f0fb8d8536c10827268032d68c95`. Its manual read-only Local
+Verify completed successfully with 581 tests, 15 standalone eval cases, 9
+quality gates, three 16-file profile dry-runs, `contents: read`, and no artifact
+upload. Run and job identifiers remain in task closeout evidence.
 
-1. the exact nine-file manual Local Verify eval implementation commit;
-2. this two-file current handoff synchronization commit;
-3. an exact same-34-source corpus digest freshness commit;
-4. a digest-valid read-only Local Verify confirmation for the cumulative tip;
-5. a separate owner decision for repository hygiene or another capability.
+The active pre-application sequence is:
 
-The handoff commit may change only `STATUS.md` and this roadmap. `STATUS.md` is
-excluded from the approved stable corpus; this roadmap and six changed eval/CI
-policy sources are included. The expected post-handoff digest state is therefore
-34 sources, 27 valid sources, and exactly these 7 stale sources:
+1. align current authority in `AI_HANDOFF`, `STATUS`, this roadmap, and the
+   historical acceptance trace;
+2. add a shared repository ignore baseline for local/cache/Python verification
+   output;
+3. refresh the unchanged exact 34-source corpus digest after separate write
+   approval;
+4. confirm one final digest-valid Local Verify for the cumulative tip;
+5. prepare an owner input packet for a future target-selection contract.
 
-- `docs/CI_POLICY.md`
-- `docs/VERIFICATION.md`
-- `docs/EVAL_REPORT_INTEGRATION_PLAN.md`
-- `docs/EVAL_POLICY.md`
-- `docs/EVAL_INTEGRATION_DECISION.md`
-- `docs/MINIMAL_EVAL_HARNESS_DESIGN.md`
+`STATUS.md` and `ACCEPTANCE_TRACE.md` are excluded from the approved stable
+corpus. `docs/AI_HANDOFF.md` and this roadmap are included. The required
+post-alignment digest state is therefore 34 sources, 32 valid sources, and
+exactly these 2 stale sources:
+
+- `docs/AI_HANDOFF.md`
 - `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`
 
 The digest refresh must preserve exact source membership, ordering, and the
-allow-list, use this handoff commit as source basis, and proceed only after a
-separate exact write approval. Any different stale count or path set is a
-blocker. Only the final digest-valid cumulative tip should be pushed and used
-for Local Verify. Run and job identifiers belong in closeout evidence rather
-than another roadmap edit.
+allow-list, use the clean pre-digest commit as source basis, and proceed only
+after a separate exact write approval. Any different stale count or path set is
+a blocker. Only the final digest-valid cumulative tip should be pushed and used
+for Local Verify.
 
-Downstream work remains target-contract-first and on `HOLD` because no target is
-selected. Synthetic approval booleans and permission records are not
-authenticated authority. A future task must name the target authority, safe
-repository alias, access class, exact commands, allowed files, no-touch paths,
-verification, cleanup, and each permitted side effect before selecting or
-accessing a real downstream repository. It must not widen schema, quality-gate,
-workflow, release, MCP, Hermes, audit, or live behavior without separate
-approval.
+The intended closeout state is `READY_FOR_TARGET_SELECTION`, not downstream
+access. Synthetic approval booleans and permission records are not authenticated
+authority. A future task must name the target authority, safe repository alias,
+access class, expected Git state, exact commands, allowed files, no-touch paths,
+verification, cleanup, and each permitted side effect. The input packet itself
+does not authorize selecting or accessing a real downstream repository and
+must not persist a local absolute path in this repository.
 
-Release evidence regeneration remains `HOLD` after digest freshness. A later
-refresh still requires a separate owner-approved exact-file and exact-command
-task. Repository hygiene such as an explicit `.gitignore` baseline may be
-reviewed separately after the digest-valid checkpoint; digest-write automation
-is not implied. This sequence does not authorize release publication, signing,
-tag movement, artifact upload, workflow expansion, audit automation, MCP or
-Hermes runtime expansion, downstream access, deployment, or live behavior.
+Release evidence regeneration remains `HOLD`. A later refresh still requires a
+separate owner-approved exact-file and exact-command task. Digest-write
+automation is not implied. This sequence does not authorize release
+publication, signing, tag movement, artifact upload, workflow expansion, audit
+automation, MCP or Hermes runtime expansion, downstream access, deployment, or
+live behavior.

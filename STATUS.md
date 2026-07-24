@@ -511,6 +511,13 @@ policy. Local verification passed with 581 tests, 15/15 standalone eval cases,
 9/9 quality gates, checksum verification for 5 entries, and all three 16-file
 profile dry-runs. No runtime or eval-case patch was required.
 
+The synchronized digest-valid baseline is
+`4ed55336bc59f0fb8d8536c10827268032d68c95`. The existing manual GitHub
+Local Verify checked out that exact commit and passed the 581-test suite,
+15-case standalone eval, 9 quality gates, and all three 16-file profile
+dry-runs with `contents: read` and no artifact upload. Run and job identifiers
+remain in task closeout evidence.
+
 ## Current Verification Snapshot
 
 Snapshot purpose: record the current manual Local Verify console-eval handoff
@@ -526,7 +533,7 @@ the exact stable 34-source set; downstream access remains unapproved.
 | Render Tier scenario contract | PASS / CONTRACT | commit `650516c1b56b1001d536fa88c180a738f9073369`; defines exact `minimal`, `standard`, and `full` output matrices, tier-specific Read Order closure, readiness thresholds, default-full compatibility, and compare-first boundaries |
 | Render Tier implementation | PASS / IMPLEMENTED | commit `2ee9f1f66aa204ef2d5de515b8bce0228c2c5028`; implements config and CLI tier selection, exact file planning, generated Read Order content, full-tier golden compatibility, and focused readiness coverage without example regeneration or workflow expansion |
 | Render Tier usage-probe checkpoint | PASS / NO RUNTIME PATCH REQUIRED | commit `5ed70e13152fc01dfad72dc9fbad50d8b9678527`; `minimal` rendered 8 files and reached `LIMITED_AI_ASSISTED_WORK_ALLOWED`, `standard` rendered 14 files and reached `READY_FOR_AI_ASSISTED_WORK`, and `full` rendered 16 files and reached `READY_FOR_AI_ASSISTED_WORK`; all exact file sets and Read Orders closed, dry-run created no target, temporary output cleanup passed, the probe suite had 577 tests, and the standing quality gate had 9 gates |
-| current manual Local Verify eval checkpoint | PASS / LOCAL COMMIT | commit `d6de357aa0b68bac6ad80b33e3041abb08f57f0b`; workflow order is pytest, exact console-only eval, quality gate, and three profile dry-runs; local verification passed with 581 tests, 15/15 evals, 9/9 gates, and 5/5 checksums; push and workflow dispatch remain separately approval-gated |
+| current manual Local Verify eval checkpoint | PASS / REMOTE VERIFIED BASELINE | cumulative commit `4ed55336bc59f0fb8d8536c10827268032d68c95`; workflow order is pytest, exact console-only eval, quality gate, and three profile dry-runs; 581 tests, 15/15 evals, 9/9 gates, and 5/5 checksums passed; contents permission remained read-only and no artifacts were uploaded |
 | Phase 11A downstream integration boundary | PASS / DOCUMENTATION-ONLY | commit `c7da80df0e8cb623effbe0d52cf6acdb7056fe32`; `docs/DOWNSTREAM_PRODUCT_INTEGRATION_BOUNDARY_REVIEW.md` and focused contract tests define authority, data, evidence, repository-access, and side-effect boundaries without downstream access |
 | Phase 11B synthetic task contract | PASS / SYNTHETIC-ONLY | commit `71951fc3cdbd0f6158f385b409a76d25cd1d3090`; deterministic placeholder-only JSON task contract and test-local validation are present; all 16 side-effect classes remain independently unapproved and `NOT RUN` |
 | Phase 11C standalone validator candidate | PASS / CONTRACT-ONLY | commit `699849ddae2abd2bb42841727fd50f5dcc62c794`; fixes the future input, path, validation, permission, output, status, and non-goal boundary without implementation or downstream access |
@@ -545,7 +552,7 @@ the exact stable 34-source set; downstream access remains unapproved.
 | checksum coverage | PRESENT | `artifacts/checksums.sha256` records 5 entries: eval report, provenance, manifest, CycloneDX SBOM, and SPDX SBOM; checksum file self-reference excluded |
 | standalone eval case count | PRESENT | `scripts/run_eval.py` discovers 15 named local-only non-LLM eval cases under `evals/cases/` |
 | eval / report integration | MANUAL_LOCAL_VERIFY_CONSOLE_EVAL_APPROVED | `scripts/run_eval.py`, `tests/test_run_eval.py`, `docs/EVAL_REPORT_INTEGRATION_PLAN.md`, `docs/EVAL_INTEGRATION_DECISION.md`, `docs/EVAL_POLICY.md`, and `audits/receipt-summary.schema.json`; legacy and split report outputs remain explicit opt-in only, the runner remains separate from `scripts/quality_gate.py`, and only exact console execution in manual Local Verify is approved; automatic triggers, report generation/upload, required checks, and release blocking remain unapproved |
-| approved corpus digest basis before eval-integration handoff | HISTORICAL / VERIFIED | `artifacts/corpus-digest.json`; exact source count 34; artifact-containing commit `abbdbe0b80970da2d98732a22142d62afc08c3c8`; source-basis commit `bf5c735075e1df05ded86df8d3ef770d7279d3ff`; metadata/hash-only; stable digest excludes `STATUS.md` and `ACCEPTANCE_TRACE.md`; the final post-handoff digest file and task closeout are authoritative for refreshed SHA values so no recursive STATUS commit is required |
+| approved corpus digest current basis | VERIFIED / EXACT 34-SOURCE SET | `artifacts/corpus-digest.json`; artifact-containing commit `4ed55336bc59f0fb8d8536c10827268032d68c95`; source-basis commit `d09c2ffc05892a0d94be78522a1c70b0755eda8d`; metadata/hash-only; stable digest excludes `STATUS.md` and `ACCEPTANCE_TRACE.md`; future same-source refresh remains separately approval-gated |
 | approved corpus digest Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `8febedead5da6cfd863dd1cbb1c87b0f8d8fab4b`; run `27890277121`; job `82532492491`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded; contents permission remained read-only |
 | Phase 6G digest tooling boundary | IMPLEMENTED / WRITE-GATED | `scripts/generate_corpus_digest.py` and `tests/test_generate_corpus_digest.py`; default check mode is read-only; write mode is restricted to `artifacts/corpus-digest.json`, requires a non-empty approval reference and clean digest-listed source basis, preserves exact source membership and ordering, records scans/gates as not run when not executed, and was used only for the separately approved Phase 6H.3 real digest re-baseline |
 | Phase 6G digest tooling boundary Local Verify evidence | PASS | commit `940a8a5de13d84b25627ece3ae814730e1b8c3e2`; workflow `Local Verify`; run `27865330352`; job `82468393525`; tests, quality gate, and three render dry-runs passed; contents permission remained read-only; no artifacts uploaded; workflow did not run digest refresh, digest check/write, release verification, retrieval query-matrix verification, or artifact generation |
@@ -1257,48 +1264,40 @@ Stage 0 current-main gap review basis:
 
 ## Next Recommended Step
 
-The current locally verified implementation baseline is the manual Local Verify
-console-eval commit `d6de357aa0b68bac6ad80b33e3041abb08f57f0b`.
-It closes the verification gap by running the 15-case standalone eval after
-pytest and before the quality gate while preserving manual-only, read-only,
-no-report, no-upload, non-required, and non-release-blocking behavior.
+The current synchronized and remotely verified baseline is
+`4ed55336bc59f0fb8d8536c10827268032d68c95`.
 
-This handoff synchronization intentionally does not refresh
-`artifacts/corpus-digest.json`. The next controlled step is a separate exact
-same-source-set digest freshness commit. The approved corpus must remain the
-existing 34-source set with unchanged membership, ordering, and allow-list.
-Because `STATUS.md` is excluded from the stable corpus and the capability
-roadmap is included, the expected post-handoff check is 34 sources, 27 valid,
-and 7 stale. The exact stale set must be:
+The active pre-application sequence is:
 
-- `docs/CI_POLICY.md`
-- `docs/VERIFICATION.md`
-- `docs/EVAL_REPORT_INTEGRATION_PLAN.md`
-- `docs/EVAL_POLICY.md`
-- `docs/EVAL_INTEGRATION_DECISION.md`
-- `docs/MINIMAL_EVAL_HARNESS_DESIGN.md`
+1. align `AI_HANDOFF`, this status, the capability roadmap, and the historical
+   acceptance trace;
+2. add a shared `.gitignore` for local/cache/Python verification output;
+3. refresh only `artifacts/corpus-digest.json` for the unchanged exact
+   34-source set after separate write approval;
+4. verify and push the final digest-valid cumulative tip;
+5. prepare, but do not approve or execute, a downstream target-selection
+   input packet.
+
+After the authority and hygiene commits, the required digest precheck is
+34 sources, 32 valid, and exactly 2 stale sources:
+
+- `docs/AI_HANDOFF.md`
 - `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`
 
-Any different count or path set is a blocker. Digest write remains separately
-approval-gated and must use this handoff commit as source basis.
+Any different count or path set is a blocker. The digest refresh must preserve
+membership, ordering, and the allow-list and remains separately approval-gated.
 
-Only the final digest-valid cumulative tip should be pushed and used for the
-read-only Local Verify workflow. Workflow run and job identifiers belong in task
-closeout rather than this file so verification evidence does not create another
-recursive documentation commit.
-
-After the digest-valid checkpoint is verified, repository hygiene such as an
-explicit `.gitignore` baseline may be reviewed as a separate narrow task.
-Digest-write automation is not implied by this handoff. Downstream integration
-remains on `HOLD` because no target is selected; any future target-selection
-contract must name the target authority, safe repository alias, access class,
-exact commands, allowed files, no-touch paths, verification, cleanup, and every
-permitted side effect before repository access.
+The final target-selection packet must name a safe repository alias, target
+authority, access class, expected Git state, exact commands, allowed files,
+no-touch paths, verification, cleanup, and all side-effect permissions. It does
+not authorize downstream access and must not persist an absolute local path in
+this repository.
 
 Release evidence regeneration remains `HOLD`. No release generator, tag,
 release, upload, publication, downstream mutation, or live action is authorized.
 
-Historical Stage 5B, Phase 7, Hermes, receipt, audit, MCP, release, and downstream
-records remain risk and boundary evidence. They do not authorize runtime
-expansion, durable trace or audit persistence, release publication, artifact
-upload, downstream mutation, private/raw corpus ingestion, or live behavior.
+Historical Stage 5B, Phase 7, Hermes, receipt, audit, MCP, release, and
+downstream records remain risk and boundary evidence. They do not authorize
+runtime expansion, durable trace or audit persistence, release publication,
+artifact upload, downstream mutation, private/raw corpus ingestion, or live
+behavior.

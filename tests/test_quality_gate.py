@@ -163,6 +163,34 @@ def test_readme_describes_installed_manual_local_verify_workflow() -> None:
     assert "next planned CI step is a read-only verification hygiene path" not in text
 
 
+def test_ai_handoff_matches_current_pre_application_authority() -> None:
+    text = Path("docs/AI_HANDOFF.md").read_text(encoding="utf-8")
+
+    for expected in [
+        "Pre-application readiness closeout",
+        "Phase 11D.2",
+        "Render Tier",
+        "manual GitHub Local Verify",
+        "workflow_dispatch",
+        "contents: read",
+        "READY_FOR_TARGET_SELECTION",
+    ]:
+        assert expected in text
+    for stale in [
+        "GitHub Actions workflow is not installed",
+        "recommended next work is Phase 3",
+    ]:
+        assert stale not in text
+
+
+def test_acceptance_trace_defines_historical_cutoff_and_current_checkpoint() -> None:
+    text = Path("ACCEPTANCE_TRACE.md").read_text(encoding="utf-8")
+
+    assert "AT-001 through AT-280 are preserved as historical" in text
+    assert "Current next-step authority is `STATUS.md`" in text
+    assert "| AT-281 | current checkpoint |" in text
+
+
 def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
     text = Path(".github/workflows/local-verify.yml").read_text(encoding="utf-8")
     tests_command = "run: python -m pytest tests"

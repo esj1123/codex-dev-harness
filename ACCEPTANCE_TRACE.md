@@ -15,6 +15,18 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 - repo_hygiene.
 - security_contract.
 
+## Trace Authority
+
+AT-001 through AT-280 are preserved as historical implementation and
+verification evidence for their recorded source commits. Rows whose phase
+field says `current` remain truthful to those source commits, but they are not
+the current next-step authority.
+
+Current next-step authority is `STATUS.md` together with
+`docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`. AT-281 is a single
+pre-application checkpoint; workflow run and job identifiers remain in task
+closeout evidence so this file does not create a recursive verification commit.
+
 ## Trace Table
 
 | trace_id | phase | category | requirement | evidence | evidence_path | status | notes |
@@ -300,6 +312,7 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 | AT-278 | current | quality_gate | Phase 9Y.1 tracked receipt test alignment passes clean read-only Local Verify | Manual `workflow_dispatch` Local Verify completed successfully for the Phase 9Y.1 test-alignment commit | .github/workflows/local-verify.yml; tests/test_hermes_git_push_preflight_tracked_receipt_contract.py; tests/test_hermes_git_push_preflight_tracked_receipt_policy.py; STATUS.md | PASS | Commit `1ae6e207a315397d02b91334bee1c5f78bbea05f`; run `28554625970`; job `84659286610`; tests passed; quality gate passed; three render dry-runs passed; contents permission read-only; artifact upload none |
 | AT-279 | current | governance_audit | Phase 9Y tracked receipt synthetic generation creates exactly one approved receipt file | The tracked receipt uses the exact Phase 9X receipt id and path, is full receipt-summary JSON, cites prerequisite evidence, and intentionally does not embed the future post-push Local Verify for its own commit | audits/receipts/hermes-git-push-preflight/phase-9y-hermes-git-push-preflight-tracked-receipt-synthetic-not-run.json; docs/HERMES_GIT_PUSH_PREFLIGHT_TRACKED_RECEIPT_GENERATION_CONTRACT.md; STATUS.md | PASS WITH NOTES | Single tracked receipt only; temporary candidate was outside the repository and cleaned up; no receipt overwrite, trace file, audit log, artifact output, schema/script/workflow edit, quality-gate/CI integration, Hermes real `git push`, MCP execution, release publication, or downstream access added |
 | AT-280 | current | quality_gate | Phase 9Y tracked receipt commit passes clean read-only Local Verify | Manual `workflow_dispatch` Local Verify completed successfully for the Phase 9Y receipt commit | .github/workflows/local-verify.yml; audits/receipts/hermes-git-push-preflight/phase-9y-hermes-git-push-preflight-tracked-receipt-synthetic-not-run.json; STATUS.md | PASS | Commit `7551cb2973ba545922bcb9edb55d8d4e3ca98f75`; run `28561574671`; job `84680140069`; tests passed with 398 cases; quality gate passed; `python_cli`, `csharp_desktop`, and `plc_tool` render dry-runs passed; contents permission read-only; artifact upload none |
+| AT-281 | current checkpoint | governance_audit | Pre-application authority aligns the completed Render Tier, Phase 10D release HOLD, Phase 11D.2 synthetic downstream boundary, manual console eval, and digest-valid baseline | Current authority documents, workflow contract, digest artifact, and focused regression tests agree on the pre-application sequence and exclusions | docs/AI_HANDOFF.md; STATUS.md; docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md; .github/workflows/local-verify.yml; artifacts/corpus-digest.json; tests/test_quality_gate.py | PASS WITH NOTES | No real downstream target or authorization exists; release regeneration remains HOLD; no downstream access, render, write, MCP execution, Hermes execution bridge, release publication, artifact upload, deployment, or live action is authorized by this checkpoint |
 ## Status Values
 
 - PASS: evidence supports the requirement.

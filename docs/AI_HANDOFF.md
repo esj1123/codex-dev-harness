@@ -10,36 +10,30 @@ Reusable local-first template for governed AI/Codex development workflows.
 
 ## Current Phase
 
-Capability implementation roadmap handoff.
+Pre-application readiness closeout.
 
-The historical P0 docs-only baseline is complete. The repository now includes
-documentation, base templates, profile templates, render tooling, quality gates,
-tests, minimal example skeletons, standalone local eval tooling, a standalone
-local read-only AI readiness scanner, local release evidence generators,
-generated local release evidence artifacts, and documentation-only governance
-policies.
+The repository has completed the governed template, Render Tier, standalone
+local RAG, JSON evidence, Hermes preflight, release-evidence preflight, and
+synthetic downstream-contract validation checkpoints described by
+`docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`.
 
-Stages 1-5A are complete:
+The last synchronized digest-valid baseline is
+`4ed55336bc59f0fb8d8536c10827268032d68c95`. Its manual GitHub Local Verify
+run checked out that exact commit and passed 581 tests, the 15-case standalone
+eval, all 9 quality gates, and the three 16-file profile dry-runs with
+`contents: read` and no artifact upload. Workflow run and job identifiers stay
+in the task closeout instead of this tracked handoff.
 
-- Stage 1 documentation drift cleanup.
-- Stage 2 local post-v0.1.0 evidence baseline.
-- Stage 3 eval integration decision: historical standalone runtime baseline.
-- Stage 4 optional CI decision: historical template-only risk evidence.
-- Stage 5A downstream transition decision.
+Phase 10 release evidence remains valid historical source-basis evidence and
+regeneration remains on `HOLD`. Phase 11 is complete through the Phase 11D.2
+temporary synthetic filled-contract usage probe. No real downstream
+repository, path, branch, source, command, render, write, or private data has
+been selected or accessed.
 
-The current implementation direction is defined by
-`docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`. The owner intent is to eventually
-implement CI, RAG, audit / trace / receipt schema, eval/report integration,
-MCP tool boundary, Hermes sidecar, release automation / provenance, and
-downstream product integration.
-
-The first implementation target after the roadmap is read-only CI +
-verification hygiene. Historical optional/deferred decisions and the Stage 5B
-stock practical probe records remain risk evidence and sequencing evidence,
-not permanent blockers.
-
-Scenario-Simulator remains an architecture/planning candidate, but it is not
-the default implementation target.
+The current goal is `READY_FOR_TARGET_SELECTION`: align current authority,
+establish shared repository hygiene, refresh the existing exact 34-source
+digest, and confirm one final digest-valid remote checkpoint before any target
+selection or repository access.
 
 ## Source of Truth
 
@@ -73,6 +67,12 @@ Current baseline surface includes:
 - `scripts/generate_sbom.py`
 - `scripts/generate_provenance.py`
 - `scripts/run_release_verify.ps1`
+- `.github/workflows/local-verify.yml`
+- `scripts/local_rag_retriever.py`
+- `scripts/hermes_sidecar.py`
+- `scripts/hermes_git_push_preflight.py`
+- `scripts/release_evidence_preflight.py`
+- `scripts/downstream_task_contract_validator.py`
 - `docs/AI_READINESS_SCANNER_v0.md`
 - `scripts/ai_readiness_scanner.py`
 - regression examples under `examples/`
@@ -89,35 +89,22 @@ Current baseline surface includes:
 
 ## Pending Risks
 
-- Eval/report integration is a roadmap target after audit / trace / receipt
-  schema. The standalone local eval runner, eval gate wrapper, cases, tests,
-  and explicit eval report evidence exist.
-- Audit / trace / receipt schema is the second roadmap implementation target.
-  Real audit log generation, validators, and automation still require separate
-  phase approval.
-- Release automation / provenance is a later roadmap target. Release archive
-  creation, publication, signing, tag movement, upload, and CI release behavior
-  still require separate approval; the local release verification wrapper,
-  manifest/checksum artifacts, minimal SBOM, and provenance evidence exist.
-- Optional design-stage pack remains manual-use-only and is not integrated into render, gate, or examples.
-- Examples are skeletons only and intentionally contain no real application code.
-- GitHub Actions workflow is not installed. Read-only CI + verification hygiene
-  is the first implementation target and remains approval-gated.
-- `plc_or_device_tool` actual target execution remains deferred and is not the
-  next default stage.
-- Scenario-Simulator remains a downstream architecture/planning candidate; do
-  not add `profiles/scenario_simulator` or
-  `examples/scenario_simulator_minimal` by default.
-- The `stock` practical probe sequence is closed out. Probe #1-#5 evidence
-  supports current task-contract discipline and informs verification hygiene;
-  it is not a permanent blocker to the roadmap targets.
-- AI readiness scanner integration into `scripts/quality_gate.py`, generated
-  report artifacts, and sibling repository scans remain deferred unless
-  separately approved.
+- No downstream target or owner target authorization exists.
+- Release evidence regeneration, archives, publication, signing, tag movement,
+  upload, and CI release behavior remain on `HOLD`.
+- MCP execution, Hermes execution bridges, durable audit automation, AgentOps,
+  and memory runtime are not implemented.
+- The AI readiness scanner and local RAG retriever remain standalone and cannot
+  authorize writes or broaden a task contract.
+- The optional design-stage pack remains manual-use-only.
+- Examples remain skeletons and do not execute real project builds or device
+  behavior.
+- `plc_or_device_tool` live target execution remains prohibited without a
+  separate target-specific approval.
 
 ## Verification Status
 
-Current local verification command:
+Current local wrapper command:
 
 `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1`
 
@@ -128,6 +115,21 @@ The wrapper runs:
 - dry-run rendering for `python_cli_minimal`
 - dry-run rendering for `csharp_desktop_minimal`
 - dry-run rendering for `plc_tool_minimal`
+
+The installed manual GitHub Local Verify workflow is:
+
+`.github/workflows/local-verify.yml`
+
+It runs `python -m pytest tests`, then exactly
+`python scripts/run_eval.py` without report flags, then
+`python scripts/quality_gate.py`, followed by the same three profile dry-runs.
+It is `workflow_dispatch` only with `contents: read`, no secrets, no artifact
+generation or upload, no automatic trigger, no required-check policy, and no
+release-blocking semantics.
+
+The local wrapper intentionally does not run the standalone eval. The local
+wrapper and the manual GitHub Local Verify workflow are separate verification
+surfaces and their results must be reported by name.
 
 The pytest target is intentionally scoped to `tests` so local staging folders,
 snapshot copies, and other untracked working artifacts do not affect collection.
@@ -151,27 +153,28 @@ The AI readiness scanner is for readiness inspection only:
 
 ## Next Recommended Step
 
-Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current implementation
-handoff. The recommended next work is Phase 3: read-only CI + verification
-hygiene.
+Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current sequencing
+authority. Complete the pre-application closeout in this order:
 
-Practical next candidates:
+1. commit the current-authority alignment;
+2. add the shared repository ignore baseline;
+3. refresh only `artifacts/corpus-digest.json` for the unchanged exact
+   34-source set after separate write approval;
+4. push the cumulative digest-valid tip and confirm the existing manual
+   read-only Local Verify workflow;
+5. prepare an owner input packet for a future target-selection contract.
 
-- create the smallest approved read-only CI or CI-adjacent verification hygiene
-  path that mirrors existing local verification
-- keep Scenario-Simulator as a deferred architecture/planning candidate for a
-  separate task selected under that repository's own rules
-- keep `AI_HANDOFF`, `STATUS`, and `ACCEPTANCE_TRACE` aligned after any future
-  evidence baseline changes
-- preserve generated artifact source-basis versus artifact-containing commit
-  semantics when documentation-only commits advance HEAD
-- keep audit automation, eval quality-gate integration, routine eval reports,
-  release archives, signing, publication, artifact upload, required CI checks,
-  new profiles, new examples, RAG/index/vector store or model tooling,
-  MCP/Hermes implementation, downstream product integration, and runtime,
-  application, device, or live-write behavior out of the CI hygiene task unless
-  separately approved
-- do not start Probe #6 by default
+The target-selection packet may name a safe repository alias, authority,
+access class, expected Git state, allowed files, no-touch paths, exact
+read-only commands, verification, cleanup, and each side-effect permission.
+It must not persist a local absolute path in this repository or authorize
+downstream access by itself.
+
+After the final checkpoint the intended state is
+`READY_FOR_TARGET_SELECTION`, not target access or implementation. Do not
+start clone, fetch, downstream inspection, command execution, render, write,
+commit, push, workflow, release, deployment, MCP execution, Hermes execution
+bridge, or live behavior without a new exact approval.
 
 ## Historical / Deferred Candidate
 
