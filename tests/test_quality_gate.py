@@ -162,6 +162,28 @@ def test_docs_gate_requires_current_post_v0_1_governance_docs() -> None:
     assert len(docs_gate.REQUIRED_DOCS) == len(required_docs)
 
 
+def test_v2_policy_separates_core_from_impact_required_extras() -> None:
+    policy = Path("docs/CI_POLICY.md").read_text(encoding="utf-8")
+    impact_map = json.loads(
+        Path("docs/VERIFICATION_IMPACT_MAP.json").read_text(encoding="utf-8")
+    )
+
+    assert "The V2 core is always" in policy
+    assert "impact-required extras" in policy
+    assert impact_map["tier_command_ids"]["V2"][-3:] == [
+        "full_pytest",
+        "standalone_eval",
+        "quality_gate",
+    ]
+    for command_id in [
+        "checksum_verify",
+        "corpus_digest_check",
+        "render_dry_runs",
+    ]:
+        assert command_id in impact_map["command_ids"]
+        assert f"`{command_id}`" in policy
+
+
 def test_readme_describes_installed_manual_local_verify_workflow() -> None:
     text = Path("README.md").read_text(encoding="utf-8")
 
