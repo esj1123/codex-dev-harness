@@ -1,0 +1,23 @@
+{
+  "approval_ref": null,
+  "base_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "declared_side_effects": [
+    "local_write",
+    "execute",
+    "stage",
+    "commit"
+  ],
+  "depends_on": [],
+  "generated_outputs": [],
+  "lane": "feature",
+  "read_set": [
+    "scripts/example_dependency.py"
+  ],
+  "schema_version": "1",
+  "task_id": "example-feature-lane",
+  "verification_tier": "V1",
+  "write_set": [
+    "scripts/example_feature.py",
+    "tests/test_example_feature.py"
+  ]
+}

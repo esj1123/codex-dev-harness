@@ -14,6 +14,28 @@ This template is documentation-only. It does not grant approval for side effects
 - Local path: [absolute or repo-relative path]
 - Basis ref or commit, if relevant: [branch, tag, or commit]
 
+## Work Package
+
+- Task ID: [safe task identifier]
+- Lane: [contract / feature / integration]
+- Base SHA: [40-character commit SHA]
+- Dependencies: [task IDs, or none]
+- Read set: [exact repo-relative paths]
+- Write set: [exact repo-relative paths]
+- Generated outputs: [exact repo-relative paths, or none]
+- Verification tier: [V0 / V1 / V2 / V3]
+- Declared side effects: [classes requested by this task]
+- Approval reference: [safe reference, or none]
+
+For parallel work, save the machine-readable package under the ignored
+`local/work-packages/` directory and run:
+
+```text
+python scripts/work_package_conflict_check.py --repo-root . --package <PACKAGE_JSON> [--package <PACKAGE_JSON> ...] --json
+```
+
+The package describes scope and conflicts. It does not grant approval.
+
 ## Write Scope
 
 Choose one:
@@ -37,11 +59,15 @@ Choose one:
 - Do not generate release artifacts unless separately approved.
 - Do not add eval, audit logging, RAG, application, device, or live-write behavior unless separately approved.
 - Do not include secrets, private raw input, sensitive source text, equipment details, live parameters, or credentials.
+- Feature and contract lanes must not edit integration-only authority,
+  workflow, gate, golden, corpus-source-set, or artifact paths.
 
 ## Verification Commands
 
 Run when safe and available:
 
+- [V0 work-package and scope checks]
+- [V1 focused tests, or V2/V3 integration checks]
 - [command]
 - [command]
 

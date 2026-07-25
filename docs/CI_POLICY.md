@@ -104,6 +104,28 @@ Line-ending warnings, if any, should be recorded as repository hygiene notes
 unless they affect executable behavior or generated artifact content. A local
 commit is not a push, tag, release, artifact upload, deployment, or publication.
 
+## Verification Tiers
+
+Repository work uses four verification tiers:
+
+| tier | owner | required checks |
+|---|---|---|
+| `V0` | contract or scope review | work-package validation, base-SHA confirmation, allowed-file review, and `git diff --check` |
+| `V1` | feature lane | `V0` plus focused tests for the declared write set |
+| `V2` | integration lane | full pytest, no-report standalone eval, all quality gates, checksum and corpus checks, and relevant render dry-runs |
+| `V3` | remote integration gate | one push and one manual Local Verify run for the final cumulative SHA |
+
+Feature and contract lanes do not run V2 or V3 by default. The integration lane
+runs V2 once after all approved feature commits and any required digest-only
+commit are present. V3 runs once for that cumulative tip. A failed V2 or V3
+result may trigger focused diagnosis, but does not require repeating every
+successful feature-lane check.
+
+Digest check is read-only in V2. Digest write remains separately approval-gated
+and runs only when an approved source is stale. If the digest is refreshed, V2
+is run on the final digest-containing commit rather than both sides of the
+digest commit.
+
 ## Release Relationship
 
 CI is not required before a documentation-level release tag. A release tag

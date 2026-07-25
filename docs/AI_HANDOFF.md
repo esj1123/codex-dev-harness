@@ -10,16 +10,16 @@ Reusable local-first template for governed AI/Codex development workflows.
 
 ## Current Phase
 
-Pre-application readiness closeout.
+Parallel work-package control before greenfield implementation.
 
 The repository has completed the governed template, Render Tier, standalone
 local RAG, JSON evidence, Hermes preflight, release-evidence preflight, and
 synthetic downstream-contract validation checkpoints described by
 `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`.
 
-The last synchronized digest-valid baseline is
-`4ed55336bc59f0fb8d8536c10827268032d68c95`. Its manual GitHub Local Verify
-run checked out that exact commit and passed 581 tests, the 15-case standalone
+The current synchronized remote baseline is
+`7e605cff9a588723f9893c56894493f204d26213`. Its manual GitHub Local Verify
+run checked out that exact commit and passed 589 tests, the 15-case standalone
 eval, all 9 quality gates, and the three 16-file profile dry-runs with
 `contents: read` and no artifact upload. Workflow run and job identifiers stay
 in the task closeout instead of this tracked handoff.
@@ -30,10 +30,15 @@ temporary synthetic filled-contract usage probe. No real downstream
 repository, path, branch, source, command, render, write, or private data has
 been selected or accessed.
 
-The current goal is `READY_FOR_TARGET_SELECTION`: align current authority,
-establish shared repository hygiene, refresh the existing exact 34-source
-digest, and confirm one final digest-valid remote checkpoint before any target
-selection or repository access.
+The greenfield `local-data-quality-cli` target contract is selected without
+repository creation or implementation. Before initialization, the harness is
+adding machine-readable work-package conflict checks, integration-only
+ownership, and V0-V3 verification tiers.
+
+The current goal is `READY_FOR_PARALLEL_GREENFIELD_IMPLEMENTATION`: complete
+the work-package control checkpoint, refresh the unchanged exact 34-source
+digest once if required, and confirm one cumulative remote checkpoint before
+creating or implementing the greenfield target.
 
 ## Source of Truth
 
@@ -154,27 +159,22 @@ The AI readiness scanner is for readiness inspection only:
 ## Next Recommended Step
 
 Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current sequencing
-authority. Complete the pre-application closeout in this order:
+authority. Complete this checkpoint in order:
 
-1. commit the current-authority alignment;
-2. add the shared repository ignore baseline;
-3. refresh only `artifacts/corpus-digest.json` for the unchanged exact
-   34-source set after separate write approval;
-4. push the cumulative digest-valid tip and confirm the existing manual
-   read-only Local Verify workflow;
-5. prepare an owner input packet for a future target-selection contract.
+1. commit the work-package checker, focused tests, policy, and current-authority
+   alignment as one integration change;
+2. check the exact 34-source digest and refresh it once only when the expected
+   stable sources are stale;
+3. run V2 verification on the cumulative digest-containing tip;
+4. push that tip once and confirm one V3 Local Verify run;
+5. plan the separately approved greenfield initialization and a maximum of
+   three disjoint feature lanes.
 
-The target-selection packet may name a safe repository alias, authority,
-access class, expected Git state, allowed files, no-touch paths, exact
-read-only commands, verification, cleanup, and each side-effect permission.
-It must not persist a local absolute path in this repository or authorize
-downstream access by itself.
-
-After the final checkpoint the intended state is
-`READY_FOR_TARGET_SELECTION`, not target access or implementation. Do not
-start clone, fetch, downstream inspection, command execution, render, write,
-commit, push, workflow, release, deployment, MCP execution, Hermes execution
-bridge, or live behavior without a new exact approval.
+Actual work-package manifests belong under ignored `local/work-packages/`.
+They describe scope but do not authenticate approval. The greenfield path,
+directory creation, `git init`, render, application implementation, worktree
+creation, push, workflow dispatch, release, deployment, MCP execution, Hermes
+execution bridge, and live behavior remain outside this source task.
 
 ## Historical / Deferred Candidate
 

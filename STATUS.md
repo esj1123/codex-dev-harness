@@ -511,19 +511,20 @@ policy. Local verification passed with 581 tests, 15/15 standalone eval cases,
 9/9 quality gates, checksum verification for 5 entries, and all three 16-file
 profile dry-runs. No runtime or eval-case patch was required.
 
-The synchronized digest-valid baseline is
-`4ed55336bc59f0fb8d8536c10827268032d68c95`. The existing manual GitHub
-Local Verify checked out that exact commit and passed the 581-test suite,
+The current synchronized remote baseline is
+`7e605cff9a588723f9893c56894493f204d26213`. The existing manual GitHub
+Local Verify checked out that exact commit and passed the 589-test suite,
 15-case standalone eval, 9 quality gates, and all three 16-file profile
 dry-runs with `contents: read` and no artifact upload. Run and job identifiers
 remain in task closeout evidence.
 
 ## Current Verification Snapshot
 
-Snapshot purpose: record the current manual Local Verify console-eval handoff
-while preserving older stage and phase rows as historical evidence. Current
-release evidence remains local-only and on `HOLD`; the approved corpus remains
-the exact stable 34-source set; downstream access remains unapproved.
+Snapshot purpose: record the synchronized greenfield target-contract baseline
+and the current parallel work-package control checkpoint while preserving older
+stage and phase rows as historical evidence. Release evidence remains local-only
+and on `HOLD`; the approved corpus remains the exact stable 34-source set;
+greenfield repository creation and downstream access remain unapproved.
 
 | item | status | evidence |
 |---|---|---|
@@ -533,13 +534,15 @@ the exact stable 34-source set; downstream access remains unapproved.
 | Render Tier scenario contract | PASS / CONTRACT | commit `650516c1b56b1001d536fa88c180a738f9073369`; defines exact `minimal`, `standard`, and `full` output matrices, tier-specific Read Order closure, readiness thresholds, default-full compatibility, and compare-first boundaries |
 | Render Tier implementation | PASS / IMPLEMENTED | commit `2ee9f1f66aa204ef2d5de515b8bce0228c2c5028`; implements config and CLI tier selection, exact file planning, generated Read Order content, full-tier golden compatibility, and focused readiness coverage without example regeneration or workflow expansion |
 | Render Tier usage-probe checkpoint | PASS / NO RUNTIME PATCH REQUIRED | commit `5ed70e13152fc01dfad72dc9fbad50d8b9678527`; `minimal` rendered 8 files and reached `LIMITED_AI_ASSISTED_WORK_ALLOWED`, `standard` rendered 14 files and reached `READY_FOR_AI_ASSISTED_WORK`, and `full` rendered 16 files and reached `READY_FOR_AI_ASSISTED_WORK`; all exact file sets and Read Orders closed, dry-run created no target, temporary output cleanup passed, the probe suite had 577 tests, and the standing quality gate had 9 gates |
-| current manual Local Verify eval checkpoint | PASS / REMOTE VERIFIED BASELINE | cumulative commit `4ed55336bc59f0fb8d8536c10827268032d68c95`; workflow order is pytest, exact console-only eval, quality gate, and three profile dry-runs; 581 tests, 15/15 evals, 9/9 gates, and 5/5 checksums passed; contents permission remained read-only and no artifacts were uploaded |
+| current manual Local Verify eval checkpoint | PASS / REMOTE VERIFIED BASELINE | cumulative commit `7e605cff9a588723f9893c56894493f204d26213`; workflow order is pytest, exact console-only eval, quality gate, and three profile dry-runs; 589 tests, 15/15 evals, 9/9 gates, and 5/5 checksums passed; contents permission remained read-only and no artifacts were uploaded |
 | Phase 11A downstream integration boundary | PASS / DOCUMENTATION-ONLY | commit `c7da80df0e8cb623effbe0d52cf6acdb7056fe32`; `docs/DOWNSTREAM_PRODUCT_INTEGRATION_BOUNDARY_REVIEW.md` and focused contract tests define authority, data, evidence, repository-access, and side-effect boundaries without downstream access |
 | Phase 11B synthetic task contract | PASS / SYNTHETIC-ONLY | commit `71951fc3cdbd0f6158f385b409a76d25cd1d3090`; deterministic placeholder-only JSON task contract and test-local validation are present; all 16 side-effect classes remain independently unapproved and `NOT RUN` |
 | Phase 11C standalone validator candidate | PASS / CONTRACT-ONLY | commit `699849ddae2abd2bb42841727fd50f5dcc62c794`; fixes the future input, path, validation, permission, output, status, and non-goal boundary without implementation or downstream access |
 | Phase 11D standalone downstream contract validator | PASS / STANDALONE DRY-RUN | commit `74c299063effec2746a913a66172bb4fd2a7bbde`; standard-library-only, local-only, read-only validation of one selected JSON contract; no repository inspection, command execution, approval authentication, persistence, or integration |
 | Phase 11D.1 synthetic usage probe | PASS WITH NOTES / REVIEW-ONLY | commit `8e785911234823ed1b756df839bba6daa86502db`; the tracked Phase 11B fixture returns `SYNTHETIC_CONTRACT_VALID`, all 16 permissions remain unauthorized, all external states remain `NOT RUN`, and no runtime patch is required |
 | Phase 11D.2 historical implementation source baseline | PASS / TEMPORARY SYNTHETIC FILLED INPUT | commit `0734a87b554eb1da8812e20346305dcdb2a2ae2e`; a temporary synthetic filled contract passes internal validation with two declared local-read-only permission classes, no external action, and successful cleanup; no tracked filled contract or downstream access exists |
+| greenfield local data quality CLI target contract | PASS / CONTRACT-ONLY | commit `7e605cff9a588723f9893c56894493f204d26213`; selects the safe alias, CSV/rules/output contract, `python_cli` standard 14-file surface, and synthetic-only data boundary without creating a target repository or application code |
+| parallel work-package control | IMPLEMENTED / LOCAL READ-ONLY CHECKER | `scripts/work_package_conflict_check.py`, tracked synthetic fixture, focused tests, `docs/CHANGE_CONTROL.md`, and `docs/CI_POLICY.md`; declares contract/feature/integration ownership, exact read/write sets, dependency checks, and V0-V3 verification tiers without worktree creation, Git execution, approval authentication, push, workflow dispatch, or artifact generation |
 | current repository commit before Stage 2 evidence regeneration | HISTORICAL | `9ae69c5fbf65953db2b0efb82b4904098f8a7581` |
 | previous artifact-containing commit observed during Stage 0 read-only review | HISTORICAL | `ab77ab0a0b44c2f1bd700820bfeb358c6ec1bbe7` |
 | current repository commit before `csharp_desktop` experiment | PRESENT | `76d88b842852635c95adcd8f3534f95e8bdc3ff5` |
@@ -552,7 +555,7 @@ the exact stable 34-source set; downstream access remains unapproved.
 | checksum coverage | PRESENT | `artifacts/checksums.sha256` records 5 entries: eval report, provenance, manifest, CycloneDX SBOM, and SPDX SBOM; checksum file self-reference excluded |
 | standalone eval case count | PRESENT | `scripts/run_eval.py` discovers 15 named local-only non-LLM eval cases under `evals/cases/` |
 | eval / report integration | MANUAL_LOCAL_VERIFY_CONSOLE_EVAL_APPROVED | `scripts/run_eval.py`, `tests/test_run_eval.py`, `docs/EVAL_REPORT_INTEGRATION_PLAN.md`, `docs/EVAL_INTEGRATION_DECISION.md`, `docs/EVAL_POLICY.md`, and `audits/receipt-summary.schema.json`; legacy and split report outputs remain explicit opt-in only, the runner remains separate from `scripts/quality_gate.py`, and only exact console execution in manual Local Verify is approved; automatic triggers, report generation/upload, required checks, and release blocking remain unapproved |
-| approved corpus digest current basis | VERIFIED / EXACT 34-SOURCE SET | `artifacts/corpus-digest.json`; artifact-containing commit `4ed55336bc59f0fb8d8536c10827268032d68c95`; source-basis commit `d09c2ffc05892a0d94be78522a1c70b0755eda8d`; metadata/hash-only; stable digest excludes `STATUS.md` and `ACCEPTANCE_TRACE.md`; future same-source refresh remains separately approval-gated |
+| approved corpus digest current basis | VERIFIED / EXACT 34-SOURCE SET | `artifacts/corpus-digest.json`; artifact-containing commit `5a4c77917c73a78b0085de8be2fb0aed5c61836b`; source-basis commit `14f11d7c731751dcae6feba2a94a3d9e3dc4024a`; metadata/hash-only; stable digest excludes `STATUS.md` and `ACCEPTANCE_TRACE.md`; future same-source refresh remains separately approval-gated |
 | approved corpus digest Local Verify evidence | PASS | workflow `Local Verify` succeeded for commit `8febedead5da6cfd863dd1cbb1c87b0f8d8fab4b`; run `27890277121`; job `82532492491`; tests, quality gate, and three render dry-runs passed; no artifacts uploaded; contents permission remained read-only |
 | Phase 6G digest tooling boundary | IMPLEMENTED / WRITE-GATED | `scripts/generate_corpus_digest.py` and `tests/test_generate_corpus_digest.py`; default check mode is read-only; write mode is restricted to `artifacts/corpus-digest.json`, requires a non-empty approval reference and clean digest-listed source basis, preserves exact source membership and ordering, records scans/gates as not run when not executed, and was used only for the separately approved Phase 6H.3 real digest re-baseline |
 | Phase 6G digest tooling boundary Local Verify evidence | PASS | commit `940a8a5de13d84b25627ece3ae814730e1b8c3e2`; workflow `Local Verify`; run `27865330352`; job `82468393525`; tests, quality gate, and three render dry-runs passed; contents permission remained read-only; no artifacts uploaded; workflow did not run digest refresh, digest check/write, release verification, retrieval query-matrix verification, or artifact generation |
@@ -1265,36 +1268,28 @@ Stage 0 current-main gap review basis:
 ## Next Recommended Step
 
 The current synchronized and remotely verified baseline is
-`4ed55336bc59f0fb8d8536c10827268032d68c95`.
+`7e605cff9a588723f9893c56894493f204d26213`.
 
-The active pre-application sequence is:
+The active sequence is:
 
-1. align `AI_HANDOFF`, this status, the capability roadmap, and the historical
-   acceptance trace;
-2. add a shared `.gitignore` for local/cache/Python verification output;
-3. refresh only `artifacts/corpus-digest.json` for the unchanged exact
-   34-source set after separate write approval;
-4. verify and push the final digest-valid cumulative tip;
-5. prepare, but do not approve or execute, a downstream target-selection
-   input packet.
+1. commit the parallel work-package checker, focused tests, policy, and current
+   authority as one integration checkpoint;
+2. run the exact 34-source digest check and refresh only the expected stale
+   sources after one exact write-and-commit approval;
+3. run V2 once on the final digest-containing tip;
+4. push once and run one V3 Local Verify;
+5. plan a separately approved greenfield initialization and at most three
+   feature worktree lanes.
 
-After the authority and hygiene commits, the required digest precheck is
-34 sources, 32 valid, and exactly 2 stale sources:
+Work-package manifests belong under ignored `local/work-packages/` and do not
+grant approval. Feature lanes may run V1 focused verification but must not edit
+current authority, artifacts, workflows, shared gates, golden fixtures, or the
+corpus source-set specification.
 
-- `docs/AI_HANDOFF.md`
-- `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`
-
-Any different count or path set is a blocker. The digest refresh must preserve
-membership, ordering, and the allow-list and remains separately approval-gated.
-
-The final target-selection packet must name a safe repository alias, target
-authority, access class, expected Git state, exact commands, allowed files,
-no-touch paths, verification, cleanup, and all side-effect permissions. It does
-not authorize downstream access and must not persist an absolute local path in
-this repository.
-
-Release evidence regeneration remains `HOLD`. No release generator, tag,
-release, upload, publication, downstream mutation, or live action is authorized.
+Release evidence regeneration remains `HOLD`. Greenfield path creation,
+`git init`, render, application code, worktree creation, release generation,
+tag, release, upload, publication, downstream mutation, and live action are not
+authorized by this checkpoint.
 
 Historical Stage 5B, Phase 7, Hermes, receipt, audit, MCP, release, and
 downstream records remain risk and boundary evidence. They do not authorize
