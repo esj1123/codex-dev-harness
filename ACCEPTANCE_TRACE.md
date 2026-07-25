@@ -17,15 +17,17 @@ Acceptance trace links each requirement to evidence. It is different from runtim
 
 ## Trace Authority
 
-AT-001 through AT-280 are preserved as historical implementation and
+AT-001 through AT-282 are preserved as historical implementation and
 verification evidence for their recorded source commits. Rows whose phase
 field says `current` remain truthful to those source commits, but they are not
 the current next-step authority.
 
-Current next-step authority is `STATUS.md` together with
-`docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`. AT-281 is a single
-pre-application checkpoint; workflow run and job identifiers remain in task
-closeout evidence so this file does not create a recursive verification commit.
+Current authority classes and default read order are defined by
+`docs/AUTHORITY_MANIFEST.json`; current sequencing is defined by `STATUS.md`
+together with `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`. No checkpoint row
+after AT-282 is added for the self-pilot integration. Workflow run and job
+identifiers remain in task closeout evidence so this file does not create a
+recursive verification commit.
 
 ## Trace Table
 

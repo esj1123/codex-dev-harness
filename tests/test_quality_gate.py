@@ -48,6 +48,10 @@ def write(path: Path, content: str = REQUIRED_DOC_CONTENT) -> None:
 def minimal_repo(root: Path) -> None:
     for relative in docs_gate.REQUIRED_DOCS:
         write(root / relative)
+    write(
+        root / docs_gate.MANIFEST_PATH,
+        Path(docs_gate.MANIFEST_PATH).read_text(encoding="utf-8"),
+    )
     for relative in template_schema_gate.REQUIRED_BASE_TEMPLATES:
         write(root / relative)
     for profile in sorted(set(example_gate.REQUIRED_EXAMPLES.values())):
@@ -151,6 +155,10 @@ def test_docs_gate_requires_current_post_v0_1_governance_docs() -> None:
     required_docs = set(docs_gate.REQUIRED_DOCS)
 
     assert POST_V0_1_GOVERNANCE_DOCS <= required_docs
+    assert docs_gate.MANIFEST_PATH in required_docs
+    assert set(docs_gate.BASELINE_REQUIRED_DOCS) == required_docs - {docs_gate.MANIFEST_PATH}
+    assert len(docs_gate.BASELINE_REQUIRED_DOCS) == 75
+    assert len(docs_gate.REQUIRED_DOCS) == 76
     assert len(docs_gate.REQUIRED_DOCS) == len(required_docs)
 
 
@@ -163,32 +171,32 @@ def test_readme_describes_installed_manual_local_verify_workflow() -> None:
     assert "next planned CI step is a read-only verification hygiene path" not in text
 
 
-def test_ai_handoff_matches_current_pre_application_authority() -> None:
-    text = Path("docs/AI_HANDOFF.md").read_text(encoding="utf-8")
+def test_current_authority_is_manifest_driven() -> None:
+    manifest = json.loads(Path(docs_gate.MANIFEST_PATH).read_text(encoding="utf-8"))
+    handoff = Path("docs/AI_HANDOFF.md").read_text(encoding="utf-8")
 
-    for expected in [
-        "Parallel work-package control before greenfield implementation",
-        "Phase 11D.2",
-        "Render Tier",
-        "manual GitHub Local Verify",
-        "workflow_dispatch",
-        "contents: read",
-        "READY_FOR_PARALLEL_GREENFIELD_IMPLEMENTATION",
-    ]:
-        assert expected in text
-    for stale in [
-        "GitHub Actions workflow is not installed",
-        "recommended next work is Phase 3",
-    ]:
-        assert stale not in text
+    assert manifest["current_state"] == "READY_FOR_GREENFIELD_INITIALIZATION"
+    assert manifest["default_read_order"][0:2] == [
+        "AGENTS.md",
+        docs_gate.MANIFEST_PATH,
+    ]
+    assert set(manifest["default_read_order"]).issubset(set(manifest["current_authority"]))
+    assert "ACCEPTANCE_TRACE.md" not in manifest["default_read_order"]
+    assert "docs/PROFILE_MATRIX.md" not in manifest["default_read_order"]
+    assert "Ready for separately approved greenfield initialization" in handoff
+    assert "READY_FOR_PARALLEL_GREENFIELD_IMPLEMENTATION" not in handoff
+    assert "GitHub Actions workflow is not installed" not in handoff
+    assert "recommended next work is Phase 3" not in handoff
 
 
-def test_acceptance_trace_defines_historical_cutoff_and_current_checkpoint() -> None:
+def test_acceptance_trace_is_historical_through_last_existing_checkpoint() -> None:
     text = Path("ACCEPTANCE_TRACE.md").read_text(encoding="utf-8")
 
-    assert "AT-001 through AT-280 are preserved as historical" in text
-    assert "Current next-step authority is `STATUS.md`" in text
+    assert "AT-001 through AT-282 are preserved as historical" in text
+    assert "`docs/AUTHORITY_MANIFEST.json`" in text
     assert "| AT-281 | current checkpoint |" in text
+    assert text.count("| AT-282 | current checkpoint |") == 1
+    assert "| AT-283 |" not in text
 
 
 def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:

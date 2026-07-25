@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 from pathlib import Path
 
 
-REQUIRED_DOCS = [
+MANIFEST_PATH = "docs/AUTHORITY_MANIFEST.json"
+CLASSIFICATION_KEYS = ("current_authority", "durable_policy", "historical_evidence")
+
+BASELINE_REQUIRED_DOCS = [
     "AGENTS.md",
     "README.md",
     "LICENSE",
@@ -85,6 +89,28 @@ REQUIRED_DOCS = [
 ]
 
 
+def manifest_required_docs(repo_root: Path) -> list[str]:
+    manifest_path = repo_root / MANIFEST_PATH
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError("authority manifest must be an object")
+
+    required: list[str] = []
+    for key in CLASSIFICATION_KEYS:
+        paths = payload.get(key)
+        if not isinstance(paths, list) or any(not isinstance(path, str) for path in paths):
+            raise ValueError(f"authority manifest {key} must be a string list")
+        required.extend(paths)
+    if len(required) != len(set(required)):
+        raise ValueError("authority manifest classifications must be disjoint")
+    if MANIFEST_PATH not in required:
+        raise ValueError("authority manifest must classify itself")
+    return required
+
+
+REQUIRED_DOCS = manifest_required_docs(Path(__file__).resolve().parents[2])
+
+
 @dataclass(frozen=True)
 class GateResult:
     name: str
@@ -93,7 +119,33 @@ class GateResult:
 
 
 def run(repo_root: Path) -> GateResult:
-    missing = [path for path in REQUIRED_DOCS if not (repo_root / path).is_file()]
+    try:
+        required_docs = manifest_required_docs(repo_root)
+    except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
+        return GateResult("docs_gate", False, [f"authority manifest invalid: {exc}"])
+
+    missing = [path for path in required_docs if not (repo_root / path).is_file()]
     if missing:
         return GateResult("docs_gate", False, [f"missing required doc: {path}" for path in missing])
-    return GateResult("docs_gate", True, [f"required docs present: {len(REQUIRED_DOCS)}"])
+
+    try:
+        from scripts.authority_manifest_check import inspect_manifest
+    except ImportError:  # pragma: no cover - direct script execution
+        from authority_manifest_check import inspect_manifest
+
+    manifest_result = inspect_manifest(repo_root=repo_root)
+    if manifest_result["status"] != "PASS":
+        reasons = manifest_result["reason_codes"] or ["UNKNOWN"]
+        return GateResult(
+            "docs_gate",
+            False,
+            [f"authority manifest check failed: {reason}" for reason in reasons],
+        )
+    return GateResult(
+        "docs_gate",
+        True,
+        [
+            f"required docs present: {len(required_docs)}",
+            f"authority state: {manifest_result['current_state']}",
+        ],
+    )

@@ -7,21 +7,24 @@ This file defines the operating rules for AI/Codex work in this repository.
 ## Read Order
 
 1. AGENTS.md
-2. PRODUCT.md
-3. MVP.md
-4. STATUS.md
-5. docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md
-6. ACCEPTANCE_TRACE.md
+2. docs/AUTHORITY_MANIFEST.json
+3. PRODUCT.md
+4. MVP.md
+5. STATUS.md
+6. docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md
 7. docs/SAFETY_POLICY.md
 8. docs/VERIFICATION.md
-9. docs/PROFILE_MATRIX.md
-10. docs/AI_HANDOFF.md
+9. docs/AI_HANDOFF.md
 
 ## Current Phase Rule
 
 The historical P0 docs-only baseline and Stage 5B stock practical probe closeout are complete. The repository now includes documentation, profile templates, render tooling, quality gates, minimal example skeletons, and a capability implementation roadmap.
 
-The current implementation sequencing source of truth is `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`. Historical optional/deferred decisions remain risk evidence and approval-boundary evidence, not permanent blockers to the roadmap targets.
+`docs/AUTHORITY_MANIFEST.json` separates current authority, durable policy, and
+historical evidence. The current implementation sequencing source of truth is
+`docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`. Historical optional/deferred
+decisions remain risk evidence and approval-boundary evidence, not permanent
+blockers to the roadmap targets.
 
 Allowed:
 - Edit documentation, markdown templates, profiles, examples, tests, and quality gate scripts within the requested scope.

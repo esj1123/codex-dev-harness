@@ -172,6 +172,17 @@ def test_feature_lane_cannot_claim_integration_only_path() -> None:
     assert checker.package_issues(payload) == ["INTEGRATION_ONLY_PATH"]
 
 
+def test_integration_only_paths_match_authority_manifest() -> None:
+    manifest = json.loads(
+        Path("docs/AUTHORITY_MANIFEST.json").read_text(encoding="utf-8")
+    )
+
+    assert checker.INTEGRATION_ONLY_EXACT == set(manifest["integration_only_exact"])
+    assert set(checker.INTEGRATION_ONLY_PREFIXES) == set(
+        manifest["integration_only_prefixes"]
+    )
+
+
 def test_integration_lane_can_claim_central_paths() -> None:
     payload = package("integration-a", lane="integration")
     payload["write_set"] = [

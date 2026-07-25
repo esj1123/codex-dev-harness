@@ -28,6 +28,7 @@ The current local evidence baseline includes:
 
 - `scripts/run_local_verify.ps1`
 - `scripts/run_release_verify.ps1`
+- `scripts/verification_plan.py`
 - local pytest and quality gate verification
 - standalone local evals
 - local release manifest, checksum, SBOM, provenance, and optional eval report
@@ -125,6 +126,19 @@ Digest check is read-only in V2. Digest write remains separately approval-gated
 and runs only when an approved source is stale. If the digest is refreshed, V2
 is run on the final digest-containing commit rather than both sides of the
 digest commit.
+
+## Verification Impact Planner
+
+`scripts/verification_plan.py` is a standalone read-only advisory planner. It
+observes the path diff between an approved base commit and a selected head,
+then reports the minimum V0-V2 tier, required command identifiers, and
+integration-owner or digest/checksum/render escalation flags from
+`docs/VERIFICATION_IMPACT_MAP.json`.
+
+The planner does not execute commands, cache results, write a corpus digest,
+dispatch V3, authenticate approval, or grant permission to run the checks it
+names. An integration owner must still review the work-package contract and
+obtain every required side-effect approval.
 
 ## Release Relationship
 

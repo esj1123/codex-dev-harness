@@ -67,8 +67,11 @@ EXPECTED_KEYS = {
     "approval_ref",
 }
 INTEGRATION_ONLY_EXACT = {
+    "AGENTS.md",
+    "README.md",
     "STATUS.md",
     "ACCEPTANCE_TRACE.md",
+    "docs/AUTHORITY_MANIFEST.json",
     "docs/AI_HANDOFF.md",
     "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md",
     "scripts/quality_gate.py",

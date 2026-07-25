@@ -112,8 +112,11 @@ writing is approved. No result envelope is tracked.
 
 Contract and feature lanes must not write integration-only surfaces:
 
+- `AGENTS.md`
+- `README.md`
 - `STATUS.md`
 - `ACCEPTANCE_TRACE.md`
+- `docs/AUTHORITY_MANIFEST.json`
 - `docs/AI_HANDOFF.md`
 - `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`
 - `artifacts/`

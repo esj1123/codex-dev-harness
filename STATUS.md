@@ -511,20 +511,20 @@ policy. Local verification passed with 581 tests, 15/15 standalone eval cases,
 9/9 quality gates, checksum verification for 5 entries, and all three 16-file
 profile dry-runs. No runtime or eval-case patch was required.
 
-The current synchronized remote baseline is
-`7e605cff9a588723f9893c56894493f204d26213`. The existing manual GitHub
-Local Verify checked out that exact commit and passed the 589-test suite,
-15-case standalone eval, 9 quality gates, and all three 16-file profile
-dry-runs with `contents: read` and no artifact upload. Run and job identifiers
-remain in task closeout evidence.
+The prerequisite parallel-control remote baseline is
+`15920062088ebd5b4afcb50d3d9eff1b02cbb4bc`. Its manual GitHub Local Verify
+checked out that exact commit and passed 613 tests, the 15-case standalone
+eval, 9 quality gates, and all three 16-file profile dry-runs with
+`contents: read` and no artifact upload. Run and job identifiers remain in task
+closeout evidence.
 
 ## Current Verification Snapshot
 
-Snapshot purpose: record the synchronized greenfield target-contract baseline
-and the current parallel work-package control checkpoint while preserving older
-stage and phase rows as historical evidence. Release evidence remains local-only
-and on `HOLD`; the approved corpus remains the exact stable 34-source set;
-greenfield repository creation and downstream access remain unapproved.
+Snapshot purpose: record the integrated pre-large-integration harness controls
+while preserving older stage and phase rows as historical evidence. Release
+evidence remains local-only and on `HOLD`; the approved corpus remains the
+exact stable 34-source set; greenfield repository creation and downstream
+access remain unapproved.
 
 | item | status | evidence |
 |---|---|---|
@@ -534,7 +534,7 @@ greenfield repository creation and downstream access remain unapproved.
 | Render Tier scenario contract | PASS / CONTRACT | commit `650516c1b56b1001d536fa88c180a738f9073369`; defines exact `minimal`, `standard`, and `full` output matrices, tier-specific Read Order closure, readiness thresholds, default-full compatibility, and compare-first boundaries |
 | Render Tier implementation | PASS / IMPLEMENTED | commit `2ee9f1f66aa204ef2d5de515b8bce0228c2c5028`; implements config and CLI tier selection, exact file planning, generated Read Order content, full-tier golden compatibility, and focused readiness coverage without example regeneration or workflow expansion |
 | Render Tier usage-probe checkpoint | PASS / NO RUNTIME PATCH REQUIRED | commit `5ed70e13152fc01dfad72dc9fbad50d8b9678527`; `minimal` rendered 8 files and reached `LIMITED_AI_ASSISTED_WORK_ALLOWED`, `standard` rendered 14 files and reached `READY_FOR_AI_ASSISTED_WORK`, and `full` rendered 16 files and reached `READY_FOR_AI_ASSISTED_WORK`; all exact file sets and Read Orders closed, dry-run created no target, temporary output cleanup passed, the probe suite had 577 tests, and the standing quality gate had 9 gates |
-| current manual Local Verify eval checkpoint | PASS / REMOTE VERIFIED BASELINE | cumulative commit `7e605cff9a588723f9893c56894493f204d26213`; workflow order is pytest, exact console-only eval, quality gate, and three profile dry-runs; 589 tests, 15/15 evals, 9/9 gates, and 5/5 checksums passed; contents permission remained read-only and no artifacts were uploaded |
+| prerequisite manual Local Verify eval checkpoint | PASS / REMOTE VERIFIED BASELINE | cumulative commit `15920062088ebd5b4afcb50d3d9eff1b02cbb4bc`; workflow order is pytest, exact console-only eval, quality gate, and three profile dry-runs; 613 tests, 15/15 evals, and 9/9 gates passed; contents permission remained read-only and no artifacts were uploaded |
 | Phase 11A downstream integration boundary | PASS / DOCUMENTATION-ONLY | commit `c7da80df0e8cb623effbe0d52cf6acdb7056fe32`; `docs/DOWNSTREAM_PRODUCT_INTEGRATION_BOUNDARY_REVIEW.md` and focused contract tests define authority, data, evidence, repository-access, and side-effect boundaries without downstream access |
 | Phase 11B synthetic task contract | PASS / SYNTHETIC-ONLY | commit `71951fc3cdbd0f6158f385b409a76d25cd1d3090`; deterministic placeholder-only JSON task contract and test-local validation are present; all 16 side-effect classes remain independently unapproved and `NOT RUN` |
 | Phase 11C standalone validator candidate | PASS / CONTRACT-ONLY | commit `699849ddae2abd2bb42841727fd50f5dcc62c794`; fixes the future input, path, validation, permission, output, status, and non-goal boundary without implementation or downstream access |
@@ -542,7 +542,10 @@ greenfield repository creation and downstream access remain unapproved.
 | Phase 11D.1 synthetic usage probe | PASS WITH NOTES / REVIEW-ONLY | commit `8e785911234823ed1b756df839bba6daa86502db`; the tracked Phase 11B fixture returns `SYNTHETIC_CONTRACT_VALID`, all 16 permissions remain unauthorized, all external states remain `NOT RUN`, and no runtime patch is required |
 | Phase 11D.2 historical implementation source baseline | PASS / TEMPORARY SYNTHETIC FILLED INPUT | commit `0734a87b554eb1da8812e20346305dcdb2a2ae2e`; a temporary synthetic filled contract passes internal validation with two declared local-read-only permission classes, no external action, and successful cleanup; no tracked filled contract or downstream access exists |
 | greenfield local data quality CLI target contract | PASS / CONTRACT-ONLY | commit `7e605cff9a588723f9893c56894493f204d26213`; selects the safe alias, CSV/rules/output contract, `python_cli` standard 14-file surface, and synthetic-only data boundary without creating a target repository or application code |
-| parallel work-package control | IMPLEMENTED / LOCAL READ-ONLY CHECKER | `scripts/work_package_conflict_check.py`, tracked synthetic fixture, focused tests, `docs/CHANGE_CONTROL.md`, and `docs/CI_POLICY.md`; declares contract/feature/integration ownership, exact read/write sets, dependency checks, and V0-V3 verification tiers without worktree creation, Git execution, approval authentication, push, workflow dispatch, or artifact generation |
+| parallel work-package control | IMPLEMENTED / SELF-PILOT PASSED | `scripts/work_package_conflict_check.py` emits an order-independent canonical `plan_digest`; `scripts/work_package_postflight.py` enforces ancestry, one-commit feature lanes, clean state, write-set and generated-output containment, rename/delete rejection, diff hygiene, and verification status without writing an envelope |
+| authority manifest | IMPLEMENTED / CURRENT | `docs/AUTHORITY_MANIFEST.json` and `scripts/authority_manifest_check.py` separate current authority, durable policy, and historical evidence; all 75 prior required documents are classified once, the manifest is the one additional current-authority document, and the default Read Order excludes historical acceptance trace and the profile matrix |
+| verification impact planner | IMPLEMENTED / ADVISORY | `docs/VERIFICATION_IMPACT_MAP.json` and `scripts/verification_plan.py` report a minimum V0-V2 plan, command identifiers, and integration/digest/checksum/render escalation flags from Git path changes; they do not execute commands, write cache or evidence, refresh a digest, dispatch V3, or grant approval |
+| two-lane harness self-pilot | PASS / DISJOINT V1 LANES | common base `1ab0984aae84af58be4b25b079c607aad4ea844d`; authority lane `b52e804f5fe98b4bd21c35bf2791ffa8815195a0`; verification lane `bddbb1478925c40eea0fe66955adeb3bb2b5bede`; both used plan digest `4ced45bd931e6d441123a9ac61d015c0b599672610730c47b09cd957869fa7b4`, changed exactly three disjoint files, produced one commit, passed focused tests and postflight, and kept packages/results ignored |
 | current repository commit before Stage 2 evidence regeneration | HISTORICAL | `9ae69c5fbf65953db2b0efb82b4904098f8a7581` |
 | previous artifact-containing commit observed during Stage 0 read-only review | HISTORICAL | `ab77ab0a0b44c2f1bd700820bfeb358c6ec1bbe7` |
 | current repository commit before `csharp_desktop` experiment | PRESENT | `76d88b842852635c95adcd8f3534f95e8bdc3ff5` |
@@ -1267,27 +1270,24 @@ Stage 0 current-main gap review basis:
 
 ## Next Recommended Step
 
-The current synchronized and remotely verified baseline is
-`7e605cff9a588723f9893c56894493f204d26213`.
+Use `docs/AUTHORITY_MANIFEST.json` for authority classes and
+`docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` for sequencing. The next
+repository-changing task after the cumulative digest-valid V2/V3 closeout is
+the separately approved greenfield initialization.
 
-The active sequence is:
-
-1. commit the parallel work-package checker, focused tests, policy, and current
-   authority as one integration checkpoint;
-2. run the exact 34-source digest check and refresh only the expected stale
-   sources after one exact write-and-commit approval;
-3. run V2 once on the final digest-containing tip;
-4. push once and run one V3 Local Verify;
-5. plan a separately approved greenfield initialization and at most three
-   feature worktree lanes.
+Final digest and Local Verify evidence belongs in the artifact and task
+closeout rather than another recursive STATUS commit. The initialization task
+must name the real target path, repository setup, render, initial authoring,
+verification, cleanup, and commit permissions before any target write occurs.
 
 Work-package manifests belong under ignored `local/work-packages/` and do not
 grant approval. Feature lanes may run V1 focused verification but must not edit
 current authority, artifacts, workflows, shared gates, golden fixtures, or the
-corpus source-set specification.
+corpus source-set specification. Integration owners must verify package
+postflight and use the advisory verification plan before cumulative V2.
 
 Release evidence regeneration remains `HOLD`. Greenfield path creation,
-`git init`, render, application code, worktree creation, release generation,
+`git init`, render, application code, target worktrees, release generation,
 tag, release, upload, publication, downstream mutation, and live action are not
 authorized by this checkpoint.
 

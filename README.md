@@ -43,15 +43,14 @@ Those items are no longer described as current absence. Render script, quality g
 ## Read Order
 
 1. AGENTS.md
-2. PRODUCT.md
-3. MVP.md
-4. STATUS.md
-5. docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md
-6. ACCEPTANCE_TRACE.md
+2. docs/AUTHORITY_MANIFEST.json
+3. PRODUCT.md
+4. MVP.md
+5. STATUS.md
+6. docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md
 7. docs/SAFETY_POLICY.md
 8. docs/VERIFICATION.md
-9. docs/PROFILE_MATRIX.md
-10. docs/AI_HANDOFF.md
+9. docs/AI_HANDOFF.md
 
 ## Repository Structure
 
@@ -64,6 +63,7 @@ Those items are no longer described as current absence. Render script, quality g
 - ROADMAP.md
 - STATUS.md
 - ACCEPTANCE_TRACE.md
+- docs/AUTHORITY_MANIFEST.json
 - docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md
 - code_review.md
 - docs/
@@ -83,6 +83,8 @@ Those items are no longer described as current absence. Render script, quality g
 - Verification mesh: tests, smoke checks, acceptance trace, policy validation, example validation, and audit evidence are separate but connected.
 - Private data protection: use synthetic fixtures and summaries instead of private raw input.
 - Closeout receipt: every completed task reports changed files, checks run, safety checks, risks, and next steps.
+- Authority separation: the manifest distinguishes current authority, durable
+  policy, and historical evidence before work is planned.
 
 ## Validation
 

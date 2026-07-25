@@ -72,7 +72,7 @@ not capabilities to abandon.
 | Capability Implementation Roadmap | This document. | Durable owner-intent and sequencing record. | Source of truth cleanup. |
 | Template render tier selection | The `minimal`, `standard`, and `full` contract, renderer selection, exact file planning, tier-specific Read Order closure, focused readiness coverage, and OS-temporary usage probe are complete; no runtime patch is required. | Stable explicit tier selection with full-compatible defaults and compare-first adoption or upgrade decisions. | Source-of-truth confirmation and render safety boundaries. |
 | Read-only CI + verification hygiene | Manual read-only Local Verify is installed and now runs pytest, the exact no-report standalone eval command, the quality gate, and three profile dry-runs; release CI, artifact upload, required checks, automatic triggers, and additional workflows remain separately approval-gated. | Read-only verification mirror for existing local checks, with no secrets, uploads, release, tag, deploy, or live write. | Roadmap and source-of-truth confirmation. |
-| Parallel work-package coordination | Contract/feature/integration lanes, exact read/write sets, dependency checks, integration-only ownership, V0-V3 tiers, and a standalone read-only conflict checker are implemented; actual manifests remain ignored local control-plane inputs. | Use disjoint feature lanes and one integration checkpoint for the first greenfield implementation pilot. | Digest-valid work-package-control checkpoint and separately approved target initialization. |
+| Parallel work-package coordination | Canonical plan digests, contract/feature/integration lanes, exact read/write sets, dependency checks, integration-only ownership, V0-V3 tiers, postflight enforcement, an authority manifest, an advisory verification-impact planner, and a two-lane harness self-pilot are implemented; actual packages and result envelopes remain ignored local control-plane inputs. | Reuse disjoint feature lanes, package postflight, manifest-owned authority, one integration owner, and one cumulative V2/V3 checkpoint for the first greenfield implementation. | Separately approved target initialization. |
 | Audit / trace / receipt schema | Audit schema and manual receipt review exist; no automation. | Stable schema, redaction rules, receipt fields, validation plan, and manual examples before automation. | Read-only verification hygiene. |
 | JSON Evidence Core / Evidence Serialization Policy | Manual receipt schema exists; machine-readable receipt and trace schemas are now the next serialization foundation. | Policy, core schemas, and a quality-gate bundle check exist before any audit automation or real logs. | Audit / trace / receipt schema. |
 | Eval/report integration | The standalone runner and opt-in report surfaces exist; commit `d6de357aa0b68bac6ad80b33e3041abb08f57f0b` approves only no-report console execution in manual Local Verify while preserving quality-gate, automatic-trigger, required-check, artifact-upload, and release-blocking exclusions. | Evidence-aligned report integration with a bounded manual verification use and separately approval-gated broader automation. | JSON Evidence Core / Evidence Serialization Policy. |
@@ -636,23 +636,28 @@ For this roadmap task, closeout must confirm:
 
 ## 12. Current sequencing handoff
 
-The current synchronized remote baseline is
-`7e605cff9a588723f9893c56894493f204d26213`. Its manual read-only Local
-Verify completed successfully with 589 tests, 15 standalone eval cases, 9
+The prerequisite remote baseline is
+`15920062088ebd5b4afcb50d3d9eff1b02cbb4bc`. Its manual read-only Local
+Verify completed successfully with 613 tests, 15 standalone eval cases, 9
 quality gates, three 16-file profile dry-runs, `contents: read`, and no artifact
 upload. Run and job identifiers remain in task closeout evidence.
 
-The active sequence is:
+The pre-large-integration self-pilot is complete:
 
-1. commit the work-package contract, checker, focused tests, and current
-   authority as one integration checkpoint;
-2. refresh the unchanged exact 34-source corpus once only when the expected
-   stable sources are stale;
-3. run V2 on the final digest-containing tip;
-4. push the cumulative tip once and confirm one V3 Local Verify;
-5. separately approve greenfield repository initialization;
-6. freeze shared CLI/data interfaces, then pilot at most three disjoint feature
-   lanes before one integration merge.
+1. `scripts/work_package_conflict_check.py` produces a canonical package-plan
+   digest;
+2. `scripts/work_package_postflight.py` enforces the declared lane after a
+   commit without writing a tracked envelope;
+3. two worktrees used one base and one plan digest with disjoint three-file
+   write sets;
+4. both feature lanes produced one commit and passed focused V1 plus
+   postflight;
+5. `docs/AUTHORITY_MANIFEST.json` separates current authority, durable policy,
+   and historical evidence;
+6. `scripts/verification_plan.py` returns an advisory minimum V0-V2 plan but
+   executes no checks and grants no approval;
+7. one integration owner aligns shared authority before one cumulative V2/V3
+   checkpoint.
 
 Actual work-package manifests are ignored `local/work-packages/` inputs and do
 not authenticate authority. Contract and feature lanes cannot write current
@@ -660,10 +665,12 @@ authority, artifacts, workflows, gates, golden fixtures, or the corpus
 source-set specification. V1 focused checks run per feature; V2 and V3 run once
 per cumulative checkpoint.
 
-The intended closeout state is `READY_FOR_PARALLEL_GREENFIELD_IMPLEMENTATION`,
-not target creation or implementation. The selected safe alias is
+The intended closeout state is `READY_FOR_GREENFIELD_INITIALIZATION`, not
+target creation or implementation. The selected safe alias is
 `local-data-quality-cli`, but its absolute path, directory, repository, render,
-application code, worktrees, commands, and side effects remain unapproved.
+application code, target worktrees, commands, and side effects remain
+unapproved. The next repository-changing task must be a separately approved
+initialization contract.
 
 Release evidence regeneration remains `HOLD`. A later refresh still requires a
 separate owner-approved exact-file and exact-command task. Digest-write

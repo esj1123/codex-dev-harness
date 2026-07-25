@@ -10,19 +10,19 @@ Reusable local-first template for governed AI/Codex development workflows.
 
 ## Current Phase
 
-Parallel work-package control before greenfield implementation.
+Ready for separately approved greenfield initialization.
 
 The repository has completed the governed template, Render Tier, standalone
 local RAG, JSON evidence, Hermes preflight, release-evidence preflight, and
 synthetic downstream-contract validation checkpoints described by
 `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`.
 
-The current synchronized remote baseline is
-`7e605cff9a588723f9893c56894493f204d26213`. Its manual GitHub Local Verify
-run checked out that exact commit and passed 589 tests, the 15-case standalone
-eval, all 9 quality gates, and the three 16-file profile dry-runs with
-`contents: read` and no artifact upload. Workflow run and job identifiers stay
-in the task closeout instead of this tracked handoff.
+The pre-large-integration self-pilot adds a canonical work-package
+`plan_digest`, read-only postflight enforcement, a machine-readable authority
+manifest, and an advisory verification-impact planner. Two disjoint feature
+lanes used the same base and plan digest, produced one commit each, passed V1,
+and passed postflight before integration. The packages and result envelopes
+remained ignored local control-plane data.
 
 Phase 10 release evidence remains valid historical source-basis evidence and
 regeneration remains on `HOLD`. Phase 11 is complete through the Phase 11D.2
@@ -31,28 +31,25 @@ repository, path, branch, source, command, render, write, or private data has
 been selected or accessed.
 
 The greenfield `local-data-quality-cli` target contract is selected without
-repository creation or implementation. Before initialization, the harness is
-adding machine-readable work-package conflict checks, integration-only
-ownership, and V0-V3 verification tiers.
-
-The current goal is `READY_FOR_PARALLEL_GREENFIELD_IMPLEMENTATION`: complete
-the work-package control checkpoint, refresh the unchanged exact 34-source
-digest once if required, and confirm one cumulative remote checkpoint before
-creating or implementing the greenfield target.
+repository creation or implementation. The machine-readable current state is
+`READY_FOR_GREENFIELD_INITIALIZATION`; it means the harness-side control
+surfaces are available, not that target creation, render, feature work, or any
+side effect is approved. Exact digest and Local Verify evidence for the final
+cumulative commit stays in the artifact and task closeout rather than this
+tracked handoff.
 
 ## Source of Truth
 
 Read in this order:
 1. AGENTS.md
-2. PRODUCT.md
-3. MVP.md
-4. STATUS.md
-5. docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md
-6. ACCEPTANCE_TRACE.md
+2. docs/AUTHORITY_MANIFEST.json
+3. PRODUCT.md
+4. MVP.md
+5. STATUS.md
+6. docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md
 7. docs/SAFETY_POLICY.md
 8. docs/VERIFICATION.md
-9. docs/PROFILE_MATRIX.md
-10. docs/AI_HANDOFF.md
+9. docs/AI_HANDOFF.md
 
 ## Changed Files
 
@@ -78,6 +75,12 @@ Current baseline surface includes:
 - `scripts/hermes_git_push_preflight.py`
 - `scripts/release_evidence_preflight.py`
 - `scripts/downstream_task_contract_validator.py`
+- `scripts/work_package_conflict_check.py`
+- `scripts/work_package_postflight.py`
+- `scripts/authority_manifest_check.py`
+- `scripts/verification_plan.py`
+- `docs/AUTHORITY_MANIFEST.json`
+- `docs/VERIFICATION_IMPACT_MAP.json`
 - `docs/AI_READINESS_SCANNER_v0.md`
 - `scripts/ai_readiness_scanner.py`
 - regression examples under `examples/`
@@ -158,17 +161,15 @@ The AI readiness scanner is for readiness inspection only:
 
 ## Next Recommended Step
 
-Use `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` as the current sequencing
-authority. Complete this checkpoint in order:
+Use `docs/AUTHORITY_MANIFEST.json` for authority classes and
+`docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` for sequencing. The next
+repository-changing task after the cumulative digest-valid and remotely
+verified checkpoint is a separately approved greenfield initialization.
 
-1. commit the work-package checker, focused tests, policy, and current-authority
-   alignment as one integration change;
-2. check the exact 34-source digest and refresh it once only when the expected
-   stable sources are stale;
-3. run V2 verification on the cumulative digest-containing tip;
-4. push that tip once and confirm one V3 Local Verify run;
-5. plan the separately approved greenfield initialization and a maximum of
-   three disjoint feature lanes.
+The task closeout, rather than another recursive handoff commit, must confirm
+the final same-source digest, V2 result, exact pushed SHA, and V3 Local Verify.
+Greenfield initialization must then define the target path, `git init`, render,
+initial authoring, verification, cleanup, and commit permissions explicitly.
 
 Actual work-package manifests belong under ignored `local/work-packages/`.
 They describe scope but do not authenticate approval. The greenfield path,
