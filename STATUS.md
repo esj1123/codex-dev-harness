@@ -52,6 +52,12 @@ effect.
 PASS from preflight or postflight proves structural consistency only. It does
 not authenticate approval.
 
+- `NOT RUN`: the command or side effect was intentionally not executed.
+- `ENVIRONMENT BLOCKED`: the required runtime or filesystem environment was
+  unavailable.
+- `NOT DONE`: required work remains incomplete and must not be reported as
+  complete.
+
 ## Held Or Not Authorized
 
 - Release evidence regeneration, tag, release, signing, upload, or publication.
