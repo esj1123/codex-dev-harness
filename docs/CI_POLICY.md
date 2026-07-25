@@ -113,7 +113,7 @@ Repository work uses four verification tiers:
 |---|---|---|
 | `V0` | contract or scope review | work-package validation, base-SHA confirmation, allowed-file review, and `git diff --check` |
 | `V1` | feature lane | `V0` plus focused tests for the declared write set |
-| `V2` | integration lane | full pytest, no-report standalone eval, all quality gates, checksum and corpus checks, and relevant render dry-runs |
+| `V2` | integration lane | V2 core: full pytest, no-report standalone eval, and all quality gates; impact-required extras: checksum, corpus, and relevant render checks |
 | `V3` | remote integration gate | one push and one manual Local Verify run for the final cumulative SHA |
 
 Feature and contract lanes do not run V2 or V3 by default. The integration lane
@@ -121,6 +121,14 @@ runs V2 once after all approved feature commits and any required digest-only
 commit are present. V3 runs once for that cumulative tip. A failed V2 or V3
 result may trigger focused diagnosis, but does not require repeating every
 successful feature-lane check.
+
+The V2 core is always `full_pytest`, `standalone_eval`, and `quality_gate`.
+Checksum verification, corpus digest checking, and relevant render dry-runs are
+impact-required extras represented by `checksum_verify`,
+`corpus_digest_check`, and `render_dry_runs`. The advisory verification impact
+planner adds those extras when a matched change surface or the integration
+scope requires them; their omission from the V2 core list does not make them
+optional when flagged.
 
 Digest check is read-only in V2. Digest write remains separately approval-gated
 and runs only when an approved source is stale. If the digest is refreshed, V2

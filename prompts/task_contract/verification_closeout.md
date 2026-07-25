@@ -11,10 +11,13 @@ This template is documentation-only. It does not run verification or approve sid
 - Basis ref or commit: [branch, tag, or commit]
 - Work mode: [read-only, documentation-only, implementation, release record, other]
 - Task ID and lane: [task ID] / [contract, feature, or integration]
+- Contract basis SHA: [40-character commit SHA]
+- Contract frozen paths: [shared exact repo-relative paths]
 - Declared verification tier: [V0 / V1 / V2 / V3]
 - Dependencies satisfied: [yes / no / not applicable]
 - Plan digest: [SHA-256 from work-package preflight, or not applicable]
 - Postflight status: [PASS / BLOCKED / FAIL / ENVIRONMENT BLOCKED / not applicable]
+- Authorization status: [NOT_AUTHENTICATED plus separate approval evidence]
 
 ## Changed Files
 
@@ -43,7 +46,9 @@ Confirm:
 - work-package conflicts were checked before parallel execution
 - preflight and postflight used the same `plan_digest`
 - rename/delete and commit-count checks passed
+- frozen contract paths were unchanged, or the batch stopped with `CONTRACT_CHANGE_REQUIRED`
 - integration-only files were changed only by the integration lane
+- structural PASS was not treated as authenticated approval
 - no unrelated refactor
 - no secrets or private raw input
 - no sensitive source text or live values

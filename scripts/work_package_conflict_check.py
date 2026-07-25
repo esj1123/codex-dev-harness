@@ -13,7 +13,7 @@ from typing import Any, Iterable
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-SCHEMA_VERSION = "1"
+SCHEMA_VERSION = "2"
 CHECKER_ID = "work_package_conflict_check"
 MAX_INPUT_BYTES = 64 * 1024
 MAX_OUTPUT_BYTES = 16 * 1024
@@ -57,6 +57,8 @@ EXPECTED_KEYS = {
     "schema_version",
     "task_id",
     "base_sha",
+    "contract_basis_sha",
+    "contract_frozen_paths",
     "lane",
     "depends_on",
     "read_set",
@@ -92,6 +94,7 @@ def base_result() -> dict[str, Any]:
         "schema_version": SCHEMA_VERSION,
         "checker_id": CHECKER_ID,
         "status": "FAIL",
+        "authorization_status": "NOT_AUTHENTICATED",
         "parallelizable": False,
         "plan_digest": None,
         "reason_codes": [],
@@ -128,7 +131,31 @@ def safe_repo_path(value: Any) -> bool:
     candidate = PurePosixPath(value)
     if candidate.is_absolute() or any(part in ("", ".", "..") for part in candidate.parts):
         return False
+    if any(part.endswith((".", " ")) for part in candidate.parts):
+        return False
     return candidate.as_posix() == value and not value.endswith("/")
+
+
+def canonical_repo_path(value: str) -> tuple[str, ...]:
+    return tuple(part.lower() for part in PurePosixPath(value).parts)
+
+
+def path_covers(owner: str, candidate: str) -> bool:
+    owner_parts = canonical_repo_path(owner)
+    candidate_parts = canonical_repo_path(candidate)
+    return len(owner_parts) <= len(candidate_parts) and candidate_parts[: len(owner_parts)] == owner_parts
+
+
+def paths_overlap(left: str, right: str) -> bool:
+    return path_covers(left, right) or path_covers(right, left)
+
+
+def path_is_covered(candidate: str, owners: Iterable[str]) -> bool:
+    return any(path_covers(owner, candidate) for owner in owners)
+
+
+def path_sets_overlap(left: Iterable[str], right: Iterable[str]) -> bool:
+    return any(paths_overlap(left_path, right_path) for left_path in left for right_path in right)
 
 
 def unique_string_list(value: Any, *, item_limit: int = MAX_PATH_ITEMS) -> bool:
@@ -141,7 +168,10 @@ def unique_string_list(value: Any, *, item_limit: int = MAX_PATH_ITEMS) -> bool:
 
 
 def integration_only(path: str) -> bool:
-    return path in INTEGRATION_ONLY_EXACT or any(path.startswith(prefix) for prefix in INTEGRATION_ONLY_PREFIXES)
+    canonical = "/".join(canonical_repo_path(path))
+    exact = {"/".join(canonical_repo_path(item)) for item in INTEGRATION_ONLY_EXACT}
+    prefixes = tuple("/".join(canonical_repo_path(item.rstrip("/"))) for item in INTEGRATION_ONLY_PREFIXES)
+    return canonical in exact or any(canonical == prefix or canonical.startswith(f"{prefix}/") for prefix in prefixes)
 
 
 def package_issues(payload: Any) -> list[str]:
@@ -157,6 +187,11 @@ def package_issues(payload: Any) -> list[str]:
         issues.append("TASK_ID_INVALID")
     if not isinstance(payload["base_sha"], str) or SHA_PATTERN.fullmatch(payload["base_sha"]) is None:
         issues.append("BASE_SHA_INVALID")
+    if (
+        not isinstance(payload["contract_basis_sha"], str)
+        or SHA_PATTERN.fullmatch(payload["contract_basis_sha"]) is None
+    ):
+        issues.append("CONTRACT_BASIS_SHA_INVALID")
     if payload["lane"] not in LANES:
         issues.append("LANE_INVALID")
     if payload["verification_tier"] not in VERIFICATION_TIERS:
@@ -164,7 +199,14 @@ def package_issues(payload: Any) -> list[str]:
     if not safe_reference(payload["approval_ref"]):
         issues.append("APPROVAL_REF_INVALID")
 
-    for key in ("depends_on", "read_set", "write_set", "generated_outputs", "declared_side_effects"):
+    for key in (
+        "depends_on",
+        "read_set",
+        "write_set",
+        "generated_outputs",
+        "contract_frozen_paths",
+        "declared_side_effects",
+    ):
         if not unique_string_list(payload[key]):
             issues.append(f"{key.upper()}_INVALID")
 
@@ -175,11 +217,28 @@ def package_issues(payload: Any) -> list[str]:
         issues.append("DEPENDENCY_ID_INVALID")
     if payload["task_id"] in payload["depends_on"]:
         issues.append("SELF_DEPENDENCY")
-    for key in ("read_set", "write_set", "generated_outputs"):
+    for key in ("read_set", "write_set", "generated_outputs", "contract_frozen_paths"):
         if any(not safe_repo_path(item) for item in payload[key]):
             issues.append(f"{key.upper()}_PATH_INVALID")
-    if not set(payload["generated_outputs"]).issubset(payload["write_set"]):
+        canonical = [canonical_repo_path(item) for item in payload[key]]
+        if len(canonical) != len(set(canonical)):
+            issues.append(f"{key.upper()}_CANONICAL_DUPLICATE")
+    if payload["contract_basis_sha"] != payload["base_sha"]:
+        issues.append("CONTRACT_BASIS_MISMATCH")
+    if payload["lane"] == "feature" and not payload["contract_frozen_paths"]:
+        issues.append("CONTRACT_FROZEN_PATHS_REQUIRED")
+    if any(
+        not path_is_covered(frozen, payload["read_set"])
+        for frozen in payload["contract_frozen_paths"]
+    ):
+        issues.append("CONTRACT_FROZEN_PATH_NOT_READ")
+    if any(
+        not path_is_covered(generated, payload["write_set"])
+        for generated in payload["generated_outputs"]
+    ):
         issues.append("GENERATED_OUTPUT_OUTSIDE_WRITE_SET")
+    if path_sets_overlap(payload["contract_frozen_paths"], payload["write_set"]):
+        issues.append("CONTRACT_CHANGE_REQUIRED")
     if any(item not in SIDE_EFFECT_CLASSES for item in payload["declared_side_effects"]):
         issues.append("SIDE_EFFECT_CLASS_INVALID")
 
@@ -246,6 +305,14 @@ def inspect_payloads(payloads: list[Any]) -> dict[str, Any]:
         result["status"] = "BLOCKED"
         result["reason_codes"] = ["BASE_SHA_MISMATCH"]
         return result
+    frozen_sets = {
+        tuple(sorted(canonical_repo_path(path) for path in package["contract_frozen_paths"]))
+        for package in packages
+    }
+    if len(frozen_sets) != 1:
+        result["status"] = "BLOCKED"
+        result["reason_codes"] = ["CONTRACT_FROZEN_PATHS_MISMATCH"]
+        return result
 
     known_ids = set(task_ids)
     dependencies = {
@@ -273,11 +340,11 @@ def inspect_payloads(payloads: list[Any]) -> dict[str, Any]:
             right_id = str(right["task_id"])
             right_reads = set(str(item) for item in right["read_set"])
             right_writes = set(str(item) for item in right["write_set"])
-            if left_writes.intersection(right_writes):
+            if path_sets_overlap(left_writes, right_writes):
                 conflicts.append({"left_task_id": left_id, "right_task_id": right_id, "kind": "write_write"})
                 reason_codes.add("WRITE_SET_CONFLICT")
                 continue
-            if left_writes.intersection(right_reads) or right_writes.intersection(left_reads):
+            if path_sets_overlap(left_writes, right_reads) or path_sets_overlap(right_writes, left_reads):
                 declared = dependency_reaches(left_id, right_id, dependencies) or dependency_reaches(
                     right_id, left_id, dependencies
                 )

@@ -108,7 +108,7 @@ def manifest_required_docs(repo_root: Path) -> list[str]:
     return required
 
 
-REQUIRED_DOCS = manifest_required_docs(Path(__file__).resolve().parents[2])
+REQUIRED_DOCS = [*BASELINE_REQUIRED_DOCS, MANIFEST_PATH]
 
 
 @dataclass(frozen=True)

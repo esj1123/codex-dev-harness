@@ -16,7 +16,7 @@ except ImportError:  # pragma: no cover - direct script execution
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-SCHEMA_VERSION = "1"
+SCHEMA_VERSION = preflight.SCHEMA_VERSION
 CHECKER_ID = "work_package_postflight"
 MAX_OUTPUT_BYTES = 16 * 1024
 GIT_TIMEOUT_SECONDS = 10
@@ -32,15 +32,18 @@ def base_result() -> dict[str, Any]:
         "schema_version": SCHEMA_VERSION,
         "checker_id": CHECKER_ID,
         "status": "FAIL",
+        "authorization_status": "NOT_AUTHENTICATED",
         "reason_codes": [],
         "task_id": None,
         "lane": None,
         "base_sha": None,
+        "contract_basis_sha": None,
         "head_sha": None,
         "plan_digest": None,
         "declared_surface": {
             "write_set_count": 0,
             "generated_output_count": 0,
+            "contract_frozen_path_count": 0,
         },
         "actual_surface": {
             "changed_paths": [],
@@ -207,12 +210,14 @@ def inspect_postflight(
             "task_id": task_id,
             "lane": package["lane"],
             "base_sha": package["base_sha"],
+            "contract_basis_sha": package["contract_basis_sha"],
             "plan_digest": preflight_result["plan_digest"],
         }
     )
     result["declared_surface"] = {
         "write_set_count": len(package["write_set"]),
         "generated_output_count": len(package["generated_outputs"]),
+        "contract_frozen_path_count": len(package["contract_frozen_paths"]),
     }
     result["verification"] = {
         "tier": package["verification_tier"],
@@ -246,12 +251,17 @@ def inspect_postflight(
     result["central_authority_changed"] = central_changed
 
     reasons: set[str] = set()
-    changed = set(observed["changed_paths"])
-    untracked = set(observed["untracked_paths"])
-    if not changed.issubset(set(package["write_set"])):
+    changed = observed["changed_paths"]
+    untracked = observed["untracked_paths"]
+    if any(not preflight.path_is_covered(path, package["write_set"]) for path in changed):
         reasons.add("WRITE_SET_EXCEEDED")
-    if not untracked.issubset(set(package["generated_outputs"])):
+    if any(not preflight.path_is_covered(path, package["generated_outputs"]) for path in untracked):
         reasons.add("GENERATED_OUTPUT_SET_EXCEEDED")
+    if preflight.path_sets_overlap(
+        [*changed, *untracked],
+        package["contract_frozen_paths"],
+    ):
+        reasons.add("CONTRACT_CHANGE_REQUIRED")
     if observed["tracked_dirty"]:
         reasons.add("TRACKED_WORKTREE_DIRTY")
     if observed["rename_count"]:

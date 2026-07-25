@@ -17,8 +17,11 @@ This template is documentation-only. It does not grant approval for side effects
 ## Work Package
 
 - Task ID: [safe task identifier]
+- Schema version: [2]
 - Lane: [contract / feature / integration]
 - Base SHA: [40-character commit SHA]
+- Contract basis SHA: [same 40-character commit SHA]
+- Contract frozen paths: [shared exact repo-relative interface paths]
 - Dependencies: [task IDs, or none]
 - Read set: [exact repo-relative paths]
 - Write set: [exact repo-relative paths]
@@ -35,6 +38,8 @@ python scripts/work_package_conflict_check.py --repo-root . --package <PACKAGE_J
 ```
 
 The package describes scope and conflicts. It does not grant approval.
+`authorization_status=NOT_AUTHENTICATED` remains fixed even when structural
+validation passes.
 
 Record the returned `plan_digest`. After the lane has one coherent commit and
 its focused verification is complete, run:
@@ -44,7 +49,10 @@ python scripts/work_package_postflight.py --repo-root . --package <PACKAGE_JSON>
 ```
 
 Do not integrate the lane unless preflight and postflight use the same
-`plan_digest` and postflight reports `PASS`.
+`plan_digest`, postflight reports `PASS`, the frozen contract is unchanged, and
+the required owner/side-effect approvals exist outside the package. Stop with
+`CONTRACT_CHANGE_REQUIRED` and create a new contract basis when a feature lane
+needs to change a frozen path.
 
 ## Write Scope
 

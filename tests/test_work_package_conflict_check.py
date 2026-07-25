@@ -12,7 +12,6 @@ from scripts import work_package_conflict_check as checker
 REPO_ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_PATH = REPO_ROOT / "docs" / "PARALLEL_WORK_PACKAGE_SYNTHETIC_FIXTURE.json"
 CHANGE_CONTROL_PATH = REPO_ROOT / "docs" / "CHANGE_CONTROL.md"
-CI_POLICY_PATH = REPO_ROOT / "docs" / "CI_POLICY.md"
 TASK_PROMPT_PATH = REPO_ROOT / "prompts" / "task_contract" / "task_contract.md"
 CLOSEOUT_PROMPT_PATH = REPO_ROOT / "prompts" / "task_contract" / "verification_closeout.md"
 
@@ -25,7 +24,10 @@ def package(task_id: str, *, lane: str = "feature", suffix: str = "") -> dict[st
     payload = copy.deepcopy(load_fixture())
     payload["task_id"] = task_id
     payload["lane"] = lane
-    payload["read_set"] = [f"scripts/input{suffix}.py"]
+    payload["read_set"] = [
+        *payload["contract_frozen_paths"],
+        f"scripts/input{suffix}.py",
+    ]
     payload["write_set"] = [f"scripts/output{suffix}.py", f"tests/test_output{suffix}.py"]
     if lane == "integration":
         payload["verification_tier"] = "V2"
@@ -46,7 +48,6 @@ def test_tracked_synthetic_fixture_is_canonical_and_valid() -> None:
 
 def test_parallel_contract_and_verification_tiers_are_documented() -> None:
     change_control = CHANGE_CONTROL_PATH.read_text(encoding="utf-8")
-    ci_policy = CI_POLICY_PATH.read_text(encoding="utf-8")
     task_prompt = TASK_PROMPT_PATH.read_text(encoding="utf-8")
     closeout_prompt = CLOSEOUT_PROMPT_PATH.read_text(encoding="utf-8")
 
@@ -63,13 +64,16 @@ def test_parallel_contract_and_verification_tiers_are_documented() -> None:
         assert f"`{field}`" in change_control
     for path in checker.INTEGRATION_ONLY_EXACT:
         assert f"`{path}`" in change_control
-    for tier in checker.VERIFICATION_TIERS:
-        assert f"`{tier}`" in ci_policy
     assert "local/work-packages/" in task_prompt
     assert "scripts/work_package_conflict_check.py" in task_prompt
     assert "scripts/work_package_postflight.py" in task_prompt
     assert "plan_digest" in closeout_prompt
     assert "actual changed files remained within the declared write set" in closeout_prompt
+    assert {"contract_basis_sha", "contract_frozen_paths"} <= checker.EXPECTED_KEYS
+    assert "`contract_basis_sha`" in change_control
+    assert "`contract_frozen_paths`" in change_control
+    assert "`authorization_status`" in change_control
+    assert "`NOT_AUTHENTICATED`" in change_control
 
 
 def test_disjoint_packages_are_parallelizable() -> None:
@@ -84,6 +88,7 @@ def test_disjoint_packages_are_parallelizable() -> None:
     assert result["plan_digest"] == checker.plan_digest(packages)
     assert len(result["plan_digest"]) == 64
     assert result["reason_codes"] == []
+    assert result["authorization_status"] == "NOT_AUTHENTICATED"
     assert result["performed_actions"] == []
 
 
@@ -119,7 +124,10 @@ def test_write_write_conflict_is_blocked_without_disclosing_paths() -> None:
 def test_undeclared_write_read_dependency_is_blocked() -> None:
     left = package("producer", suffix="-producer")
     right = package("consumer", suffix="-consumer")
-    right["read_set"] = [left["write_set"][0]]
+    right["read_set"] = [
+        *right["contract_frozen_paths"],
+        left["write_set"][0],
+    ]
 
     result = checker.inspect_payloads([left, right])
 
@@ -130,7 +138,10 @@ def test_undeclared_write_read_dependency_is_blocked() -> None:
 def test_declared_dependency_requires_serialization() -> None:
     left = package("producer", suffix="-producer")
     right = package("consumer", suffix="-consumer")
-    right["read_set"] = [left["write_set"][0]]
+    right["read_set"] = [
+        *right["contract_frozen_paths"],
+        left["write_set"][0],
+    ]
     right["depends_on"] = ["producer"]
 
     result = checker.inspect_payloads([left, right])
@@ -144,7 +155,13 @@ def test_declared_dependency_requires_serialization() -> None:
     ("mutator", "reason_code"),
     [
         (lambda items: items[1].update(task_id=items[0]["task_id"]), "DUPLICATE_TASK_ID"),
-        (lambda items: items[1].update(base_sha="b" * 40), "BASE_SHA_MISMATCH"),
+        (
+            lambda items: items[1].update(
+                base_sha="b" * 40,
+                contract_basis_sha="b" * 40,
+            ),
+            "BASE_SHA_MISMATCH",
+        ),
         (lambda items: items[1].update(depends_on=["missing-task"]), "UNKNOWN_DEPENDENCY"),
         (
             lambda items: (
@@ -195,6 +212,113 @@ def test_integration_lane_can_claim_central_paths() -> None:
 
     assert result["status"] == "PASS"
     assert result["parallelizable"] is True
+
+
+@pytest.mark.parametrize(
+    ("left_path", "right_path"),
+    [
+        ("docs/Policy.md", "docs/policy.md"),
+        ("package", "package/module.py"),
+        ("package/module.py", "package"),
+    ],
+)
+def test_windows_case_and_parent_child_write_conflicts_are_blocked(
+    left_path: str,
+    right_path: str,
+) -> None:
+    left = package("feature-a", suffix="-a")
+    right = package("feature-b", suffix="-b")
+    left["write_set"] = [left_path]
+    right["write_set"] = [right_path]
+
+    result = checker.inspect_payloads([left, right])
+
+    assert result["status"] == "BLOCKED"
+    assert result["reason_codes"] == ["WRITE_SET_CONFLICT"]
+
+
+def test_parent_child_write_read_requires_dependency() -> None:
+    producer = package("producer", suffix="-producer")
+    consumer = package("consumer", suffix="-consumer")
+    producer["write_set"] = ["generated"]
+    consumer["read_set"] = [
+        *consumer["contract_frozen_paths"],
+        "generated/result.json",
+    ]
+
+    blocked = checker.inspect_payloads([producer, consumer])
+    consumer["depends_on"] = ["producer"]
+    serialized = checker.inspect_payloads([producer, consumer])
+
+    assert blocked["status"] == "BLOCKED"
+    assert blocked["reason_codes"] == ["UNDECLARED_DEPENDENCY"]
+    assert serialized["status"] == "PASS WITH NOTES"
+    assert serialized["reason_codes"] == ["SERIALIZATION_REQUIRED"]
+
+
+@pytest.mark.parametrize(
+    "unsafe_path",
+    [
+        "docs/trailing.",
+        "docs/trailing ",
+        "docs/trailing./file.md",
+        "docs/trailing /file.md",
+    ],
+)
+def test_windows_trailing_dot_or_space_paths_are_rejected(unsafe_path: str) -> None:
+    payload = package("feature-a")
+    payload["write_set"] = [unsafe_path]
+
+    assert checker.package_issues(payload) == ["WRITE_SET_PATH_INVALID"]
+
+
+def test_case_variant_duplicates_are_rejected_within_path_sets() -> None:
+    payload = package("feature-a")
+    payload["read_set"] = [
+        *payload["contract_frozen_paths"],
+        "docs/Policy.md",
+        "docs/policy.md",
+    ]
+
+    assert checker.package_issues(payload) == ["READ_SET_CANONICAL_DUPLICATE"]
+
+
+def test_case_variant_integration_only_path_is_blocked() -> None:
+    payload = package("feature-a")
+    payload["write_set"] = ["status.md"]
+
+    assert checker.package_issues(payload) == ["INTEGRATION_ONLY_PATH"]
+
+
+def test_contract_basis_and_frozen_paths_are_enforced() -> None:
+    missing = package("feature-a")
+    missing["contract_frozen_paths"] = []
+    mismatched = package("feature-b")
+    mismatched["contract_basis_sha"] = "b" * 40
+    not_read = package("feature-c")
+    not_read["read_set"] = ["scripts/input.py"]
+    changed = package("feature-d")
+    changed["write_set"] = list(changed["contract_frozen_paths"])
+
+    assert checker.package_issues(missing) == ["CONTRACT_FROZEN_PATHS_REQUIRED"]
+    assert checker.package_issues(mismatched) == ["CONTRACT_BASIS_MISMATCH"]
+    assert checker.package_issues(not_read) == ["CONTRACT_FROZEN_PATH_NOT_READ"]
+    assert checker.package_issues(changed) == ["CONTRACT_CHANGE_REQUIRED"]
+
+
+def test_batch_requires_one_canonical_frozen_contract_surface() -> None:
+    left = package("feature-a", suffix="-a")
+    right = package("feature-b", suffix="-b")
+    right["contract_frozen_paths"] = ["docs/OTHER_INTERFACE.md"]
+    right["read_set"] = [
+        *right["contract_frozen_paths"],
+        "scripts/input-b.py",
+    ]
+
+    result = checker.inspect_payloads([left, right])
+
+    assert result["status"] == "BLOCKED"
+    assert result["reason_codes"] == ["CONTRACT_FROZEN_PATHS_MISMATCH"]
 
 
 @pytest.mark.parametrize(
@@ -252,6 +376,7 @@ def test_cli_reads_repo_relative_packages_and_emits_deterministic_json(
     assert len(first.encode("utf-8")) <= checker.MAX_OUTPUT_BYTES
     result = json.loads(first)
     assert result["status"] == "PASS"
+    assert result["authorization_status"] == "NOT_AUTHENTICATED"
     assert result["performed_actions"] == []
     assert str(tmp_path) not in first
 

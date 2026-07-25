@@ -71,6 +71,8 @@ Each package must declare:
 - `schema_version`
 - `task_id`
 - `base_sha`
+- `contract_basis_sha`
+- `contract_frozen_paths`
 - `lane`: `contract`, `feature`, or `integration`
 - `depends_on`
 - exact repo-relative `read_set` and `write_set`
@@ -79,13 +81,26 @@ Each package must declare:
 - `declared_side_effects`
 - an optional safe `approval_ref`
 
+Schema version `2` requires `contract_basis_sha` to equal `base_sha`. Feature
+packages must declare a non-empty shared `contract_frozen_paths` list and include
+that surface in `read_set`.
+
 Package declarations do not authenticate approval. They describe the intended
-scope so the checker can detect overlap before independent tasks begin.
+scope so the checker can detect overlap before independent tasks begin. A
+successful result therefore includes `authorization_status` set to
+`NOT_AUTHENTICATED`; it is a structural plan result, not permission to execute
+commands or side effects.
 
 Packages may run in parallel only when they share one base SHA, have disjoint
 write sets, and do not write another package's read set. A declared dependency
 requires serialization. Duplicate task IDs, dependency cycles, missing
 dependencies, unsafe paths, and undeclared read/write overlap are blockers.
+
+Path ownership is Windows-safe and case-insensitive. Case variants such as
+`docs/Policy.md` and `docs/policy.md` conflict. A declared directory owner and
+any parent/child path below it also conflict, including write/write ownership
+and write/read dependencies. Path components ending in a dot or space are
+invalid.
 
 The preflight result includes `plan_digest`, calculated as SHA-256 over the
 package objects sorted by `task_id` and serialized as deterministic compact
@@ -102,11 +117,27 @@ checker for that task. Postflight observes Git without writing and verifies:
 - tracked worktree state is clean;
 - rename and delete operations are absent;
 - `git diff --check` passes; and
-- feature and contract lanes did not change integration-only paths.
+- feature and contract lanes did not change integration-only paths; and
+- actual tracked or generated changes do not overlap `contract_frozen_paths`.
 
 Postflight emits deterministic JSON to stdout. A caller may store that output
 under ignored `local/checkpoints/<checkpoint-id>/` only when local evidence
 writing is approved. No result envelope is tracked.
+
+## Contract Freeze And Reopen
+
+`contract_frozen_paths` identify the shared interface basis for one package
+batch. All packages in the batch use the same canonical frozen set and the same
+contract/base SHA. A feature lane cannot write a frozen path directly or through
+parent/child ownership. Preflight or postflight reports
+`CONTRACT_CHANGE_REQUIRED` when the declared or actual change crosses that
+boundary.
+
+`CONTRACT_CHANGE_REQUIRED` is not a defect override. Stop the affected lanes,
+return to the integration owner, revise the shared contract in a separate
+approved contract task, run verification for that contract commit, and create a
+new package batch from the new base SHA. Do not mutate the active batch package
+or reuse its `plan_digest`.
 
 ## Lane Ownership
 
@@ -177,7 +208,9 @@ push, dispatch workflows, or record remote verification evidence.
 
 A lane is not ready for integration until preflight and postflight report the
 same `plan_digest`, the declared verification status is `PASS`, and postflight
-reports `PASS`.
+reports `PASS`. Those PASS values establish consistency only. The separate
+`authorization_status=NOT_AUTHENTICATED` result means owner approval and every
+side-effect permission still require external evidence.
 
 Documentation-only changes may use review-based verification when no executable behavior changes. If executable verification is not run, record `NOT RUN` with the reason.
 

@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from scripts import generate_checksums
 from scripts.gates import (
     docs_gate,
@@ -162,6 +164,48 @@ def test_docs_gate_requires_current_post_v0_1_governance_docs() -> None:
     assert len(docs_gate.REQUIRED_DOCS) == len(required_docs)
 
 
+@pytest.mark.parametrize("manifest_content", [None, "{"])
+def test_docs_gate_fails_closed_for_missing_or_malformed_manifest(
+    tmp_path: Path,
+    manifest_content: str | None,
+) -> None:
+    minimal_repo(tmp_path)
+    manifest_path = tmp_path / docs_gate.MANIFEST_PATH
+    if manifest_content is None:
+        manifest_path.unlink()
+    else:
+        manifest_path.write_text(manifest_content, encoding="utf-8")
+
+    result = docs_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert result.name == "docs_gate"
+    assert len(result.messages) == 1
+    assert result.messages[0].startswith("authority manifest invalid:")
+
+
+def test_v2_policy_separates_core_from_impact_required_extras() -> None:
+    policy = Path("docs/CI_POLICY.md").read_text(encoding="utf-8")
+    impact_map = json.loads(
+        Path("docs/VERIFICATION_IMPACT_MAP.json").read_text(encoding="utf-8")
+    )
+
+    assert "The V2 core is always" in policy
+    assert "impact-required extras" in policy
+    assert impact_map["tier_command_ids"]["V2"][-3:] == [
+        "full_pytest",
+        "standalone_eval",
+        "quality_gate",
+    ]
+    for command_id in [
+        "checksum_verify",
+        "corpus_digest_check",
+        "render_dry_runs",
+    ]:
+        assert command_id in impact_map["command_ids"]
+        assert f"`{command_id}`" in policy
+
+
 def test_readme_describes_installed_manual_local_verify_workflow() -> None:
     text = Path("README.md").read_text(encoding="utf-8")
 
@@ -175,7 +219,7 @@ def test_current_authority_is_manifest_driven() -> None:
     manifest = json.loads(Path(docs_gate.MANIFEST_PATH).read_text(encoding="utf-8"))
     handoff = Path("docs/AI_HANDOFF.md").read_text(encoding="utf-8")
 
-    assert manifest["current_state"] == "READY_FOR_GREENFIELD_INITIALIZATION"
+    assert manifest["current_state"] == "READY_FOR_PARALLEL_APPLICATION_DEVELOPMENT"
     assert manifest["default_read_order"][0:2] == [
         "AGENTS.md",
         docs_gate.MANIFEST_PATH,
@@ -183,10 +227,25 @@ def test_current_authority_is_manifest_driven() -> None:
     assert set(manifest["default_read_order"]).issubset(set(manifest["current_authority"]))
     assert "ACCEPTANCE_TRACE.md" not in manifest["default_read_order"]
     assert "docs/PROFILE_MATRIX.md" not in manifest["default_read_order"]
-    assert "Ready for separately approved greenfield initialization" in handoff
-    assert "READY_FOR_PARALLEL_GREENFIELD_IMPLEMENTATION" not in handoff
+    assert "Ready for separately approved parallel application development" in handoff
+    assert "READY_FOR_PARALLEL_APPLICATION_DEVELOPMENT" in handoff
     assert "GitHub Actions workflow is not installed" not in handoff
     assert "recommended next work is Phase 3" not in handoff
+
+
+def test_work_package_v2_policy_separates_plan_from_authorization() -> None:
+    change_control = Path("docs/CHANGE_CONTROL.md").read_text(encoding="utf-8")
+
+    for field in ["contract_basis_sha", "contract_frozen_paths"]:
+        assert f"`{field}`" in change_control
+    for phrase in [
+        "case-insensitive",
+        "parent/child",
+        "CONTRACT_CHANGE_REQUIRED",
+        "`authorization_status`",
+        "`NOT_AUTHENTICATED`",
+    ]:
+        assert phrase in change_control
 
 
 def test_acceptance_trace_is_historical_through_last_existing_checkpoint() -> None:

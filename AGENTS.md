@@ -18,18 +18,22 @@ This file defines the operating rules for AI/Codex work in this repository.
 
 ## Current Phase Rule
 
-The historical P0 docs-only baseline and Stage 5B stock practical probe closeout are complete. The repository now includes documentation, profile templates, render tooling, quality gates, minimal example skeletons, and a capability implementation roadmap.
+The harness is `READY_FOR_PARALLEL_APPLICATION_DEVELOPMENT`. Its first
+greenfield application pilot passed, and work-package schema v2 now enforces
+Windows-safe path ownership, shared contract freeze, actual-diff postflight,
+and explicit separation between structural PASS and owner authorization.
 
 `docs/AUTHORITY_MANIFEST.json` separates current authority, durable policy, and
 historical evidence. The current implementation sequencing source of truth is
-`docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`. Historical optional/deferred
-decisions remain risk evidence and approval-boundary evidence, not permanent
-blockers to the roadmap targets.
+`docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`. A feature lane that needs to
+change `contract_frozen_paths` must stop with `CONTRACT_CHANGE_REQUIRED` and
+return to the integration owner.
 
 Allowed:
 - Edit documentation, markdown templates, profiles, examples, tests, and quality gate scripts within the requested scope.
 - Keep render behavior dry-run first for examples.
 - Preserve the safety boundary around private data and live targets.
+- Use separately approved disjoint feature lanes under the work-package v2 contract.
 
 Not allowed by default:
 - Add real application code.

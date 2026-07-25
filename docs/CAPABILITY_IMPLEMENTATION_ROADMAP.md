@@ -72,7 +72,7 @@ not capabilities to abandon.
 | Capability Implementation Roadmap | This document. | Durable owner-intent and sequencing record. | Source of truth cleanup. |
 | Template render tier selection | The `minimal`, `standard`, and `full` contract, renderer selection, exact file planning, tier-specific Read Order closure, focused readiness coverage, and OS-temporary usage probe are complete; no runtime patch is required. | Stable explicit tier selection with full-compatible defaults and compare-first adoption or upgrade decisions. | Source-of-truth confirmation and render safety boundaries. |
 | Read-only CI + verification hygiene | Manual read-only Local Verify is installed and now runs pytest, the exact no-report standalone eval command, the quality gate, and three profile dry-runs; release CI, artifact upload, required checks, automatic triggers, and additional workflows remain separately approval-gated. | Read-only verification mirror for existing local checks, with no secrets, uploads, release, tag, deploy, or live write. | Roadmap and source-of-truth confirmation. |
-| Parallel work-package coordination | Canonical plan digests, contract/feature/integration lanes, exact read/write sets, dependency checks, integration-only ownership, V0-V3 tiers, postflight enforcement, an authority manifest, an advisory verification-impact planner, and a two-lane harness self-pilot are implemented; actual packages and result envelopes remain ignored local control-plane inputs. | Reuse disjoint feature lanes, package postflight, manifest-owned authority, one integration owner, and one cumulative V2/V3 checkpoint for the first greenfield implementation. | Separately approved target initialization. |
+| Parallel work-package coordination | Schema v2 adds canonical plan digests, case-insensitive and parent/child ownership checks, shared contract-basis/frozen-path controls, actual-diff postflight, explicit non-authentication, manifest-owned authority, and advisory verification planning. The harness self-pilot and first greenfield application pilot passed. | Reuse frozen shared interfaces, disjoint feature lanes, one integration owner, and one cumulative V2/V3 checkpoint for the next bounded application feature. | Owner-selected feature contract and separately approved side effects. |
 | Audit / trace / receipt schema | Audit schema and manual receipt review exist; no automation. | Stable schema, redaction rules, receipt fields, validation plan, and manual examples before automation. | Read-only verification hygiene. |
 | JSON Evidence Core / Evidence Serialization Policy | Manual receipt schema exists; machine-readable receipt and trace schemas are now the next serialization foundation. | Policy, core schemas, and a quality-gate bundle check exist before any audit automation or real logs. | Audit / trace / receipt schema. |
 | Eval/report integration | The standalone runner and opt-in report surfaces exist; commit `d6de357aa0b68bac6ad80b33e3041abb08f57f0b` approves only no-report console execution in manual Local Verify while preserving quality-gate, automatic-trigger, required-check, artifact-upload, and release-blocking exclusions. | Evidence-aligned report integration with a bounded manual verification use and separately approval-gated broader automation. | JSON Evidence Core / Evidence Serialization Policy. |
@@ -81,7 +81,7 @@ not capabilities to abandon.
 | MCP tool boundary | Phase 8A boundary contract is documented and Phase 8B synthetic contract tests/review checks are present; no MCP runtime, Hermes sidecar, tool execution, quality-gate or CI integration, audit automation, external service, release automation, or downstream integration. | Explicit allowed tool classes, input/output rules, approval boundaries, redaction rules, and audit hooks. | Local RAG and audit rules. |
 | Hermes sidecar | Phase 9A planning contract, Phase 9B synthetic contract tests/review checks, and Phase 9C implementation boundary planning are present; no sidecar runtime, background daemon, MCP runtime, tool execution, quality-gate or CI integration, audit automation, external service, release automation, or downstream integration. | Local sidecar constrained by the MCP boundary, audit model, eval evidence, and approval rules. | MCP tool boundary. |
 | Release automation / provenance | Phase 10A boundary review, Phase 10B candidate contract, Phase 10C standalone read-only preflight, Phase 10C.1 usage probe, and Phase 10D refresh `HOLD` decision are complete; local evidence generators remain unautomated and no publication exists. | Approval-gated release automation and provenance flow after a stable digest-valid Phase 10 checkpoint satisfies the Phase 10D Proceed Conditions. | Current handoff synchronization, exact same-34-source digest freshness, and separate owner approval. |
-| Downstream product integration | Phase 11A authority/data/access boundary, Phase 11B placeholder-only JSON contract, Phase 11C validator candidate, Phase 11D standalone validator, and Phase 11D.1/D.2 synthetic usage probes are complete; no downstream repository has been selected or accessed. | Any product-specific integration must begin with a separately approved target-selection contract under downstream repo rules; synthetic approval fields are not execution authority. | Current handoff synchronization, exact same-34-source digest freshness, and separate owner target approval. |
+| Downstream product integration | Phase 11A-D.2 boundaries and synthetic validator probes are complete. The separately approved `local-data-quality-cli` greenfield repository was initialized and its first modular MVP pilot passed locally without a remote or private data. | Reuse the target contract, frozen shared interface, disjoint work packages, and explicit side-effect approval for each next application feature or new target. | Owner-selected feature or target contract. |
 
 ## 5. Dependency order
 
@@ -485,10 +485,12 @@ Current implementation state:
 - Phase 11D.2 records `PASS` for one temporary synthetic filled contract,
   proves cleanup, and confirms that a filled-mode validation result is internal
   consistency evidence rather than external authorization.
-- No downstream repository, path, branch, remote, source, private data, render,
-  write, workflow, release, deploy, or live action is selected or executed.
-- Any Phase 11E work must first select `HOLD` or define a separately approved
-  target-selection contract before any real downstream access.
+- A separately approved Phase 11E greenfield path initialized the safe alias
+  `local-data-quality-cli`, rendered the standard governance surface, and
+  completed a modular local MVP pilot with no remote, private data, workflow,
+  release, deploy, or live action.
+- Any additional target or feature must define a new owner-approved contract;
+  the completed pilot does not grant standing downstream authority.
 
 ### Render Tier checkpoint
 
@@ -636,45 +638,37 @@ For this roadmap task, closeout must confirm:
 
 ## 12. Current sequencing handoff
 
-The prerequisite remote baseline is
-`15920062088ebd5b4afcb50d3d9eff1b02cbb4bc`. Its manual read-only Local
-Verify completed successfully with 613 tests, 15 standalone eval cases, 9
-quality gates, three 16-file profile dry-runs, `contents: read`, and no artifact
-upload. Run and job identifiers remain in task closeout evidence.
+The harness self-pilot and the first `local-data-quality-cli` greenfield
+application pilot are complete. The application pilot used a shared baseline,
+two disjoint feature lanes, one integration owner, full tests, a synthetic E2E
+matrix, installed-package smoke, and temporary-input cleanup. No remote,
+private data, or post-E2E defect patch was required.
 
-The pre-large-integration self-pilot is complete:
+The current hardening checkpoint adds:
 
-1. `scripts/work_package_conflict_check.py` produces a canonical package-plan
-   digest;
-2. `scripts/work_package_postflight.py` enforces the declared lane after a
-   commit without writing a tracked envelope;
-3. two worktrees used one base and one plan digest with disjoint three-file
-   write sets;
-4. both feature lanes produced one commit and passed focused V1 plus
-   postflight;
-5. `docs/AUTHORITY_MANIFEST.json` separates current authority, durable policy,
-   and historical evidence;
-6. `scripts/verification_plan.py` returns an advisory minimum V0-V2 plan but
-   executes no checks and grants no approval;
-7. one integration owner aligns shared authority before one cumulative V2/V3
-   checkpoint.
+1. work-package schema version `2`;
+2. case-insensitive and parent/child path ownership checks;
+3. Windows trailing-dot and trailing-space rejection;
+4. `contract_basis_sha` and shared `contract_frozen_paths`;
+5. `CONTRACT_CHANGE_REQUIRED` stop/reopen behavior;
+6. `authorization_status=NOT_AUTHENTICATED` on structural results;
+7. a fail-closed docs gate with runtime manifest loading; and
+8. explicit V2 core versus impact-required extras.
 
-Actual work-package manifests are ignored `local/work-packages/` inputs and do
-not authenticate authority. Contract and feature lanes cannot write current
-authority, artifacts, workflows, gates, golden fixtures, or the corpus
-source-set specification. V1 focused checks run per feature; V2 and V3 run once
-per cumulative checkpoint.
+Actual packages remain ignored `local/work-packages/` inputs. They do not
+authenticate approval, and PASS does not grant execution or side-effect
+permission. Feature and contract lanes remain one-commit units; current
+authority, gates, artifacts, workflows, golden fixtures, and corpus source-set
+changes remain integration-owner work.
 
-The intended closeout state is `READY_FOR_GREENFIELD_INITIALIZATION`, not
-target creation or implementation. The selected safe alias is
-`local-data-quality-cli`, but its absolute path, directory, repository, render,
-application code, target worktrees, commands, and side effects remain
-unapproved. The next repository-changing task must be a separately approved
-initialization contract.
+The intended closeout state is
+`READY_FOR_PARALLEL_APPLICATION_DEVELOPMENT`. After the approved same-source
+digest refresh and cumulative V2/V3 checkpoint, the next task is an
+owner-selected bounded feature contract for `local-data-quality-cli`. Freeze
+the public data model, rule schema, reason codes, module API, output schema,
+status priority, and exit codes before opening new lanes.
 
-Release evidence regeneration remains `HOLD`. A later refresh still requires a
-separate owner-approved exact-file and exact-command task. Digest-write
-automation is not implied. This sequence does not authorize release
-publication, signing, tag movement, artifact upload, workflow expansion, audit
-automation, MCP or Hermes runtime expansion, downstream access, deployment, or
-live behavior.
+Release evidence regeneration remains `HOLD`. This sequence does not authorize
+release publication, signing, tag movement, artifact upload, workflow
+expansion, audit automation, MCP or Hermes runtime expansion, a new downstream
+target, deployment, or live behavior.

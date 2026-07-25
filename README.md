@@ -18,8 +18,14 @@ The repository has moved beyond the historical P0 docs-only baseline. It current
 - A capability implementation roadmap that records CI, RAG, audit/trace,
   eval integration, MCP/Hermes, release automation, provenance, and downstream
   application as final implementation targets.
+- Work-package v2 preflight/postflight controls with case-insensitive and
+  parent/child path conflict detection, frozen contract surfaces, and explicit
+  non-authentication of structural PASS results.
+- A completed first greenfield application pilot proving two disjoint feature
+  lanes, integration, synthetic E2E evaluation, and cleanup.
 
-No real application code, PLC/device code, live target configuration, secrets, or private raw input is included.
+No downstream application code, PLC/device code, live target configuration,
+secrets, or private raw input is included in this harness repository.
 
 ## Historical P0 Scope
 
