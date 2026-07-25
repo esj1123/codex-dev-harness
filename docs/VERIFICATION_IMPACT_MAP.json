@@ -1,0 +1,213 @@
+{
+  "command_ids": [
+    "work_package_preflight",
+    "base_sha_check",
+    "allowed_file_review",
+    "git_diff_check",
+    "focused_pytest",
+    "full_pytest",
+    "standalone_eval",
+    "quality_gate",
+    "checksum_verify",
+    "corpus_digest_check",
+    "render_dry_runs"
+  ],
+  "planner_id": "verification_plan",
+  "rules": [
+    {
+      "checksum_check_required": false,
+      "command_ids": [],
+      "digest_check_required": false,
+      "integration_owner_required": true,
+      "match_kind": "exact",
+      "minimum_tier": "V2",
+      "patterns": [
+        "STATUS.md",
+        "ACCEPTANCE_TRACE.md",
+        "docs/AI_HANDOFF.md",
+        "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md",
+        "docs/APPROVED_CORPUS_SOURCE_SET.v2.json",
+        "scripts/quality_gate.py"
+      ],
+      "render_check_required": false,
+      "rule_id": "central_authority_exact"
+    },
+    {
+      "checksum_check_required": false,
+      "command_ids": [],
+      "digest_check_required": false,
+      "integration_owner_required": true,
+      "match_kind": "prefix",
+      "minimum_tier": "V2",
+      "patterns": [
+        ".github/workflows/",
+        "artifacts/",
+        "evals/golden/",
+        "scripts/gates/"
+      ],
+      "render_check_required": false,
+      "rule_id": "central_integration_prefix"
+    },
+    {
+      "checksum_check_required": false,
+      "command_ids": [],
+      "digest_check_required": false,
+      "integration_owner_required": false,
+      "match_kind": "exact",
+      "minimum_tier": "V2",
+      "patterns": [
+        "scripts/render_template.py",
+        "scripts/ai_readiness_scanner.py",
+        "template.config.example.yml"
+      ],
+      "render_check_required": true,
+      "rule_id": "render_surface_exact"
+    },
+    {
+      "checksum_check_required": false,
+      "command_ids": [],
+      "digest_check_required": false,
+      "integration_owner_required": false,
+      "match_kind": "prefix",
+      "minimum_tier": "V2",
+      "patterns": [
+        "templates/",
+        "profiles/",
+        "examples/",
+        "evals/golden/"
+      ],
+      "render_check_required": true,
+      "rule_id": "render_surface_prefix"
+    },
+    {
+      "checksum_check_required": false,
+      "command_ids": [],
+      "digest_check_required": false,
+      "integration_owner_required": false,
+      "match_kind": "prefix",
+      "minimum_tier": "V1",
+      "patterns": [
+        "scripts/",
+        "tests/"
+      ],
+      "render_check_required": false,
+      "rule_id": "scripts_and_tests"
+    },
+    {
+      "checksum_check_required": false,
+      "command_ids": [],
+      "digest_check_required": false,
+      "integration_owner_required": false,
+      "match_kind": "prefix",
+      "minimum_tier": "V1",
+      "patterns": [
+        "docs/"
+      ],
+      "render_check_required": false,
+      "rule_id": "documentation"
+    },
+    {
+      "checksum_check_required": false,
+      "command_ids": [],
+      "digest_check_required": false,
+      "integration_owner_required": false,
+      "match_kind": "exact",
+      "minimum_tier": "V1",
+      "patterns": [
+        "AGENTS.md",
+        "README.md",
+        "PRODUCT.md",
+        "MVP.md",
+        "ROADMAP.md",
+        "STATUS.md",
+        "ACCEPTANCE_TRACE.md",
+        "SECURITY.md",
+        "code_review.md"
+      ],
+      "render_check_required": false,
+      "rule_id": "root_markdown"
+    },
+    {
+      "checksum_check_required": false,
+      "command_ids": [
+        "corpus_digest_check"
+      ],
+      "digest_check_required": true,
+      "integration_owner_required": false,
+      "match_kind": "corpus_sources",
+      "minimum_tier": "V1",
+      "patterns": [
+        "artifacts/corpus-digest.json"
+      ],
+      "render_check_required": false,
+      "rule_id": "approved_corpus_sources"
+    },
+    {
+      "checksum_check_required": false,
+      "command_ids": [
+        "corpus_digest_check"
+      ],
+      "digest_check_required": true,
+      "integration_owner_required": false,
+      "match_kind": "exact",
+      "minimum_tier": "V1",
+      "patterns": [
+        "artifacts/corpus-digest.json",
+        "docs/APPROVED_CORPUS_SOURCE_SET.v2.json",
+        "scripts/generate_corpus_digest.py",
+        "tests/test_generate_corpus_digest.py"
+      ],
+      "render_check_required": false,
+      "rule_id": "corpus_control_surface"
+    },
+    {
+      "checksum_check_required": true,
+      "command_ids": [
+        "checksum_verify"
+      ],
+      "digest_check_required": false,
+      "integration_owner_required": false,
+      "match_kind": "exact",
+      "minimum_tier": "V1",
+      "patterns": [
+        "artifacts/release-manifest.json",
+        "artifacts/checksums.sha256",
+        "artifacts/sbom.spdx.json",
+        "artifacts/sbom.cdx.json",
+        "artifacts/provenance.intoto.jsonl",
+        "artifacts/eval-report.json",
+        "scripts/generate_checksums.py",
+        "tests/test_generate_checksums.py",
+        "scripts/gates/checksum_verify_gate.py",
+        "tests/test_checksum_verify_gate.py"
+      ],
+      "render_check_required": false,
+      "rule_id": "release_checksum_surface"
+    }
+  ],
+  "schema_version": "1",
+  "tier_command_ids": {
+    "V0": [
+      "work_package_preflight",
+      "base_sha_check",
+      "allowed_file_review",
+      "git_diff_check"
+    ],
+    "V1": [
+      "work_package_preflight",
+      "base_sha_check",
+      "allowed_file_review",
+      "git_diff_check",
+      "focused_pytest"
+    ],
+    "V2": [
+      "work_package_preflight",
+      "base_sha_check",
+      "allowed_file_review",
+      "git_diff_check",
+      "full_pytest",
+      "standalone_eval",
+      "quality_gate"
+    ]
+  }
+}
