@@ -167,13 +167,13 @@ def test_ai_handoff_matches_current_pre_application_authority() -> None:
     text = Path("docs/AI_HANDOFF.md").read_text(encoding="utf-8")
 
     for expected in [
-        "Pre-application readiness closeout",
+        "Parallel work-package control before greenfield implementation",
         "Phase 11D.2",
         "Render Tier",
         "manual GitHub Local Verify",
         "workflow_dispatch",
         "contents: read",
-        "READY_FOR_TARGET_SELECTION",
+        "READY_FOR_PARALLEL_GREENFIELD_IMPLEMENTATION",
     ]:
         assert expected in text
     for stale in [
