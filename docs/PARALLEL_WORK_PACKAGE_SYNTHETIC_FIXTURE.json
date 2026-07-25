@@ -1,6 +1,10 @@
 {
   "approval_ref": null,
   "base_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "contract_basis_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "contract_frozen_paths": [
+    "docs/INTERFACE_CONTRACT.md"
+  ],
   "declared_side_effects": [
     "local_write",
     "execute",
@@ -11,9 +15,10 @@
   "generated_outputs": [],
   "lane": "feature",
   "read_set": [
+    "docs/INTERFACE_CONTRACT.md",
     "scripts/example_dependency.py"
   ],
-  "schema_version": "1",
+  "schema_version": "2",
   "task_id": "example-feature-lane",
   "verification_tier": "V1",
   "write_set": [

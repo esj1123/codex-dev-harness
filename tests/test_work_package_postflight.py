@@ -51,6 +51,8 @@ def package(base_sha: str, *, task_id: str = "feature-a", lane: str = "feature")
         {
             "task_id": task_id,
             "base_sha": base_sha,
+            "contract_basis_sha": base_sha,
+            "contract_frozen_paths": ["seed.txt"],
             "lane": lane,
             "read_set": ["seed.txt"],
             "write_set": ["feature.txt"],
@@ -108,6 +110,7 @@ def test_clean_single_commit_passes_and_matches_preflight_digest(tmp_path: Path)
         "delete_count": 0,
     }
     assert result["central_authority_changed"] is False
+    assert result["authorization_status"] == "NOT_AUTHENTICATED"
     assert result["performed_actions"] == []
 
 
@@ -171,6 +174,8 @@ def test_tracked_dirty_state_is_blocked(tmp_path: Path) -> None:
 def test_rename_and_delete_are_blocked(tmp_path: Path, operation: str, reason_code: str) -> None:
     repo, base_sha = init_repo(tmp_path)
     payload = package(base_sha)
+    payload["contract_frozen_paths"] = [".gitignore"]
+    payload["read_set"] = [".gitignore"]
     payload["write_set"] = ["seed.txt", "renamed.txt"]
     package_path = write_package(repo, payload)
     if operation == "rename":
@@ -229,6 +234,43 @@ def test_feature_lane_cannot_change_integration_only_path(tmp_path: Path) -> Non
 
     assert result["status"] == "BLOCKED"
     assert "INTEGRATION_ONLY_PATH" in result["reason_codes"]
+
+
+def test_actual_contract_surface_change_requires_contract_reopen(tmp_path: Path) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    payload = package(base_sha)
+    package_path = write_package(repo, payload)
+    commit_file(repo, "seed.txt", "changed contract\n")
+
+    result = inspect(repo, package_path)
+
+    assert result["status"] == "BLOCKED"
+    assert "CONTRACT_CHANGE_REQUIRED" in result["reason_codes"]
+    assert "WRITE_SET_EXCEEDED" in result["reason_codes"]
+
+
+def test_declared_parent_directory_covers_actual_child_path(tmp_path: Path) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    payload = package(base_sha)
+    payload["write_set"] = ["generated"]
+    package_path = write_package(repo, payload)
+    commit_file(repo, "generated/result.txt", "result\n")
+
+    result = inspect(repo, package_path)
+
+    assert result["status"] == "PASS"
+
+
+def test_case_variant_declared_path_covers_actual_path(tmp_path: Path) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    payload = package(base_sha)
+    payload["write_set"] = ["FEATURE.TXT"]
+    package_path = write_package(repo, payload)
+    commit_file(repo, "feature.txt", "feature\n")
+
+    result = inspect(repo, package_path)
+
+    assert result["status"] == "PASS"
 
 
 @pytest.mark.parametrize(
@@ -306,3 +348,4 @@ def test_cli_json_is_deterministic_bounded_and_path_safe(
     assert len(first.encode("utf-8")) <= postflight.MAX_OUTPUT_BYTES
     assert str(tmp_path) not in first
     assert json.loads(first)["performed_actions"] == []
+    assert json.loads(first)["authorization_status"] == "NOT_AUTHENTICATED"
