@@ -36,6 +36,16 @@ python scripts/work_package_conflict_check.py --repo-root . --package <PACKAGE_J
 
 The package describes scope and conflicts. It does not grant approval.
 
+Record the returned `plan_digest`. After the lane has one coherent commit and
+its focused verification is complete, run:
+
+```text
+python scripts/work_package_postflight.py --repo-root . --package <PACKAGE_JSON> [--package <PACKAGE_JSON> ...] --task-id <TASK_ID> --verification-status PASS --json
+```
+
+Do not integrate the lane unless preflight and postflight use the same
+`plan_digest` and postflight reports `PASS`.
+
 ## Write Scope
 
 Choose one:

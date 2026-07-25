@@ -4,9 +4,11 @@
 
 Define how codex-dev-harness changes are proposed, reviewed, applied, verified, and recorded after the `v0.1.0` local-first baseline.
 
-This policy is enforced for parallel work-package shape and overlap by the
-read-only `scripts/work_package_conflict_check.py` checker. The checker does not
-grant approval, execute declared commands, create worktrees, or modify files.
+This policy is enforced by the read-only
+`scripts/work_package_conflict_check.py` preflight checker and
+`scripts/work_package_postflight.py` completed-lane checker. Neither checker
+grants approval, executes declared commands, creates worktrees, or modifies
+files.
 
 ## Scope
 
@@ -85,6 +87,27 @@ write sets, and do not write another package's read set. A declared dependency
 requires serialization. Duplicate task IDs, dependency cycles, missing
 dependencies, unsafe paths, and undeclared read/write overlap are blockers.
 
+The preflight result includes `plan_digest`, calculated as SHA-256 over the
+package objects sorted by `task_id` and serialized as deterministic compact
+JSON. Every lane in one batch must use the same package set and therefore the
+same `plan_digest`.
+
+After focused verification and one coherent lane commit, run the postflight
+checker for that task. Postflight observes Git without writing and verifies:
+
+- the package base is an ancestor of the current HEAD;
+- feature and contract lanes contain exactly one commit;
+- actual changed paths stay within `write_set`;
+- actual untracked paths stay within `generated_outputs`;
+- tracked worktree state is clean;
+- rename and delete operations are absent;
+- `git diff --check` passes; and
+- feature and contract lanes did not change integration-only paths.
+
+Postflight emits deterministic JSON to stdout. A caller may store that output
+under ignored `local/checkpoints/<checkpoint-id>/` only when local evidence
+writing is approved. No result envelope is tracked.
+
 ## Lane Ownership
 
 Contract and feature lanes must not write integration-only surfaces:
@@ -148,6 +171,10 @@ integration checkpoint must run the broader local verification defined in
 
 Feature lanes run focused checks only. They do not refresh the corpus digest,
 push, dispatch workflows, or record remote verification evidence.
+
+A lane is not ready for integration until preflight and postflight report the
+same `plan_digest`, the declared verification status is `PASS`, and postflight
+reports `PASS`.
 
 Documentation-only changes may use review-based verification when no executable behavior changes. If executable verification is not run, record `NOT RUN` with the reason.
 

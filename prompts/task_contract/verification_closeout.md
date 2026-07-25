@@ -13,6 +13,8 @@ This template is documentation-only. It does not run verification or approve sid
 - Task ID and lane: [task ID] / [contract, feature, or integration]
 - Declared verification tier: [V0 / V1 / V2 / V3]
 - Dependencies satisfied: [yes / no / not applicable]
+- Plan digest: [SHA-256 from work-package preflight, or not applicable]
+- Postflight status: [PASS / BLOCKED / FAIL / ENVIRONMENT BLOCKED / not applicable]
 
 ## Changed Files
 
@@ -37,7 +39,10 @@ Confirm:
 
 - allowed files only
 - actual changed files remained within the declared write set
+- actual untracked files remained within declared generated outputs
 - work-package conflicts were checked before parallel execution
+- preflight and postflight used the same `plan_digest`
+- rename/delete and commit-count checks passed
 - integration-only files were changed only by the integration lane
 - no unrelated refactor
 - no secrets or private raw input

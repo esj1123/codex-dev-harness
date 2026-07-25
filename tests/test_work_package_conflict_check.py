@@ -67,21 +67,38 @@ def test_parallel_contract_and_verification_tiers_are_documented() -> None:
         assert f"`{tier}`" in ci_policy
     assert "local/work-packages/" in task_prompt
     assert "scripts/work_package_conflict_check.py" in task_prompt
+    assert "scripts/work_package_postflight.py" in task_prompt
+    assert "plan_digest" in closeout_prompt
     assert "actual changed files remained within the declared write set" in closeout_prompt
 
 
 def test_disjoint_packages_are_parallelizable() -> None:
-    result = checker.inspect_payloads(
-        [
-            package("feature-a", suffix="-a"),
-            package("feature-b", suffix="-b"),
-        ]
-    )
+    packages = [
+        package("feature-a", suffix="-a"),
+        package("feature-b", suffix="-b"),
+    ]
+    result = checker.inspect_payloads(packages)
 
     assert result["status"] == "PASS"
     assert result["parallelizable"] is True
+    assert result["plan_digest"] == checker.plan_digest(packages)
+    assert len(result["plan_digest"]) == 64
     assert result["reason_codes"] == []
     assert result["performed_actions"] == []
+
+
+def test_plan_digest_is_order_independent_and_content_sensitive() -> None:
+    left = package("feature-a", suffix="-a")
+    right = package("feature-b", suffix="-b")
+
+    forward = checker.inspect_payloads([left, right])
+    reverse = checker.inspect_payloads([right, left])
+    changed = copy.deepcopy(right)
+    changed["write_set"] = ["scripts/changed.py"]
+    changed_result = checker.inspect_payloads([left, changed])
+
+    assert forward["plan_digest"] == reverse["plan_digest"]
+    assert forward["plan_digest"] != changed_result["plan_digest"]
 
 
 def test_write_write_conflict_is_blocked_without_disclosing_paths() -> None:

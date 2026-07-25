@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path, PurePosixPath
 import re
@@ -89,6 +90,7 @@ def base_result() -> dict[str, Any]:
         "checker_id": CHECKER_ID,
         "status": "FAIL",
         "parallelizable": False,
+        "plan_digest": None,
         "reason_codes": [],
         "package_summary": {
             "package_count": 0,
@@ -210,6 +212,12 @@ def dependency_cycle(task_ids: Iterable[str], dependencies: dict[str, set[str]])
     return any(dependency_reaches(task_id, task_id, dependencies) for task_id in task_ids)
 
 
+def plan_digest(payloads: list[dict[str, Any]]) -> str:
+    ordered = sorted(payloads, key=lambda payload: str(payload["task_id"]))
+    canonical = json.dumps(ordered, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest()
+
+
 def inspect_payloads(payloads: list[Any]) -> dict[str, Any]:
     result = base_result()
     if not payloads or len(payloads) > MAX_PACKAGES:
@@ -222,6 +230,7 @@ def inspect_payloads(payloads: list[Any]) -> dict[str, Any]:
         return result
 
     packages = [payload for payload in payloads if isinstance(payload, dict)]
+    result["plan_digest"] = plan_digest(packages)
     task_ids = [str(package["task_id"]) for package in packages]
     result["package_summary"]["package_count"] = len(packages)
     result["package_summary"]["task_ids"] = sorted(task_ids)
