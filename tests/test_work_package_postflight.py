@@ -308,6 +308,20 @@ def test_diff_check_failure_is_blocked(tmp_path: Path) -> None:
     assert "DIFF_CHECK_FAILED" in result["reason_codes"]
 
 
+def test_crlf_line_endings_do_not_fail_diff_check(tmp_path: Path) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    package_path = write_package(repo, package(base_sha))
+    git(repo, "config", "core.autocrlf", "false")
+    (repo / "feature.txt").write_bytes(b"feature\r\n")
+    git(repo, "add", "feature.txt")
+    git(repo, "commit", "-m", "feature")
+
+    result = inspect(repo, package_path)
+
+    assert result["status"] == "PASS"
+    assert "DIFF_CHECK_FAILED" not in result["reason_codes"]
+
+
 def test_not_a_repository_is_environment_blocked(tmp_path: Path) -> None:
     payload = package("a" * 40)
     package_path = write_package(tmp_path, payload)

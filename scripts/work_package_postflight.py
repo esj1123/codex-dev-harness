@@ -160,7 +160,15 @@ def observe_repository(repo_root: Path, base_sha: str) -> dict[str, Any]:
         raise ValueError("UNTRACKED_PATH_INVALID")
 
     tracked_status = run_git(root, "status", "--porcelain", "--untracked-files=no").stdout
-    diff_check = run_git(root, "diff", "--check", f"{base_sha}..{head_sha}", check=False)
+    diff_check = run_git(
+        root,
+        "-c",
+        "core.whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol",
+        "diff",
+        "--check",
+        f"{base_sha}..{head_sha}",
+        check=False,
+    )
     commit_count_raw = run_git(root, "rev-list", "--count", f"{base_sha}..{head_sha}").stdout.strip()
     try:
         commit_count = int(commit_count_raw)
