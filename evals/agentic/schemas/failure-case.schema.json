@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "affected_configuration_hashes": {
+      "items": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "maxItems": 10,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "expected_invariant_id": {
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "type": "string"
+    },
+    "failure_id": {
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "type": "string"
+    },
+    "first_observed_date": {
+      "format": "date",
+      "type": "string"
+    },
+    "grader_id": {
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "type": "string"
+    },
+    "last_reproduced_date": {
+      "format": "date",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "minimal_synthetic_fixture_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "minimal_synthetic_fixture_ref": {
+      "maxLength": 260,
+      "pattern": "^evals/agentic/fixtures/[A-Za-z0-9._/-]+$",
+      "type": "string"
+    },
+    "review_refs": {
+      "items": {
+        "maxLength": 260,
+        "pattern": "^[A-Za-z0-9._/-]+$",
+        "type": "string"
+      },
+      "maxItems": 10,
+      "type": "array"
+    },
+    "safe_symptom_summary": {
+      "maxLength": 500,
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1"
+    },
+    "state": {
+      "enum": [
+        "OBSERVED",
+        "QUARANTINED",
+        "SANITIZED",
+        "REPRODUCED",
+        "HUMAN_REVIEWED",
+        "GRADER_VALIDATED",
+        "REGRESSION",
+        "DEPRECATED"
+      ]
+    },
+    "task_class": {
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "failure_id",
+    "task_class",
+    "state",
+    "safe_symptom_summary",
+    "minimal_synthetic_fixture_ref",
+    "minimal_synthetic_fixture_hash",
+    "expected_invariant_id",
+    "grader_id",
+    "first_observed_date",
+    "last_reproduced_date",
+    "affected_configuration_hashes",
+    "review_refs"
+  ],
+  "title": "Agent Quality Failure Case",
+  "type": "object"
+}

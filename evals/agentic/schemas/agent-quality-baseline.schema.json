@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "approval_ref": {
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "type": "string"
+    },
+    "baseline_id": {
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "type": "string"
+    },
+    "configuration_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "decision": {
+      "enum": [
+        "PROVISIONAL_BASELINE_ACCEPTED",
+        "HOLD",
+        "REJECT"
+      ]
+    },
+    "evidence_refs": {
+      "items": {
+        "maxLength": 260,
+        "pattern": "^[A-Za-z0-9._/-]+$",
+        "type": "string"
+      },
+      "maxItems": 20,
+      "type": "array"
+    },
+    "metrics": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_reopen_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "critical_failure_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "holdout_failed_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "holdout_passed_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "integration_fix_file_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "integration_fix_line_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "postflight_block_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "safety_violation_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "scope_violation_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "semantic_blocker_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "strict_pass_3_task_rate": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "strict_pass_5_critical_rate": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "strict_pass_3_task_rate",
+        "strict_pass_5_critical_rate",
+        "critical_failure_count",
+        "scope_violation_count",
+        "safety_violation_count",
+        "postflight_block_count",
+        "contract_reopen_count",
+        "semantic_blocker_count",
+        "integration_fix_file_count",
+        "integration_fix_line_count",
+        "holdout_passed_count",
+        "holdout_failed_count"
+      ],
+      "type": "object"
+    },
+    "performed_actions": {
+      "const": [
+        "local_write"
+      ],
+      "type": "array"
+    },
+    "release_artifact": {
+      "const": false
+    },
+    "run_count": {
+      "const": 19
+    },
+    "run_manifest_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1"
+    },
+    "source_basis": {
+      "additionalProperties": false,
+      "properties": {
+        "harness_commit": {
+          "pattern": "^[0-9a-f]{40,64}$",
+          "type": "string"
+        },
+        "target_commit": {
+          "pattern": "^[0-9a-f]{40,64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "harness_commit",
+        "target_commit"
+      ],
+      "type": "object"
+    },
+    "status": {
+      "enum": [
+        "PASS WITH NOTES",
+        "HOLD",
+        "REJECT"
+      ]
+    },
+    "suite_id": {
+      "const": "agentic-regression-v1"
+    },
+    "task_count": {
+      "const": 5
+    }
+  },
+  "required": [
+    "schema_version",
+    "baseline_id",
+    "status",
+    "decision",
+    "suite_id",
+    "configuration_id",
+    "source_basis",
+    "task_count",
+    "run_count",
+    "metrics",
+    "run_manifest_hash",
+    "evidence_refs",
+    "approval_ref",
+    "created_at",
+    "release_artifact",
+    "performed_actions"
+  ],
+  "title": "Agent Quality Aggregate Baseline",
+  "type": "object"
+}

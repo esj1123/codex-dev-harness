@@ -1,0 +1,344 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "criticality": {
+      "enum": [
+        "normal",
+        "critical"
+      ]
+    },
+    "evidence_refs": {
+      "items": {
+        "maxLength": 260,
+        "pattern": "^[A-Za-z0-9._/-]+$",
+        "type": "string"
+      },
+      "maxItems": 20,
+      "type": "array"
+    },
+    "execution": {
+      "additionalProperties": false,
+      "properties": {
+        "reason_codes": {
+          "items": {
+            "maxLength": 80,
+            "pattern": "^[A-Z][A-Z0-9_]*$",
+            "type": "string"
+          },
+          "maxItems": 20,
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "BLOCKED",
+            "NOT RUN",
+            "ENVIRONMENT BLOCKED"
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "reason_codes"
+      ],
+      "type": "object"
+    },
+    "fingerprint": {
+      "additionalProperties": false,
+      "properties": {
+        "agent_adapter_id": {
+          "$ref": "#/$defs/safeIdentifier"
+        },
+        "agent_adapter_version": {
+          "$ref": "#/$defs/safeIdentifierOrUnknown"
+        },
+        "approved_corpus_digest": {
+          "$ref": "#/$defs/hashOrUnknown"
+        },
+        "comparability": {
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
+        },
+        "configuration_id": {
+          "$ref": "#/$defs/hash"
+        },
+        "contract_basis_sha": {
+          "$ref": "#/$defs/gitSha"
+        },
+        "dependency_lock_hash": {
+          "$ref": "#/$defs/hashOrUnknown"
+        },
+        "environment_profile_id": {
+          "$ref": "#/$defs/safeIdentifier"
+        },
+        "grader_version": {
+          "$ref": "#/$defs/safeIdentifier"
+        },
+        "harness_commit": {
+          "$ref": "#/$defs/gitSha"
+        },
+        "model_id": {
+          "$ref": "#/$defs/safeIdentifierOrUnknown"
+        },
+        "reasoning_profile": {
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max",
+            "ultra",
+            "UNKNOWN"
+          ]
+        },
+        "run_fingerprint_id": {
+          "$ref": "#/$defs/hash"
+        },
+        "skill_set_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "target_base_commit": {
+          "$ref": "#/$defs/gitSha"
+        },
+        "task_contract_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "tool_policy_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "unknown_fields": {
+          "items": {
+            "$ref": "#/$defs/safeIdentifier"
+          },
+          "maxItems": 20,
+          "type": "array"
+        },
+        "verification_suite_id": {
+          "$ref": "#/$defs/safeIdentifier"
+        },
+        "work_package_plan_digest": {
+          "$ref": "#/$defs/hash"
+        }
+      },
+      "required": [
+        "harness_commit",
+        "target_base_commit",
+        "contract_basis_sha",
+        "work_package_plan_digest",
+        "agent_adapter_id",
+        "agent_adapter_version",
+        "model_id",
+        "reasoning_profile",
+        "task_contract_hash",
+        "tool_policy_hash",
+        "skill_set_hash",
+        "approved_corpus_digest",
+        "dependency_lock_hash",
+        "environment_profile_id",
+        "verification_suite_id",
+        "grader_version",
+        "configuration_id",
+        "run_fingerprint_id",
+        "comparability",
+        "unknown_fields"
+      ],
+      "type": "object"
+    },
+    "grading": {
+      "additionalProperties": false,
+      "properties": {
+        "architectural_consistency": {
+          "$ref": "#/$defs/grade"
+        },
+        "blocker_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "contract_adherence": {
+          "$ref": "#/$defs/grade"
+        },
+        "functional_correctness": {
+          "$ref": "#/$defs/grade"
+        },
+        "reproducibility": {
+          "$ref": "#/$defs/grade"
+        },
+        "safety_compliance": {
+          "$ref": "#/$defs/grade"
+        },
+        "scope_adherence": {
+          "$ref": "#/$defs/grade"
+        },
+        "semantic_consistency": {
+          "$ref": "#/$defs/grade"
+        }
+      },
+      "required": [
+        "functional_correctness",
+        "contract_adherence",
+        "scope_adherence",
+        "semantic_consistency",
+        "architectural_consistency",
+        "safety_compliance",
+        "reproducibility",
+        "blocker_count"
+      ],
+      "type": "object"
+    },
+    "metrics": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_reopen_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "critical_failure_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "holdout_failed_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "holdout_passed_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "integration_fix_file_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "integration_fix_line_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "postflight_block_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "safety_violation_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "scope_violation_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "semantic_blocker_count": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "critical_failure_count",
+        "scope_violation_count",
+        "safety_violation_count",
+        "postflight_block_count",
+        "contract_reopen_count",
+        "semantic_blocker_count",
+        "integration_fix_file_count",
+        "integration_fix_line_count",
+        "holdout_passed_count",
+        "holdout_failed_count"
+      ],
+      "type": "object"
+    },
+    "performed_actions": {
+      "items": {
+        "enum": [
+          "local_write",
+          "execute",
+          "stage",
+          "commit",
+          "review"
+        ]
+      },
+      "maxItems": 5,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "run_id": {
+      "$ref": "#/$defs/safeIdentifier"
+    },
+    "schema_version": {
+      "const": "1"
+    },
+    "suite_id": {
+      "$ref": "#/$defs/safeIdentifier"
+    },
+    "task_class": {
+      "$ref": "#/$defs/safeIdentifier"
+    },
+    "task_id": {
+      "$ref": "#/$defs/safeIdentifier"
+    },
+    "trial_id": {
+      "$ref": "#/$defs/safeIdentifier"
+    }
+  },
+  "required": [
+    "schema_version",
+    "run_id",
+    "task_id",
+    "trial_id",
+    "suite_id",
+    "task_class",
+    "criticality",
+    "fingerprint",
+    "execution",
+    "grading",
+    "metrics",
+    "evidence_refs",
+    "performed_actions"
+  ],
+  "title": "Agent Quality Trial Run",
+  "type": "object",
+  "$defs": {
+    "gitSha": {
+      "pattern": "^[0-9a-f]{40,64}$",
+      "type": "string"
+    },
+    "grade": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "BLOCKED",
+        "NOT RUN",
+        "ENVIRONMENT BLOCKED"
+      ]
+    },
+    "hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "hashOrUnknown": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/hash"
+        },
+        {
+          "const": "UNKNOWN"
+        }
+      ]
+    },
+    "safeIdentifier": {
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "type": "string"
+    },
+    "safeIdentifierOrUnknown": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/safeIdentifier"
+        },
+        {
+          "const": "UNKNOWN"
+        }
+      ]
+    }
+  }
+}

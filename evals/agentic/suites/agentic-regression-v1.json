@@ -1,0 +1,80 @@
+{
+  "schema_version": "1",
+  "status": "READY",
+  "suite_class": "agentic_regression",
+  "suite_id": "agentic-regression-v1",
+  "tasks": [
+    {
+      "criticality": "normal",
+      "lane": "feature",
+      "source_basis": "055300ece1485f4fcdfe55087c167df3a57df04d",
+      "task_id": "numeric-range-parser",
+      "trials": 3,
+      "write_set": [
+        "src/local_data_quality_cli/rules.py",
+        "tests/test_rules.py"
+      ]
+    },
+    {
+      "criticality": "critical",
+      "lane": "feature",
+      "source_basis": "055300ece1485f4fcdfe55087c167df3a57df04d",
+      "task_id": "numeric-range-evaluator",
+      "trials": 5,
+      "write_set": [
+        "src/local_data_quality_cli/evaluate.py",
+        "tests/test_evaluate.py"
+      ]
+    },
+    {
+      "criticality": "normal",
+      "lane": "feature",
+      "source_basis": "4cbf171bfef78cf8e38aa7b9a74c4c1867637f4a",
+      "task_id": "allowed-values-parser",
+      "trials": 3,
+      "write_set": [
+        "src/local_data_quality_cli/rules.py",
+        "tests/test_rules.py"
+      ]
+    },
+    {
+      "criticality": "normal",
+      "lane": "feature",
+      "source_basis": "4cbf171bfef78cf8e38aa7b9a74c4c1867637f4a",
+      "task_id": "allowed-values-evaluator",
+      "trials": 3,
+      "write_set": [
+        "src/local_data_quality_cli/evaluate.py",
+        "tests/test_evaluate.py"
+      ]
+    },
+    {
+      "criticality": "critical",
+      "fixture_recipe": {
+        "base": "4cbf171bfef78cf8e38aa7b9a74c4c1867637f4a",
+        "lane_commits": [
+          "f9e539e3335d0eeb9dcfb37b73ff0c929a6d713d",
+          "99e091bc2500be31ba6c0cfbcdd815210d5f655d"
+        ]
+      },
+      "lane": "integration",
+      "source_basis": "4cbf171bfef78cf8e38aa7b9a74c4c1867637f4a",
+      "task_id": "allowed-values-integration",
+      "trials": 5,
+      "write_set": [
+        "ACCEPTANCE_TRACE.md",
+        "AGENTS.md",
+        "APPROVALS.md",
+        "MVP.md",
+        "PHASE_PLAN.md",
+        "PROJECT_BOUNDARY.md",
+        "README.md",
+        "STATUS.md",
+        "VERIFICATION.profile.md",
+        "src/local_data_quality_cli/output.py",
+        "tests/test_cli.py"
+      ]
+    }
+  ],
+  "total_trials": 19
+}

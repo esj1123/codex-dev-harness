@@ -1,0 +1,18 @@
+{
+  "schema_version": "1",
+  "status": "NOT RUN",
+  "suite_class": "capability",
+  "suite_id": "capability-v1",
+  "tasks": [
+    {
+      "baseline_blocking": false,
+      "reason_code": "CAPABILITY_CASE_NOT_RUN",
+      "task_id": "contract-reopen-required"
+    },
+    {
+      "baseline_blocking": false,
+      "reason_code": "CAPABILITY_CASE_NOT_RUN",
+      "task_id": "ambiguous-cross-module-design"
+    }
+  ]
+}
