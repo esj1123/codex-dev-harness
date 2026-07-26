@@ -7,19 +7,25 @@ continue safely.
 
 ## Current Phase
 
-Ready for separately approved parallel application development.
+Agent-quality controls implemented; adoption baseline held.
 
 The machine-readable state is
-`READY_FOR_PARALLEL_APPLICATION_DEVELOPMENT`. The harness completed its
+`AGENT_QUALITY_BASELINE_NOT_ESTABLISHED`. The harness completed its
 pre-large-integration self-pilot, initialized the safe greenfield alias
-`local-data-quality-cli`, governed two disjoint application feature lanes, and
-closed the first synthetic MVP pilot without requiring a defect patch.
+`local-data-quality-cli`, governed disjoint application lanes, and installed a
+standalone manual Agent Quality Stability layer.
 
 Work-package schema v2 now adds Windows-safe path ownership, contract-basis and
 frozen-interface fields, contract reopen behavior, and an explicit distinction
 between structural PASS and authenticated approval. The docs gate loads the
 authority manifest at runtime and returns a structured failure when that
 manifest is missing or malformed.
+
+The first fixed-configuration agentic suite completed 19 trials. Critical
+5-trial tasks passed, but one numeric parser trial failed an owner-held valid
+Decimal holdout. The aggregate is `HOLD`; no tracked agent-quality baseline
+artifact exists. Safe envelopes and the pre-regression failure candidate remain
+ignored local control-plane evidence.
 
 This state does not authorize another target, another feature, a remote, push,
 workflow dispatch, release action, or live/private data use.
@@ -53,6 +59,9 @@ default operating context.
 - `scripts/verification_plan.py`
 - `scripts/gates/docs_gate.py`
 - `docs/CI_POLICY.md`
+- `docs/AGENT_QUALITY_STABILITY_POLICY.md`
+- `scripts/agent_quality.py`
+- `evals/agentic/suites/agentic-regression-v1.json`
 
 Actual package JSON and optional checkpoint envelopes remain ignored local
 control-plane data under `local/`. They must not contain secrets, private
@@ -100,11 +109,14 @@ for the final cumulative SHA. Tracked authority does not record run IDs.
 - No real, private, customer, or live data may be used.
 - No new feature lane begins until its owner-selected contract and side-effect
   permissions are explicit.
+- Agent-quality PASS is standalone evidence, not CI, release, approval, or
+  execution authority.
+- A failed trial cannot be replaced selectively after a fingerprint-affecting
+  change; a comparable baseline requires a complete suite.
 
 ## Next Recommended Step
 
-Complete the current same-source digest refresh and cumulative V2/V3 gate.
-Then select one bounded post-MVP feature for `local-data-quality-cli`, freeze
-the shared interface, and open only disjoint work packages. If a lane needs to
-change the frozen contract, stop with `CONTRACT_CHANGE_REQUIRED` instead of
-modifying the interface concurrently.
+Review and sanitize the observed numeric parser failure, reproduce it with the
+owner-held grader, and obtain human review before any regression promotion.
+Keep baseline creation on hold. A changed prompt, tool policy, grader, model,
+or task contract requires a complete new 19-trial run under one fingerprint.

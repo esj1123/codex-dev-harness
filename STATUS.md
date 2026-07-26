@@ -2,12 +2,13 @@
 
 ## Current State
 
-`READY_FOR_PARALLEL_APPLICATION_DEVELOPMENT`
+`AGENT_QUALITY_BASELINE_NOT_ESTABLISHED`
 
-The harness has completed its first governed greenfield application pilot and
-the follow-up work-package v2 hardening. Current authority is defined by
-`docs/AUTHORITY_MANIFEST.json`; historical phase and run details remain
-available in Git history and `ACCEPTANCE_TRACE.md`.
+The harness has completed its first governed greenfield application pilot,
+work-package v2 hardening, and the standalone Agent Quality Stability control
+layer. Current authority is defined by `docs/AUTHORITY_MANIFEST.json`;
+historical phase and run details remain available in Git history and
+`ACCEPTANCE_TRACE.md`.
 
 ## Implemented Control Surface
 
@@ -27,6 +28,27 @@ available in Git history and `ACCEPTANCE_TRACE.md`.
   - `CONTRACT_CHANGE_REQUIRED` stop/reopen behavior;
   - explicit `authorization_status=NOT_AUTHENTICATED`.
 - Fail-closed docs gate with runtime manifest validation.
+- Manual agent-quality run validation, deterministic fingerprinting,
+  aggregation, comparison, semantic review, and failure-lifecycle validation.
+
+## Agent Quality Pilot
+
+The first fixed-configuration suite completed all 19 planned trials across five
+replay tasks. All critical 5-trial tasks passed, and no scope, safety,
+postflight, or contract-reopen violation occurred. One of three numeric parser
+trials rejected valid bounded finite Decimal forms in the owner-held holdout.
+
+The aggregate result is `HOLD`:
+
+- normal 3-trial task rate: `2/3`;
+- critical 5-trial task rate: `1.0`;
+- confirmed semantic blockers: `1`;
+- holdout failures: `1`.
+
+Safe run envelopes and the quarantined failure candidate remain ignored under
+`local/agent-quality/`. Raw prompts, transcripts, model output, and holdout
+fixtures are not tracked. The adoption conditions were not met, so
+`artifacts/agent-quality-baseline.json` was not created.
 
 ## Application Pilot
 
@@ -66,11 +88,14 @@ not authenticate approval.
 - New downstream access, render, write, commit, push, or workflow dispatch.
 - Additional application capabilities without an owner-selected feature
   contract.
+- Agent-quality baseline adoption until the observed numeric parser failure is
+  sanitized, reproduced, reviewed, and the complete suite meets every
+  adoption threshold.
 
 ## Next Recommended Step
 
-After the current integration commit receives the approved same-source digest
-refresh and one cumulative V2/V3 checkpoint, select the next
-`local-data-quality-cli` feature contract. Freeze its public data model, reason
-codes, module API, output schema, status priority, and exit codes before opening
-new feature lanes.
+Review the observed numeric parser failure, advance it only through the
+approved failure lifecycle, and run a diagnostic parser replay if needed.
+Tracked baseline creation remains blocked. If the configuration, prompt, tool
+policy, grader, or task contract changes, run a new complete 19-trial suite
+instead of replacing only the failed trial.

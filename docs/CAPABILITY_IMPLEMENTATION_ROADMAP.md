@@ -661,12 +661,22 @@ permission. Feature and contract lanes remain one-commit units; current
 authority, gates, artifacts, workflows, golden fixtures, and corpus source-set
 changes remain integration-owner work.
 
-The intended closeout state is
-`READY_FOR_PARALLEL_APPLICATION_DEVELOPMENT`. After the approved same-source
-digest refresh and cumulative V2/V3 checkpoint, the next task is an
-owner-selected bounded feature contract for `local-data-quality-cli`. Freeze
-the public data model, rule schema, reason codes, module API, output schema,
-status priority, and exit codes before opening new lanes.
+The Agent Quality Stability layer now provides standalone manual run
+validation, deterministic fingerprints, aggregate comparison, semantic
+surface review, and failure-lifecycle controls. Its first fixed-configuration
+suite completed all 19 trials. Critical tasks passed, but one normal numeric
+parser trial failed the owner-held valid Decimal holdout. The adoption gate
+therefore returned `HOLD`, and no tracked baseline artifact was created.
+
+The current state is `AGENT_QUALITY_BASELINE_NOT_ESTABLISHED`. The next
+sequence is:
+
+1. sanitize and reproduce the observed parser failure;
+2. obtain human review before regression promotion;
+3. keep the failure and safe run envelopes ignored until promotion criteria
+   are met;
+4. rerun a complete 19-trial suite if any fingerprint-defining input changes;
+5. create a tracked baseline only after every adoption threshold passes.
 
 Release evidence regeneration remains `HOLD`. This sequence does not authorize
 release publication, signing, tag movement, artifact upload, workflow

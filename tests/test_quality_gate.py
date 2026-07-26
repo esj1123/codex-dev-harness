@@ -223,7 +223,7 @@ def test_current_authority_is_manifest_driven() -> None:
     manifest = json.loads(Path(docs_gate.MANIFEST_PATH).read_text(encoding="utf-8"))
     handoff = Path("docs/AI_HANDOFF.md").read_text(encoding="utf-8")
 
-    assert manifest["current_state"] == "READY_FOR_PARALLEL_APPLICATION_DEVELOPMENT"
+    assert manifest["current_state"] == "AGENT_QUALITY_BASELINE_NOT_ESTABLISHED"
     assert manifest["default_read_order"][0:2] == [
         "AGENTS.md",
         docs_gate.MANIFEST_PATH,
@@ -231,8 +231,8 @@ def test_current_authority_is_manifest_driven() -> None:
     assert set(manifest["default_read_order"]).issubset(set(manifest["current_authority"]))
     assert "ACCEPTANCE_TRACE.md" not in manifest["default_read_order"]
     assert "docs/PROFILE_MATRIX.md" not in manifest["default_read_order"]
-    assert "Ready for separately approved parallel application development" in handoff
-    assert "READY_FOR_PARALLEL_APPLICATION_DEVELOPMENT" in handoff
+    assert "Agent-quality controls implemented; adoption baseline held" in handoff
+    assert "AGENT_QUALITY_BASELINE_NOT_ESTABLISHED" in handoff
     assert "GitHub Actions workflow is not installed" not in handoff
     assert "recommended next work is Phase 3" not in handoff
 
