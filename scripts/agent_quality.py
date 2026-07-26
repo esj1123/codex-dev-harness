@@ -1,0 +1,262 @@
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+import sys
+import tempfile
+from typing import Any
+
+
+sys.dont_write_bytecode = True
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from scripts.agent_quality_lib.adoption import build_baseline, compare_baseline
+from scripts.agent_quality_lib.aggregation import aggregate_runs
+from scripts.agent_quality_lib.contracts import (
+    AgentQualityValidationError,
+    load_json_file,
+    validate_run,
+)
+from scripts.agent_quality_lib.failure import validate_failure_case, validate_failure_transition
+
+
+SCHEMA_VERSION = "1"
+CLI_ID = "agent_quality"
+MAX_OUTPUT_BYTES = 16 * 1024
+MAX_RUN_FILES = 64
+BASELINE_PATH = REPO_ROOT / "artifacts" / "agent-quality-baseline.json"
+READ_ROOTS = (
+    REPO_ROOT / "evals" / "agentic",
+    REPO_ROOT / "local" / "agent-quality",
+    Path(tempfile.gettempdir()),
+)
+
+
+class UsageError(ValueError):
+    pass
+
+
+class SafeArgumentParser(argparse.ArgumentParser):
+    def error(self, message: str) -> None:
+        raise UsageError("CLI_USAGE_INVALID")
+
+
+def _is_within(path: Path, root: Path) -> bool:
+    try:
+        path.relative_to(root)
+    except ValueError:
+        return False
+    return True
+
+
+def _resolve_allowed_input(value: str, *, directory: bool = False) -> Path:
+    candidate = Path(value)
+    if not directory and candidate.suffix.lower() != ".json":
+        raise AgentQualityValidationError(("JSON_INPUT_EXTENSION_INVALID",))
+    try:
+        if candidate.is_symlink():
+            raise AgentQualityValidationError(("JSON_INPUT_SYMLINK_FORBIDDEN",))
+        resolved = candidate.resolve(strict=True)
+    except AgentQualityValidationError:
+        raise
+    except OSError as exc:
+        raise AgentQualityValidationError(("JSON_INPUT_UNAVAILABLE",)) from exc
+
+    roots = []
+    for root in READ_ROOTS:
+        try:
+            roots.append(root.resolve(strict=False))
+        except OSError:
+            continue
+    if not any(_is_within(resolved, root) for root in roots):
+        raise AgentQualityValidationError(("JSON_INPUT_BOUNDARY_INVALID",))
+    if directory:
+        if not resolved.is_dir():
+            raise AgentQualityValidationError(("RUNS_DIRECTORY_INVALID",))
+    elif not resolved.is_file():
+        raise AgentQualityValidationError(("JSON_INPUT_NOT_REGULAR_FILE",))
+    return resolved
+
+
+def _load_allowed_json(value: str) -> Any:
+    return load_json_file(_resolve_allowed_input(value))
+
+
+def _result(status: str, reason_codes: list[str], command: str) -> dict[str, Any]:
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "validator_id": CLI_ID,
+        "command": command,
+        "status": status,
+        "reason_codes": sorted(set(reason_codes)),
+        "performed_actions": [],
+    }
+
+
+def _validate_run_command(path: str) -> dict[str, Any]:
+    run = validate_run(_load_allowed_json(path))
+    return {
+        **_result("PASS", [], "validate-run"),
+        "validation_summary": {
+            "comparability": run["fingerprint"]["comparability"],
+            "run_count": 1,
+        },
+    }
+
+
+def _aggregate_command(suite_path: str, runs_dir: str) -> dict[str, Any]:
+    suite = _load_allowed_json(suite_path)
+    directory = _resolve_allowed_input(runs_dir, directory=True)
+    run_paths = sorted(directory.glob("*.json"), key=lambda path: path.name)
+    if not run_paths or len(run_paths) > MAX_RUN_FILES:
+        raise AgentQualityValidationError(("RUN_FILE_COUNT_INVALID",))
+    if any(path.is_symlink() or not path.is_file() for path in run_paths):
+        raise AgentQualityValidationError(("RUN_FILE_INVALID",))
+    return aggregate_runs(suite, [load_json_file(path) for path in run_paths])
+
+
+def _compare_command(baseline_path: str, candidate_path: str) -> dict[str, Any]:
+    baseline = _load_allowed_json(baseline_path)
+    candidate = _load_allowed_json(candidate_path)
+    return compare_baseline(baseline, candidate)
+
+
+def _validate_failure_command(path: str, next_state: str | None) -> dict[str, Any]:
+    failure = _load_allowed_json(path)
+    if next_state is None:
+        return validate_failure_case(failure)
+    return validate_failure_transition(failure, next_state)
+
+
+def _write_baseline_command(
+    aggregate_path: str,
+    output_path: str,
+    approval_ref: str,
+    created_at: str,
+) -> dict[str, Any]:
+    aggregate = _load_allowed_json(aggregate_path)
+    output = Path(output_path).resolve(strict=False)
+    if output != BASELINE_PATH.resolve(strict=False):
+        raise AgentQualityValidationError(("BASELINE_OUTPUT_PATH_INVALID",))
+    if output.exists():
+        raise AgentQualityValidationError(("BASELINE_OVERWRITE_FORBIDDEN",))
+    source_basis = aggregate.get("source_basis")
+    if not isinstance(source_basis, dict):
+        raise AgentQualityValidationError(("BASELINE_SOURCE_BASIS_MISSING",))
+    baseline = build_baseline(
+        aggregate,
+        source_basis=source_basis,
+        approval_ref=approval_ref,
+        created_at=created_at,
+    )
+    data = (json.dumps(baseline, indent=2, sort_keys=True, ensure_ascii=True) + "\n").encode(
+        "utf-8"
+    )
+    if len(data) > MAX_OUTPUT_BYTES:
+        raise AgentQualityValidationError(("BASELINE_OUTPUT_TOO_LARGE",))
+    output.parent.mkdir(parents=False, exist_ok=True)
+    with output.open("xb") as stream:
+        stream.write(data)
+    return {
+        **_result("PASS WITH NOTES", ["PROVISIONAL_BASELINE_RECORDED"], "write-baseline"),
+        "baseline_summary": {
+            "baseline_id": baseline["baseline_id"],
+            "run_count": baseline["run_count"],
+            "task_count": baseline["task_count"],
+        },
+        "performed_actions": ["local_write"],
+    }
+
+
+def json_bytes(result: dict[str, Any]) -> bytes:
+    data = (
+        json.dumps(result, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+        + "\n"
+    ).encode("utf-8")
+    if len(data) > MAX_OUTPUT_BYTES:
+        raise ValueError("OUTPUT_LIMIT_EXCEEDED")
+    return data
+
+
+def _exit_code(result: dict[str, Any]) -> int:
+    if result.get("status") in {"PASS", "PASS WITH NOTES"}:
+        return 0
+    if result.get("status") == "NOT RUN":
+        return 2
+    return 1
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = SafeArgumentParser(description="Validate manual agent-quality evidence.")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    validate_run_parser = subparsers.add_parser("validate-run")
+    validate_run_parser.add_argument("--run", required=True)
+    validate_run_parser.add_argument("--json", action="store_true")
+
+    aggregate_parser = subparsers.add_parser("aggregate")
+    aggregate_parser.add_argument("--suite", required=True)
+    aggregate_parser.add_argument("--runs-dir", required=True)
+    aggregate_parser.add_argument("--json", action="store_true")
+
+    compare_parser = subparsers.add_parser("compare")
+    compare_parser.add_argument("--baseline", required=True)
+    compare_parser.add_argument("--candidate", required=True)
+    compare_parser.add_argument("--json", action="store_true")
+
+    failure_parser = subparsers.add_parser("validate-failure")
+    failure_parser.add_argument("--case", required=True)
+    failure_parser.add_argument("--next-state")
+    failure_parser.add_argument("--json", action="store_true")
+
+    baseline_parser = subparsers.add_parser("write-baseline")
+    baseline_parser.add_argument("--aggregate", required=True)
+    baseline_parser.add_argument("--output", required=True)
+    baseline_parser.add_argument("--approval-ref", required=True)
+    baseline_parser.add_argument("--created-at", required=True)
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    command = "unknown"
+    try:
+        args = build_parser().parse_args(argv)
+        command = args.command
+        if command == "validate-run":
+            result = _validate_run_command(args.run)
+        elif command == "aggregate":
+            result = _aggregate_command(args.suite, args.runs_dir)
+        elif command == "compare":
+            result = _compare_command(args.baseline, args.candidate)
+        elif command == "validate-failure":
+            result = _validate_failure_command(args.case, args.next_state)
+        else:
+            result = _write_baseline_command(
+                args.aggregate,
+                args.output,
+                args.approval_ref,
+                args.created_at,
+            )
+    except UsageError:
+        result = _result("NOT RUN", ["CLI_USAGE_INVALID"], command)
+    except AgentQualityValidationError as exc:
+        result = _result("FAIL", list(exc.issues), command)
+    except (KeyError, TypeError, ValueError):
+        result = _result("FAIL", ["AGENT_QUALITY_INPUT_INVALID"], command)
+    except OSError:
+        result = _result("ENVIRONMENT BLOCKED", ["FILESYSTEM_UNAVAILABLE"], command)
+
+    try:
+        sys.stdout.buffer.write(json_bytes(result))
+    except ValueError:
+        fallback = _result("FAIL", ["OUTPUT_LIMIT_EXCEEDED"], command)
+        sys.stdout.buffer.write(json_bytes(fallback))
+        return 1
+    return _exit_code(result)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

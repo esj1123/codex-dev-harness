@@ -65,6 +65,11 @@ Release verification remains local-only unless separately approved and may use:
 The installed local verification workflow does not run release verification,
 generate an eval report, or upload artifacts.
 
+Agent-quality stability validation is also standalone and manual. Local Verify
+does not execute agent trials, aggregate trial envelopes, compare model or
+prompt candidates, generate an agent-quality baseline, or promote failures.
+The existing nine quality gates may validate schema and artifact shape only.
+
 ## CI Boundaries
 
 CI must not introduce:
@@ -83,6 +88,8 @@ CI must not introduce:
 - Eval quality-gate integration, automatic-trigger or additional eval CI
   execution, routine eval report generation, required-check semantics, or
   release-blocking eval policy.
+- Agent trial execution, agent-quality baseline generation, candidate adoption,
+  or failure promotion.
 - MCP tool server, Hermes sidecar, or downstream product integration behavior.
 
 ## Verification Hygiene

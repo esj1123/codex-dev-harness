@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import Counter
 from collections.abc import Mapping, Sequence
+import re
 from typing import Any
 
 from scripts.agent_quality_lib.contracts import sha256_json, validate_run
@@ -39,6 +40,7 @@ _GRADE_FIELDS = (
     "safety_compliance",
     "reproducibility",
 )
+_GIT_SHA = re.compile(r"^[0-9a-f]{40,64}$")
 
 
 def _validated_run(run: Mapping[str, Any]) -> dict[str, Any]:
@@ -149,6 +151,14 @@ def aggregate_runs(
     suite_id = suite.get("suite_id")
     if not isinstance(suite_id, str) or not suite_id:
         raise ValueError("suite_id must be a non-empty string")
+    target_checkpoint = suite.get("target_checkpoint")
+    if not isinstance(target_checkpoint, str) or not _GIT_SHA.fullmatch(
+        target_checkpoint
+    ):
+        raise ValueError("suite target_checkpoint must be a commit identifier")
+    required_configuration = suite.get("required_configuration", {})
+    if not isinstance(required_configuration, Mapping):
+        raise ValueError("suite required_configuration must be an object")
     tasks = _suite_tasks(suite)
 
     validated_runs = [_validated_run(run) for run in runs]
@@ -162,6 +172,7 @@ def aggregate_runs(
         task_id: [] for task_id in tasks
     }
     configuration_ids: set[str] = set()
+    harness_commits: set[str] = set()
     manifest: list[dict[str, str]] = []
 
     for run in validated_runs:
@@ -186,7 +197,11 @@ def aggregate_runs(
         fingerprint = run["fingerprint"]
         if fingerprint["comparability"] != "FULL":
             raise ValueError("all runs must have FULL comparability")
+        for field, expected in required_configuration.items():
+            if fingerprint.get(field) != expected:
+                raise ValueError(f"run configuration mismatch: {field}")
         configuration_ids.add(fingerprint["configuration_id"])
+        harness_commits.add(fingerprint["harness_commit"])
         manifest.append(
             {
                 "run_hash": sha256_json(run),
@@ -199,6 +214,8 @@ def aggregate_runs(
 
     if len(configuration_ids) != 1:
         raise ValueError("runs must use exactly one configuration_id")
+    if len(harness_commits) != 1:
+        raise ValueError("runs must use exactly one harness_commit")
 
     actual_counts = Counter(
         run["task_id"] for run in validated_runs
@@ -226,6 +243,10 @@ def aggregate_runs(
         "suite_id": suite_id,
         "configuration_id": configuration_ids.pop(),
         "comparability": "FULL",
+        "source_basis": {
+            "harness_commit": harness_commits.pop(),
+            "target_commit": target_checkpoint,
+        },
         "task_count": len(tasks),
         "run_count": len(validated_runs),
         "metrics": metrics,

@@ -76,6 +76,7 @@ INTEGRATION_ONLY_EXACT = {
     "docs/AUTHORITY_MANIFEST.json",
     "docs/AI_HANDOFF.md",
     "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md",
+    "scripts/agent_quality.py",
     "scripts/quality_gate.py",
     "docs/APPROVED_CORPUS_SOURCE_SET.v2.json",
 }
@@ -83,6 +84,8 @@ INTEGRATION_ONLY_PREFIXES = (
     "artifacts/",
     ".github/workflows/",
     "scripts/gates/",
+    "scripts/agent_quality_lib/",
+    "evals/agentic/",
     "evals/golden/",
 )
 SAFE_ID_PATTERN = re.compile(r"^[a-z0-9](?:[a-z0-9._-]{0,62}[a-z0-9])?$")

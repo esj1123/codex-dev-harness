@@ -152,7 +152,9 @@ Contract and feature lanes must not write integration-only surfaces:
 - `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`
 - `artifacts/`
 - `.github/workflows/`
+- `scripts/agent_quality.py` and `scripts/agent_quality_lib/`
 - `scripts/quality_gate.py` and `scripts/gates/`
+- `evals/agentic/`
 - `evals/golden/`
 - `docs/APPROVED_CORPUS_SOURCE_SET.v2.json`
 

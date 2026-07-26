@@ -10,6 +10,13 @@ def write(path: Path, content: str) -> None:
     path.write_text(content, encoding="utf-8")
 
 
+def write_agent_quality_bundle(root: Path) -> None:
+    write(root / json_evidence_gate.AGENT_QUALITY_POLICY_PATH, "# Agent Quality Stability Policy\n")
+    for relative in json_evidence_gate.AGENT_QUALITY_SCHEMA_PATHS:
+        source = Path(relative)
+        write(root / relative, source.read_text(encoding="utf-8"))
+
+
 def policy_text() -> str:
     return "\n".join(
         [
@@ -253,6 +260,28 @@ def test_json_evidence_gate_validates_full_bundle_with_status_marker(tmp_path: P
 
     assert result.passed is True
     assert "validated" in result.messages[0]
+
+
+def test_json_evidence_gate_validates_agent_quality_schema_bundle(tmp_path: Path) -> None:
+    write_valid_bundle(tmp_path)
+    write_agent_quality_bundle(tmp_path)
+
+    result = json_evidence_gate.run(tmp_path)
+
+    assert result.passed is True
+
+
+def test_json_evidence_gate_fails_closed_for_incomplete_agent_quality_bundle(
+    tmp_path: Path,
+) -> None:
+    write_valid_bundle(tmp_path)
+    write_agent_quality_bundle(tmp_path)
+    (tmp_path / json_evidence_gate.AGENT_QUALITY_SCHEMA_PATHS[0]).unlink()
+
+    result = json_evidence_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert any("missing JSON file" in message for message in result.messages)
 
 
 def test_json_evidence_gate_reports_invalid_json(tmp_path: Path) -> None:

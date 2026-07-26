@@ -19,6 +19,14 @@ BUNDLE_PATHS = [
     "audits/trace-event.schema.json",
 ]
 
+AGENT_QUALITY_SCHEMA_PATHS = [
+    "evals/agentic/schemas/agent-run.schema.json",
+    "evals/agentic/schemas/agent-quality-baseline.schema.json",
+    "evals/agentic/schemas/failure-case.schema.json",
+]
+AGENT_QUALITY_POLICY_PATH = "docs/AGENT_QUALITY_STABILITY_POLICY.md"
+AGENT_QUALITY_BASELINE_PATH = "artifacts/agent-quality-baseline.json"
+
 MARKER_PATHS = [
     "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md",
     "STATUS.md",
@@ -144,6 +152,8 @@ def has_phase_marker(repo_root: Path) -> bool:
 def load_json(path: Path, repo_root: Path) -> tuple[dict[str, Any] | None, str | None]:
     try:
         loaded = json.loads(path.read_text(encoding="utf-8"))
+    except OSError:
+        return None, f"{path.relative_to(repo_root)} missing JSON file"
     except json.JSONDecodeError as exc:
         return None, f"{path.relative_to(repo_root)} invalid JSON: {exc}"
     if not isinstance(loaded, dict):
@@ -423,6 +433,71 @@ def check_trace_schema(schema: dict[str, Any]) -> list[str]:
     return findings
 
 
+def check_agent_quality_bundle(repo_root: Path) -> list[str]:
+    if not (repo_root / AGENT_QUALITY_POLICY_PATH).is_file():
+        return []
+
+    findings: list[str] = []
+    expected_required = {
+        "agent-run.schema.json": {
+            "schema_version",
+            "run_id",
+            "task_id",
+            "trial_id",
+            "suite_id",
+            "fingerprint",
+            "execution",
+            "grading",
+            "metrics",
+        },
+        "agent-quality-baseline.schema.json": {
+            "schema_version",
+            "baseline_id",
+            "status",
+            "decision",
+            "configuration_id",
+            "metrics",
+            "release_artifact",
+        },
+        "failure-case.schema.json": {
+            "schema_version",
+            "failure_id",
+            "state",
+            "safe_symptom_summary",
+            "minimal_synthetic_fixture_hash",
+        },
+    }
+    for relative in AGENT_QUALITY_SCHEMA_PATHS:
+        path = repo_root / relative
+        schema, error = load_json(path, repo_root)
+        if error:
+            findings.append(error)
+            continue
+        assert schema is not None
+        if schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema":
+            findings.append(f"{relative} must use JSON Schema draft 2020-12")
+        if schema.get("type") != "object" or schema.get("additionalProperties") is not False:
+            findings.append(f"{relative} must be a strict object schema")
+        required = set(schema.get("required", []))
+        missing = sorted(expected_required[path.name] - required)
+        if missing:
+            findings.append(f"{relative} missing required fields: {', '.join(missing)}")
+
+    baseline_path = repo_root / AGENT_QUALITY_BASELINE_PATH
+    if baseline_path.exists():
+        baseline, error = load_json(baseline_path, repo_root)
+        if error:
+            findings.append(error)
+        elif baseline is not None:
+            if baseline.get("schema_version") != "1":
+                findings.append(f"{AGENT_QUALITY_BASELINE_PATH} schema_version must be 1")
+            if baseline.get("release_artifact") is not False:
+                findings.append(f"{AGENT_QUALITY_BASELINE_PATH} must be non-release evidence")
+            if baseline.get("task_count") != 5 or baseline.get("run_count") != 19:
+                findings.append(f"{AGENT_QUALITY_BASELINE_PATH} must summarize 5 tasks and 19 runs")
+    return findings
+
+
 def run(repo_root: Path) -> GateResult:
     marker_present = has_phase_marker(repo_root)
     present_paths = [relative for relative in BUNDLE_PATHS if (repo_root / relative).is_file()]
@@ -463,6 +538,13 @@ def run(repo_root: Path) -> GateResult:
         findings.extend(check_receipt_schema(receipt_schema))
     if trace_schema is not None:
         findings.extend(check_trace_schema(trace_schema))
+    findings.extend(check_agent_quality_bundle(repo_root))
+    findings.extend(
+        check_no_sensitive_values(
+            repo_root,
+            [*AGENT_QUALITY_SCHEMA_PATHS, AGENT_QUALITY_BASELINE_PATH],
+        )
+    )
 
     if findings:
         return GateResult("json_evidence_gate", False, findings)

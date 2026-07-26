@@ -68,6 +68,9 @@ def test_regression_suite_has_exact_tasks_and_trial_budget() -> None:
     suite = load_json(AGENTIC_ROOT / "suites" / "agentic-regression-v1.json")
     assert suite["suite_id"] == "agentic-regression-v1"
     assert suite["total_trials"] == 19
+    assert suite["target_checkpoint"] == "da88f12d38d5cd6109a3a532b880bc4b723aef36"
+    assert suite["required_configuration"]["model_id"] == "gpt-5.6-sol"
+    assert suite["required_configuration"]["reasoning_profile"] == "high"
     assert [task["trials"] for task in suite["tasks"]] == [3, 5, 3, 3, 5]
     assert [task["task_id"] for task in suite["tasks"]] == [
         "numeric-range-parser",

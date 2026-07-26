@@ -37,6 +37,7 @@ def make_suite() -> dict:
     return {
         "schema_version": "1",
         "suite_id": "agentic-regression-v1",
+        "target_checkpoint": "9" * 40,
         "total_trials": 19,
         "tasks": [
             {
@@ -135,6 +136,10 @@ def test_aggregate_complete_suite_is_deterministic_and_safe() -> None:
     assert first["metrics"]["strict_pass_3_task_rate"] == 1.0
     assert first["metrics"]["strict_pass_5_critical_rate"] == 1.0
     assert first["metrics"]["holdout_passed_count"] == 19
+    assert first["source_basis"] == {
+        "harness_commit": "1" * 40,
+        "target_commit": "9" * 40,
+    }
     assert first["performed_actions"] == []
     assert len(first["run_manifest_hash"]) == 64
     serialized = json.dumps(first, sort_keys=True)
@@ -215,6 +220,16 @@ def test_build_baseline_rejects_ineligible_aggregate() -> None:
                 "harness_commit": "b" * 40,
                 "target_commit": "c" * 40,
             },
+            approval_ref="approval",
+            created_at="2026-07-26T12:00:00Z",
+        )
+
+    aggregate = make_aggregate()
+    aggregate["metrics"]["holdout_passed_count"] = 0
+    with pytest.raises(ValueError, match="not eligible"):
+        build_baseline(
+            aggregate,
+            source_basis=aggregate["source_basis"],
             approval_ref="approval",
             created_at="2026-07-26T12:00:00Z",
         )

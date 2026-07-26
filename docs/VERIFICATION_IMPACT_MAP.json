@@ -10,7 +10,8 @@
     "quality_gate",
     "checksum_verify",
     "corpus_digest_check",
-    "render_dry_runs"
+    "render_dry_runs",
+    "agent_quality_static_check"
   ],
   "planner_id": "verification_plan",
   "rules": [
@@ -45,11 +46,45 @@
       "patterns": [
         ".github/workflows/",
         "artifacts/",
+        "evals/agentic/",
         "evals/golden/",
+        "scripts/agent_quality_lib/",
         "scripts/gates/"
       ],
       "render_check_required": false,
       "rule_id": "central_integration_prefix"
+    },
+    {
+      "checksum_check_required": false,
+      "command_ids": [
+        "agent_quality_static_check"
+      ],
+      "digest_check_required": false,
+      "integration_owner_required": true,
+      "match_kind": "exact",
+      "minimum_tier": "V2",
+      "patterns": [
+        "scripts/agent_quality.py",
+        "artifacts/agent-quality-baseline.json"
+      ],
+      "render_check_required": false,
+      "rule_id": "agent_quality_control_surface"
+    },
+    {
+      "checksum_check_required": false,
+      "command_ids": [
+        "agent_quality_static_check"
+      ],
+      "digest_check_required": false,
+      "integration_owner_required": true,
+      "match_kind": "prefix",
+      "minimum_tier": "V2",
+      "patterns": [
+        "evals/agentic/",
+        "scripts/agent_quality_lib/"
+      ],
+      "render_check_required": false,
+      "rule_id": "agent_quality_prefix"
     },
     {
       "checksum_check_required": false,

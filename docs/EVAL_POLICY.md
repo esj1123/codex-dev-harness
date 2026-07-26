@@ -39,6 +39,17 @@ C# artifacts, forbidden live config, forbidden secret patterns, prompt contract
 completeness, release manifest shape, checksum shape, SBOM shape, and
 provenance shape.
 
+Agent quality stability is a separate manual evaluation class governed by
+`docs/AGENT_QUALITY_STABILITY_POLICY.md`. Its schemas and suite manifests live
+under `evals/agentic/`. Agent trials are executed only in explicitly approved
+isolated local repositories; they are not discovered by `scripts/run_eval.py`
+and are not executed by `scripts/quality_gate.py` or Local Verify.
+
+The agent-quality command validates safe trial summaries, aggregates repeated
+trials, compares a candidate with an approved aggregate baseline, and validates
+failure lifecycle transitions. It does not call a model, capture prompts or
+outputs, create worktrees, run trial commands, or authenticate approval.
+
 ## Integration Decision
 
 The current integration decision is recorded in
@@ -70,6 +81,8 @@ The current approved state is:
 - automatic-trigger or additional CI eval integration is not approved.
 - release-blocking eval semantics are not approved.
 - no LLM judge or external service is approved.
+- agent-quality trial execution and baseline generation remain explicit,
+  owner-approved local operations.
 
 ## Eval Principles
 
@@ -121,6 +134,7 @@ Separate explicit owner approval is required before:
   console-only Local Verify command
 - making evals release-blocking
 - changing the Stage 3 standalone integration decision
+- writing or replacing `artifacts/agent-quality-baseline.json`
 
 ## Eval Output
 

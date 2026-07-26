@@ -8,6 +8,7 @@ from scripts.gates import (
     docs_gate,
     example_gate,
     example_render_drift_gate,
+    json_evidence_gate,
     rendered_golden_content_gate,
     repo_hygiene_gate,
     secret_scan_gate,
@@ -68,6 +69,9 @@ def minimal_repo(root: Path) -> None:
     )
     write_golden_render_fixture(root)
     write_checksum_fixture(root)
+    for relative in json_evidence_gate.AGENT_QUALITY_SCHEMA_PATHS:
+        source = Path(relative)
+        write(root / relative, source.read_text(encoding="utf-8"))
 
 
 def write_checksum_fixture(root: Path) -> None:
@@ -159,8 +163,8 @@ def test_docs_gate_requires_current_post_v0_1_governance_docs() -> None:
     assert POST_V0_1_GOVERNANCE_DOCS <= required_docs
     assert docs_gate.MANIFEST_PATH in required_docs
     assert set(docs_gate.BASELINE_REQUIRED_DOCS) == required_docs - {docs_gate.MANIFEST_PATH}
-    assert len(docs_gate.BASELINE_REQUIRED_DOCS) == 75
-    assert len(docs_gate.REQUIRED_DOCS) == 76
+    assert len(docs_gate.BASELINE_REQUIRED_DOCS) == 76
+    assert len(docs_gate.REQUIRED_DOCS) == 77
     assert len(docs_gate.REQUIRED_DOCS) == len(required_docs)
 
 

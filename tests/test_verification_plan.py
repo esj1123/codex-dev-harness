@@ -134,6 +134,28 @@ def test_authority_change_requires_integration_owner(tmp_path: Path) -> None:
     assert "full_pytest" in result["required_command_ids"]
 
 
+@pytest.mark.parametrize(
+    "relative_path",
+    [
+        "scripts/agent_quality.py",
+        "artifacts/agent-quality-baseline.json",
+        "evals/agentic/suites/agentic-regression-v1.json",
+    ],
+)
+def test_agent_quality_surface_requires_manual_static_check(
+    tmp_path: Path,
+    relative_path: str,
+) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    commit_file(repo, relative_path, "{}\n")
+
+    result = inspect(repo, base_sha)
+
+    assert result["minimum_tier"] == "V2"
+    assert result["integration_owner_required"] is True
+    assert "agent_quality_static_check" in result["required_command_ids"]
+
+
 def test_corpus_source_change_requires_digest_check(tmp_path: Path) -> None:
     repo, base_sha = init_repo(tmp_path)
     commit_file(repo, "docs/corpus-policy.md", "# Policy\n")

@@ -53,6 +53,12 @@ canonicalize CRLF and CR to LF before SHA-256 hashing. This changes only
 line-ending treatment; it does not authorize JSON reserialization, compact
 serialization, schema changes, or regeneration of other evidence artifacts.
 
+`artifacts/agent-quality-baseline.json`, when separately approved and present,
+is non-release safe aggregate evidence. It is intentionally excluded from the
+five-entry release checksum surface. Its source trial envelopes and owner-held
+holdout fixtures remain ignored local evidence and must not be copied into the
+tracked artifact.
+
 JSON evidence must not use local absolute paths, raw transcripts, raw command
 logs, raw source bundles, or unredacted tool-call payloads.
 

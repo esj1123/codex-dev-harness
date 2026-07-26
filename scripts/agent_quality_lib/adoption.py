@@ -73,6 +73,7 @@ def _baseline_ready(aggregate: Mapping[str, Any]) -> bool:
         and all(metrics[field] == 1.0 for field in _RATE_FIELDS)
         and all(metrics[field] == 0 for field in _BLOCKER_FIELDS)
         and metrics["postflight_block_count"] == 0
+        and metrics["holdout_passed_count"] > 0
         and metrics["holdout_failed_count"] == 0
     )
 

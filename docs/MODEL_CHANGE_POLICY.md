@@ -5,9 +5,10 @@
 Define planning-level controls for model and prompt changes in
 codex-dev-harness.
 
-This policy is documentation-only. It does not implement model comparison code,
-capture prompts or outputs, call external services, add dependencies, install
-CI workflows, or change application/device/live-write behavior.
+The repository includes a standalone, local agent-quality comparison surface
+for safe aggregate trial summaries. It does not call models, capture prompts or
+outputs, call external services, add dependencies, install CI workflows, or
+change application/device/live-write behavior.
 
 ## Tracked Fields
 
@@ -117,6 +118,12 @@ Do not adopt a model or prompt change for a governed workflow without:
 
 For high-risk work, defer adoption if evidence is missing.
 
+When `artifacts/agent-quality-baseline.json` exists, a model, prompt, tool, or
+skill candidate must use the same agentic suite and the standalone comparison
+command. A result with partial fingerprint comparability, a critical failure,
+a scope or safety violation, a contract reopen, a semantic blocker, or a lower
+strict repeated-trial rate cannot be adopted automatically.
+
 ## Relationship To Audit Evidence
 
 Future audit evidence may reference `model_id`, `prompt_template_id`,
@@ -130,7 +137,7 @@ side effects.
 
 This policy does not add:
 
-- model comparison code
+- model invocation code
 - model evaluation services
 - prompt/session capture
 - model output capture

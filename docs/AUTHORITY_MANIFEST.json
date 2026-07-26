@@ -27,6 +27,7 @@
     "LICENSE",
     "SECURITY.md",
     "code_review.md",
+    "docs/AGENT_QUALITY_STABILITY_POLICY.md",
     "docs/APPROVED_CORPUS_RAG_PLAN.md",
     "docs/ARCHITECTURE.md",
     "docs/AUDIT_LOG_POLICY.md",
@@ -102,12 +103,15 @@
     "docs/APPROVED_CORPUS_SOURCE_SET.v2.json",
     "docs/AUTHORITY_MANIFEST.json",
     "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md",
+    "scripts/agent_quality.py",
     "scripts/quality_gate.py"
   ],
   "integration_only_prefixes": [
     ".github/workflows/",
     "artifacts/",
+    "evals/agentic/",
     "evals/golden/",
+    "scripts/agent_quality_lib/",
     "scripts/gates/"
   ],
   "manifest_id": "authority_manifest",
