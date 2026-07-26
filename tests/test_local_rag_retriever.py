@@ -3,6 +3,8 @@ import json
 from pathlib import Path
 import subprocess
 
+import pytest
+
 from scripts import local_rag_retriever as retriever
 
 
@@ -367,6 +369,11 @@ def test_query_classifier_is_deterministic_for_required_classes() -> None:
         "current implementation sequence": "current_state",
         "current approved corpus digest status": "current_state",
         "latest verification status": "current_state",
+        "current state": "current_state",
+        "current phase": "current_state",
+        "current status": "current_state",
+        "current checkpoint": "current_state",
+        "current baseline": "current_state",
         "local verification commands": "durable_policy",
         "receipt redaction policy": "durable_policy",
         "safety policy": "durable_policy",
@@ -399,6 +406,28 @@ def test_current_state_reads_committed_head_overlay_and_metadata(tmp_path: Path)
     assert status_result["operational_freshness"] == "unknown"
     assert status_result["section_authority"] == "unknown"
     assert "Phase 7C.3D" in status_result["evidence_excerpt"]
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        "current state",
+        "current phase",
+        "current status",
+        "current checkpoint",
+        "current baseline",
+    ],
+)
+def test_current_state_aliases_prefer_committed_status_overlay(
+    tmp_path: Path, query: str
+) -> None:
+    head = make_git_overlay_repo(tmp_path)
+
+    payload = retriever.retrieve(tmp_path, query, max_results=5)
+
+    assert payload["query_class"] == "current_state"
+    assert payload["observed_head_commit"] == head
+    assert payload["matched_sources"][0]["source_path"] == "STATUS.md"
 
 
 def test_dirty_working_tree_status_is_ignored_for_volatile_overlay(tmp_path: Path) -> None:

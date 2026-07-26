@@ -11,6 +11,11 @@ import stat
 import sys
 from typing import Any, Iterable
 
+try:
+    from scripts.repo_path_policy import safe_repo_path as shared_safe_repo_path
+except ImportError:  # pragma: no cover - direct script execution
+    from repo_path_policy import safe_repo_path as shared_safe_repo_path
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_VERSION = "2"
@@ -125,18 +130,7 @@ def safe_reference(value: Any) -> bool:
 
 
 def safe_repo_path(value: Any) -> bool:
-    if not isinstance(value, str) or not value:
-        return False
-    if len(value.encode("utf-8")) > MAX_STRING_BYTES or not value.isascii():
-        return False
-    if "\\" in value or "://" in value or value.startswith("/") or re.match(r"^[A-Za-z]:", value):
-        return False
-    candidate = PurePosixPath(value)
-    if candidate.is_absolute() or any(part in ("", ".", "..") for part in candidate.parts):
-        return False
-    if any(part.endswith((".", " ")) for part in candidate.parts):
-        return False
-    return candidate.as_posix() == value and not value.endswith("/")
+    return shared_safe_repo_path(value, max_bytes=MAX_STRING_BYTES)
 
 
 def canonical_repo_path(value: str) -> tuple[str, ...]:

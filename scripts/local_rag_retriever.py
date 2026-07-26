@@ -163,6 +163,11 @@ def classify_query(query: str) -> str:
         "current implementation sequence",
         "current approved corpus digest status",
         "latest verification status",
+        "current state",
+        "current phase",
+        "current status",
+        "current checkpoint",
+        "current baseline",
     )
     durable_phrases = (
         "local verification commands",
@@ -696,7 +701,16 @@ def retrieve(repo_root: Path, query: str, max_results: int = DEFAULT_MAX_RESULTS
             for entry in volatile_entries
             if (match := score_volatile_entry(entry, query_terms, query_phrase)) is not None
         ]
-        volatile_matches.sort(key=lambda match: (-match.score, match.entry.source_path))
+        volatile_matches.sort(
+            key=lambda match: (
+                0
+                if query_class == "current_state"
+                and match.entry.source_path == "STATUS.md"
+                else 1,
+                -match.score,
+                match.entry.source_path,
+            )
+        )
         volatile_results = [volatile_match_to_result(match) for match in volatile_matches]
 
     results, conflict_notes = merge_results(

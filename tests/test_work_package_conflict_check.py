@@ -272,6 +272,25 @@ def test_windows_trailing_dot_or_space_paths_are_rejected(unsafe_path: str) -> N
     assert checker.package_issues(payload) == ["WRITE_SET_PATH_INVALID"]
 
 
+@pytest.mark.parametrize(
+    "unsafe_path",
+    [
+        "docs/CON",
+        "docs/nul.txt",
+        "docs/file?.md",
+        "docs/file:stream",
+        "docs/" + "a" * 256,
+    ],
+)
+def test_shared_windows_path_policy_rejects_unsafe_work_package_paths(
+    unsafe_path: str,
+) -> None:
+    payload = package("feature-a")
+    payload["write_set"] = [unsafe_path]
+
+    assert checker.package_issues(payload) == ["WRITE_SET_PATH_INVALID"]
+
+
 def test_case_variant_duplicates_are_rejected_within_path_sets() -> None:
     payload = package("feature-a")
     payload["read_set"] = [

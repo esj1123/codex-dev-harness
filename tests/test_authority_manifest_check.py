@@ -144,6 +144,21 @@ def test_unknown_keys_and_unsafe_paths_fail(mutation, reason_code: str) -> None:
     assert reason_code in result["reason_codes"]
 
 
+@pytest.mark.parametrize(
+    "unsafe_path",
+    ["docs/CON", "docs/nul.txt", "docs/file?.md", "docs/file:stream"],
+)
+def test_shared_windows_path_policy_rejects_unsafe_authority_paths(
+    unsafe_path: str,
+) -> None:
+    payload = load_manifest()
+    payload["historical_evidence"].append(unsafe_path)
+
+    result = checker.validate_manifest(payload, repo_root=REPO_ROOT)
+
+    assert "CLASSIFICATION_PATH_UNSAFE" in result["reason_codes"]
+
+
 def test_declared_file_must_exist_and_be_regular(tmp_path: Path) -> None:
     payload = load_manifest()
     repo = materialize_manifest_repo(tmp_path, payload)

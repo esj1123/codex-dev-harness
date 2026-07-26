@@ -104,8 +104,10 @@ not authenticate approval.
 
 ## Next Recommended Step
 
-After separately approved cleanup of the two stale Agent Quality temporary
-roots, review and reproduce the observed numeric parser failure. Then run one
-complete 19-trial suite under a single fingerprint. Tracked baseline creation
+Run one separately approved diagnostic trial against the numeric parser
+failure using the frozen task contract and owner-held grader. If the failure is
+reproduced, keep the baseline on hold and review the failure evidence. If the
+diagnostic passes and the contract and grader remain aligned, run a fresh,
+complete 19-trial suite under one fingerprint. Tracked baseline creation
 remains blocked until every adoption condition passes; do not replace only the
 failed trial after a fingerprint-defining change.

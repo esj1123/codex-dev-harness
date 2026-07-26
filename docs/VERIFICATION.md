@@ -49,8 +49,11 @@ running checks. It mirrors the non-release local verification subset:
 - `python scripts/render_template.py --config examples/csharp_desktop_minimal/template.config.yml --target examples/csharp_desktop_minimal --dry-run`
 - `python scripts/render_template.py --config examples/plc_tool_minimal/template.config.yml --target examples/plc_tool_minimal --dry-run`
 
-It also installs development requirements from `requirements-dev.txt` and uses
-the Python runtime declared in `.python-version`.
+It installs the exact development set from `requirements-dev.lock`, runs
+`python -m pip check`, and uses the exact Python `3.12.13` runtime declared in
+`.python-version`. Third-party actions are pinned to immutable commit SHAs,
+checkout credentials are not persisted, and the workflow retains only
+`contents: read`.
 
 The eval step is console-only and runs without report flags after pytest and
 before the quality gate. A nonzero eval exit fails only that manually dispatched
@@ -110,18 +113,27 @@ that distinction honestly instead of treating it as a failure:
 The preferred local verification runtime is pinned in `.python-version` and
 documented in `docs/PYTHON_RUNTIME_POLICY.md`.
 
-Use `requirements-dev.txt` for the standard local setup command:
+Use `requirements-dev.txt` only when intentionally resolving the standard
+local development requirement:
 
 `python -m pip install -r requirements-dev.txt`
 
-Use `requirements-dev.lock` when an exact local verification dependency set is
-needed:
+Use `requirements-dev.lock` for V2 and V3 exact verification:
 
 `python -m pip install -r requirements-dev.lock`
 
 The lock file is pip-compatible and limited to development verification
 dependencies. It does not add runtime application, C#, PLC, device, cloud, or
 live-target dependencies.
+
+After installation, exact verification runs:
+
+`python -m pip check`
+
+The minimum post-V3 branch-protection contract enforces administrators and
+linear history while disabling force pushes and branch deletion. It does not
+add required status checks or pull-request review requirements. Applying or
+changing that remote policy remains separately approval-gated.
 
 ## Manual Verification Flow
 

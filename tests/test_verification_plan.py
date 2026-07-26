@@ -215,6 +215,16 @@ def test_unknown_path_conservatively_escalates_to_v2(tmp_path: Path) -> None:
     assert "full_pytest" in result["required_command_ids"]
 
 
+@pytest.mark.parametrize(
+    "unsafe_path",
+    ["docs/CON", "docs/nul.txt", "docs/file?.md", "docs/file:stream"],
+)
+def test_shared_windows_path_policy_rejects_unsafe_changed_paths(
+    unsafe_path: str,
+) -> None:
+    assert verification_plan.safe_repo_path(unsafe_path) is False
+
+
 def test_invalid_sha_fails_without_git_observation(tmp_path: Path) -> None:
     result = inspect(tmp_path, "invalid")
 

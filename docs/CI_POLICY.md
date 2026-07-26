@@ -15,7 +15,9 @@ workflow with `permissions: contents: read` and no artifact upload,
 publication, signing, tag movement, deployment, downstream checkout, or live
 target behavior. Dispatch requires a lowercase 40-character `expected_sha`;
 checkout uses that exact ref and fails before verification if the observed HEAD
-does not match.
+does not match. Checkout and Python setup actions are pinned to immutable
+commit SHAs, checkout credentials are not persisted, and Python comes from the
+exact `.python-version` declaration.
 
 The workflow also runs exactly `python scripts/run_eval.py` without report
 flags after pytest and before the quality gate. This is console-only validation:
@@ -59,8 +61,9 @@ checks:
 - `python scripts/render_template.py --config examples/csharp_desktop_minimal/template.config.yml --target examples/csharp_desktop_minimal --dry-run`
 - `python scripts/render_template.py --config examples/plc_tool_minimal/template.config.yml --target examples/plc_tool_minimal --dry-run`
 
-The workflow also installs development requirements from `requirements-dev.txt`
-and reads the Python version from `.python-version`.
+The workflow installs development requirements from `requirements-dev.lock`,
+runs `python -m pip check`, and reads exact Python `3.12.13` from
+`.python-version`.
 
 Release verification remains local-only unless separately approved and may use:
 
@@ -73,6 +76,15 @@ Agent-quality stability validation is also standalone and manual. Local Verify
 does not execute agent trials, aggregate trial envelopes, compare model or
 prompt candidates, generate an agent-quality baseline, or promote failures.
 The existing nine quality gates may validate schema and artifact shape only.
+
+## Minimum Branch Protection
+
+After a successful exact-SHA V3, the separately approval-gated minimum policy
+may enforce administrators and required linear history while disabling force
+pushes and branch deletion. Required status checks, pull-request reviews,
+restrictions, conversation resolution, branch locking, and fork syncing remain
+disabled. This preserves direct non-force owner pushes and manual V3 while
+prohibiting merge commits, force pushes, and branch deletion.
 
 ## CI Boundaries
 

@@ -10,6 +10,17 @@ import sys
 from typing import Any
 
 try:
+    from scripts.repo_path_policy import (
+        safe_repo_path as shared_safe_repo_path,
+        safe_repo_prefix as shared_safe_repo_prefix,
+    )
+except ImportError:  # pragma: no cover - direct script execution
+    from repo_path_policy import (
+        safe_repo_path as shared_safe_repo_path,
+        safe_repo_prefix as shared_safe_repo_prefix,
+    )
+
+try:
     from scripts.gates.docs_gate import BASELINE_REQUIRED_DOCS as REQUIRED_DOCS
 except ImportError:  # pragma: no cover - direct script execution
     from gates.docs_gate import BASELINE_REQUIRED_DOCS as REQUIRED_DOCS
@@ -22,6 +33,7 @@ MANIFEST_ID = "authority_manifest"
 MANIFEST_PATH = "docs/AUTHORITY_MANIFEST.json"
 MAX_MANIFEST_BYTES = 64 * 1024
 MAX_OUTPUT_BYTES = 16 * 1024
+MAX_PATH_BYTES = 512
 CLASSIFICATION_KEYS = ("current_authority", "durable_policy", "historical_evidence")
 EXPECTED_KEYS = {
     "schema_version",
@@ -98,21 +110,11 @@ def base_result() -> dict[str, Any]:
 
 
 def safe_repo_path(value: Any) -> bool:
-    if not isinstance(value, str) or not value or not value.isascii():
-        return False
-    if "\\" in value or "://" in value or value.startswith("/") or re.match(r"^[A-Za-z]:", value):
-        return False
-    candidate = PurePosixPath(value)
-    return (
-        not candidate.is_absolute()
-        and all(part not in ("", ".", "..") for part in candidate.parts)
-        and candidate.as_posix() == value
-        and not value.endswith("/")
-    )
+    return shared_safe_repo_path(value, max_bytes=MAX_PATH_BYTES)
 
 
 def safe_repo_prefix(value: Any) -> bool:
-    return isinstance(value, str) and value.endswith("/") and safe_repo_path(value[:-1])
+    return shared_safe_repo_prefix(value, max_bytes=MAX_PATH_BYTES)
 
 
 def unique_string_list(value: Any) -> bool:

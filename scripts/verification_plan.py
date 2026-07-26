@@ -10,6 +10,17 @@ import subprocess
 import sys
 from typing import Any
 
+try:
+    from scripts.repo_path_policy import (
+        safe_repo_path as shared_safe_repo_path,
+        safe_repo_prefix as shared_safe_repo_prefix,
+    )
+except ImportError:  # pragma: no cover - direct script execution
+    from repo_path_policy import (
+        safe_repo_path as shared_safe_repo_path,
+        safe_repo_prefix as shared_safe_repo_prefix,
+    )
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 MAP_PATH = "docs/VERIFICATION_IMPACT_MAP.json"
@@ -66,27 +77,11 @@ def base_result() -> dict[str, Any]:
 
 
 def safe_repo_path(value: Any) -> bool:
-    if not isinstance(value, str) or not value or not value.isascii():
-        return False
-    if len(value.encode("utf-8")) > 512:
-        return False
-    if "\\" in value or "://" in value or value.startswith("/") or re.match(r"^[A-Za-z]:", value):
-        return False
-    candidate = PurePosixPath(value)
-    return (
-        not candidate.is_absolute()
-        and all(part not in ("", ".", "..") for part in candidate.parts)
-        and candidate.as_posix() == value
-        and not value.endswith("/")
-    )
+    return shared_safe_repo_path(value, max_bytes=512)
 
 
 def safe_prefix(value: Any) -> bool:
-    return (
-        isinstance(value, str)
-        and value.endswith("/")
-        and safe_repo_path(value[:-1])
-    )
+    return shared_safe_repo_prefix(value, max_bytes=512)
 
 
 def run_git(

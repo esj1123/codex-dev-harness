@@ -24,10 +24,11 @@ Do not hardcode the current repository state in this operating file. Read
 for its current human summary.
 
 `docs/AUTHORITY_MANIFEST.json` separates current authority, durable policy, and
-historical evidence. The current implementation sequencing source of truth is
-`docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`. A feature lane that needs to
-change `contract_frozen_paths` must stop with `CONTRACT_CHANGE_REQUIRED` and
-return to the integration owner.
+historical evidence. `STATUS.md` is the current implementation sequencing
+source of truth; `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` is consulted only
+when selecting a capability. A feature lane that needs to change
+`contract_frozen_paths` must stop with `CONTRACT_CHANGE_REQUIRED` and return to
+the integration owner.
 
 Allowed:
 - Edit documentation, markdown templates, profiles, examples, tests, and quality gate scripts within the requested scope.

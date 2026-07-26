@@ -3,12 +3,19 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import os
 from pathlib import Path
 import re
 
 
 TEXT_SUFFIXES = {
+    ".ini",
+    ".json",
+    ".jsonl",
+    ".lock",
     ".md",
+    ".ps1",
+    ".sha256",
     ".template",
     ".py",
     ".yml",
@@ -22,8 +29,17 @@ IGNORED_PATH_PARTS = {
     ".pytest_cache",
 }
 
+EXACT_TEXT_NAMES = {
+    ".gitattributes",
+    ".gitignore",
+    ".python-version",
+    "LICENSE",
+}
+
 ROOT_IGNORED_PATH_PARTS = {
+    ".venv",
     "local",
+    "venv",
 }
 
 SECRET_PATTERNS = [
@@ -44,6 +60,8 @@ class GateResult:
 
 
 def is_text_candidate(path: Path) -> bool:
+    if path.name in EXACT_TEXT_NAMES:
+        return True
     if path.name.endswith(".template"):
         return True
     return path.suffix.lower() in TEXT_SUFFIXES
@@ -51,14 +69,23 @@ def is_text_candidate(path: Path) -> bool:
 
 def iter_text_files(repo_root: Path) -> list[Path]:
     files: list[Path] = []
-    for path in repo_root.rglob("*"):
-        relative_parts = path.relative_to(repo_root).parts
-        if relative_parts and relative_parts[0] in ROOT_IGNORED_PATH_PARTS:
-            continue
-        if any(part in IGNORED_PATH_PARTS for part in relative_parts) or not path.is_file():
-            continue
-        if is_text_candidate(path):
-            files.append(path)
+    for current_root, dir_names, file_names in os.walk(
+        repo_root, topdown=True, followlinks=False
+    ):
+        current = Path(current_root)
+        relative_parts = current.relative_to(repo_root).parts
+        dir_names[:] = sorted(
+            name
+            for name in dir_names
+            if name not in IGNORED_PATH_PARTS
+            and not (
+                not relative_parts and name in ROOT_IGNORED_PATH_PARTS
+            )
+        )
+        for name in sorted(file_names):
+            path = current / name
+            if path.is_file() and not path.is_symlink() and is_text_candidate(path):
+                files.append(path)
     return files
 
 

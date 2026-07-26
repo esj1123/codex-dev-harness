@@ -304,8 +304,21 @@ def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
     assert "git rev-parse HEAD" in text
     assert "^[0-9a-f]{40}$" in text
     assert "permissions:\n  contents: read" in text
+    assert "actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09" in text
+    assert "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1" in text
+    assert "persist-credentials: false" in text
+    assert 'python-version-file: ".python-version"' in text
+    assert "check-latest: false" in text
+    assert "python -m pip install -r requirements-dev.lock" in text
+    assert "python -m pip check" in text
     assert text.count(eval_command) == 1
-    assert text.index(tests_command) < text.index(eval_command) < text.index(quality_gate_command)
+    assert (
+        text.index("python -m pip install -r requirements-dev.lock")
+        < text.index("python -m pip check")
+        < text.index(tests_command)
+        < text.index(eval_command)
+        < text.index(quality_gate_command)
+    )
     for forbidden in [
         "--report",
         "--summary-report",
@@ -458,6 +471,44 @@ def test_secret_scan_gate_checks_nested_local_named_folders(tmp_path: Path) -> N
 
     assert result.passed is False
     assert any("docs" in message and "local" in message for message in result.messages)
+
+
+@pytest.mark.parametrize(
+    "relative_path",
+    [
+        "config.json",
+        "events.jsonl",
+        "script.ps1",
+        "settings.ini",
+        "requirements.lock",
+        "checksums.sha256",
+        ".gitattributes",
+        ".gitignore",
+        ".python-version",
+        "LICENSE",
+    ],
+)
+def test_secret_scan_gate_checks_expanded_text_surface(
+    tmp_path: Path, relative_path: str
+) -> None:
+    write(tmp_path / relative_path, "api_key=" + "a" * 24 + "\n")
+
+    result = secret_scan_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert any(relative_path in message for message in result.messages)
+
+
+@pytest.mark.parametrize("root_name", [".venv", "venv", "local"])
+def test_secret_scan_gate_ignores_root_local_environments(
+    tmp_path: Path, root_name: str
+) -> None:
+    write(
+        tmp_path / root_name / "nested" / "config.json",
+        "api_key=" + "a" * 24 + "\n",
+    )
+
+    assert secret_scan_gate.run(tmp_path).passed is True
 
 
 def test_repo_hygiene_gate_ignores_local_workspace(tmp_path: Path) -> None:
