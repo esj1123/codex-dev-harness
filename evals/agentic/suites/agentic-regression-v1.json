@@ -18,6 +18,7 @@
       "source_basis": "055300ece1485f4fcdfe55087c167df3a57df04d",
       "task_id": "numeric-range-parser",
       "trials": 3,
+      "work_package_plan_digest": "a3d14a6f0d1116307cb8968b6ab97da09b2911e4298a0a6eb3c034a618a002e0",
       "write_set": [
         "src/local_data_quality_cli/rules.py",
         "tests/test_rules.py"
@@ -29,6 +30,7 @@
       "source_basis": "055300ece1485f4fcdfe55087c167df3a57df04d",
       "task_id": "numeric-range-evaluator",
       "trials": 5,
+      "work_package_plan_digest": "e5245c9f69e721f2326ebccc492dc146588a357bbe18a67c0ba7da97bfcafb35",
       "write_set": [
         "src/local_data_quality_cli/evaluate.py",
         "tests/test_evaluate.py"
@@ -40,6 +42,7 @@
       "source_basis": "4cbf171bfef78cf8e38aa7b9a74c4c1867637f4a",
       "task_id": "allowed-values-parser",
       "trials": 3,
+      "work_package_plan_digest": "aa640fb18215b89bbe50562d618f30ab6ee42e5a30f5b8d37b266f04a416d498",
       "write_set": [
         "src/local_data_quality_cli/rules.py",
         "tests/test_rules.py"
@@ -51,6 +54,7 @@
       "source_basis": "4cbf171bfef78cf8e38aa7b9a74c4c1867637f4a",
       "task_id": "allowed-values-evaluator",
       "trials": 3,
+      "work_package_plan_digest": "ceeedc9accb88a64a776494540e2be3e7da572800a0ba5802439ca7b5a498a5e",
       "write_set": [
         "src/local_data_quality_cli/evaluate.py",
         "tests/test_evaluate.py"
@@ -69,6 +73,7 @@
       "source_basis": "4cbf171bfef78cf8e38aa7b9a74c4c1867637f4a",
       "task_id": "allowed-values-integration",
       "trials": 5,
+      "work_package_plan_digest": "26a86bf549465b969e6b1278fc1dc3fe58aa621627c09be89f548f414b6b9356",
       "write_set": [
         "ACCEPTANCE_TRACE.md",
         "AGENTS.md",

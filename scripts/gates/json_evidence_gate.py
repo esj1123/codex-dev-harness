@@ -456,6 +456,7 @@ def check_agent_quality_bundle(repo_root: Path) -> list[str]:
             "status",
             "decision",
             "configuration_id",
+            "suite_manifest_hash",
             "metrics",
             "release_artifact",
         },
@@ -489,12 +490,15 @@ def check_agent_quality_bundle(repo_root: Path) -> list[str]:
         if error:
             findings.append(error)
         elif baseline is not None:
-            if baseline.get("schema_version") != "1":
-                findings.append(f"{AGENT_QUALITY_BASELINE_PATH} schema_version must be 1")
-            if baseline.get("release_artifact") is not False:
-                findings.append(f"{AGENT_QUALITY_BASELINE_PATH} must be non-release evidence")
-            if baseline.get("task_count") != 5 or baseline.get("run_count") != 19:
-                findings.append(f"{AGENT_QUALITY_BASELINE_PATH} must summarize 5 tasks and 19 runs")
+            try:
+                from scripts.agent_quality_lib.adoption import validate_baseline_record
+
+                validate_baseline_record(baseline)
+            except (ImportError, TypeError, ValueError) as exc:
+                findings.append(
+                    f"{AGENT_QUALITY_BASELINE_PATH} failed complete validation: "
+                    f"{type(exc).__name__}"
+                )
     return findings
 
 

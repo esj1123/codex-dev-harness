@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from scripts import agent_quality
+from tests.test_agent_quality_aggregation import make_aggregate, make_baseline
 from tests.test_agent_quality_trial_validation import valid_run
 
 
@@ -146,3 +147,62 @@ def test_write_baseline_refuses_wrong_path_and_existing_artifact(
     assert wrong_output["reason_codes"] == ["BASELINE_OUTPUT_PATH_INVALID"]
     assert existing_output["reason_codes"] == ["BASELINE_OVERWRITE_FORBIDDEN"]
     assert wrong.exists() is False
+
+
+def test_compare_rejects_candidate_without_comparability(
+    tmp_path: Path, capsys, monkeypatch
+) -> None:
+    baseline_path = tmp_path / "baseline.json"
+    candidate_path = tmp_path / "candidate.json"
+    candidate = make_aggregate()
+    candidate.pop("comparability")
+    write_json(baseline_path, make_baseline())
+    write_json(candidate_path, candidate)
+    monkeypatch.setattr(agent_quality, "READ_ROOTS", (tmp_path,))
+
+    exit_code = agent_quality.main(
+        [
+            "compare",
+            "--baseline",
+            str(baseline_path),
+            "--candidate",
+            str(candidate_path),
+            "--json",
+        ]
+    )
+    output = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 1
+    assert output["status"] == "FAIL"
+    assert output["reason_codes"] == ["AGENT_QUALITY_INPUT_INVALID"]
+
+
+def test_write_baseline_rejects_incomplete_holdout_aggregate(
+    tmp_path: Path, capsys, monkeypatch
+) -> None:
+    aggregate_path = tmp_path / "aggregate.json"
+    aggregate = make_aggregate()
+    aggregate["metrics"]["holdout_passed_count"] = 1
+    write_json(aggregate_path, aggregate)
+    output_path = tmp_path / "agent-quality-baseline.json"
+    monkeypatch.setattr(agent_quality, "READ_ROOTS", (tmp_path,))
+    monkeypatch.setattr(agent_quality, "BASELINE_PATH", output_path)
+
+    exit_code = agent_quality.main(
+        [
+            "write-baseline",
+            "--aggregate",
+            str(aggregate_path),
+            "--output",
+            str(output_path),
+            "--approval-ref",
+            "test-approval",
+            "--created-at",
+            "2026-07-26T00:00:00Z",
+        ]
+    )
+    output = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 1
+    assert output["status"] == "FAIL"
+    assert output_path.exists() is False

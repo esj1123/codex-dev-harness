@@ -5,6 +5,7 @@ from datetime import datetime
 import re
 from typing import Any
 
+from scripts.agent_quality_lib.aggregation import validate_aggregate_record
 from scripts.agent_quality_lib.contracts import sha256_json
 
 
@@ -33,6 +34,30 @@ _METRIC_FIELDS = (
     *_REGRESSION_MAX_FIELDS,
     "holdout_passed_count",
 )
+_BASELINE_KEYS = {
+    "schema_version",
+    "baseline_id",
+    "status",
+    "decision",
+    "suite_id",
+    "suite_manifest_hash",
+    "configuration_id",
+    "source_basis",
+    "task_count",
+    "run_count",
+    "metrics",
+    "run_manifest_hash",
+    "evidence_refs",
+    "approval_ref",
+    "created_at",
+    "release_artifact",
+    "performed_actions",
+}
+_HASH = re.compile(r"^[0-9a-f]{64}$")
+_SAFE_REF = re.compile(
+    r"^(?!/)(?!.*(?:^|/)\.(?:/|$))(?!.*(?:^|/)\.\.(?:/|$))"
+    r"(?!.*(?:^|/)[^/]*\.(?:/|$))[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"
+)
 
 
 def _metrics(record: Mapping[str, Any]) -> Mapping[str, int | float]:
@@ -42,6 +67,20 @@ def _metrics(record: Mapping[str, Any]) -> Mapping[str, int | float]:
     missing = [field for field in _METRIC_FIELDS if field not in metrics]
     if missing:
         raise ValueError(f"record metrics missing fields: {','.join(missing)}")
+    if set(metrics) != set(_METRIC_FIELDS):
+        raise ValueError("record metrics contain unexpected fields")
+    for field in _RATE_FIELDS:
+        value = metrics[field]
+        if (
+            not isinstance(value, (int, float))
+            or isinstance(value, bool)
+            or not 0.0 <= value <= 1.0
+        ):
+            raise ValueError(f"record metric is invalid: {field}")
+    for field in set(_METRIC_FIELDS) - set(_RATE_FIELDS):
+        value = metrics[field]
+        if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+            raise ValueError(f"record metric is invalid: {field}")
     return metrics
 
 
@@ -66,6 +105,10 @@ def _validate_source_basis(source_basis: Mapping[str, Any]) -> dict[str, str]:
 
 
 def _baseline_ready(aggregate: Mapping[str, Any]) -> bool:
+    try:
+        aggregate = validate_aggregate_record(aggregate)
+    except ValueError:
+        return False
     metrics = _metrics(aggregate)
     return (
         aggregate.get("status") == "PASS"
@@ -73,9 +116,75 @@ def _baseline_ready(aggregate: Mapping[str, Any]) -> bool:
         and all(metrics[field] == 1.0 for field in _RATE_FIELDS)
         and all(metrics[field] == 0 for field in _BLOCKER_FIELDS)
         and metrics["postflight_block_count"] == 0
-        and metrics["holdout_passed_count"] > 0
+        and metrics["holdout_passed_count"] == aggregate["run_count"]
         and metrics["holdout_failed_count"] == 0
     )
+
+
+def validate_baseline_record(record: Mapping[str, Any]) -> dict[str, Any]:
+    """Validate one complete tracked baseline artifact."""
+
+    if not isinstance(record, Mapping) or set(record) != _BASELINE_KEYS:
+        raise ValueError("baseline key set is invalid")
+    if record.get("schema_version") != "1":
+        raise ValueError("baseline schema_version is invalid")
+    if record.get("status") != "PASS WITH NOTES":
+        raise ValueError("baseline status is invalid")
+    if record.get("decision") != "PROVISIONAL_BASELINE_ACCEPTED":
+        raise ValueError("baseline decision is invalid")
+    for field in ("suite_id", "approval_ref"):
+        if not isinstance(record.get(field), str) or not _SAFE_IDENTIFIER.fullmatch(
+            record[field]
+        ):
+            raise ValueError(f"baseline {field} is invalid")
+    for field in ("suite_manifest_hash", "configuration_id", "run_manifest_hash"):
+        if not isinstance(record.get(field), str) or not _HASH.fullmatch(record[field]):
+            raise ValueError(f"baseline {field} is invalid")
+    source_basis = record.get("source_basis")
+    if not isinstance(source_basis, Mapping):
+        raise ValueError("baseline source_basis is invalid")
+    _validate_source_basis(source_basis)
+    for field in ("task_count", "run_count"):
+        value = record.get(field)
+        if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+            raise ValueError(f"baseline {field} is invalid")
+    metrics = _metrics(record)
+    if (
+        any(metrics[field] != 1.0 for field in _RATE_FIELDS)
+        or any(metrics[field] != 0 for field in _BLOCKER_FIELDS)
+        or metrics["postflight_block_count"] != 0
+        or metrics["holdout_failed_count"] != 0
+        or metrics["holdout_passed_count"] != record["run_count"]
+    ):
+        raise ValueError("baseline metrics are not adoption-eligible")
+    refs = record.get("evidence_refs")
+    if (
+        not isinstance(refs, list)
+        or len(refs) > 20
+        or len(refs) != len(set(refs))
+        or any(not isinstance(ref, str) or not _SAFE_REF.fullmatch(ref) for ref in refs)
+    ):
+        raise ValueError("baseline evidence_refs are invalid")
+    if not isinstance(record.get("created_at"), str) or not _valid_created_at(
+        record["created_at"]
+    ):
+        raise ValueError("baseline created_at is invalid")
+    if record.get("release_artifact") is not False:
+        raise ValueError("baseline release_artifact must be false")
+    if record.get("performed_actions") != ["local_write"]:
+        raise ValueError("baseline performed_actions are invalid")
+    expected_id = "agent-quality-" + sha256_json(
+        {
+            "configuration_id": record["configuration_id"],
+            "created_at": record["created_at"],
+            "run_manifest_hash": record["run_manifest_hash"],
+            "suite_id": record["suite_id"],
+            "suite_manifest_hash": record["suite_manifest_hash"],
+        }
+    )[:24]
+    if record.get("baseline_id") != expected_id:
+        raise ValueError("baseline_id does not match baseline content")
+    return dict(record)
 
 
 def build_baseline(
@@ -121,14 +230,16 @@ def build_baseline(
             "created_at": created_at,
             "run_manifest_hash": aggregate["run_manifest_hash"],
             "suite_id": aggregate["suite_id"],
+            "suite_manifest_hash": aggregate["suite_manifest_hash"],
         }
     )[:24]
-    return {
+    baseline = {
         "schema_version": "1",
         "baseline_id": baseline_id,
         "status": "PASS WITH NOTES",
         "decision": "PROVISIONAL_BASELINE_ACCEPTED",
         "suite_id": aggregate["suite_id"],
+        "suite_manifest_hash": aggregate["suite_manifest_hash"],
         "configuration_id": aggregate["configuration_id"],
         "source_basis": normalized_source,
         "task_count": aggregate["task_count"],
@@ -141,6 +252,7 @@ def build_baseline(
         "release_artifact": False,
         "performed_actions": ["local_write"],
     }
+    return validate_baseline_record(baseline)
 
 
 def _has_operational_measurements(candidate: Mapping[str, Any]) -> bool:
@@ -159,6 +271,8 @@ def compare_baseline(
 
     if not isinstance(baseline, Mapping) or not isinstance(candidate, Mapping):
         raise ValueError("baseline and candidate must be objects")
+    baseline = validate_baseline_record(baseline)
+    candidate = validate_aggregate_record(candidate, allow_operational=True)
     baseline_metrics = _metrics(baseline)
     candidate_metrics = _metrics(candidate)
 
@@ -171,7 +285,12 @@ def compare_baseline(
             reasons.append(f"{field.upper()}_MISMATCH")
             reject = True
 
-    if candidate.get("comparability", "FULL") != "FULL":
+    suite_manifest_mismatch = (
+        baseline["suite_manifest_hash"] != candidate["suite_manifest_hash"]
+    )
+    if suite_manifest_mismatch:
+        reasons.append("SUITE_MANIFEST_MISMATCH")
+    if candidate["comparability"] != "FULL":
         reasons.append("CONFIGURATION_COMPARABILITY_NOT_FULL")
 
     for field in _BLOCKER_FIELDS:
@@ -207,7 +326,7 @@ def compare_baseline(
     if reject:
         decision = "REJECT"
         status = "REJECT"
-    elif "CONFIGURATION_COMPARABILITY_NOT_FULL" in reasons:
+    elif suite_manifest_mismatch or "CONFIGURATION_COMPARABILITY_NOT_FULL" in reasons:
         decision = "HOLD"
         status = "HOLD"
     elif owner_decision_required:

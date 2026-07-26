@@ -15,7 +15,7 @@ def write_python(root: Path, relative: str, content: str) -> None:
 
 
 def valid_failure_case(state: str = "OBSERVED") -> dict:
-    return {
+    payload = {
         "schema_version": "1",
         "failure_id": "failure.safe-case",
         "task_class": "synthetic-task",
@@ -30,6 +30,12 @@ def valid_failure_case(state: str = "OBSERVED") -> dict:
         "affected_configuration_hashes": ["b" * 64],
         "review_refs": ["local/reviews/safe-case.json"],
     }
+    state_index = failure.LIFECYCLE.index(state)
+    if state_index >= failure.LIFECYCLE.index("REPRODUCED"):
+        payload["last_reproduced_date"] = "2026-07-26"
+    if state_index >= failure.LIFECYCLE.index("GRADER_VALIDATED"):
+        payload["review_refs"].append("local/reviews/grader-safe-case.json")
+    return payload
 
 
 def test_semantic_summary_is_sorted_deterministic_and_source_free(tmp_path: Path) -> None:
@@ -210,6 +216,10 @@ def test_failure_case_accepts_exact_safe_shape_without_mutation() -> None:
             "AFFECTED_CONFIGURATION_HASHES_INVALID",
         ),
         (
+            lambda item: item.update({"affected_configuration_hashes": []}),
+            "AFFECTED_CONFIGURATION_HASHES_INVALID",
+        ),
+        (
             lambda item: item.update({"first_observed_date": "2026-02-30"}),
             "FIRST_OBSERVED_DATE_INVALID",
         ),
@@ -249,6 +259,48 @@ def test_failure_lifecycle_allows_only_exact_adjacent_transitions() -> None:
     invalid = failure.validate_transition("UNKNOWN", "OBSERVED")
     assert invalid["status"] == "FAIL"
     assert invalid["reason_codes"] == ["STATE_INVALID"]
+
+
+@pytest.mark.parametrize(
+    ("state", "mutation", "reason"),
+    [
+        (
+            "REPRODUCED",
+            {"last_reproduced_date": None},
+            "REPRODUCED_STATE_EVIDENCE_MISSING",
+        ),
+        (
+            "HUMAN_REVIEWED",
+            {"review_refs": []},
+            "HUMAN_REVIEW_EVIDENCE_MISSING",
+        ),
+        (
+            "REGRESSION",
+            {"review_refs": ["local/reviews/safe-case.json"]},
+            "GRADER_VALIDATION_EVIDENCE_MISSING",
+        ),
+    ],
+)
+def test_failure_case_requires_state_specific_evidence(
+    state: str, mutation: dict, reason: str
+) -> None:
+    payload = valid_failure_case(state)
+    payload.update(mutation)
+
+    result = failure.validate_failure_case(payload)
+
+    assert result["status"] == "FAIL"
+    assert reason in result["reason_codes"]
+
+
+def test_failure_case_rejects_reproduction_date_before_observation() -> None:
+    payload = valid_failure_case("REPRODUCED")
+    payload["last_reproduced_date"] = "2026-07-25"
+
+    result = failure.validate_failure_case(payload)
+
+    assert result["status"] == "FAIL"
+    assert "REPRODUCTION_DATE_ORDER_INVALID" in result["reason_codes"]
 
 
 def test_failure_transition_validates_case_and_does_not_write() -> None:

@@ -30,7 +30,7 @@
     "evidence_refs": {
       "items": {
         "maxLength": 260,
-        "pattern": "^[A-Za-z0-9._/-]+$",
+        "pattern": "^(?!/)(?!.*(?:^|/)\\.(?:/|$))(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*(?:^|/)[^/]*\\.(?:/|$))[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$",
         "type": "string"
       },
       "maxItems": 20,
@@ -143,6 +143,10 @@
       ],
       "type": "object"
     },
+    "suite_manifest_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
     "status": {
       "enum": [
         "PASS WITH NOTES",
@@ -163,6 +167,7 @@
     "status",
     "decision",
     "suite_id",
+    "suite_manifest_hash",
     "configuration_id",
     "source_basis",
     "task_count",

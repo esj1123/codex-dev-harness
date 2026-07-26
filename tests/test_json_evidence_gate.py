@@ -284,6 +284,28 @@ def test_json_evidence_gate_fails_closed_for_incomplete_agent_quality_bundle(
     assert any("missing JSON file" in message for message in result.messages)
 
 
+def test_json_evidence_gate_rejects_malformed_agent_quality_baseline(
+    tmp_path: Path,
+) -> None:
+    write_valid_bundle(tmp_path)
+    write_agent_quality_bundle(tmp_path)
+    malformed = {
+        "schema_version": "1",
+        "task_count": 5,
+        "run_count": 19,
+        "release_artifact": False,
+    }
+    write(
+        tmp_path / json_evidence_gate.AGENT_QUALITY_BASELINE_PATH,
+        json.dumps(malformed),
+    )
+
+    result = json_evidence_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert any("failed complete validation" in message for message in result.messages)
+
+
 def test_json_evidence_gate_reports_invalid_json(tmp_path: Path) -> None:
     write(tmp_path / "docs" / "CAPABILITY_IMPLEMENTATION_ROADMAP.md", "Phase 4B\n")
     write_valid_bundle(tmp_path)

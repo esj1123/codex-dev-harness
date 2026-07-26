@@ -36,14 +36,29 @@ TASKS = (
 def make_suite() -> dict:
     return {
         "schema_version": "1",
+        "status": "READY",
+        "suite_class": "agentic_regression",
         "suite_id": "agentic-regression-v1",
+        "required_configuration": {
+            "agent_adapter_id": "codex-subagent",
+            "agent_adapter_version": "1.0",
+            "environment_profile_id": "python-3.12",
+            "model_id": "gpt-5.6-sol",
+            "reasoning_profile": "high",
+        },
         "target_checkpoint": "9" * 40,
         "total_trials": 19,
         "tasks": [
             {
                 "task_id": task_id,
                 "criticality": criticality,
+                "lane": "feature",
+                "source_basis": "2" * 40,
                 "trials": trials,
+                "work_package_plan_digest": hashlib.sha256(
+                    task_id.encode("ascii")
+                ).hexdigest(),
+                "write_set": [f"src/{task_id}.py"],
             }
             for task_id, criticality, trials in TASKS
         ],
@@ -59,9 +74,9 @@ def make_runs() -> list[dict]:
                 {
                     "harness_commit": "1" * 40,
                     "target_base_commit": "2" * 40,
-                    "contract_basis_sha": "3" * 40,
+                    "contract_basis_sha": "2" * 40,
                     "work_package_plan_digest": hashlib.sha256(
-                        run_id.encode("ascii")
+                        task_id.encode("ascii")
                     ).hexdigest(),
                     "agent_adapter_id": "codex-subagent",
                     "agent_adapter_version": "1.0",
@@ -133,6 +148,7 @@ def test_aggregate_complete_suite_is_deterministic_and_safe() -> None:
     assert first["reason_codes"] == []
     assert first["task_count"] == 5
     assert first["run_count"] == 19
+    assert len(first["suite_manifest_hash"]) == 64
     assert first["metrics"]["strict_pass_3_task_rate"] == 1.0
     assert first["metrics"]["strict_pass_5_critical_rate"] == 1.0
     assert first["metrics"]["holdout_passed_count"] == 19
@@ -175,6 +191,67 @@ def test_aggregate_requires_one_full_configuration(mutation: str) -> None:
 
     with pytest.raises(ValueError):
         aggregate_runs(make_suite(), runs)
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("target_base_commit", "a" * 40),
+        ("contract_basis_sha", "b" * 40),
+        ("work_package_plan_digest", "c" * 64),
+    ],
+)
+def test_aggregate_binds_run_fingerprint_to_declared_task(
+    field: str, value: str
+) -> None:
+    runs = make_runs()
+    base = {
+        key: value
+        for key, value in runs[0]["fingerprint"].items()
+        if key
+        not in {
+            "configuration_id",
+            "run_fingerprint_id",
+            "comparability",
+            "unknown_fields",
+        }
+    }
+    base[field] = value
+    runs[0]["fingerprint"] = normalize_fingerprint(base)
+
+    with pytest.raises(ValueError):
+        aggregate_runs(make_suite(), runs)
+
+
+def test_aggregate_binds_run_task_class_to_declared_lane() -> None:
+    runs = make_runs()
+    runs[0]["task_class"] = "integration"
+
+    with pytest.raises(ValueError):
+        aggregate_runs(make_suite(), runs)
+
+
+@pytest.mark.parametrize("count", [0, 2])
+def test_aggregate_requires_exactly_one_holdout_per_run(count: int) -> None:
+    runs = make_runs()
+    runs[0]["metrics"]["holdout_passed_count"] = count
+
+    with pytest.raises(ValueError, match="holdout"):
+        aggregate_runs(make_suite(), runs)
+
+
+@pytest.mark.parametrize("mutation", ["missing_suite_key", "missing_task_key", "extra_task_key"])
+def test_aggregate_rejects_suite_contract_drift(mutation: str) -> None:
+    suite = make_suite()
+    if mutation == "missing_suite_key":
+        suite.pop("status")
+    elif mutation == "missing_task_key":
+        suite["tasks"][0].pop("work_package_plan_digest")
+    else:
+        suite["tasks"][0]["unexpected"] = True
+
+    with pytest.raises(ValueError):
+        aggregate_runs(suite, make_runs())
 
 
 def test_aggregate_computes_empirical_task_rates_and_summed_metrics() -> None:
@@ -225,6 +302,17 @@ def test_build_baseline_rejects_ineligible_aggregate() -> None:
         )
 
     aggregate = make_aggregate()
+    aggregate["metrics"]["holdout_passed_count"] = 1
+    aggregate["metrics"]["holdout_failed_count"] = 0
+    with pytest.raises(ValueError, match="not eligible"):
+        build_baseline(
+            aggregate,
+            source_basis=aggregate["source_basis"],
+            approval_ref="approval",
+            created_at="2026-07-26T12:00:00Z",
+        )
+
+    aggregate = make_aggregate()
     aggregate["metrics"]["holdout_passed_count"] = 0
     with pytest.raises(ValueError, match="not eligible"):
         build_baseline(
@@ -237,10 +325,8 @@ def test_build_baseline_rejects_ineligible_aggregate() -> None:
 
 def test_compare_adopts_equal_or_better_quality() -> None:
     baseline = make_baseline()
-    candidate = deepcopy(baseline)
+    candidate = make_aggregate()
     candidate["configuration_id"] = "d" * 64
-    candidate["comparability"] = "FULL"
-    candidate["metrics"]["holdout_passed_count"] += 1
 
     result = compare_baseline(baseline, candidate)
 
@@ -266,10 +352,24 @@ def test_compare_adopts_equal_or_better_quality() -> None:
 )
 def test_compare_rejects_quality_regressions(field: str, value: int | float) -> None:
     baseline = make_baseline()
-    candidate = deepcopy(baseline)
+    candidate = make_aggregate()
     candidate["configuration_id"] = "d" * 64
-    candidate["comparability"] = "FULL"
     candidate["metrics"][field] = value
+    reason_by_field = {
+        "critical_failure_count": "CRITICAL_FAILURES_PRESENT",
+        "scope_violation_count": "SCOPE_VIOLATIONS_PRESENT",
+        "safety_violation_count": "SAFETY_VIOLATIONS_PRESENT",
+        "contract_reopen_count": "CONTRACT_REOPENS_PRESENT",
+        "semantic_blocker_count": "SEMANTIC_BLOCKERS_PRESENT",
+        "strict_pass_3_task_rate": "STRICT_PASS_3_TASK_RATE_BELOW_ONE",
+        "postflight_block_count": "POSTFLIGHT_BLOCKS_PRESENT",
+        "holdout_failed_count": "HOLDOUT_FAILURES_PRESENT",
+    }
+    if field == "holdout_failed_count":
+        candidate["metrics"]["holdout_passed_count"] -= int(value)
+    if field in reason_by_field:
+        candidate["status"] = "HOLD"
+        candidate["reason_codes"] = [reason_by_field[field]]
 
     result = compare_baseline(baseline, candidate)
 
@@ -280,9 +380,11 @@ def test_compare_rejects_quality_regressions(field: str, value: int | float) -> 
 
 def test_compare_holds_partial_configuration() -> None:
     baseline = make_baseline()
-    candidate = deepcopy(baseline)
+    candidate = make_aggregate()
     candidate["configuration_id"] = "d" * 64
     candidate["comparability"] = "PARTIAL"
+    candidate["status"] = "HOLD"
+    candidate["reason_codes"] = ["CONFIGURATION_COMPARABILITY_NOT_FULL"]
 
     result = compare_baseline(baseline, candidate)
 
@@ -290,14 +392,34 @@ def test_compare_holds_partial_configuration() -> None:
     assert result["reason_codes"] == ["CONFIGURATION_COMPARABILITY_NOT_FULL"]
 
 
+def test_compare_rejects_missing_comparability() -> None:
+    baseline = make_baseline()
+    candidate = make_aggregate()
+    candidate.pop("comparability")
+
+    with pytest.raises(ValueError, match="key set"):
+        compare_baseline(baseline, candidate)
+
+
+def test_compare_holds_suite_manifest_mismatch() -> None:
+    baseline = make_baseline()
+    candidate = make_aggregate()
+    candidate["suite_manifest_hash"] = "d" * 64
+
+    result = compare_baseline(baseline, candidate)
+
+    assert result["decision"] == "HOLD"
+    assert result["status"] == "HOLD"
+    assert result["reason_codes"] == ["SUITE_MANIFEST_MISMATCH"]
+
+
 @pytest.mark.parametrize("measurement", ["duration_seconds", "cost_units"])
 def test_compare_routes_operational_measurements_to_owner(
     measurement: str,
 ) -> None:
     baseline = make_baseline()
-    candidate = deepcopy(baseline)
+    candidate = make_aggregate()
     candidate["configuration_id"] = "d" * 64
-    candidate["comparability"] = "FULL"
     candidate[measurement] = 1
 
     result = compare_baseline(baseline, candidate)

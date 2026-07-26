@@ -43,6 +43,9 @@ modify the target repository main branch.
 Each run records repository and contract bases, work-package plan digest,
 agent/model configuration, prompt and tool-policy hashes, dependency and corpus
 hashes, environment profile, verification suite, and grader version.
+Aggregation binds each run to the suite task's declared source basis, lane, and
+work-package plan digest. A suite manifest hash prevents comparison across
+different task definitions that happen to reuse the same suite ID.
 
 Canonical compact JSON with sorted keys is hashed with SHA-256 to produce:
 
@@ -83,7 +86,8 @@ notation:
 - `integration_fix_line_count`
 
 The first provisional baseline requires both strict-pass rates to equal `1.0`
-and every blocker count to equal zero.
+and every blocker count to equal zero. Agentic regression v1 also requires
+exactly one owner-held holdout result per run; every holdout must pass.
 
 ## Semantic Review
 
@@ -107,6 +111,9 @@ Pre-regression evidence stays local and ignored. A tracked regression contains
 only a minimal synthetic fixture, safe symptom summary, invariant and grader
 identifiers, dates, and affected configuration hashes. Failure evidence is not
 automatically written to memory, RAG, audit logs, or release evidence.
+Lifecycle validation checks structural evidence, date order, and adjacent state
+transitions. It does not authenticate that a human or grader supplied the
+declared review references.
 
 ## Baseline And Adoption
 

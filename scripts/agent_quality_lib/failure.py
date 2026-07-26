@@ -135,10 +135,18 @@ def failure_case_issues(payload: Any) -> list[str]:
         issues.add("FIRST_OBSERVED_DATE_INVALID")
     if not _valid_date(payload["last_reproduced_date"], nullable=True):
         issues.add("LAST_REPRODUCED_DATE_INVALID")
+    if (
+        _valid_date(payload["first_observed_date"])
+        and _valid_date(payload["last_reproduced_date"], nullable=True)
+        and payload["last_reproduced_date"] is not None
+        and payload["last_reproduced_date"] < payload["first_observed_date"]
+    ):
+        issues.add("REPRODUCTION_DATE_ORDER_INVALID")
 
     hashes = payload["affected_configuration_hashes"]
     if (
         not isinstance(hashes, list)
+        or not hashes
         or len(hashes) > 10
         or len(hashes) != len(set(item for item in hashes if isinstance(item, str)))
         or any(
@@ -153,8 +161,22 @@ def failure_case_issues(payload: Any) -> list[str]:
         not isinstance(refs, list)
         or len(refs) > 10
         or any(not _safe_repo_ref(item) for item in refs)
+        or len(refs) != len(set(item for item in refs if isinstance(item, str)))
     ):
         issues.add("REVIEW_REFS_INVALID")
+
+    if payload["state"] in LIFECYCLE:
+        state_index = LIFECYCLE.index(payload["state"])
+        review_count = len(refs) if isinstance(refs, list) else 0
+        if (
+            state_index >= LIFECYCLE.index("REPRODUCED")
+            and payload["last_reproduced_date"] is None
+        ):
+            issues.add("REPRODUCED_STATE_EVIDENCE_MISSING")
+        if state_index >= LIFECYCLE.index("HUMAN_REVIEWED") and review_count < 1:
+            issues.add("HUMAN_REVIEW_EVIDENCE_MISSING")
+        if state_index >= LIFECYCLE.index("GRADER_VALIDATED") and review_count < 2:
+            issues.add("GRADER_VALIDATION_EVIDENCE_MISSING")
     return sorted(issues)
 
 

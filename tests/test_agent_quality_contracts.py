@@ -29,6 +29,9 @@ def test_policy_defines_quality_dimensions_and_boundaries() -> None:
     assert "raw prompts" in policy
     assert "not part of the five-file release checksum set" in policy
     assert "does not authorize agent runtime adapters" in policy
+    assert "suite manifest hash" in policy.lower()
+    assert "exactly one owner-held holdout result per run" in policy
+    assert "does not authenticate" in policy
 
 
 def test_agentic_schemas_are_strict_and_safe() -> None:
@@ -62,6 +65,15 @@ def test_agentic_schemas_are_strict_and_safe() -> None:
         "verification_suite_id",
         "grader_version",
     } <= run_required
+    baseline_required = set(schemas["agent-quality-baseline.schema.json"]["required"])
+    assert "suite_manifest_hash" in baseline_required
+    for schema_name in ("agent-run.schema.json", "agent-quality-baseline.schema.json"):
+        pattern = schemas[schema_name]["properties"]["evidence_refs"]["items"]["pattern"]
+        assert "(?!/)" in pattern
+        assert "\\.\\." in pattern
+    failure = schemas["failure-case.schema.json"]
+    assert failure["properties"]["affected_configuration_hashes"]["minItems"] == 1
+    assert len(failure["allOf"]) == 3
 
 
 def test_regression_suite_has_exact_tasks_and_trial_budget() -> None:
@@ -79,6 +91,8 @@ def test_regression_suite_has_exact_tasks_and_trial_budget() -> None:
         "allowed-values-evaluator",
         "allowed-values-integration",
     ]
+    assert all(len(task["work_package_plan_digest"]) == 64 for task in suite["tasks"])
+    assert all(task["lane"] in {"feature", "integration"} for task in suite["tasks"])
     assert sum(task["trials"] for task in suite["tasks"]) == 19
 
 

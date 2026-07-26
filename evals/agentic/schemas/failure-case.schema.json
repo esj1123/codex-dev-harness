@@ -8,6 +8,7 @@
         "type": "string"
       },
       "maxItems": 10,
+      "minItems": 1,
       "type": "array",
       "uniqueItems": true
     },
@@ -49,11 +50,12 @@
     "review_refs": {
       "items": {
         "maxLength": 260,
-        "pattern": "^[A-Za-z0-9._/-]+$",
+        "pattern": "^(?!/)(?!.*(?:^|/)\\.(?:/|$))(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*(?:^|/)[^/]*\\.(?:/|$))[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$",
         "type": "string"
       },
       "maxItems": 10,
-      "type": "array"
+      "type": "array",
+      "uniqueItems": true
     },
     "safe_symptom_summary": {
       "maxLength": 500,
@@ -97,5 +99,71 @@
     "review_refs"
   ],
   "title": "Agent Quality Failure Case",
-  "type": "object"
+  "type": "object",
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "enum": [
+              "REPRODUCED",
+              "HUMAN_REVIEWED",
+              "GRADER_VALIDATED",
+              "REGRESSION",
+              "DEPRECATED"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "last_reproduced_date": {
+            "format": "date",
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "enum": [
+              "HUMAN_REVIEWED",
+              "GRADER_VALIDATED",
+              "REGRESSION",
+              "DEPRECATED"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "review_refs": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "enum": [
+              "GRADER_VALIDATED",
+              "REGRESSION",
+              "DEPRECATED"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "review_refs": {
+            "minItems": 2
+          }
+        }
+      }
+    }
+  ]
 }
