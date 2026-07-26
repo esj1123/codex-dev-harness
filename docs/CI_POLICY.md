@@ -16,8 +16,10 @@ publication, signing, tag movement, deployment, downstream checkout, or live
 target behavior. Dispatch requires a lowercase 40-character `expected_sha`;
 checkout uses that exact ref and fails before verification if the observed HEAD
 does not match. Checkout and Python setup actions are pinned to immutable
-commit SHAs, checkout credentials are not persisted, and Python comes from the
-exact `.python-version` declaration.
+commit SHAs, checkout credentials are not persisted, and hosted Windows
+verification uses exact Python `3.12.10`. The preferred local runtime remains
+Python `3.12.13`; later Python 3.12 security-only releases do not provide the
+Windows binaries required by `setup-python`.
 
 The workflow also runs exactly `python scripts/run_eval.py` without report
 flags after pytest and before the quality gate. This is console-only validation:
@@ -62,8 +64,9 @@ checks:
 - `python scripts/render_template.py --config examples/plc_tool_minimal/template.config.yml --target examples/plc_tool_minimal --dry-run`
 
 The workflow installs development requirements from `requirements-dev.lock`,
-runs `python -m pip check`, and reads exact Python `3.12.13` from
-`.python-version`.
+runs `python -m pip check`, and uses exact hosted Windows Python `3.12.10`.
+Local V2 and hosted V3 both remain on Python 3.12 and use the same locked
+development dependencies.
 
 Release verification remains local-only unless separately approved and may use:
 

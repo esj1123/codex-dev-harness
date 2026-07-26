@@ -307,7 +307,8 @@ def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
     assert "actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09" in text
     assert "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1" in text
     assert "persist-credentials: false" in text
-    assert 'python-version-file: ".python-version"' in text
+    assert 'python-version: "3.12.10"' in text
+    assert "python-version-file:" not in text
     assert "check-latest: false" in text
     assert "python -m pip install -r requirements-dev.lock" in text
     assert "python -m pip check" in text

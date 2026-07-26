@@ -45,7 +45,8 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
-          python-version-file: ".python-version"
+          # Python 3.12.10 is the final 3.12 release with Windows binaries.
+          python-version: "3.12.10"
           check-latest: false
 
       - name: Show Python version

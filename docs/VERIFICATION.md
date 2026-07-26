@@ -50,10 +50,12 @@ running checks. It mirrors the non-release local verification subset:
 - `python scripts/render_template.py --config examples/plc_tool_minimal/template.config.yml --target examples/plc_tool_minimal --dry-run`
 
 It installs the exact development set from `requirements-dev.lock`, runs
-`python -m pip check`, and uses the exact Python `3.12.13` runtime declared in
-`.python-version`. Third-party actions are pinned to immutable commit SHAs,
-checkout credentials are not persisted, and the workflow retains only
-`contents: read`.
+`python -m pip check`, and uses Python `3.12.10`, the final Python 3.12 release
+with Windows binary installers. The preferred local runtime remains Python
+`3.12.13` as declared in `.python-version`; that security-only source release
+is not available to the hosted Windows runner through `setup-python`.
+Third-party actions are pinned to immutable commit SHAs, checkout credentials
+are not persisted, and the workflow retains only `contents: read`.
 
 The eval step is console-only and runs without report flags after pytest and
 before the quality gate. A nonzero eval exit fails only that manually dispatched
@@ -112,6 +114,12 @@ that distinction honestly instead of treating it as a failure:
 
 The preferred local verification runtime is pinned in `.python-version` and
 documented in `docs/PYTHON_RUNTIME_POLICY.md`.
+
+The hosted Windows V3 workflow uses the exact compatible Python `3.12.10`
+runtime because later Python 3.12 security releases do not provide Windows
+binary installers. Both local V2 and hosted V3 remain within Python 3.12, use
+the same exact development dependency lock, and report the resolved runtime in
+their console output.
 
 Use `requirements-dev.txt` only when intentionally resolving the standard
 local development requirement:
