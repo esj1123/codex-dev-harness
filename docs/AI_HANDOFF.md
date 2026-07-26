@@ -2,121 +2,50 @@
 
 ## Purpose
 
-Provide the next AI/Codex worker with the minimum current context needed to
-continue safely.
+Provide a compact handoff index without duplicating current authority.
 
-## Current Phase
+## Authority
 
-Agent-quality controls implemented; adoption baseline held.
+Read `docs/AUTHORITY_MANIFEST.json` for the machine-readable current state,
+default Read Order, conditional read groups, and document classifications.
+Read `STATUS.md` for the current human summary, held items, and next
+recommended action. Those two files are authoritative when older phase or run
+records differ.
 
-The machine-readable state is
-`AGENT_QUALITY_BASELINE_NOT_ESTABLISHED`. The harness completed its
-pre-large-integration self-pilot, initialized the safe greenfield alias
-`local-data-quality-cli`, governed disjoint application lanes, and installed a
-standalone manual Agent Quality Stability layer.
-
-Work-package schema v2 now adds Windows-safe path ownership, contract-basis and
-frozen-interface fields, contract reopen behavior, and an explicit distinction
-between structural PASS and authenticated approval. The docs gate loads the
-authority manifest at runtime and returns a structured failure when that
-manifest is missing or malformed.
-
-The first fixed-configuration agentic suite completed 19 trials. Critical
-5-trial tasks passed, but one numeric parser trial failed an owner-held valid
-Decimal holdout. The aggregate is `HOLD`; no tracked agent-quality baseline
-artifact exists. Safe envelopes and the pre-regression failure candidate remain
-ignored local control-plane evidence.
-
-This state does not authorize another target, another feature, a remote, push,
-workflow dispatch, release action, or live/private data use.
-
-## Source Of Truth
-
-Read in this order:
-
-1. `AGENTS.md`
-2. `docs/AUTHORITY_MANIFEST.json`
-3. `PRODUCT.md`
-4. `MVP.md`
-5. `STATUS.md`
-6. `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`
-7. `docs/SAFETY_POLICY.md`
-8. `docs/VERIFICATION.md`
-9. `docs/AI_HANDOFF.md`
-
-`ACCEPTANCE_TRACE.md` and older phase records are historical evidence, not
+`ACCEPTANCE_TRACE.md` and phase-specific closeouts are historical evidence, not
 default operating context.
 
-## Active Control Surface
+## Control Surface
 
-- `scripts/work_package_conflict_check.py`
-- `scripts/work_package_postflight.py`
-- `docs/PARALLEL_WORK_PACKAGE_SYNTHETIC_FIXTURE.json`
-- `docs/CHANGE_CONTROL.md`
-- `docs/AUTHORITY_MANIFEST.json`
-- `scripts/authority_manifest_check.py`
-- `docs/VERIFICATION_IMPACT_MAP.json`
-- `scripts/verification_plan.py`
-- `scripts/gates/docs_gate.py`
-- `docs/CI_POLICY.md`
-- `docs/AGENT_QUALITY_STABILITY_POLICY.md`
-- `scripts/agent_quality.py`
-- `evals/agentic/suites/agentic-regression-v1.json`
+- Work-package planning and collision checks:
+  `scripts/work_package_conflict_check.py`
+- Actual-diff postflight:
+  `scripts/work_package_postflight.py`
+- Verification impact planning:
+  `scripts/verification_plan.py`
+- Agent Quality validation and aggregation:
+  `scripts/agent_quality.py`
+- Current deterministic verification:
+  `scripts/run_local_verify.ps1`
+- Manual exact-SHA remote verification:
+  `.github/workflows/local-verify.yml`
 
-Actual package JSON and optional checkpoint envelopes remain ignored local
-control-plane data under `local/`. They must not contain secrets, private
-payloads, absolute paths, raw command logs, or approval text.
+Ignored package, trial, and checkpoint envelopes under `local/` remain local
+control-plane evidence. They do not authenticate approval and must not contain
+raw prompts, transcripts, private payloads, secrets, absolute paths, or command
+logs.
 
-## Work-Package V2 Rules
+## Required Boundaries
 
-- All packages in a batch share one base and one canonical frozen contract
-  surface.
-- Feature packages declare non-empty `contract_frozen_paths` and include them
-  in `read_set`.
-- Case variants and parent/child ownership overlap are conflicts.
-- A frozen-interface change returns `CONTRACT_CHANGE_REQUIRED`; stop the batch
-  and create a new contract basis.
-- Preflight and postflight return
-  `authorization_status=NOT_AUTHENTICATED`. PASS does not grant execution or
-  side-effect permission.
-- Feature and contract lanes produce one coherent commit and do not change
-  integration-only authority.
+- Structural PASS does not grant execution or side-effect permission.
+- A frozen contract change stops with `CONTRACT_CHANGE_REQUIRED`.
+- Agent-quality baseline creation remains separately approval-gated.
+- Push, workflow dispatch, release, upload, downstream access, MCP/Hermes
+  execution, and live/private data use require separate authority.
+- Tracked authority does not store workflow run IDs.
 
-## Verification
+## Task Handoff
 
-V2 core:
-
-- full pytest;
-- `python scripts/run_eval.py` without report flags;
-- `python scripts/quality_gate.py`.
-
-Impact-required extras:
-
-- checksum verification;
-- exact corpus digest check;
-- relevant profile render dry-runs.
-
-V3 remains one separately approved push and one manual read-only Local Verify
-for the final cumulative SHA. Tracked authority does not record run IDs.
-
-## Current Boundaries
-
-- The first local application pilot has no remote and no push authorization.
-- Release evidence regeneration remains `HOLD`.
-- Workflow expansion, tag/release/upload, MCP execution, Hermes execution
-  bridges, AgentOps, memory runtime, and durable audit automation remain
-  unapproved.
-- No real, private, customer, or live data may be used.
-- No new feature lane begins until its owner-selected contract and side-effect
-  permissions are explicit.
-- Agent-quality PASS is standalone evidence, not CI, release, approval, or
-  execution authority.
-- A failed trial cannot be replaced selectively after a fingerprint-affecting
-  change; a comparable baseline requires a complete suite.
-
-## Next Recommended Step
-
-Review and sanitize the observed numeric parser failure, reproduce it with the
-owner-held grader, and obtain human review before any regression promotion.
-Keep baseline creation on hold. A changed prompt, tool policy, grader, model,
-or task contract requires a complete new 19-trial run under one fingerprint.
+Use the manifest's `handoff` conditional group for this file. Before continuing,
+re-read `STATUS.md`, run the verification plan for the intended diff, and
+report commands not executed as `NOT RUN`.

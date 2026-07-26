@@ -55,6 +55,13 @@ def minimal_repo(root: Path) -> None:
         root / docs_gate.MANIFEST_PATH,
         Path(docs_gate.MANIFEST_PATH).read_text(encoding="utf-8"),
     )
+    manifest = json.loads(
+        (root / docs_gate.MANIFEST_PATH).read_text(encoding="utf-8")
+    )
+    write(
+        root / "STATUS.md",
+        f"# STATUS.md\n\n## Current State\n\n`{manifest['current_state']}`\n",
+    )
     for relative in template_schema_gate.REQUIRED_BASE_TEMPLATES:
         write(root / relative)
     for profile in sorted(set(example_gate.REQUIRED_EXAMPLES.values())):
@@ -214,7 +221,8 @@ def test_readme_describes_installed_manual_local_verify_workflow() -> None:
     text = Path("README.md").read_text(encoding="utf-8")
 
     assert "manual read-only `.github/workflows/local-verify.yml` workflow" in text
-    assert "`workflow_dispatch` with `contents: read`" in text
+    assert "`workflow_dispatch` with a required exact commit SHA" in text
+    assert "`contents: read`" in text
     assert "installed manual read-only Local Verify workflow is the verification hygiene" in text
     assert "next planned CI step is a read-only verification hygiene path" not in text
 
@@ -222,6 +230,8 @@ def test_readme_describes_installed_manual_local_verify_workflow() -> None:
 def test_current_authority_is_manifest_driven() -> None:
     manifest = json.loads(Path(docs_gate.MANIFEST_PATH).read_text(encoding="utf-8"))
     handoff = Path("docs/AI_HANDOFF.md").read_text(encoding="utf-8")
+    agents = Path("AGENTS.md").read_text(encoding="utf-8")
+    readme = Path("README.md").read_text(encoding="utf-8")
 
     assert manifest["current_state"] == "AGENT_QUALITY_BASELINE_NOT_ESTABLISHED"
     assert manifest["default_read_order"][0:2] == [
@@ -231,8 +241,27 @@ def test_current_authority_is_manifest_driven() -> None:
     assert set(manifest["default_read_order"]).issubset(set(manifest["current_authority"]))
     assert "ACCEPTANCE_TRACE.md" not in manifest["default_read_order"]
     assert "docs/PROFILE_MATRIX.md" not in manifest["default_read_order"]
-    assert "Agent-quality controls implemented; adoption baseline held" in handoff
-    assert "AGENT_QUALITY_BASELINE_NOT_ESTABLISHED" in handoff
+    assert manifest["default_read_order"] == [
+        "AGENTS.md",
+        docs_gate.MANIFEST_PATH,
+        "PRODUCT.md",
+        "MVP.md",
+        "STATUS.md",
+        "docs/SAFETY_POLICY.md",
+    ]
+    assert manifest["conditional_read_order"]["handoff"] == [
+        "docs/AI_HANDOFF.md"
+    ]
+    assert "Read `STATUS.md` for the current human summary" in handoff
+    assert "## Current Phase" not in handoff
+    assert "## Next Recommended Step" not in handoff
+    expected_numbered = [
+        f"{index}. {path}"
+        for index, path in enumerate(manifest["default_read_order"], start=1)
+    ]
+    for line in expected_numbered:
+        assert line in agents
+        assert line in readme
     assert "GitHub Actions workflow is not installed" not in handoff
     assert "recommended next work is Phase 3" not in handoff
 
@@ -269,6 +298,11 @@ def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
     quality_gate_command = "run: python scripts/quality_gate.py"
 
     assert "workflow_dispatch:" in text
+    assert "expected_sha:" in text
+    assert "required: true" in text
+    assert "ref: ${{ inputs.expected_sha }}" in text
+    assert "git rev-parse HEAD" in text
+    assert "^[0-9a-f]{40}$" in text
     assert "permissions:\n  contents: read" in text
     assert text.count(eval_command) == 1
     assert text.index(tests_command) < text.index(eval_command) < text.index(quality_gate_command)
@@ -282,6 +316,19 @@ def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
         "secrets:",
     ]:
         assert forbidden not in text
+
+
+def test_local_and_release_wrappers_run_eval_once() -> None:
+    local = Path("scripts/run_local_verify.ps1").read_text(encoding="utf-8")
+    release = Path("scripts/run_release_verify.ps1").read_text(encoding="utf-8")
+
+    pytest_step = 'Invoke-PythonStep "pytest"'
+    eval_step = 'Invoke-PythonStep "standalone eval" @("scripts/run_eval.py")'
+    quality_step = 'Invoke-PythonStep "quality gate"'
+    assert local.count(eval_step) == 1
+    assert local.index(pytest_step) < local.index(eval_step) < local.index(quality_step)
+    assert "scripts/run_local_verify.ps1" in release
+    assert '"optional eval"' not in release
 
 
 def test_eval_policy_docs_define_manual_console_integration_boundary() -> None:

@@ -13,7 +13,9 @@ The repository now includes the owner-approved first implementation target:
 `.github/workflows/local-verify.yml`. It is a manual `workflow_dispatch`
 workflow with `permissions: contents: read` and no artifact upload,
 publication, signing, tag movement, deployment, downstream checkout, or live
-target behavior.
+target behavior. Dispatch requires a lowercase 40-character `expected_sha`;
+checkout uses that exact ref and fails before verification if the observed HEAD
+does not match.
 
 The workflow also runs exactly `python scripts/run_eval.py` without report
 flags after pytest and before the quality gate. This is console-only validation:
@@ -35,7 +37,9 @@ The current local evidence baseline includes:
   artifacts
 
 These local surfaces are the baseline that CI must mirror when approved. The
-installed workflow mirrors only the non-release local verification subset.
+installed workflow mirrors `scripts/run_local_verify.ps1`: full pytest, the
+no-report standalone eval, all nine quality gates, and three profile render
+dry-runs.
 Additional workflows, triggers, permissions, required-check policies, artifact
 upload, release verification CI, signing, tag movement, deployment, downstream
 integration, or live behavior require a separate owner-approved implementation
@@ -121,7 +125,7 @@ Repository work uses four verification tiers:
 | `V0` | contract or scope review | work-package validation, base-SHA confirmation, allowed-file review, and `git diff --check` |
 | `V1` | feature lane | `V0` plus focused tests for the declared write set |
 | `V2` | integration lane | V2 core: full pytest, no-report standalone eval, and all quality gates; impact-required extras: checksum, corpus, and relevant render checks |
-| `V3` | remote integration gate | one push and one manual Local Verify run for the final cumulative SHA |
+| `V3` | remote integration gate | one push and one manual Local Verify run with required `expected_sha` for the final cumulative SHA |
 
 Feature and contract lanes do not run V2 or V3 by default. The integration lane
 runs V2 once after all approved feature commits and any required digest-only
@@ -146,9 +150,11 @@ digest commit.
 
 `scripts/verification_plan.py` is a standalone read-only advisory planner. It
 observes the path diff between an approved base commit and a selected head,
-then reports the minimum V0-V2 tier, required command identifiers, and
-integration-owner or digest/checksum/render escalation flags from
-`docs/VERIFICATION_IMPACT_MAP.json`.
+then reports the minimum V0-V2 tier, required command identifiers and their
+machine-readable argument-list contracts, plus integration-owner or
+digest/checksum/render escalation flags from
+`docs/VERIFICATION_IMPACT_MAP.json`. Parameterized commands retain safe
+placeholders for the integration owner to resolve.
 
 The planner does not execute commands, cache results, write a corpus digest,
 dispatch V3, authenticate approval, or grant permission to run the checks it

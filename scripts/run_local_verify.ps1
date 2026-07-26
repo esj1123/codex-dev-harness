@@ -57,6 +57,7 @@ function Invoke-PythonStep {
 }
 
 Invoke-PythonStep "pytest" @("-m", "pytest", "tests")
+Invoke-PythonStep "standalone eval" @("scripts/run_eval.py")
 Invoke-PythonStep "quality gate" @("scripts/quality_gate.py")
 Invoke-PythonStep "python_cli_minimal render dry-run" @("scripts/render_template.py", "--config", "examples/python_cli_minimal/template.config.yml", "--target", "examples/python_cli_minimal", "--dry-run")
 Invoke-PythonStep "csharp_desktop_minimal render dry-run" @("scripts/render_template.py", "--config", "examples/csharp_desktop_minimal/template.config.yml", "--target", "examples/csharp_desktop_minimal", "--dry-run")

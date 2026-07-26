@@ -11,17 +11,17 @@ This file defines the operating rules for AI/Codex work in this repository.
 3. PRODUCT.md
 4. MVP.md
 5. STATUS.md
-6. docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md
-7. docs/SAFETY_POLICY.md
-8. docs/VERIFICATION.md
-9. docs/AI_HANDOFF.md
+6. docs/SAFETY_POLICY.md
+
+Conditional read groups are defined only in
+`docs/AUTHORITY_MANIFEST.json`: verification, capability selection, and
+handoff context must be loaded when the task requires them.
 
 ## Current Phase Rule
 
-The harness is `READY_FOR_PARALLEL_APPLICATION_DEVELOPMENT`. Its first
-greenfield application pilot passed, and work-package schema v2 now enforces
-Windows-safe path ownership, shared contract freeze, actual-diff postflight,
-and explicit separation between structural PASS and owner authorization.
+Do not hardcode the current repository state in this operating file. Read
+`docs/AUTHORITY_MANIFEST.json` for the machine-readable state and `STATUS.md`
+for its current human summary.
 
 `docs/AUTHORITY_MANIFEST.json` separates current authority, durable policy, and
 historical evidence. The current implementation sequencing source of truth is

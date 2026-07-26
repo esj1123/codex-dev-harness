@@ -27,7 +27,9 @@ Recommended local command:
 
 `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1`
 
-The wrapper runs tests, quality gate, and all three example render dry-runs. It does not write rendered files and does not use `--force`.
+The wrapper runs full pytest, the no-report standalone eval, the quality gate,
+and all three example render dry-runs in that order. It does not write rendered
+files and does not use `--force`.
 
 ## Read-Only CI Verification Flow
 
@@ -36,8 +38,9 @@ The owner-approved first CI implementation target is installed at:
 `.github/workflows/local-verify.yml`
 
 The workflow is manual-only through `workflow_dispatch` and uses
-`permissions: contents: read`. It mirrors the non-release local verification
-subset:
+`permissions: contents: read`. Dispatch requires a lowercase 40-character
+`expected_sha`; checkout uses that ref and asserts the observed HEAD before
+running checks. It mirrors the non-release local verification subset:
 
 - `python -m pytest tests`
 - `python scripts/run_eval.py`
@@ -67,13 +70,12 @@ Recommended release evidence command:
 The release wrapper is local-only. It runs, in order:
 
 1. `scripts/run_local_verify.ps1`
-2. `scripts/run_eval.py`, if present
-3. `scripts/generate_manifest.py`
-4. `scripts/generate_checksums.py` as an intermediate bootstrap checksum
-5. `scripts/generate_sbom.py`, if present
-6. `scripts/generate_provenance.py`, if present
-7. final checksum regeneration using the current full-bundle checksum policy
-8. read-only `scripts/generate_checksums.py --verify`
+2. `scripts/generate_manifest.py`
+3. `scripts/generate_checksums.py` as an intermediate bootstrap checksum
+4. `scripts/generate_sbom.py`, if present
+5. `scripts/generate_provenance.py`, if present
+6. final checksum regeneration using the current full-bundle checksum policy
+7. read-only `scripts/generate_checksums.py --verify`
 
 The intermediate checksum step may allow missing optional later evidence while
 the bundle is still being produced. The final checksum step is strict for the

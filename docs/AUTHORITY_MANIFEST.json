@@ -1,4 +1,16 @@
 {
+  "conditional_read_order": {
+    "capability_selection": [
+      "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md"
+    ],
+    "handoff": [
+      "docs/AI_HANDOFF.md"
+    ],
+    "verification": [
+      "docs/VERIFICATION.md",
+      "docs/CI_POLICY.md"
+    ]
+  },
   "current_authority": [
     "AGENTS.md",
     "MVP.md",
@@ -18,10 +30,7 @@
     "PRODUCT.md",
     "MVP.md",
     "STATUS.md",
-    "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md",
-    "docs/SAFETY_POLICY.md",
-    "docs/VERIFICATION.md",
-    "docs/AI_HANDOFF.md"
+    "docs/SAFETY_POLICY.md"
   ],
   "durable_policy": [
     "LICENSE",
@@ -115,5 +124,6 @@
     "scripts/gates/"
   ],
   "manifest_id": "authority_manifest",
-  "schema_version": "1"
+  "schema_version": "1",
+  "unlisted_document_policy": "non_authoritative_reference_only"
 }

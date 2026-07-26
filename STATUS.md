@@ -14,7 +14,7 @@ historical phase and run details remain available in Git history and
 
 - Render tiers: `minimal`, `standard`, and `full`, with closed Read Orders.
 - Manual read-only Local Verify with pytest, standalone eval, quality gates,
-  and three profile dry-runs.
+  and three profile dry-runs, bound to a required exact checkout SHA.
 - Exact 34-source approved corpus digest and read-only local retrieval.
 - Read-only downstream contract validation and release-evidence preflight.
 - Work-package preflight with deterministic `plan_digest`.
@@ -30,6 +30,14 @@ historical phase and run details remain available in Git history and
 - Fail-closed docs gate with runtime manifest validation.
 - Manual agent-quality run validation, deterministic fingerprinting,
   aggregation, comparison, semantic review, and failure-lifecycle validation.
+- Baseline adoption trust chain:
+  - writer and candidate comparison recompute from the canonical suite and
+    sanitized run directory;
+  - safe per-run evidence manifests bind trial budget, holdout status, and
+    strict-pass results;
+  - suite/configuration comparability is decided before quality regression;
+  - baseline shape is cross-checked against the canonical suite by the JSON
+    evidence gate.
 
 ## Agent Quality Pilot
 
@@ -67,9 +75,11 @@ effect.
 - `V0`: package, base, allowed-file, and diff review.
 - `V1`: V0 plus focused lane tests.
 - `V2 core`: full pytest, standalone eval, and all quality gates.
+- Standing local integration verification runs the V2 core followed by the
+  three profile dry-runs through `scripts/run_local_verify.ps1`.
 - `V2 impact-required extras`: checksum, corpus, and relevant render checks.
-- `V3`: one approved push and one manual Local Verify for the final cumulative
-  SHA.
+- `V3`: one approved push and one manual Local Verify whose required
+  `expected_sha` is checked out and asserted before verification.
 
 PASS from preflight or postflight proves structural consistency only. It does
 not authenticate approval.
@@ -94,8 +104,8 @@ not authenticate approval.
 
 ## Next Recommended Step
 
-Review the observed numeric parser failure, advance it only through the
-approved failure lifecycle, and run a diagnostic parser replay if needed.
-Tracked baseline creation remains blocked. If the configuration, prompt, tool
-policy, grader, or task contract changes, run a new complete 19-trial suite
-instead of replacing only the failed trial.
+After separately approved cleanup of the two stale Agent Quality temporary
+roots, review and reproduce the observed numeric parser failure. Then run one
+complete 19-trial suite under a single fingerprint. Tracked baseline creation
+remains blocked until every adoption condition passes; do not replace only the
+failed trial after a fingerprint-defining change.

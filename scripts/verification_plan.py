@@ -54,6 +54,7 @@ def base_result() -> dict[str, Any]:
         "changed_paths": [],
         "matched_rule_ids": [],
         "required_command_ids": [],
+        "required_command_contracts": [],
         "not_required_command_ids": [],
         "digest_check_required": False,
         "checksum_check_required": False,
@@ -187,6 +188,7 @@ def validate_map(payload: dict[str, Any]) -> dict[str, Any]:
     if set(payload) != {
         "schema_version",
         "planner_id",
+        "command_contracts",
         "command_ids",
         "tier_command_ids",
         "rules",
@@ -204,6 +206,33 @@ def validate_map(payload: dict[str, Any]) -> dict[str, Any]:
     ):
         raise MapValidationError("COMMAND_ID_SET_INVALID")
     command_set = set(command_ids)
+    command_contracts = payload["command_contracts"]
+    if (
+        not isinstance(command_contracts, dict)
+        or set(command_contracts) != command_set
+    ):
+        raise MapValidationError("COMMAND_CONTRACT_SET_INVALID")
+    for command_id, contract in command_contracts.items():
+        if (
+            not isinstance(contract, dict)
+            or set(contract) != {"kind", "argv"}
+            or contract["kind"]
+            not in {"command", "parameterized_command", "manual_review"}
+            or not isinstance(contract["argv"], list)
+            or not contract["argv"]
+            or len(contract["argv"]) > 32
+            or any(
+                not isinstance(argument, str)
+                or not argument
+                or not argument.isascii()
+                or len(argument.encode("utf-8")) > 260
+                or any(character in argument for character in ("\x00", "\r", "\n"))
+                for argument in contract["argv"]
+            )
+        ):
+            raise MapValidationError(
+                f"COMMAND_CONTRACT_INVALID:{command_id}"
+            )
 
     tier_commands = payload["tier_command_ids"]
     if not isinstance(tier_commands, dict) or set(tier_commands) != set(TIERS):
@@ -358,6 +387,14 @@ def build_plan(repo_root: Path, changed_paths: list[str], impact_map: dict[str, 
     result["minimum_tier"] = minimum_tier
     result["matched_rule_ids"] = sorted(matched_rule_ids)
     result["required_command_ids"] = sorted(required_commands)
+    result["required_command_contracts"] = [
+        {
+            "command_id": command_id,
+            "kind": impact_map["command_contracts"][command_id]["kind"],
+            "argv": list(impact_map["command_contracts"][command_id]["argv"]),
+        }
+        for command_id in result["required_command_ids"]
+    ]
     result["not_required_command_ids"] = sorted(
         set(impact_map["command_ids"]) - required_commands
     )

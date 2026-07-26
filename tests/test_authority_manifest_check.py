@@ -29,7 +29,12 @@ def materialize_manifest_repo(tmp_path: Path, payload: dict[str, object]) -> Pat
     for relative in classifications:
         path = repo / relative
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text("fixture\n", encoding="utf-8", newline="\n")
+        content = (
+            f"# STATUS.md\n\n## Current State\n\n`{payload['current_state']}`\n"
+            if relative == "STATUS.md"
+            else "fixture\n"
+        )
+        path.write_text(content, encoding="utf-8", newline="\n")
     manifest = repo / checker.MANIFEST_PATH
     manifest.write_text(
         json.dumps(payload, indent=2, sort_keys=True) + "\n",
@@ -53,6 +58,8 @@ def test_current_tree_manifest_passes_with_exact_required_doc_coverage() -> None
     assert result["current_state"] == "AGENT_QUALITY_BASELINE_NOT_ESTABLISHED"
     assert result["manifest_summary"]["required_doc_count"] == len(BASELINE_REQUIRED_DOCS) == 76
     assert result["manifest_summary"]["classified_required_doc_count"] == 76
+    assert result["manifest_summary"]["default_read_order_count"] == 6
+    assert result["manifest_summary"]["conditional_read_order_count"] == 4
     assert result["performed_actions"] == []
 
 
@@ -86,12 +93,32 @@ def test_default_read_order_is_exact_ordered_current_authority_subset() -> None:
     assert set(payload["default_read_order"]).issubset(set(payload["current_authority"]))
     assert "ACCEPTANCE_TRACE.md" not in payload["default_read_order"]
     assert "docs/PROFILE_MATRIX.md" not in payload["default_read_order"]
+    assert payload["conditional_read_order"] == checker.EXPECTED_CONDITIONAL_READ_ORDER
+    assert (
+        payload["unlisted_document_policy"]
+        == "non_authoritative_reference_only"
+    )
 
     changed = copy.deepcopy(payload)
     changed["default_read_order"] = list(reversed(changed["default_read_order"]))
     result = checker.validate_manifest(changed, repo_root=REPO_ROOT)
     assert result["status"] == "FAIL"
     assert "DEFAULT_READ_ORDER_INVALID" in result["reason_codes"]
+
+
+def test_status_current_state_must_match_manifest(tmp_path: Path) -> None:
+    payload = load_manifest()
+    repo = materialize_manifest_repo(tmp_path, payload)
+    (repo / "STATUS.md").write_text(
+        "# STATUS.md\n\n## Current State\n\n`READY_FOR_GREENFIELD_INITIALIZATION`\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+
+    result = checker.inspect_manifest(repo_root=repo)
+
+    assert result["status"] == "FAIL"
+    assert "STATUS_CURRENT_STATE_MISMATCH" in result["reason_codes"]
 
 
 @pytest.mark.parametrize(

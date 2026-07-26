@@ -2,6 +2,11 @@ name: Local Verify
 
 on:
   workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: Exact lowercase commit SHA to verify
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -12,8 +17,29 @@ jobs:
     timeout-minutes: 20
 
     steps:
+      - name: Validate expected SHA
+        shell: pwsh
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: |
+          if ($env:EXPECTED_SHA -cnotmatch '^[0-9a-f]{40}$') {
+            throw 'expected_sha must be a lowercase 40-character commit SHA'
+          }
+
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.expected_sha }}
+
+      - name: Assert checked out SHA
+        shell: pwsh
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: |
+          $actualSha = git rev-parse HEAD
+          if ($actualSha -cne $env:EXPECTED_SHA) {
+            throw 'checked out commit does not match expected_sha'
+          }
 
       - name: Set up Python
         uses: actions/setup-python@v6

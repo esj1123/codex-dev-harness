@@ -638,47 +638,11 @@ For this roadmap task, closeout must confirm:
 
 ## 12. Current sequencing handoff
 
-The harness self-pilot and the first `local-data-quality-cli` greenfield
-application pilot are complete. The application pilot used a shared baseline,
-two disjoint feature lanes, one integration owner, full tests, a synthetic E2E
-matrix, installed-package smoke, and temporary-input cleanup. No remote,
-private data, or post-E2E defect patch was required.
+This roadmap records capability dependencies and historical implementation
+decisions. It does not duplicate the current state or next action.
 
-The current hardening checkpoint adds:
-
-1. work-package schema version `2`;
-2. case-insensitive and parent/child path ownership checks;
-3. Windows trailing-dot and trailing-space rejection;
-4. `contract_basis_sha` and shared `contract_frozen_paths`;
-5. `CONTRACT_CHANGE_REQUIRED` stop/reopen behavior;
-6. `authorization_status=NOT_AUTHENTICATED` on structural results;
-7. a fail-closed docs gate with runtime manifest loading; and
-8. explicit V2 core versus impact-required extras.
-
-Actual packages remain ignored `local/work-packages/` inputs. They do not
-authenticate approval, and PASS does not grant execution or side-effect
-permission. Feature and contract lanes remain one-commit units; current
-authority, gates, artifacts, workflows, golden fixtures, and corpus source-set
-changes remain integration-owner work.
-
-The Agent Quality Stability layer now provides standalone manual run
-validation, deterministic fingerprints, aggregate comparison, semantic
-surface review, and failure-lifecycle controls. Its first fixed-configuration
-suite completed all 19 trials. Critical tasks passed, but one normal numeric
-parser trial failed the owner-held valid Decimal holdout. The adoption gate
-therefore returned `HOLD`, and no tracked baseline artifact was created.
-
-The current state is `AGENT_QUALITY_BASELINE_NOT_ESTABLISHED`. The next
-sequence is:
-
-1. sanitize and reproduce the observed parser failure;
-2. obtain human review before regression promotion;
-3. keep the failure and safe run envelopes ignored until promotion criteria
-   are met;
-4. rerun a complete 19-trial suite if any fingerprint-defining input changes;
-5. create a tracked baseline only after every adoption threshold passes.
-
-Release evidence regeneration remains `HOLD`. This sequence does not authorize
-release publication, signing, tag movement, artifact upload, workflow
-expansion, audit automation, MCP or Hermes runtime expansion, a new downstream
-target, deployment, or live behavior.
+Use `STATUS.md` for the current human summary and sequencing. Use
+`docs/AUTHORITY_MANIFEST.json` for the machine-readable state and authority
+classification. Any capability selected from this roadmap still requires an
+owner-approved task contract, verification impact plan, and separate approval
+for remote or live side effects.

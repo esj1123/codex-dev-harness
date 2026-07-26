@@ -82,6 +82,9 @@ def test_empty_diff_returns_v0_advisory_plan(tmp_path: Path) -> None:
     assert result["required_command_ids"] == sorted(
         ["work_package_preflight", "base_sha_check", "allowed_file_review", "git_diff_check"]
     )
+    assert [item["command_id"] for item in result["required_command_contracts"]] == (
+        result["required_command_ids"]
+    )
 
 
 def test_document_change_returns_v1(tmp_path: Path) -> None:
@@ -140,6 +143,7 @@ def test_authority_change_requires_integration_owner(tmp_path: Path) -> None:
         "scripts/agent_quality.py",
         "artifacts/agent-quality-baseline.json",
         "evals/agentic/suites/agentic-regression-v1.json",
+        "prompts/task_contract/agent_quality_trial.md",
     ],
 )
 def test_agent_quality_surface_requires_manual_static_check(
@@ -154,6 +158,24 @@ def test_agent_quality_surface_requires_manual_static_check(
     assert result["minimum_tier"] == "V2"
     assert result["integration_owner_required"] is True
     assert "agent_quality_static_check" in result["required_command_ids"]
+    static_contract = next(
+        contract
+        for contract in result["required_command_contracts"]
+        if contract["command_id"] == "agent_quality_static_check"
+    )
+    assert static_contract["kind"] == "command"
+    assert static_contract["argv"] == [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_agent_quality_contracts.py",
+        "tests/test_agent_quality_trial_validation.py",
+        "tests/test_agent_quality_aggregation.py",
+        "tests/test_agent_quality_semantic_failure.py",
+        "tests/test_agent_quality_cli.py",
+        "tests/test_json_evidence_gate.py",
+        "-q",
+    ]
 
 
 def test_corpus_source_change_requires_digest_check(tmp_path: Path) -> None:
@@ -270,6 +292,11 @@ def test_map_and_runtime_are_bounded_read_only_contracts() -> None:
     assert payload["schema_version"] == "1"
     assert payload["planner_id"] == "verification_plan"
     assert set(payload["tier_command_ids"]) == {"V0", "V1", "V2"}
+    assert set(payload["command_contracts"]) == set(payload["command_ids"])
+    assert all(
+        set(contract) == {"kind", "argv"}
+        for contract in payload["command_contracts"].values()
+    )
     assert MAP_PATH.read_bytes().endswith(b"\n")
     assert "shell=False" in source
     assert "timeout=GIT_TIMEOUT_SECONDS" in source

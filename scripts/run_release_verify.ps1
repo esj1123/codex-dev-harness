@@ -155,7 +155,6 @@ Invoke-PowerShellStep "local verification wrapper" (Join-Path $RepoRoot "scripts
 
 $PythonCommand = Find-Python
 
-Invoke-OptionalPythonScript "optional eval" (Join-Path $RepoRoot "scripts/run_eval.py") @("scripts/run_eval.py")
 Invoke-PythonStep "release manifest generation" @("scripts/generate_manifest.py", "--output", $ManifestPath)
 Invoke-PythonStep "checksum generation" @("scripts/generate_checksums.py", "--manifest", $ManifestPath, "--output", $ChecksumsPath, "--allow-missing")
 Invoke-OptionalPythonScript "optional SBOM generation" (Join-Path $RepoRoot "scripts/generate_sbom.py") @("scripts/generate_sbom.py", "--manifest", $ManifestPath, "--spdx", $SpdxPath, "--cyclonedx", $CycloneDxPath)

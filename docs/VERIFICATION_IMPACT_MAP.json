@@ -1,4 +1,114 @@
 {
+  "command_contracts": {
+    "agent_quality_static_check": {
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_agent_quality_contracts.py",
+        "tests/test_agent_quality_trial_validation.py",
+        "tests/test_agent_quality_aggregation.py",
+        "tests/test_agent_quality_semantic_failure.py",
+        "tests/test_agent_quality_cli.py",
+        "tests/test_json_evidence_gate.py",
+        "-q"
+      ],
+      "kind": "command"
+    },
+    "allowed_file_review": {
+      "argv": [
+        "<REVIEW_ALLOWED_FILE_SCOPE>"
+      ],
+      "kind": "manual_review"
+    },
+    "base_sha_check": {
+      "argv": [
+        "<CONFIRM_BASE_SHA>"
+      ],
+      "kind": "manual_review"
+    },
+    "checksum_verify": {
+      "argv": [
+        "python",
+        "scripts/generate_checksums.py",
+        "--verify"
+      ],
+      "kind": "command"
+    },
+    "corpus_digest_check": {
+      "argv": [
+        "python",
+        "scripts/generate_corpus_digest.py",
+        "--check",
+        "--json"
+      ],
+      "kind": "command"
+    },
+    "focused_pytest": {
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "<FOCUSED_TEST_PATHS>",
+        "-q"
+      ],
+      "kind": "parameterized_command"
+    },
+    "full_pytest": {
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "tests",
+        "-q"
+      ],
+      "kind": "command"
+    },
+    "git_diff_check": {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "kind": "command"
+    },
+    "quality_gate": {
+      "argv": [
+        "python",
+        "scripts/quality_gate.py"
+      ],
+      "kind": "command"
+    },
+    "render_dry_runs": {
+      "argv": [
+        "python",
+        "scripts/render_template.py",
+        "--config",
+        "<PROFILE_CONFIG>",
+        "--target",
+        "<PROFILE_TARGET>",
+        "--dry-run"
+      ],
+      "kind": "parameterized_command"
+    },
+    "standalone_eval": {
+      "argv": [
+        "python",
+        "scripts/run_eval.py"
+      ],
+      "kind": "command"
+    },
+    "work_package_preflight": {
+      "argv": [
+        "python",
+        "scripts/work_package_conflict_check.py",
+        "--package",
+        "<PACKAGE_JSON>",
+        "--json"
+      ],
+      "kind": "parameterized_command"
+    }
+  },
   "command_ids": [
     "work_package_preflight",
     "base_sha_check",
@@ -65,7 +175,8 @@
       "minimum_tier": "V2",
       "patterns": [
         "scripts/agent_quality.py",
-        "artifacts/agent-quality-baseline.json"
+        "artifacts/agent-quality-baseline.json",
+        "prompts/task_contract/agent_quality_trial.md"
       ],
       "render_check_required": false,
       "rule_id": "agent_quality_control_surface"

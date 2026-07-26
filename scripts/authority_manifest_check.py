@@ -27,10 +27,12 @@ EXPECTED_KEYS = {
     "schema_version",
     "manifest_id",
     "current_state",
+    "conditional_read_order",
     "default_read_order",
     *CLASSIFICATION_KEYS,
     "integration_only_exact",
     "integration_only_prefixes",
+    "unlisted_document_policy",
 }
 ALLOWED_CURRENT_STATES = {
     "PRE_LARGE_INTEGRATION_SELF_PILOT",
@@ -44,11 +46,13 @@ EXPECTED_DEFAULT_READ_ORDER = [
     "PRODUCT.md",
     "MVP.md",
     "STATUS.md",
-    "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md",
     "docs/SAFETY_POLICY.md",
-    "docs/VERIFICATION.md",
-    "docs/AI_HANDOFF.md",
 ]
+EXPECTED_CONDITIONAL_READ_ORDER = {
+    "capability_selection": ["docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md"],
+    "handoff": ["docs/AI_HANDOFF.md"],
+    "verification": ["docs/VERIFICATION.md", "docs/CI_POLICY.md"],
+}
 EXPECTED_INTEGRATION_ONLY_EXACT = {
     "AGENTS.md",
     "README.md",
@@ -85,6 +89,7 @@ def base_result() -> dict[str, Any]:
             "durable_policy_count": 0,
             "historical_evidence_count": 0,
             "default_read_order_count": 0,
+            "conditional_read_order_count": 0,
             "integration_only_exact_count": 0,
             "integration_only_prefix_count": 0,
         },
@@ -132,6 +137,8 @@ def validate_manifest(payload: Any, *, repo_root: Path) -> dict[str, Any]:
         issues.add("SCHEMA_VERSION_INVALID")
     if payload["manifest_id"] != MANIFEST_ID:
         issues.add("MANIFEST_ID_INVALID")
+    if payload["unlisted_document_policy"] != "non_authoritative_reference_only":
+        issues.add("UNLISTED_DOCUMENT_POLICY_INVALID")
     if payload["current_state"] not in ALLOWED_CURRENT_STATES:
         issues.add("CURRENT_STATE_INVALID")
     else:
@@ -149,10 +156,24 @@ def validate_manifest(payload: Any, *, repo_root: Path) -> dict[str, Any]:
         return result
 
     classifications = {key: list(payload[key]) for key in CLASSIFICATION_KEYS}
+    conditional_read_order = payload["conditional_read_order"]
+    if (
+        not isinstance(conditional_read_order, dict)
+        or set(conditional_read_order) != set(EXPECTED_CONDITIONAL_READ_ORDER)
+        or any(
+            not unique_string_list(value)
+            for value in conditional_read_order.values()
+        )
+    ):
+        result["reason_codes"] = ["CONDITIONAL_READ_ORDER_INVALID"]
+        return result
     summary = result["manifest_summary"]
     for key in CLASSIFICATION_KEYS:
         summary[f"{key}_count"] = len(classifications[key])
     summary["default_read_order_count"] = len(payload["default_read_order"])
+    summary["conditional_read_order_count"] = sum(
+        len(paths) for paths in conditional_read_order.values()
+    )
     summary["integration_only_exact_count"] = len(payload["integration_only_exact"])
     summary["integration_only_prefix_count"] = len(payload["integration_only_prefixes"])
 
@@ -181,6 +202,16 @@ def validate_manifest(payload: Any, *, repo_root: Path) -> dict[str, Any]:
         issues.add("DEFAULT_READ_ORDER_OUTSIDE_CURRENT_AUTHORITY")
     if "ACCEPTANCE_TRACE.md" in read_order or "docs/PROFILE_MATRIX.md" in read_order:
         issues.add("HISTORICAL_OR_MATRIX_IN_DEFAULT_READ_ORDER")
+    if conditional_read_order != EXPECTED_CONDITIONAL_READ_ORDER:
+        issues.add("CONDITIONAL_READ_ORDER_INVALID")
+    conditional_paths = [
+        path for paths in conditional_read_order.values() for path in paths
+    ]
+    if (
+        any(not safe_repo_path(path) for path in conditional_paths)
+        or not set(conditional_paths).issubset(set(declared_paths))
+    ):
+        issues.add("CONDITIONAL_READ_ORDER_OUTSIDE_AUTHORITY")
 
     integration_exact = payload["integration_only_exact"]
     integration_prefixes = payload["integration_only_prefixes"]
@@ -200,6 +231,21 @@ def validate_manifest(payload: Any, *, repo_root: Path) -> dict[str, Any]:
         if safe_repo_path(path)
     ):
         issues.add("DECLARED_FILE_MISSING_OR_NOT_REGULAR")
+
+    status_path = repo_root / "STATUS.md"
+    try:
+        status_text = status_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError):
+        issues.add("STATUS_CURRENT_STATE_UNREADABLE")
+    else:
+        match = re.search(
+            r"(?ms)^## Current State\s*$\s*^`([A-Z][A-Z0-9_]*)`\s*$",
+            status_text,
+        )
+        if match is None:
+            issues.add("STATUS_CURRENT_STATE_MISSING")
+        elif match.group(1) != payload["current_state"]:
+            issues.add("STATUS_CURRENT_STATE_MISMATCH")
 
     result["reason_codes"] = sorted(issues)
     if not issues:

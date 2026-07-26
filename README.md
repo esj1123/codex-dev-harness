@@ -53,10 +53,15 @@ Those items are no longer described as current absence. Render script, quality g
 3. PRODUCT.md
 4. MVP.md
 5. STATUS.md
-6. docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md
-7. docs/SAFETY_POLICY.md
-8. docs/VERIFICATION.md
-9. docs/AI_HANDOFF.md
+6. docs/SAFETY_POLICY.md
+
+Load the manifest's conditional groups only when needed:
+
+- verification: `docs/VERIFICATION.md`, `docs/CI_POLICY.md`
+- capability selection: `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`
+- handoff: `docs/AI_HANDOFF.md`
+
+Documents not listed by the manifest are non-authoritative reference material.
 
 ## Repository Structure
 
@@ -106,8 +111,8 @@ Use the quality gate and dry-run renderer before treating the template as health
 - `python scripts/render_template.py --config examples/csharp_desktop_minimal/template.config.yml --target examples/csharp_desktop_minimal --dry-run`
 - `python scripts/render_template.py --config examples/plc_tool_minimal/template.config.yml --target examples/plc_tool_minimal --dry-run`
 
-The release verification wrapper is local-only. It runs local verification,
-standalone evals when present, and local release evidence generation under
+The release verification wrapper is local-only. Its local verification step
+already includes standalone evals before it generates release evidence under
 `artifacts/`; it does not publish releases, move tags, sign artifacts, create
 archives, or install CI workflows.
 
@@ -119,7 +124,8 @@ Python runtime and dependency reproducibility are documented in
 
 CI policy is documented in `docs/CI_POLICY.md`. The repository includes the
 manual read-only `.github/workflows/local-verify.yml` workflow. It uses
-`workflow_dispatch` with `contents: read` and does not upload artifacts.
+`workflow_dispatch` with a required exact commit SHA, `contents: read`, and no
+artifact upload.
 
 ## Local-First Usage
 
