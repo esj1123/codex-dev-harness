@@ -205,7 +205,9 @@ def _unsafe_text(value: str) -> bool:
     )
 
 
-def _safe_repo_path(value: Any) -> bool:
+def safe_repo_path(value: Any) -> bool:
+    """Return whether a value is a Windows-safe repository-relative path."""
+
     if (
         not isinstance(value, str)
         or not value
@@ -385,7 +387,7 @@ def _run_issues(payload: Any) -> list[str]:
     _validate_metrics(payload["metrics"], issues)
 
     if not _safe_unique_list(
-        payload["evidence_refs"], limit=MAX_LIST_ITEMS, validator=_safe_repo_path
+        payload["evidence_refs"], limit=MAX_LIST_ITEMS, validator=safe_repo_path
     ):
         issues.append("EVIDENCE_REFS_INVALID")
     if not _safe_unique_list(

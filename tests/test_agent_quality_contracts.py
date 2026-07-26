@@ -66,13 +66,30 @@ def test_agentic_schemas_are_strict_and_safe() -> None:
         "grader_version",
     } <= run_required
     baseline_required = set(schemas["agent-quality-baseline.schema.json"]["required"])
-    assert "suite_manifest_hash" in baseline_required
+    assert {"suite_manifest_hash", "run_evidence_manifest"} <= baseline_required
+    manifest = schemas["agent-quality-baseline.schema.json"]["properties"][
+        "run_evidence_manifest"
+    ]
+    assert manifest["minItems"] == manifest["maxItems"] == 19
+    assert set(manifest["items"]["required"]) == {
+        "run_id",
+        "task_id",
+        "trial_id",
+        "criticality",
+        "run_hash",
+        "run_fingerprint_id",
+        "strict_pass",
+        "holdout_status",
+    }
     for schema_name in ("agent-run.schema.json", "agent-quality-baseline.schema.json"):
         pattern = schemas[schema_name]["properties"]["evidence_refs"]["items"]["pattern"]
         assert "(?!/)" in pattern
         assert "\\.\\." in pattern
     failure = schemas["failure-case.schema.json"]
     assert failure["properties"]["affected_configuration_hashes"]["minItems"] == 1
+    assert failure["properties"]["minimal_synthetic_fixture_ref"]["pattern"].startswith(
+        "^evals/agentic/fixtures/"
+    )
     assert len(failure["allOf"]) == 3
 
 

@@ -15,6 +15,11 @@ def write_agent_quality_bundle(root: Path) -> None:
     for relative in json_evidence_gate.AGENT_QUALITY_SCHEMA_PATHS:
         source = Path(relative)
         write(root / relative, source.read_text(encoding="utf-8"))
+    suite_source = Path(json_evidence_gate.AGENT_QUALITY_SUITE_PATH)
+    write(
+        root / json_evidence_gate.AGENT_QUALITY_SUITE_PATH,
+        suite_source.read_text(encoding="utf-8"),
+    )
 
 
 def policy_text() -> str:

@@ -108,20 +108,32 @@ def _validate_run_command(path: str) -> dict[str, Any]:
 
 
 def _aggregate_command(suite_path: str, runs_dir: str) -> dict[str, Any]:
+    suite, runs = _load_suite_and_runs(suite_path, runs_dir)
+    return aggregate_runs(suite, runs)
+
+
+def _load_suite_and_runs(
+    suite_path: str, runs_dir: str
+) -> tuple[dict[str, Any], list[Any]]:
     suite = _load_allowed_json(suite_path)
+    if not isinstance(suite, dict):
+        raise AgentQualityValidationError(("SUITE_INPUT_INVALID",))
     directory = _resolve_allowed_input(runs_dir, directory=True)
     run_paths = sorted(directory.glob("*.json"), key=lambda path: path.name)
     if not run_paths or len(run_paths) > MAX_RUN_FILES:
         raise AgentQualityValidationError(("RUN_FILE_COUNT_INVALID",))
     if any(path.is_symlink() or not path.is_file() for path in run_paths):
         raise AgentQualityValidationError(("RUN_FILE_INVALID",))
-    return aggregate_runs(suite, [load_json_file(path) for path in run_paths])
+    return suite, [load_json_file(path) for path in run_paths]
 
 
-def _compare_command(baseline_path: str, candidate_path: str) -> dict[str, Any]:
+def _compare_command(
+    baseline_path: str, suite_path: str, runs_dir: str
+) -> dict[str, Any]:
     baseline = _load_allowed_json(baseline_path)
-    candidate = _load_allowed_json(candidate_path)
-    return compare_baseline(baseline, candidate)
+    suite, runs = _load_suite_and_runs(suite_path, runs_dir)
+    candidate = aggregate_runs(suite, runs)
+    return compare_baseline(baseline, candidate, suite=suite)
 
 
 def _validate_failure_command(path: str, next_state: str | None) -> dict[str, Any]:
@@ -132,23 +144,24 @@ def _validate_failure_command(path: str, next_state: str | None) -> dict[str, An
 
 
 def _write_baseline_command(
-    aggregate_path: str,
+    suite_path: str,
+    runs_dir: str,
     output_path: str,
     approval_ref: str,
     created_at: str,
 ) -> dict[str, Any]:
-    aggregate = _load_allowed_json(aggregate_path)
     output = Path(output_path).resolve(strict=False)
     if output != BASELINE_PATH.resolve(strict=False):
         raise AgentQualityValidationError(("BASELINE_OUTPUT_PATH_INVALID",))
     if output.exists():
         raise AgentQualityValidationError(("BASELINE_OVERWRITE_FORBIDDEN",))
-    source_basis = aggregate.get("source_basis")
-    if not isinstance(source_basis, dict):
-        raise AgentQualityValidationError(("BASELINE_SOURCE_BASIS_MISSING",))
+    suite, runs = _load_suite_and_runs(suite_path, runs_dir)
+    aggregate = aggregate_runs(suite, runs)
+    if aggregate["status"] != "PASS":
+        raise AgentQualityValidationError(("BASELINE_ADOPTION_INELIGIBLE",))
     baseline = build_baseline(
         aggregate,
-        source_basis=source_basis,
+        suite=suite,
         approval_ref=approval_ref,
         created_at=created_at,
     )
@@ -204,7 +217,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     compare_parser = subparsers.add_parser("compare")
     compare_parser.add_argument("--baseline", required=True)
-    compare_parser.add_argument("--candidate", required=True)
+    compare_parser.add_argument("--suite", required=True)
+    compare_parser.add_argument("--runs-dir", required=True)
     compare_parser.add_argument("--json", action="store_true")
 
     failure_parser = subparsers.add_parser("validate-failure")
@@ -213,7 +227,8 @@ def build_parser() -> argparse.ArgumentParser:
     failure_parser.add_argument("--json", action="store_true")
 
     baseline_parser = subparsers.add_parser("write-baseline")
-    baseline_parser.add_argument("--aggregate", required=True)
+    baseline_parser.add_argument("--suite", required=True)
+    baseline_parser.add_argument("--runs-dir", required=True)
     baseline_parser.add_argument("--output", required=True)
     baseline_parser.add_argument("--approval-ref", required=True)
     baseline_parser.add_argument("--created-at", required=True)
@@ -230,12 +245,13 @@ def main(argv: list[str] | None = None) -> int:
         elif command == "aggregate":
             result = _aggregate_command(args.suite, args.runs_dir)
         elif command == "compare":
-            result = _compare_command(args.baseline, args.candidate)
+            result = _compare_command(args.baseline, args.suite, args.runs_dir)
         elif command == "validate-failure":
             result = _validate_failure_command(args.case, args.next_state)
         else:
             result = _write_baseline_command(
-                args.aggregate,
+                args.suite,
+                args.runs_dir,
                 args.output,
                 args.approval_ref,
                 args.created_at,

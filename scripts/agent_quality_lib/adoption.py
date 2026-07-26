@@ -6,7 +6,7 @@ import re
 from typing import Any
 
 from scripts.agent_quality_lib.aggregation import validate_aggregate_record
-from scripts.agent_quality_lib.contracts import sha256_json
+from scripts.agent_quality_lib.contracts import safe_repo_path, sha256_json
 
 
 _SAFE_IDENTIFIER = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,159}$")
@@ -46,6 +46,7 @@ _BASELINE_KEYS = {
     "task_count",
     "run_count",
     "metrics",
+    "run_evidence_manifest",
     "run_manifest_hash",
     "evidence_refs",
     "approval_ref",
@@ -54,12 +55,6 @@ _BASELINE_KEYS = {
     "performed_actions",
 }
 _HASH = re.compile(r"^[0-9a-f]{64}$")
-_SAFE_REF = re.compile(
-    r"^(?!/)(?!.*(?:^|/)\.(?:/|$))(?!.*(?:^|/)\.\.(?:/|$))"
-    r"(?!.*(?:^|/)[^/]*\.(?:/|$))[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"
-)
-
-
 def _metrics(record: Mapping[str, Any]) -> Mapping[str, int | float]:
     metrics = record.get("metrics")
     if not isinstance(metrics, Mapping):
@@ -104,9 +99,11 @@ def _validate_source_basis(source_basis: Mapping[str, Any]) -> dict[str, str]:
     return normalized
 
 
-def _baseline_ready(aggregate: Mapping[str, Any]) -> bool:
+def _baseline_ready(
+    aggregate: Mapping[str, Any], suite: Mapping[str, Any]
+) -> bool:
     try:
-        aggregate = validate_aggregate_record(aggregate)
+        aggregate = validate_aggregate_record(aggregate, suite=suite)
     except ValueError:
         return False
     metrics = _metrics(aggregate)
@@ -121,7 +118,9 @@ def _baseline_ready(aggregate: Mapping[str, Any]) -> bool:
     )
 
 
-def validate_baseline_record(record: Mapping[str, Any]) -> dict[str, Any]:
+def validate_baseline_record(
+    record: Mapping[str, Any], suite: Mapping[str, Any] | None = None
+) -> dict[str, Any]:
     """Validate one complete tracked baseline artifact."""
 
     if not isinstance(record, Mapping) or set(record) != _BASELINE_KEYS:
@@ -162,7 +161,7 @@ def validate_baseline_record(record: Mapping[str, Any]) -> dict[str, Any]:
         not isinstance(refs, list)
         or len(refs) > 20
         or len(refs) != len(set(refs))
-        or any(not isinstance(ref, str) or not _SAFE_REF.fullmatch(ref) for ref in refs)
+        or any(not safe_repo_path(ref) for ref in refs)
     ):
         raise ValueError("baseline evidence_refs are invalid")
     if not isinstance(record.get("created_at"), str) or not _valid_created_at(
@@ -173,6 +172,25 @@ def validate_baseline_record(record: Mapping[str, Any]) -> dict[str, Any]:
         raise ValueError("baseline release_artifact must be false")
     if record.get("performed_actions") != ["local_write"]:
         raise ValueError("baseline performed_actions are invalid")
+    validate_aggregate_record(
+        {
+            "schema_version": record["schema_version"],
+            "status": "PASS",
+            "reason_codes": [],
+            "suite_id": record["suite_id"],
+            "suite_manifest_hash": record["suite_manifest_hash"],
+            "configuration_id": record["configuration_id"],
+            "comparability": "FULL",
+            "source_basis": record["source_basis"],
+            "task_count": record["task_count"],
+            "run_count": record["run_count"],
+            "metrics": record["metrics"],
+            "run_evidence_manifest": record["run_evidence_manifest"],
+            "run_manifest_hash": record["run_manifest_hash"],
+            "performed_actions": [],
+        },
+        suite=suite,
+    )
     expected_id = "agent-quality-" + sha256_json(
         {
             "configuration_id": record["configuration_id"],
@@ -190,14 +208,14 @@ def validate_baseline_record(record: Mapping[str, Any]) -> dict[str, Any]:
 def build_baseline(
     aggregate: Mapping[str, Any],
     *,
-    source_basis: Mapping[str, Any],
+    suite: Mapping[str, Any],
     approval_ref: str,
     created_at: str,
     evidence_refs: Sequence[str] = (),
 ) -> dict[str, Any]:
     """Build a schema-shaped baseline record without writing it to disk."""
 
-    if not isinstance(aggregate, Mapping) or not _baseline_ready(aggregate):
+    if not isinstance(aggregate, Mapping) or not _baseline_ready(aggregate, suite):
         raise ValueError("aggregate is not eligible for baseline adoption")
     if not isinstance(approval_ref, str) or not _SAFE_IDENTIFIER.fullmatch(
         approval_ref
@@ -215,15 +233,12 @@ def build_baseline(
     for ref in evidence_refs:
         if (
             not isinstance(ref, str)
-            or len(ref) > 260
-            or not re.fullmatch(r"[A-Za-z0-9._/-]+", ref)
-            or ref.startswith("/")
-            or ".." in ref.split("/")
+            or not safe_repo_path(ref)
         ):
             raise ValueError("evidence_refs must be safe repo-relative paths")
         safe_refs.append(ref)
 
-    normalized_source = _validate_source_basis(source_basis)
+    normalized_source = _validate_source_basis(aggregate["source_basis"])
     baseline_id = "agent-quality-" + sha256_json(
         {
             "configuration_id": aggregate["configuration_id"],
@@ -245,6 +260,9 @@ def build_baseline(
         "task_count": aggregate["task_count"],
         "run_count": aggregate["run_count"],
         "metrics": dict(_metrics(aggregate)),
+        "run_evidence_manifest": [
+            dict(entry) for entry in aggregate["run_evidence_manifest"]
+        ],
         "run_manifest_hash": aggregate["run_manifest_hash"],
         "evidence_refs": safe_refs,
         "approval_ref": approval_ref,
@@ -252,7 +270,7 @@ def build_baseline(
         "release_artifact": False,
         "performed_actions": ["local_write"],
     }
-    return validate_baseline_record(baseline)
+    return validate_baseline_record(baseline, suite=suite)
 
 
 def _has_operational_measurements(candidate: Mapping[str, Any]) -> bool:
@@ -265,51 +283,70 @@ def _has_operational_measurements(candidate: Mapping[str, Any]) -> bool:
 
 
 def compare_baseline(
-    baseline: Mapping[str, Any], candidate: Mapping[str, Any]
+    baseline: Mapping[str, Any],
+    candidate: Mapping[str, Any],
+    *,
+    suite: Mapping[str, Any],
 ) -> dict[str, Any]:
     """Compare quality only; supplied duration or cost requires owner review."""
 
     if not isinstance(baseline, Mapping) or not isinstance(candidate, Mapping):
         raise ValueError("baseline and candidate must be objects")
     baseline = validate_baseline_record(baseline)
-    candidate = validate_aggregate_record(candidate, allow_operational=True)
+    candidate = validate_aggregate_record(
+        candidate, suite=suite, allow_operational=True
+    )
     baseline_metrics = _metrics(baseline)
     candidate_metrics = _metrics(candidate)
 
+    suite_manifest_mismatch = baseline["suite_manifest_hash"] != candidate[
+        "suite_manifest_hash"
+    ]
+    structural_mismatches = [
+        f"{field.upper()}_MISMATCH"
+        for field in ("suite_id", "task_count", "run_count")
+        if baseline.get(field) != candidate.get(field)
+    ]
+    comparability_reasons = []
+    if suite_manifest_mismatch:
+        comparability_reasons.append("SUITE_MANIFEST_MISMATCH")
+    comparability_reasons.extend(structural_mismatches)
+    if candidate["comparability"] != "FULL":
+        comparability_reasons.append("CONFIGURATION_COMPARABILITY_NOT_FULL")
+
+    owner_decision_required = _has_operational_measurements(candidate)
+    if owner_decision_required:
+        comparability_reasons.append("OWNER_DECISION_REQUIRED")
+    if comparability_reasons:
+        return {
+            "schema_version": "1",
+            "status": "HOLD",
+            "decision": "HOLD",
+            "reason_codes": comparability_reasons,
+            "baseline_configuration_id": baseline.get("configuration_id"),
+            "candidate_configuration_id": candidate.get("configuration_id"),
+            "regression_metric_ids": [],
+            "owner_decision_required": owner_decision_required,
+            "performed_actions": [],
+        }
+
     reasons: list[str] = []
     regressions: list[str] = []
-    reject = False
-
-    for field in ("suite_id", "task_count", "run_count"):
-        if baseline.get(field) != candidate.get(field):
-            reasons.append(f"{field.upper()}_MISMATCH")
-            reject = True
-
-    suite_manifest_mismatch = (
-        baseline["suite_manifest_hash"] != candidate["suite_manifest_hash"]
-    )
-    if suite_manifest_mismatch:
-        reasons.append("SUITE_MANIFEST_MISMATCH")
-    if candidate["comparability"] != "FULL":
-        reasons.append("CONFIGURATION_COMPARABILITY_NOT_FULL")
 
     for field in _BLOCKER_FIELDS:
         if candidate_metrics[field] != 0:
             reasons.append(f"{field.upper()}_PRESENT")
             regressions.append(field)
-            reject = True
 
     for field in _RATE_FIELDS:
         if candidate_metrics[field] < baseline_metrics[field]:
             reasons.append(f"{field.upper()}_REGRESSED")
             regressions.append(field)
-            reject = True
 
     for field in _REGRESSION_MAX_FIELDS:
         if candidate_metrics[field] > baseline_metrics[field]:
             reasons.append(f"{field.upper()}_REGRESSED")
             regressions.append(field)
-            reject = True
 
     if (
         candidate_metrics["holdout_passed_count"]
@@ -317,21 +354,10 @@ def compare_baseline(
     ):
         reasons.append("HOLDOUT_PASSED_COUNT_REGRESSED")
         regressions.append("holdout_passed_count")
-        reject = True
 
-    owner_decision_required = _has_operational_measurements(candidate)
-    if owner_decision_required:
-        reasons.append("OWNER_DECISION_REQUIRED")
-
-    if reject:
+    if regressions:
         decision = "REJECT"
         status = "REJECT"
-    elif suite_manifest_mismatch or "CONFIGURATION_COMPARABILITY_NOT_FULL" in reasons:
-        decision = "HOLD"
-        status = "HOLD"
-    elif owner_decision_required:
-        decision = "HOLD"
-        status = "HOLD"
     else:
         decision = "ADOPT"
         status = "PASS"

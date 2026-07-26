@@ -212,6 +212,27 @@ def test_failure_case_accepts_exact_safe_shape_without_mutation() -> None:
             "REVIEW_REFS_INVALID",
         ),
         (
+            lambda item: item.update({"review_refs": ["local/reviews/review."]}),
+            "REVIEW_REFS_INVALID",
+        ),
+        (
+            lambda item: item.update({"review_refs": ["local/reviews/review "]}),
+            "REVIEW_REFS_INVALID",
+        ),
+        (
+            lambda item: item.update({"review_refs": ["local/reviews/review?.json"]}),
+            "REVIEW_REFS_INVALID",
+        ),
+        (
+            lambda item: item.update(
+                {
+                    "minimal_synthetic_fixture_ref":
+                        "evals/agentic/fixtures/case./input.json"
+                }
+            ),
+            "MINIMAL_SYNTHETIC_FIXTURE_REF_INVALID",
+        ),
+        (
             lambda item: item.update({"affected_configuration_hashes": ["not-a-hash"]}),
             "AFFECTED_CONFIGURATION_HASHES_INVALID",
         ),

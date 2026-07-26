@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from scripts import agent_quality
-from tests.test_agent_quality_aggregation import make_aggregate, make_baseline
+from tests.test_agent_quality_aggregation import make_baseline, make_runs, make_suite
 from tests.test_agent_quality_trial_validation import valid_run
 
 
@@ -15,6 +15,21 @@ def write_json(path: Path, value: object) -> None:
         encoding="utf-8",
         newline="\n",
     )
+
+
+def write_suite_and_runs(root: Path, *, hold: bool = False) -> tuple[Path, Path]:
+    suite_path = root / "suite.json"
+    runs_dir = root / "runs"
+    write_json(suite_path, make_suite())
+    runs = make_runs()
+    if hold:
+        runs[0]["execution"]["status"] = "FAIL"
+        runs[0]["grading"]["functional_correctness"] = "FAIL"
+        runs[0]["grading"]["blocker_count"] = 1
+        runs[0]["metrics"]["critical_failure_count"] = 1
+    for index, run in enumerate(runs):
+        write_json(runs_dir / f"run-{index:02d}.json", run)
+    return suite_path, runs_dir
 
 
 def test_validate_run_is_deterministic_and_does_not_echo_input(tmp_path: Path, capsys) -> None:
@@ -106,15 +121,14 @@ def test_validate_failure_is_read_only(tmp_path: Path, capsys) -> None:
 def test_write_baseline_refuses_wrong_path_and_existing_artifact(
     tmp_path: Path, capsys, monkeypatch
 ) -> None:
-    aggregate_path = tmp_path / "aggregate.json"
-    write_json(aggregate_path, {"source_basis": {}})
-
     wrong = tmp_path / "wrong.json"
     wrong_exit = agent_quality.main(
         [
             "write-baseline",
-            "--aggregate",
-            str(aggregate_path),
+            "--suite",
+            "not-read.json",
+            "--runs-dir",
+            "not-read",
             "--output",
             str(wrong),
             "--approval-ref",
@@ -131,8 +145,10 @@ def test_write_baseline_refuses_wrong_path_and_existing_artifact(
     existing_exit = agent_quality.main(
         [
             "write-baseline",
-            "--aggregate",
-            str(aggregate_path),
+            "--suite",
+            "not-read.json",
+            "--runs-dir",
+            "not-read",
             "--output",
             str(exact),
             "--approval-ref",
@@ -149,15 +165,12 @@ def test_write_baseline_refuses_wrong_path_and_existing_artifact(
     assert wrong.exists() is False
 
 
-def test_compare_rejects_candidate_without_comparability(
+def test_compare_recomputes_candidate_from_suite_and_runs(
     tmp_path: Path, capsys, monkeypatch
 ) -> None:
     baseline_path = tmp_path / "baseline.json"
-    candidate_path = tmp_path / "candidate.json"
-    candidate = make_aggregate()
-    candidate.pop("comparability")
     write_json(baseline_path, make_baseline())
-    write_json(candidate_path, candidate)
+    suite_path, runs_dir = write_suite_and_runs(tmp_path)
     monkeypatch.setattr(agent_quality, "READ_ROOTS", (tmp_path,))
 
     exit_code = agent_quality.main(
@@ -165,25 +178,24 @@ def test_compare_rejects_candidate_without_comparability(
             "compare",
             "--baseline",
             str(baseline_path),
-            "--candidate",
-            str(candidate_path),
+            "--suite",
+            str(suite_path),
+            "--runs-dir",
+            str(runs_dir),
             "--json",
         ]
     )
     output = json.loads(capsys.readouterr().out)
 
-    assert exit_code == 1
-    assert output["status"] == "FAIL"
-    assert output["reason_codes"] == ["AGENT_QUALITY_INPUT_INVALID"]
+    assert exit_code == 0
+    assert output["status"] == "PASS"
+    assert output["decision"] == "ADOPT"
 
 
-def test_write_baseline_rejects_incomplete_holdout_aggregate(
+def test_write_baseline_rejects_ineligible_recomputed_aggregate(
     tmp_path: Path, capsys, monkeypatch
 ) -> None:
-    aggregate_path = tmp_path / "aggregate.json"
-    aggregate = make_aggregate()
-    aggregate["metrics"]["holdout_passed_count"] = 1
-    write_json(aggregate_path, aggregate)
+    suite_path, runs_dir = write_suite_and_runs(tmp_path, hold=True)
     output_path = tmp_path / "agent-quality-baseline.json"
     monkeypatch.setattr(agent_quality, "READ_ROOTS", (tmp_path,))
     monkeypatch.setattr(agent_quality, "BASELINE_PATH", output_path)
@@ -191,8 +203,10 @@ def test_write_baseline_rejects_incomplete_holdout_aggregate(
     exit_code = agent_quality.main(
         [
             "write-baseline",
-            "--aggregate",
-            str(aggregate_path),
+            "--suite",
+            str(suite_path),
+            "--runs-dir",
+            str(runs_dir),
             "--output",
             str(output_path),
             "--approval-ref",
@@ -205,4 +219,36 @@ def test_write_baseline_rejects_incomplete_holdout_aggregate(
 
     assert exit_code == 1
     assert output["status"] == "FAIL"
+    assert output["reason_codes"] == ["BASELINE_ADOPTION_INELIGIBLE"]
     assert output_path.exists() is False
+
+
+def test_removed_summary_only_cli_flags_are_not_run(capsys) -> None:
+    compare_exit = agent_quality.main(
+        [
+            "compare",
+            "--baseline",
+            "baseline.json",
+            "--candidate",
+            "candidate.json",
+        ]
+    )
+    compare_output = json.loads(capsys.readouterr().out)
+    writer_exit = agent_quality.main(
+        [
+            "write-baseline",
+            "--aggregate",
+            "aggregate.json",
+            "--output",
+            "baseline.json",
+            "--approval-ref",
+            "approval",
+            "--created-at",
+            "2026-07-26T00:00:00Z",
+        ]
+    )
+    writer_output = json.loads(capsys.readouterr().out)
+
+    assert compare_exit == writer_exit == 2
+    assert compare_output["reason_codes"] == ["CLI_USAGE_INVALID"]
+    assert writer_output["reason_codes"] == ["CLI_USAGE_INVALID"]

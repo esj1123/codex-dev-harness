@@ -82,8 +82,19 @@ _AGGREGATE_KEYS = {
     "task_count",
     "run_count",
     "metrics",
+    "run_evidence_manifest",
     "run_manifest_hash",
     "performed_actions",
+}
+_RUN_EVIDENCE_KEYS = {
+    "run_id",
+    "task_id",
+    "trial_id",
+    "criticality",
+    "run_hash",
+    "run_fingerprint_id",
+    "strict_pass",
+    "holdout_status",
 }
 _OPTIONAL_OPERATIONAL_KEYS = {"duration_seconds", "cost_units", "operational_metrics"}
 _EXPECTED_HOLDOUTS_PER_RUN = 1
@@ -211,8 +222,133 @@ def _validated_metrics(value: Any) -> dict[str, int | float]:
     return metrics
 
 
+def _validated_run_evidence_manifest(
+    record: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    value = record.get("run_evidence_manifest")
+    if not isinstance(value, list) or not value:
+        raise ValueError("run evidence manifest must be a non-empty list")
+
+    manifest: list[dict[str, Any]] = []
+    run_ids: set[str] = set()
+    trial_keys: set[tuple[str, str]] = set()
+    for entry in value:
+        if not isinstance(entry, Mapping) or set(entry) != _RUN_EVIDENCE_KEYS:
+            raise ValueError("run evidence manifest entry key set is invalid")
+        for field in ("run_id", "task_id", "trial_id"):
+            if not isinstance(entry.get(field), str) or not _SAFE_ID.fullmatch(
+                entry[field]
+            ):
+                raise ValueError(f"run evidence manifest {field} is invalid")
+        for field in ("run_hash", "run_fingerprint_id"):
+            if not isinstance(entry.get(field), str) or not _HASH.fullmatch(
+                entry[field]
+            ):
+                raise ValueError(f"run evidence manifest {field} is invalid")
+        if entry.get("criticality") not in {"normal", "critical"}:
+            raise ValueError("run evidence manifest criticality is invalid")
+        if not isinstance(entry.get("strict_pass"), bool):
+            raise ValueError("run evidence manifest strict_pass is invalid")
+        if entry.get("holdout_status") not in {"PASS", "FAIL"}:
+            raise ValueError("run evidence manifest holdout_status is invalid")
+
+        run_id = entry["run_id"]
+        trial_key = (entry["task_id"], entry["trial_id"])
+        if run_id in run_ids:
+            raise ValueError("run evidence manifest has duplicate run_id")
+        if trial_key in trial_keys:
+            raise ValueError("run evidence manifest has duplicate task/trial")
+        run_ids.add(run_id)
+        trial_keys.add(trial_key)
+        manifest.append(dict(entry))
+
+    expected_order = sorted(
+        manifest,
+        key=lambda item: (item["task_id"], item["trial_id"], item["run_id"]),
+    )
+    if manifest != expected_order:
+        raise ValueError("run evidence manifest ordering is invalid")
+    if len(manifest) != record.get("run_count"):
+        raise ValueError("run evidence manifest count is invalid")
+    if sha256_json(manifest) != record.get("run_manifest_hash"):
+        raise ValueError("run evidence manifest hash is invalid")
+    return manifest
+
+
+def validate_manifest_binding(
+    record: Mapping[str, Any], suite: Mapping[str, Any]
+) -> list[dict[str, Any]]:
+    """Cross-check a safe aggregate or baseline manifest against its suite."""
+
+    tasks = _suite_tasks(suite)
+    manifest = _validated_run_evidence_manifest(record)
+    if record.get("suite_id") != suite.get("suite_id"):
+        raise ValueError("record suite_id does not match suite")
+    if record.get("suite_manifest_hash") != sha256_json(suite):
+        raise ValueError("record suite manifest hash does not match suite")
+    if record.get("task_count") != len(tasks):
+        raise ValueError("record task count does not match suite")
+    if record.get("run_count") != suite.get("total_trials"):
+        raise ValueError("record run count does not match suite")
+    source_basis = record.get("source_basis")
+    if (
+        not isinstance(source_basis, Mapping)
+        or source_basis.get("target_commit") != suite.get("target_checkpoint")
+    ):
+        raise ValueError("record target source basis does not match suite")
+
+    entries_by_task: dict[str, list[dict[str, Any]]] = {
+        task_id: [] for task_id in tasks
+    }
+    for entry in manifest:
+        task_id = entry["task_id"]
+        if task_id not in tasks:
+            raise ValueError("run evidence manifest has unknown task")
+        task = tasks[task_id]
+        if entry["criticality"] != task["criticality"]:
+            raise ValueError("run evidence manifest criticality does not match suite")
+        entries_by_task[task_id].append(entry)
+
+    for task_id, task in tasks.items():
+        if len(entries_by_task[task_id]) != task["trials"]:
+            raise ValueError("run evidence manifest trial budget does not match suite")
+
+    metrics = _validated_metrics(record.get("metrics"))
+    holdout_passes = sum(
+        entry["holdout_status"] == "PASS" for entry in manifest
+    )
+    holdout_failures = len(manifest) - holdout_passes
+    if (
+        metrics["holdout_passed_count"] != holdout_passes
+        or metrics["holdout_failed_count"] != holdout_failures
+    ):
+        raise ValueError("run evidence manifest holdout totals are inconsistent")
+
+    for trials, criticality, metric_id in (
+        (3, "normal", "strict_pass_3_task_rate"),
+        (5, "critical", "strict_pass_5_critical_rate"),
+    ):
+        task_ids = [
+            task_id
+            for task_id, task in tasks.items()
+            if task["trials"] == trials and task["criticality"] == criticality
+        ]
+        if not task_ids:
+            raise ValueError("suite has no task group for strict rate")
+        expected_rate = sum(
+            all(entry["strict_pass"] for entry in entries_by_task[task_id])
+            for task_id in task_ids
+        ) / len(task_ids)
+        if metrics[metric_id] != expected_rate:
+            raise ValueError("run evidence manifest strict rate is inconsistent")
+    return manifest
+
+
 def validate_aggregate_record(
-    record: Mapping[str, Any], *, allow_operational: bool = False
+    record: Mapping[str, Any],
+    *,
+    suite: Mapping[str, Any] | None = None,
+    allow_operational: bool = False,
 ) -> dict[str, Any]:
     """Validate one safe aggregate record before adoption or comparison."""
 
@@ -262,6 +398,9 @@ def validate_aggregate_record(
         raise ValueError("aggregate status is inconsistent")
     if record.get("performed_actions") != []:
         raise ValueError("aggregate performed_actions must be empty")
+    _validated_run_evidence_manifest(record)
+    if suite is not None:
+        validate_manifest_binding(record, suite)
 
     if optional:
         for field in optional - {"operational_metrics"}:
@@ -377,7 +516,7 @@ def aggregate_runs(
     }
     configuration_ids: set[str] = set()
     harness_commits: set[str] = set()
-    manifest: list[dict[str, str]] = []
+    manifest: list[dict[str, Any]] = []
 
     for run in validated_runs:
         run_id = run["run_id"]
@@ -425,9 +564,16 @@ def aggregate_runs(
         harness_commits.add(fingerprint["harness_commit"])
         manifest.append(
             {
+                "criticality": run["criticality"],
+                "holdout_status": (
+                    "PASS"
+                    if run["metrics"]["holdout_passed_count"] == 1
+                    else "FAIL"
+                ),
                 "run_hash": sha256_json(run),
                 "run_id": run_id,
                 "run_fingerprint_id": fingerprint["run_fingerprint_id"],
+                "strict_pass": _is_strict_pass(run),
                 "task_id": task_id,
                 "trial_id": trial_id,
             }
@@ -457,6 +603,14 @@ def aggregate_runs(
         metrics[field] = sum(run["metrics"][field] for run in validated_runs)
 
     reasons = _reason_codes(metrics)
+    run_evidence_manifest = sorted(
+        manifest,
+        key=lambda item: (
+            item["task_id"],
+            item["trial_id"],
+            item["run_id"],
+        ),
+    )
     result = {
         "schema_version": "1",
         "status": "PASS" if not reasons else "HOLD",
@@ -472,16 +626,8 @@ def aggregate_runs(
         "task_count": len(tasks),
         "run_count": len(validated_runs),
         "metrics": metrics,
-        "run_manifest_hash": sha256_json(
-            sorted(
-                manifest,
-                key=lambda item: (
-                    item["task_id"],
-                    item["trial_id"],
-                    item["run_id"],
-                ),
-            )
-        ),
+        "run_evidence_manifest": run_evidence_manifest,
+        "run_manifest_hash": sha256_json(run_evidence_manifest),
         "performed_actions": [],
     }
-    return validate_aggregate_record(result)
+    return validate_aggregate_record(result, suite=suite)

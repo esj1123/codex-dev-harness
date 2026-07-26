@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from datetime import date
-from pathlib import PurePosixPath
 import re
 from typing import Any
 
+from scripts.agent_quality_lib.contracts import safe_repo_path
 
 SCHEMA_VERSION = "1"
 VALIDATOR_ID = "agent_quality_failure"
@@ -59,19 +59,7 @@ def _safe_identifier(value: Any) -> bool:
 
 
 def _safe_repo_ref(value: Any, *, fixture: bool = False) -> bool:
-    if not isinstance(value, str) or not value or len(value.encode("utf-8")) > 260:
-        return False
-    if not value.isascii() or "\\" in value or "://" in value or value.startswith("/"):
-        return False
-    if re.match(r"^[A-Za-z]:", value):
-        return False
-    candidate = PurePosixPath(value)
-    if (
-        candidate.is_absolute()
-        or candidate.as_posix() != value
-        or any(part in ("", ".", "..") for part in candidate.parts)
-        or value.endswith("/")
-    ):
+    if not safe_repo_path(value):
         return False
     return not fixture or value.startswith("evals/agentic/fixtures/")
 

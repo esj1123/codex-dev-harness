@@ -67,7 +67,10 @@ Run envelopes are bounded safe summaries. They must not contain:
 
 Trial envelopes and owner-held fixtures remain under ignored `local/` or an
 approved OS temporary directory. The tracked baseline contains aggregate
-counts, identifiers, hashes, and safe evidence references only.
+counts, a bounded per-run evidence manifest, identifiers, hashes, and safe
+evidence references only. Run, baseline, and failure references use the same
+Windows-safe repository-relative path policy. Failure fixtures must additionally
+remain under `evals/agentic/fixtures/`.
 
 ## Repeated Trial Metrics
 
@@ -120,6 +123,13 @@ declared review references.
 `artifacts/agent-quality-baseline.json` is non-release quality evidence. It is
 not part of the five-file release checksum set. Initial creation requires a
 separate approval reference; overwrite is rejected by default.
+
+The baseline writer reads the canonical suite and every sanitized run envelope,
+recomputes the aggregate, and refuses ineligible results. It does not accept a
+caller-supplied aggregate summary. Candidate comparison likewise recomputes the
+candidate from its suite and run directory. Malformed input fails first; suite
+or configuration non-comparability holds without metric comparison; only a
+comparable quality regression is rejected.
 
 A candidate model, prompt, tool, or skill configuration must run the same
 suite. Adoption is blocked if:

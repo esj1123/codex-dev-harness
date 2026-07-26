@@ -8,6 +8,7 @@ import pytest
 
 from scripts.agent_quality_lib.adoption import build_baseline, compare_baseline
 from scripts.agent_quality_lib.aggregation import aggregate_runs
+from scripts.agent_quality_lib.contracts import sha256_json
 from scripts.agent_quality_lib.fingerprint import normalize_fingerprint
 
 
@@ -128,10 +129,7 @@ def make_aggregate() -> dict:
 def make_baseline() -> dict:
     return build_baseline(
         make_aggregate(),
-        source_basis={
-            "harness_commit": "b" * 40,
-            "target_commit": "c" * 40,
-        },
+        suite=make_suite(),
         approval_ref="agent-quality-baseline-test",
         created_at="2026-07-26T12:00:00Z",
         evidence_refs=["local/agent-quality/safe-summary.json"],
@@ -158,6 +156,20 @@ def test_aggregate_complete_suite_is_deterministic_and_safe() -> None:
     }
     assert first["performed_actions"] == []
     assert len(first["run_manifest_hash"]) == 64
+    assert len(first["run_evidence_manifest"]) == 19
+    assert first["run_manifest_hash"] == sha256_json(
+        first["run_evidence_manifest"]
+    )
+    assert set(first["run_evidence_manifest"][0]) == {
+        "run_id",
+        "task_id",
+        "trial_id",
+        "criticality",
+        "run_hash",
+        "run_fingerprint_id",
+        "strict_pass",
+        "holdout_status",
+    }
     serialized = json.dumps(first, sort_keys=True)
     assert "evidence_refs" not in serialized
     assert "raw" not in serialized.lower()
@@ -293,10 +305,35 @@ def test_build_baseline_rejects_ineligible_aggregate() -> None:
     with pytest.raises(ValueError, match="not eligible"):
         build_baseline(
             aggregate,
-            source_basis={
-                "harness_commit": "b" * 40,
-                "target_commit": "c" * 40,
-            },
+            suite=make_suite(),
+            approval_ref="approval",
+            created_at="2026-07-26T12:00:00Z",
+        )
+
+
+def test_build_baseline_rejects_fabricated_summary_and_manifest_drift() -> None:
+    aggregate = make_aggregate()
+    aggregate["task_count"] = 1
+    aggregate["run_count"] = 1
+    aggregate["metrics"]["holdout_passed_count"] = 1
+    aggregate["run_evidence_manifest"] = aggregate["run_evidence_manifest"][:1]
+    aggregate["run_manifest_hash"] = sha256_json(aggregate["run_evidence_manifest"])
+
+    with pytest.raises(ValueError, match="not eligible"):
+        build_baseline(
+            aggregate,
+            suite=make_suite(),
+            approval_ref="approval",
+            created_at="2026-07-26T12:00:00Z",
+        )
+
+    aggregate = make_aggregate()
+    aggregate["run_evidence_manifest"][0]["strict_pass"] = False
+    aggregate["run_manifest_hash"] = sha256_json(aggregate["run_evidence_manifest"])
+    with pytest.raises(ValueError, match="not eligible"):
+        build_baseline(
+            aggregate,
+            suite=make_suite(),
             approval_ref="approval",
             created_at="2026-07-26T12:00:00Z",
         )
@@ -307,7 +344,7 @@ def test_build_baseline_rejects_ineligible_aggregate() -> None:
     with pytest.raises(ValueError, match="not eligible"):
         build_baseline(
             aggregate,
-            source_basis=aggregate["source_basis"],
+            suite=make_suite(),
             approval_ref="approval",
             created_at="2026-07-26T12:00:00Z",
         )
@@ -317,7 +354,7 @@ def test_build_baseline_rejects_ineligible_aggregate() -> None:
     with pytest.raises(ValueError, match="not eligible"):
         build_baseline(
             aggregate,
-            source_basis=aggregate["source_basis"],
+            suite=make_suite(),
             approval_ref="approval",
             created_at="2026-07-26T12:00:00Z",
         )
@@ -328,7 +365,7 @@ def test_compare_adopts_equal_or_better_quality() -> None:
     candidate = make_aggregate()
     candidate["configuration_id"] = "d" * 64
 
-    result = compare_baseline(baseline, candidate)
+    result = compare_baseline(baseline, candidate, suite=make_suite())
 
     assert result["decision"] == "ADOPT"
     assert result["status"] == "PASS"
@@ -365,13 +402,22 @@ def test_compare_rejects_quality_regressions(field: str, value: int | float) -> 
         "postflight_block_count": "POSTFLIGHT_BLOCKS_PRESENT",
         "holdout_failed_count": "HOLDOUT_FAILURES_PRESENT",
     }
+    if field == "strict_pass_3_task_rate":
+        candidate["metrics"][field] = 2 / 3
+        for entry in candidate["run_evidence_manifest"]:
+            if entry["task_id"] == "normal-a":
+                entry["strict_pass"] = False
     if field == "holdout_failed_count":
         candidate["metrics"]["holdout_passed_count"] -= int(value)
+        candidate["run_evidence_manifest"][0]["holdout_status"] = "FAIL"
+    candidate["run_manifest_hash"] = sha256_json(
+        candidate["run_evidence_manifest"]
+    )
     if field in reason_by_field:
         candidate["status"] = "HOLD"
         candidate["reason_codes"] = [reason_by_field[field]]
 
-    result = compare_baseline(baseline, candidate)
+    result = compare_baseline(baseline, candidate, suite=make_suite())
 
     assert result["decision"] == "REJECT"
     assert result["status"] == "REJECT"
@@ -386,7 +432,7 @@ def test_compare_holds_partial_configuration() -> None:
     candidate["status"] = "HOLD"
     candidate["reason_codes"] = ["CONFIGURATION_COMPARABILITY_NOT_FULL"]
 
-    result = compare_baseline(baseline, candidate)
+    result = compare_baseline(baseline, candidate, suite=make_suite())
 
     assert result["decision"] == "HOLD"
     assert result["reason_codes"] == ["CONFIGURATION_COMPARABILITY_NOT_FULL"]
@@ -398,19 +444,52 @@ def test_compare_rejects_missing_comparability() -> None:
     candidate.pop("comparability")
 
     with pytest.raises(ValueError, match="key set"):
-        compare_baseline(baseline, candidate)
+        compare_baseline(baseline, candidate, suite=make_suite())
 
 
 def test_compare_holds_suite_manifest_mismatch() -> None:
     baseline = make_baseline()
     candidate = make_aggregate()
-    candidate["suite_manifest_hash"] = "d" * 64
+    baseline["suite_manifest_hash"] = "d" * 64
+    baseline["baseline_id"] = "agent-quality-" + sha256_json(
+        {
+            "configuration_id": baseline["configuration_id"],
+            "created_at": baseline["created_at"],
+            "run_manifest_hash": baseline["run_manifest_hash"],
+            "suite_id": baseline["suite_id"],
+            "suite_manifest_hash": baseline["suite_manifest_hash"],
+        }
+    )[:24]
 
-    result = compare_baseline(baseline, candidate)
+    result = compare_baseline(baseline, candidate, suite=make_suite())
 
     assert result["decision"] == "HOLD"
     assert result["status"] == "HOLD"
     assert result["reason_codes"] == ["SUITE_MANIFEST_MISMATCH"]
+
+
+def test_compare_does_not_evaluate_regression_when_suite_mismatches() -> None:
+    baseline = make_baseline()
+    baseline["suite_manifest_hash"] = "d" * 64
+    baseline["baseline_id"] = "agent-quality-" + sha256_json(
+        {
+            "configuration_id": baseline["configuration_id"],
+            "created_at": baseline["created_at"],
+            "run_manifest_hash": baseline["run_manifest_hash"],
+            "suite_id": baseline["suite_id"],
+            "suite_manifest_hash": baseline["suite_manifest_hash"],
+        }
+    )[:24]
+    candidate = make_aggregate()
+    candidate["metrics"]["scope_violation_count"] = 1
+    candidate["status"] = "HOLD"
+    candidate["reason_codes"] = ["SCOPE_VIOLATIONS_PRESENT"]
+
+    result = compare_baseline(baseline, candidate, suite=make_suite())
+
+    assert result["decision"] == "HOLD"
+    assert result["reason_codes"] == ["SUITE_MANIFEST_MISMATCH"]
+    assert result["regression_metric_ids"] == []
 
 
 @pytest.mark.parametrize("measurement", ["duration_seconds", "cost_units"])
@@ -422,7 +501,7 @@ def test_compare_routes_operational_measurements_to_owner(
     candidate["configuration_id"] = "d" * 64
     candidate[measurement] = 1
 
-    result = compare_baseline(baseline, candidate)
+    result = compare_baseline(baseline, candidate, suite=make_suite())
 
     assert result["decision"] == "HOLD"
     assert result["owner_decision_required"] is True

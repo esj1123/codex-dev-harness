@@ -118,6 +118,65 @@
     "run_count": {
       "const": 19
     },
+    "run_evidence_manifest": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "criticality": {
+            "enum": [
+              "normal",
+              "critical"
+            ]
+          },
+          "holdout_status": {
+            "enum": [
+              "PASS",
+              "FAIL"
+            ]
+          },
+          "run_fingerprint_id": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "run_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "run_id": {
+            "maxLength": 160,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+            "type": "string"
+          },
+          "strict_pass": {
+            "type": "boolean"
+          },
+          "task_id": {
+            "maxLength": 160,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+            "type": "string"
+          },
+          "trial_id": {
+            "maxLength": 160,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id",
+          "task_id",
+          "trial_id",
+          "criticality",
+          "run_hash",
+          "run_fingerprint_id",
+          "strict_pass",
+          "holdout_status"
+        ],
+        "type": "object"
+      },
+      "maxItems": 19,
+      "minItems": 19,
+      "type": "array"
+    },
     "run_manifest_hash": {
       "pattern": "^[0-9a-f]{64}$",
       "type": "string"
@@ -173,6 +232,7 @@
     "task_count",
     "run_count",
     "metrics",
+    "run_evidence_manifest",
     "run_manifest_hash",
     "evidence_refs",
     "approval_ref",

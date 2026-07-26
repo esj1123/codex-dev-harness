@@ -26,6 +26,7 @@ AGENT_QUALITY_SCHEMA_PATHS = [
 ]
 AGENT_QUALITY_POLICY_PATH = "docs/AGENT_QUALITY_STABILITY_POLICY.md"
 AGENT_QUALITY_BASELINE_PATH = "artifacts/agent-quality-baseline.json"
+AGENT_QUALITY_SUITE_PATH = "evals/agentic/suites/agentic-regression-v1.json"
 
 MARKER_PATHS = [
     "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md",
@@ -458,6 +459,7 @@ def check_agent_quality_bundle(repo_root: Path) -> list[str]:
             "configuration_id",
             "suite_manifest_hash",
             "metrics",
+            "run_evidence_manifest",
             "release_artifact",
         },
         "failure-case.schema.json": {
@@ -493,7 +495,16 @@ def check_agent_quality_bundle(repo_root: Path) -> list[str]:
             try:
                 from scripts.agent_quality_lib.adoption import validate_baseline_record
 
-                validate_baseline_record(baseline)
+                suite, suite_error = load_json(
+                    repo_root / AGENT_QUALITY_SUITE_PATH, repo_root
+                )
+                if suite_error or suite is None:
+                    findings.append(
+                        suite_error
+                        or f"{AGENT_QUALITY_SUITE_PATH} failed complete validation"
+                    )
+                else:
+                    validate_baseline_record(baseline, suite=suite)
             except (ImportError, TypeError, ValueError) as exc:
                 findings.append(
                     f"{AGENT_QUALITY_BASELINE_PATH} failed complete validation: "

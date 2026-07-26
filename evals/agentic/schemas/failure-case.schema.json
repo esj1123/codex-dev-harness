@@ -44,7 +44,7 @@
     },
     "minimal_synthetic_fixture_ref": {
       "maxLength": 260,
-      "pattern": "^evals/agentic/fixtures/[A-Za-z0-9._/-]+$",
+      "pattern": "^evals/agentic/fixtures/(?!.*(?:^|/)\\.(?:/|$))(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*(?:^|/)[^/]*\\.(?:/|$))[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$",
       "type": "string"
     },
     "review_refs": {
