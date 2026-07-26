@@ -35,6 +35,17 @@ FAILURE_KEYS = {
     "affected_configuration_hashes",
     "review_refs",
 }
+IDENTITY_FIELDS = (
+    "schema_version",
+    "failure_id",
+    "task_class",
+    "minimal_synthetic_fixture_ref",
+    "minimal_synthetic_fixture_hash",
+    "expected_invariant_id",
+    "grader_id",
+    "first_observed_date",
+    "affected_configuration_hashes",
+)
 SAFE_IDENTIFIER_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]*$")
 HASH_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 WINDOWS_ABSOLUTE_PATTERN = re.compile(r"(?:^|[\s\"'])[A-Za-z]:[\\/]")
@@ -156,14 +167,18 @@ def failure_case_issues(payload: Any) -> list[str]:
     if payload["state"] in LIFECYCLE:
         state_index = LIFECYCLE.index(payload["state"])
         review_count = len(refs) if isinstance(refs, list) else 0
-        if (
-            state_index >= LIFECYCLE.index("REPRODUCED")
-            and payload["last_reproduced_date"] is None
-        ):
+        reproduced_index = LIFECYCLE.index("REPRODUCED")
+        human_reviewed_index = LIFECYCLE.index("HUMAN_REVIEWED")
+        grader_validated_index = LIFECYCLE.index("GRADER_VALIDATED")
+        if state_index < reproduced_index and payload["last_reproduced_date"] is not None:
+            issues.add("FUTURE_REPRODUCTION_EVIDENCE_FORBIDDEN")
+        if state_index >= reproduced_index and payload["last_reproduced_date"] is None:
             issues.add("REPRODUCED_STATE_EVIDENCE_MISSING")
-        if state_index >= LIFECYCLE.index("HUMAN_REVIEWED") and review_count < 1:
+        if state_index < human_reviewed_index and review_count:
+            issues.add("FUTURE_REVIEW_EVIDENCE_FORBIDDEN")
+        if state_index == human_reviewed_index and review_count != 1:
             issues.add("HUMAN_REVIEW_EVIDENCE_MISSING")
-        if state_index >= LIFECYCLE.index("GRADER_VALIDATED") and review_count < 2:
+        if state_index >= grader_validated_index and review_count < 2:
             issues.add("GRADER_VALIDATION_EVIDENCE_MISSING")
     return sorted(issues)
 
@@ -213,10 +228,48 @@ def validate_transition(current_state: Any, next_state: Any) -> dict[str, Any]:
     }
 
 
-def validate_failure_transition(payload: Any, next_state: Any) -> dict[str, Any]:
-    """Validate a case and then its proposed transition without mutation."""
+def validate_failure_transition(payload: Any, next_payload: Any) -> dict[str, Any]:
+    """Validate two complete cases and one evidence-preserving transition."""
 
-    validation = validate_failure_case(payload)
-    if validation["status"] != "PASS":
-        return validation
-    return validate_transition(payload["state"], next_state)
+    current_issues = failure_case_issues(payload)
+    next_issues = failure_case_issues(next_payload)
+    if current_issues or next_issues:
+        reasons = []
+        if current_issues:
+            reasons.append("CURRENT_FAILURE_CASE_INVALID")
+        if next_issues:
+            reasons.append("NEXT_FAILURE_CASE_INVALID")
+        return {
+            "schema_version": SCHEMA_VERSION,
+            "validator_id": VALIDATOR_ID,
+            "status": "FAIL",
+            "reason_codes": reasons,
+            "transition_summary": {
+                "current_state": payload.get("state") if isinstance(payload, dict) else None,
+                "next_state": next_payload.get("state") if isinstance(next_payload, dict) else None,
+            },
+            "performed_actions": [],
+        }
+
+    transition = validate_transition(payload["state"], next_payload["state"])
+    if transition["status"] != "PASS":
+        return transition
+
+    reasons: list[str] = []
+    if any(payload[field] != next_payload[field] for field in IDENTITY_FIELDS):
+        reasons.append("FAILURE_IDENTITY_CHANGED")
+    current_date = payload["last_reproduced_date"]
+    next_date = next_payload["last_reproduced_date"]
+    if current_date is not None and next_date is not None and next_date < current_date:
+        reasons.append("REPRODUCTION_EVIDENCE_NOT_MONOTONIC")
+    current_refs = payload["review_refs"]
+    next_refs = next_payload["review_refs"]
+    if next_refs[: len(current_refs)] != current_refs:
+        reasons.append("REVIEW_EVIDENCE_NOT_MONOTONIC")
+    if reasons:
+        return {
+            **transition,
+            "status": "BLOCKED",
+            "reason_codes": reasons,
+        }
+    return transition

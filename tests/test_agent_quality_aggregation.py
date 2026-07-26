@@ -461,11 +461,8 @@ def test_compare_holds_suite_manifest_mismatch() -> None:
         }
     )[:24]
 
-    result = compare_baseline(baseline, candidate, suite=make_suite())
-
-    assert result["decision"] == "HOLD"
-    assert result["status"] == "HOLD"
-    assert result["reason_codes"] == ["SUITE_MANIFEST_MISMATCH"]
+    with pytest.raises(ValueError, match="suite manifest hash"):
+        compare_baseline(baseline, candidate, suite=make_suite())
 
 
 def test_compare_does_not_evaluate_regression_when_suite_mismatches() -> None:
@@ -485,11 +482,32 @@ def test_compare_does_not_evaluate_regression_when_suite_mismatches() -> None:
     candidate["status"] = "HOLD"
     candidate["reason_codes"] = ["SCOPE_VIOLATIONS_PRESENT"]
 
-    result = compare_baseline(baseline, candidate, suite=make_suite())
+    with pytest.raises(ValueError, match="suite manifest hash"):
+        compare_baseline(baseline, candidate, suite=make_suite())
 
-    assert result["decision"] == "HOLD"
-    assert result["reason_codes"] == ["SUITE_MANIFEST_MISMATCH"]
-    assert result["regression_metric_ids"] == []
+
+def test_compare_rejects_self_consistent_manifest_for_wrong_suite_task() -> None:
+    baseline = make_baseline()
+    candidate = make_aggregate()
+    baseline["run_evidence_manifest"][0]["task_id"] = "unknown-task"
+    baseline["run_evidence_manifest"].sort(
+        key=lambda item: (item["task_id"], item["trial_id"], item["run_id"])
+    )
+    baseline["run_manifest_hash"] = sha256_json(
+        baseline["run_evidence_manifest"]
+    )
+    baseline["baseline_id"] = "agent-quality-" + sha256_json(
+        {
+            "configuration_id": baseline["configuration_id"],
+            "created_at": baseline["created_at"],
+            "run_manifest_hash": baseline["run_manifest_hash"],
+            "suite_id": baseline["suite_id"],
+            "suite_manifest_hash": baseline["suite_manifest_hash"],
+        }
+    )[:24]
+
+    with pytest.raises(ValueError, match="unknown task"):
+        compare_baseline(baseline, candidate, suite=make_suite())
 
 
 @pytest.mark.parametrize("measurement", ["duration_seconds", "cost_units"])

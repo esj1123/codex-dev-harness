@@ -106,11 +106,9 @@
         "properties": {
           "state": {
             "enum": [
-              "REPRODUCED",
-              "HUMAN_REVIEWED",
-              "GRADER_VALIDATED",
-              "REGRESSION",
-              "DEPRECATED"
+              "OBSERVED",
+              "QUARANTINED",
+              "SANITIZED"
             ]
           }
         }
@@ -118,8 +116,10 @@
       "then": {
         "properties": {
           "last_reproduced_date": {
-            "format": "date",
-            "type": "string"
+            "const": null
+          },
+          "review_refs": {
+            "maxItems": 0
           }
         }
       }
@@ -128,18 +128,38 @@
       "if": {
         "properties": {
           "state": {
-            "enum": [
-              "HUMAN_REVIEWED",
-              "GRADER_VALIDATED",
-              "REGRESSION",
-              "DEPRECATED"
-            ]
+            "const": "REPRODUCED"
           }
         }
       },
       "then": {
         "properties": {
+          "last_reproduced_date": {
+            "format": "date",
+            "type": "string"
+          },
           "review_refs": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "HUMAN_REVIEWED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "last_reproduced_date": {
+            "format": "date",
+            "type": "string"
+          },
+          "review_refs": {
+            "maxItems": 1,
             "minItems": 1
           }
         }
@@ -159,6 +179,10 @@
       },
       "then": {
         "properties": {
+          "last_reproduced_date": {
+            "format": "date",
+            "type": "string"
+          },
           "review_refs": {
             "minItems": 2
           }

@@ -85,6 +85,25 @@ def _load_allowed_json(value: str) -> Any:
     return load_json_file(_resolve_allowed_input(value))
 
 
+def _load_exact_baseline(value: str) -> Any:
+    candidate = Path(value)
+    if candidate.suffix.lower() != ".json":
+        raise AgentQualityValidationError(("JSON_INPUT_EXTENSION_INVALID",))
+    try:
+        if candidate.is_symlink():
+            raise AgentQualityValidationError(("JSON_INPUT_SYMLINK_FORBIDDEN",))
+        resolved = candidate.resolve(strict=True)
+    except AgentQualityValidationError:
+        raise
+    except OSError as exc:
+        raise AgentQualityValidationError(("JSON_INPUT_UNAVAILABLE",)) from exc
+    if resolved != BASELINE_PATH.resolve(strict=False):
+        raise AgentQualityValidationError(("JSON_INPUT_BOUNDARY_INVALID",))
+    if not resolved.is_file():
+        raise AgentQualityValidationError(("JSON_INPUT_NOT_REGULAR_FILE",))
+    return load_json_file(resolved)
+
+
 def _result(status: str, reason_codes: list[str], command: str) -> dict[str, Any]:
     return {
         "schema_version": SCHEMA_VERSION,
@@ -130,17 +149,17 @@ def _load_suite_and_runs(
 def _compare_command(
     baseline_path: str, suite_path: str, runs_dir: str
 ) -> dict[str, Any]:
-    baseline = _load_allowed_json(baseline_path)
+    baseline = _load_exact_baseline(baseline_path)
     suite, runs = _load_suite_and_runs(suite_path, runs_dir)
     candidate = aggregate_runs(suite, runs)
     return compare_baseline(baseline, candidate, suite=suite)
 
 
-def _validate_failure_command(path: str, next_state: str | None) -> dict[str, Any]:
+def _validate_failure_command(path: str, next_case: str | None) -> dict[str, Any]:
     failure = _load_allowed_json(path)
-    if next_state is None:
+    if next_case is None:
         return validate_failure_case(failure)
-    return validate_failure_transition(failure, next_state)
+    return validate_failure_transition(failure, _load_allowed_json(next_case))
 
 
 def _write_baseline_command(
@@ -223,7 +242,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     failure_parser = subparsers.add_parser("validate-failure")
     failure_parser.add_argument("--case", required=True)
-    failure_parser.add_argument("--next-state")
+    failure_parser.add_argument("--next-case")
     failure_parser.add_argument("--json", action="store_true")
 
     baseline_parser = subparsers.add_parser("write-baseline")
@@ -247,7 +266,7 @@ def main(argv: list[str] | None = None) -> int:
         elif command == "compare":
             result = _compare_command(args.baseline, args.suite, args.runs_dir)
         elif command == "validate-failure":
-            result = _validate_failure_command(args.case, args.next_state)
+            result = _validate_failure_command(args.case, args.next_case)
         else:
             result = _write_baseline_command(
                 args.suite,

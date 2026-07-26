@@ -116,7 +116,10 @@ identifiers, dates, and affected configuration hashes. Failure evidence is not
 automatically written to memory, RAG, audit logs, or release evidence.
 Lifecycle validation checks structural evidence, date order, and adjacent state
 transitions. It does not authenticate that a human or grader supplied the
-declared review references.
+declared review references. Reproduction dates and review references are
+forbidden before their lifecycle stage. Transition validation accepts complete
+current and next case JSON records, preserves identity fields, and requires
+reproduction dates and review references to advance monotonically.
 
 ## Baseline And Adoption
 
@@ -127,7 +130,9 @@ separate approval reference; overwrite is rejected by default.
 The baseline writer reads the canonical suite and every sanitized run envelope,
 recomputes the aggregate, and refuses ineligible results. It does not accept a
 caller-supplied aggregate summary. Candidate comparison likewise recomputes the
-candidate from its suite and run directory. Malformed input fails first; suite
+candidate from its suite and run directory, reads only the exact tracked
+baseline path, and validates both baseline and candidate against the same
+canonical suite. Malformed input fails first; suite
 or configuration non-comparability holds without metric comparison; only a
 comparable quality regression is rejected.
 

@@ -90,7 +90,7 @@ def test_agentic_schemas_are_strict_and_safe() -> None:
     assert failure["properties"]["minimal_synthetic_fixture_ref"]["pattern"].startswith(
         "^evals/agentic/fixtures/"
     )
-    assert len(failure["allOf"]) == 3
+    assert len(failure["allOf"]) == 4
 
 
 def test_regression_suite_has_exact_tasks_and_trial_budget() -> None:

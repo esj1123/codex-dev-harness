@@ -28,11 +28,13 @@ def valid_failure_case(state: str = "OBSERVED") -> dict:
         "first_observed_date": "2026-07-26",
         "last_reproduced_date": None,
         "affected_configuration_hashes": ["b" * 64],
-        "review_refs": ["local/reviews/safe-case.json"],
+        "review_refs": [],
     }
     state_index = failure.LIFECYCLE.index(state)
     if state_index >= failure.LIFECYCLE.index("REPRODUCED"):
         payload["last_reproduced_date"] = "2026-07-26"
+    if state_index >= failure.LIFECYCLE.index("HUMAN_REVIEWED"):
+        payload["review_refs"].append("local/reviews/safe-case.json")
     if state_index >= failure.LIFECYCLE.index("GRADER_VALIDATED"):
         payload["review_refs"].append("local/reviews/grader-safe-case.json")
     return payload
@@ -314,6 +316,48 @@ def test_failure_case_requires_state_specific_evidence(
     assert reason in result["reason_codes"]
 
 
+@pytest.mark.parametrize(
+    ("state", "mutation", "reason"),
+    [
+        (
+            "OBSERVED",
+            {"last_reproduced_date": "2026-07-26"},
+            "FUTURE_REPRODUCTION_EVIDENCE_FORBIDDEN",
+        ),
+        (
+            "SANITIZED",
+            {"review_refs": ["local/reviews/safe-case.json"]},
+            "FUTURE_REVIEW_EVIDENCE_FORBIDDEN",
+        ),
+        (
+            "REPRODUCED",
+            {"review_refs": ["local/reviews/safe-case.json"]},
+            "FUTURE_REVIEW_EVIDENCE_FORBIDDEN",
+        ),
+        (
+            "HUMAN_REVIEWED",
+            {
+                "review_refs": [
+                    "local/reviews/safe-case.json",
+                    "local/reviews/grader-safe-case.json",
+                ]
+            },
+            "HUMAN_REVIEW_EVIDENCE_MISSING",
+        ),
+    ],
+)
+def test_failure_case_forbids_future_or_excess_evidence(
+    state: str, mutation: dict, reason: str
+) -> None:
+    payload = valid_failure_case(state)
+    payload.update(mutation)
+
+    result = failure.validate_failure_case(payload)
+
+    assert result["status"] == "FAIL"
+    assert reason in result["reason_codes"]
+
+
 def test_failure_case_rejects_reproduction_date_before_observation() -> None:
     payload = valid_failure_case("REPRODUCED")
     payload["last_reproduced_date"] = "2026-07-25"
@@ -326,9 +370,11 @@ def test_failure_case_rejects_reproduction_date_before_observation() -> None:
 
 def test_failure_transition_validates_case_and_does_not_write() -> None:
     payload = valid_failure_case("QUARANTINED")
+    next_payload = valid_failure_case("SANITIZED")
     original = deepcopy(payload)
+    next_original = deepcopy(next_payload)
 
-    result = failure.validate_failure_transition(payload, "SANITIZED")
+    result = failure.validate_failure_transition(payload, next_payload)
 
     assert result["status"] == "PASS"
     assert result["transition_summary"] == {
@@ -336,3 +382,59 @@ def test_failure_transition_validates_case_and_does_not_write() -> None:
         "next_state": "SANITIZED",
     }
     assert payload == original
+    assert next_payload == next_original
+
+
+@pytest.mark.parametrize(
+    ("mutate", "reason"),
+    [
+        (
+            lambda item: item.update({"failure_id": "failure.changed"}),
+            "FAILURE_IDENTITY_CHANGED",
+        ),
+        (
+            lambda item: item.update(
+                {
+                    "first_observed_date": "2026-07-24",
+                    "last_reproduced_date": "2026-07-25",
+                }
+            ),
+            "REPRODUCTION_EVIDENCE_NOT_MONOTONIC",
+        ),
+        (
+            lambda item: item.update(
+                {
+                    "review_refs": [
+                        "local/reviews/replacement.json",
+                        "local/reviews/grader-safe-case.json",
+                    ]
+                }
+            ),
+            "REVIEW_EVIDENCE_NOT_MONOTONIC",
+        ),
+    ],
+)
+def test_failure_transition_preserves_identity_and_evidence(
+    mutate, reason: str
+) -> None:
+    current = valid_failure_case("HUMAN_REVIEWED")
+    next_payload = valid_failure_case("GRADER_VALIDATED")
+    if reason == "REPRODUCTION_EVIDENCE_NOT_MONOTONIC":
+        current["first_observed_date"] = "2026-07-24"
+    mutate(next_payload)
+
+    result = failure.validate_failure_transition(current, next_payload)
+
+    assert result["status"] == "BLOCKED"
+    assert reason in result["reason_codes"]
+
+
+def test_failure_transition_rejects_invalid_next_case() -> None:
+    current = valid_failure_case("OBSERVED")
+    next_payload = valid_failure_case("QUARANTINED")
+    next_payload["last_reproduced_date"] = "2026-07-26"
+
+    result = failure.validate_failure_transition(current, next_payload)
+
+    assert result["status"] == "FAIL"
+    assert result["reason_codes"] == ["NEXT_FAILURE_CASE_INVALID"]

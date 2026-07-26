@@ -5,9 +5,11 @@ from __future__ import annotations
 from copy import deepcopy
 import hashlib
 import json
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 import re
 from typing import Any, Iterable
+
+from scripts.repo_path_policy import safe_repo_path as shared_safe_repo_path
 
 
 MAX_JSON_BYTES = 64 * 1024
@@ -208,22 +210,11 @@ def _unsafe_text(value: str) -> bool:
 def safe_repo_path(value: Any) -> bool:
     """Return whether a value is a Windows-safe repository-relative path."""
 
-    if (
-        not isinstance(value, str)
-        or not value
-        or not value.isascii()
-        or len(value.encode("utf-8")) > MAX_EVIDENCE_REF_BYTES
-        or _unsafe_text(value)
-        or value.startswith("/")
-        or value.endswith("/")
-    ):
-        return False
-    candidate = PurePosixPath(value)
-    if candidate.is_absolute() or candidate.as_posix() != value:
-        return False
-    if any(part in {"", ".", ".."} or part.endswith((".", " ")) for part in candidate.parts):
-        return False
-    return re.fullmatch(r"[A-Za-z0-9._/-]+", value) is not None
+    return (
+        isinstance(value, str)
+        and not _unsafe_text(value)
+        and shared_safe_repo_path(value, max_bytes=MAX_EVIDENCE_REF_BYTES)
+    )
 
 
 def _exact_keys(value: Any, expected: set[str], issue: str, issues: list[str]) -> bool:

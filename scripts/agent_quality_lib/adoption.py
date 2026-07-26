@@ -292,7 +292,7 @@ def compare_baseline(
 
     if not isinstance(baseline, Mapping) or not isinstance(candidate, Mapping):
         raise ValueError("baseline and candidate must be objects")
-    baseline = validate_baseline_record(baseline)
+    baseline = validate_baseline_record(baseline, suite=suite)
     candidate = validate_aggregate_record(
         candidate, suite=suite, allow_operational=True
     )

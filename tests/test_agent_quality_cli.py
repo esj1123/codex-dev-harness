@@ -32,6 +32,24 @@ def write_suite_and_runs(root: Path, *, hold: bool = False) -> tuple[Path, Path]
     return suite_path, runs_dir
 
 
+def failure_case(state: str) -> dict:
+    return {
+        "schema_version": "1",
+        "failure_id": "case-001",
+        "task_class": "feature",
+        "state": state,
+        "safe_symptom_summary": "Synthetic invariant mismatch.",
+        "minimal_synthetic_fixture_ref": "evals/agentic/fixtures/case-001.json",
+        "minimal_synthetic_fixture_hash": "a" * 64,
+        "expected_invariant_id": "INV-001",
+        "grader_id": "grader-v1",
+        "first_observed_date": "2026-07-26",
+        "last_reproduced_date": None,
+        "affected_configuration_hashes": ["b" * 64],
+        "review_refs": [],
+    }
+
+
 def test_validate_run_is_deterministic_and_does_not_echo_input(tmp_path: Path, capsys) -> None:
     path = tmp_path / "sensitive-name.json"
     write_json(path, valid_run())
@@ -79,34 +97,19 @@ def test_cli_usage_error_is_not_run_and_does_not_echo_raw_argument(capsys) -> No
 
 
 def test_validate_failure_is_read_only(tmp_path: Path, capsys) -> None:
-    path = tmp_path / "case.json"
-    write_json(
-        path,
-        {
-            "schema_version": "1",
-            "failure_id": "case-001",
-            "task_class": "feature",
-            "state": "OBSERVED",
-            "safe_symptom_summary": "Synthetic invariant mismatch.",
-            "minimal_synthetic_fixture_ref": "evals/agentic/fixtures/case-001.json",
-            "minimal_synthetic_fixture_hash": "a" * 64,
-            "expected_invariant_id": "INV-001",
-            "grader_id": "grader-v1",
-            "first_observed_date": "2026-07-26",
-            "last_reproduced_date": None,
-            "affected_configuration_hashes": ["b" * 64],
-            "review_refs": [],
-        },
-    )
-    before = path.read_bytes()
+    current_path = tmp_path / "current.json"
+    next_path = tmp_path / "next.json"
+    write_json(current_path, failure_case("OBSERVED"))
+    write_json(next_path, failure_case("QUARANTINED"))
+    before = (current_path.read_bytes(), next_path.read_bytes())
 
     exit_code = agent_quality.main(
         [
             "validate-failure",
             "--case",
-            str(path),
-            "--next-state",
-            "QUARANTINED",
+            str(current_path),
+            "--next-case",
+            str(next_path),
             "--json",
         ]
     )
@@ -115,7 +118,7 @@ def test_validate_failure_is_read_only(tmp_path: Path, capsys) -> None:
     assert exit_code == 0
     assert output["status"] == "PASS"
     assert output["performed_actions"] == []
-    assert path.read_bytes() == before
+    assert (current_path.read_bytes(), next_path.read_bytes()) == before
 
 
 def test_write_baseline_refuses_wrong_path_and_existing_artifact(
@@ -172,6 +175,7 @@ def test_compare_recomputes_candidate_from_suite_and_runs(
     write_json(baseline_path, make_baseline())
     suite_path, runs_dir = write_suite_and_runs(tmp_path)
     monkeypatch.setattr(agent_quality, "READ_ROOTS", (tmp_path,))
+    monkeypatch.setattr(agent_quality, "BASELINE_PATH", baseline_path)
 
     exit_code = agent_quality.main(
         [
@@ -190,6 +194,51 @@ def test_compare_recomputes_candidate_from_suite_and_runs(
     assert exit_code == 0
     assert output["status"] == "PASS"
     assert output["decision"] == "ADOPT"
+
+
+def test_compare_accepts_only_exact_baseline_artifact(
+    tmp_path: Path, capsys, monkeypatch
+) -> None:
+    exact = tmp_path / "artifacts" / "agent-quality-baseline.json"
+    sibling = exact.with_name("other-baseline.json")
+    write_json(exact, make_baseline())
+    write_json(sibling, make_baseline())
+    suite_path, runs_dir = write_suite_and_runs(tmp_path / "inputs")
+    monkeypatch.setattr(agent_quality, "BASELINE_PATH", exact)
+    monkeypatch.setattr(agent_quality, "READ_ROOTS", (tmp_path / "inputs",))
+
+    exact_exit = agent_quality.main(
+        [
+            "compare",
+            "--baseline",
+            str(exact),
+            "--suite",
+            str(suite_path),
+            "--runs-dir",
+            str(runs_dir),
+            "--json",
+        ]
+    )
+    exact_output = json.loads(capsys.readouterr().out)
+    sibling_exit = agent_quality.main(
+        [
+            "compare",
+            "--baseline",
+            str(sibling),
+            "--suite",
+            str(suite_path),
+            "--runs-dir",
+            str(runs_dir),
+            "--json",
+        ]
+    )
+    sibling_output = json.loads(capsys.readouterr().out)
+
+    assert exact_exit == 0
+    assert exact_output["decision"] == "ADOPT"
+    assert sibling_exit == 1
+    assert sibling_output["reason_codes"] == ["JSON_INPUT_BOUNDARY_INVALID"]
+    assert str(sibling) not in json.dumps(sibling_output)
 
 
 def test_write_baseline_rejects_ineligible_recomputed_aggregate(
@@ -248,7 +297,18 @@ def test_removed_summary_only_cli_flags_are_not_run(capsys) -> None:
         ]
     )
     writer_output = json.loads(capsys.readouterr().out)
+    failure_exit = agent_quality.main(
+        [
+            "validate-failure",
+            "--case",
+            "case.json",
+            "--next-state",
+            "QUARANTINED",
+        ]
+    )
+    failure_output = json.loads(capsys.readouterr().out)
 
-    assert compare_exit == writer_exit == 2
+    assert compare_exit == writer_exit == failure_exit == 2
     assert compare_output["reason_codes"] == ["CLI_USAGE_INVALID"]
     assert writer_output["reason_codes"] == ["CLI_USAGE_INVALID"]
+    assert failure_output["reason_codes"] == ["CLI_USAGE_INVALID"]
