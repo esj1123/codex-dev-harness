@@ -20,9 +20,9 @@ function Find-Python {
     foreach ($candidate in $candidates) {
         try {
             if ($candidate -eq "py") {
-                & py -3 --version *> $null
+                & py -3 scripts/verify_dev_environment.py --expected-version-file .python-version --lock requirements-dev.lock --version-only --json *> $null
             } else {
-                & $candidate --version *> $null
+                & $candidate scripts/verify_dev_environment.py --expected-version-file .python-version --lock requirements-dev.lock --version-only --json *> $null
             }
             if ($LASTEXITCODE -eq 0) {
                 return $candidate
@@ -56,6 +56,7 @@ function Invoke-PythonStep {
     }
 }
 
+Invoke-PythonStep "development environment" @("scripts/verify_dev_environment.py", "--expected-version-file", ".python-version", "--lock", "requirements-dev.lock", "--json")
 Invoke-PythonStep "pytest" @("-m", "pytest", "tests")
 Invoke-PythonStep "standalone eval" @("scripts/run_eval.py")
 Invoke-PythonStep "quality gate" @("scripts/quality_gate.py")

@@ -375,8 +375,14 @@ def test_local_and_release_wrappers_run_eval_once() -> None:
     pytest_step = 'Invoke-PythonStep "pytest"'
     eval_step = 'Invoke-PythonStep "standalone eval" @("scripts/run_eval.py")'
     quality_step = 'Invoke-PythonStep "quality gate"'
+    environment_step = 'Invoke-PythonStep "development environment"'
     assert local.count(eval_step) == 1
-    assert local.index(pytest_step) < local.index(eval_step) < local.index(quality_step)
+    assert (
+        local.index(environment_step)
+        < local.index(pytest_step)
+        < local.index(eval_step)
+        < local.index(quality_step)
+    )
     assert "scripts/run_local_verify.ps1" in release
     assert '"optional eval"' not in release
 
