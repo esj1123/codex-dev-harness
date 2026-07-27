@@ -26,7 +26,7 @@ def materialize_manifest_repo(tmp_path: Path, payload: dict[str, object]) -> Pat
         for key in checker.CLASSIFICATION_KEYS
         for path in payload[key]
     ]
-    for relative in classifications:
+    for relative in [*classifications, *payload["operational_inputs"]]:
         path = repo / relative
         path.parent.mkdir(parents=True, exist_ok=True)
         content = (
@@ -60,6 +60,7 @@ def test_current_tree_manifest_passes_with_exact_required_doc_coverage() -> None
     assert result["manifest_summary"]["classified_required_doc_count"] == 76
     assert result["manifest_summary"]["default_read_order_count"] == 6
     assert result["manifest_summary"]["conditional_read_order_count"] == 4
+    assert result["manifest_summary"]["operational_input_count"] == 6
     assert result["performed_actions"] == []
 
 
@@ -96,7 +97,7 @@ def test_default_read_order_is_exact_ordered_current_authority_subset() -> None:
     assert payload["conditional_read_order"] == checker.EXPECTED_CONDITIONAL_READ_ORDER
     assert (
         payload["unlisted_document_policy"]
-        == "non_authoritative_reference_only"
+        == "non_authoritative_reference_only_except_declared_operational_inputs"
     )
 
     changed = copy.deepcopy(payload)
@@ -196,3 +197,47 @@ def test_integration_only_path_definitions_match_final_boundary() -> None:
     assert set(payload["integration_only_prefixes"]) == checker.EXPECTED_INTEGRATION_ONLY_PREFIXES
     assert payload["integration_only_exact"] == sorted(payload["integration_only_exact"])
     assert payload["integration_only_prefixes"] == sorted(payload["integration_only_prefixes"])
+
+
+def test_operational_inputs_are_exact_safe_existing_non_authority_files() -> None:
+    payload = load_manifest()
+    classified = {
+        path
+        for key in checker.CLASSIFICATION_KEYS
+        for path in payload[key]
+    }
+
+    assert payload["operational_inputs"] == checker.EXPECTED_OPERATIONAL_INPUTS
+    assert set(payload["operational_inputs"]).isdisjoint(classified)
+    assert all((REPO_ROOT / path).is_file() for path in payload["operational_inputs"])
+
+
+@pytest.mark.parametrize(
+    ("mutation", "reason_code"),
+    [
+        (
+            lambda payload: payload["operational_inputs"].append("docs/extra.json"),
+            "OPERATIONAL_INPUT_SET_INVALID",
+        ),
+        (
+            lambda payload: payload["operational_inputs"].__setitem__(
+                0, "../outside.json"
+            ),
+            "OPERATIONAL_INPUT_PATH_UNSAFE",
+        ),
+        (
+            lambda payload: payload["operational_inputs"].__setitem__(
+                0, payload["current_authority"][0]
+            ),
+            "OPERATIONAL_INPUT_CLASSIFICATION_OVERLAP",
+        ),
+    ],
+)
+def test_operational_input_drift_fails_closed(mutation, reason_code: str) -> None:
+    payload = load_manifest()
+    mutation(payload)
+
+    result = checker.validate_manifest(payload, repo_root=REPO_ROOT)
+
+    assert result["status"] == "FAIL"
+    assert reason_code in result["reason_codes"]

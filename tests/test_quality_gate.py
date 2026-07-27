@@ -58,6 +58,10 @@ def minimal_repo(root: Path) -> None:
     manifest = json.loads(
         (root / docs_gate.MANIFEST_PATH).read_text(encoding="utf-8")
     )
+    for relative in manifest["operational_inputs"]:
+        write(root / relative, Path(relative).read_text(encoding="utf-8"))
+    for relative in json_evidence_gate.BUNDLE_PATHS:
+        write(root / relative, Path(relative).read_text(encoding="utf-8"))
     write(
         root / "STATUS.md",
         f"# STATUS.md\n\n## Current State\n\n`{manifest['current_state']}`\n",
@@ -252,6 +256,18 @@ def test_current_authority_is_manifest_driven() -> None:
     assert manifest["conditional_read_order"]["handoff"] == [
         "docs/AI_HANDOFF.md"
     ]
+    assert manifest["operational_inputs"] == [
+        "docs/APPROVED_CORPUS_SOURCE_SET.v2.json",
+        "docs/DOWNSTREAM_PRODUCT_INTEGRATION_BOUNDARY_REVIEW.md",
+        "docs/JSON_EVIDENCE_POLICY.md",
+        "docs/RELEASE_AUTOMATION_CANDIDATE_CONTRACT.md",
+        "docs/RELEASE_AUTOMATION_PROVENANCE_BOUNDARY_REVIEW.md",
+        "docs/VERIFICATION_IMPACT_MAP.json",
+    ]
+    assert (
+        manifest["unlisted_document_policy"]
+        == "non_authoritative_reference_only_except_declared_operational_inputs"
+    )
     assert "Read `STATUS.md` for the current human summary" in handoff
     assert "## Current Phase" not in handoff
     assert "## Next Recommended Step" not in handoff
@@ -264,6 +280,26 @@ def test_current_authority_is_manifest_driven() -> None:
         assert line in readme
     assert "GitHub Actions workflow is not installed" not in handoff
     assert "recommended next work is Phase 3" not in handoff
+
+
+def test_top_level_architecture_and_capability_docs_are_current_and_compact() -> None:
+    architecture = Path("docs/ARCHITECTURE.md").read_text(encoding="utf-8")
+    spec = Path("docs/HARNESS_SPEC.md").read_text(encoding="utf-8")
+    roadmap = Path("docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md").read_text(
+        encoding="utf-8"
+    )
+    readme = Path("README.md").read_text(encoding="utf-8")
+
+    assert "GitHub Actions workflow is still NOT INSTALLED" not in architecture
+    assert "no `.github/workflows` file is installed" not in architecture
+    assert "Agent Quality Plane" in architecture
+    assert "work-package" in spec
+    assert len(roadmap.splitlines()) <= 200
+    assert "## Capability Registry" in roadmap
+    assert "### Phase " not in roadmap
+    assert "Follow `STATUS.md` for the active" in roadmap
+    assert "## Read-Only Validation" in readme
+    assert "## Artifact-Writing Release Verification" in readme
 
 
 def test_work_package_v2_policy_separates_plan_from_authorization() -> None:

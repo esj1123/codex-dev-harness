@@ -5,7 +5,7 @@
 `AGENT_QUALITY_BASELINE_NOT_ESTABLISHED`
 
 The harness has completed its first governed greenfield application pilot,
-work-package v2 hardening, and the standalone Agent Quality Stability control
+work-package v3 hardening, and the standalone Agent Quality Stability control
 layer. Current authority is defined by `docs/AUTHORITY_MANIFEST.json`;
 historical phase and run details remain available in Git history and
 `ACCEPTANCE_TRACE.md`.
@@ -41,6 +41,9 @@ historical phase and run details remain available in Git history and
   - suite/configuration comparability is decided before quality regression;
   - baseline shape is cross-checked against the canonical suite by the JSON
     evidence gate.
+  - the current suite binds each required invariant to one grader ID and each
+    current run must provide an exact status and result hash for every
+    invariant before strict pass is possible.
 
 ## Agent Quality Pilot
 
@@ -59,8 +62,9 @@ required agent verification omitted in several otherwise owner-verified
 trials, one historical-authority rewrite, and one malformed-schema regression
 coverage gap.
 
-The current suite now declares exact verification commands and the failure-
-derived invariant IDs. Execution-specific package digests remain in run
+The current suite now declares exact verification commands, failure-derived
+invariant IDs, and invariant grader bindings. Execution-specific package
+digests remain in run
 evidence rather than the canonical suite, so a new approval reference does not
 change the comparison contract. The previous suite and run envelopes remain
 readable as historical evidence; they are not eligible for the new suite.
@@ -117,10 +121,9 @@ not authenticate approval.
 
 ## Next Recommended Step
 
-Review the sanitized numeric-bound and non-encodable-Unicode failure families
-against the frozen target contracts. Only after explicit human review should
-the owner-held graders be updated to match the declared invariant IDs. Then
-create schema-v3 work packages with the exact verifier contracts and run a new
-complete 19-trial suite under one fingerprint. Tracked baseline creation
-remains blocked until every adoption condition passes; do not reuse or replace
-individual runs from the historical suites.
+Keep baseline adoption at `HOLD`. Review the sanitized numeric-bound and
+non-encodable-Unicode failure families against the frozen target contracts,
+then decide whether a fresh complete suite should run under one fingerprint.
+Current suite runs must use the declared grader-bound invariant evidence;
+historical unbound runs remain reviewable but are not adoption inputs. Tracked
+baseline creation remains blocked until every adoption condition passes.

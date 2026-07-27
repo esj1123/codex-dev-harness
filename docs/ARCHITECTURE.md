@@ -1,186 +1,120 @@
-# ARCHITECTURE.md
+# Architecture
 
 ## Purpose
 
-Describe codex-dev-harness as a general local-first template system for governed agentic development.
+`codex-dev-harness` is a local-first control plane for governed AI-assisted
+development. It provides reusable authority, planning, rendering, verification,
+evidence, and handoff mechanisms. It is not a downstream application and does
+not grant authority to perform side effects.
 
-The repository is not a downstream application. It provides reusable documents, templates, policies, render tooling, and validation gates that can be adapted to many project types without creating project-specific profiles for every domain.
+## Authority Plane
 
-## Control Plane
+`docs/AUTHORITY_MANIFEST.json` is the machine-readable authority index. It
+separates:
 
-The control plane defines the project contract and operating rules:
-- `AGENTS.md`
-- `PRODUCT.md`
-- `MVP.md`
-- `ROADMAP.md`
-- `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`
-- `STATUS.md`
-- `ACCEPTANCE_TRACE.md`
-- `code_review.md`
+- current authority;
+- durable policy;
+- historical evidence;
+- conditional read groups;
+- integration-only paths; and
+- bounded operational inputs consumed by specific tools.
 
-These files tell an agent what the project is, what is in scope, what is out of
-scope, what implementation sequence is current, what evidence is required, and
-how closeout should be recorded.
+`STATUS.md` is the current human sequencing summary. The capability roadmap is
+consulted only when selecting work. Operational inputs are not current
+authority and do not broaden task approval.
 
-## Template Plane
+## Contract And Coordination Plane
 
-The template plane contains base files that should be useful across project types:
-- `templates/base/AGENTS.md.template`
-- `templates/base/README.md.template`
-- `templates/base/PRODUCT.md.template`
-- `templates/base/MVP.md.template`
-- `templates/base/STATUS.md.template`
-- `templates/base/ACCEPTANCE_TRACE.md.template`
-- `templates/base/SOURCE_INDEX.md.template`
-- `templates/base/PROJECT_BOUNDARY.md.template`
-- `templates/base/DATA_SCOPE.md.template`
-- `templates/base/PHASE_PLAN.md.template`
-- `templates/base/APPROVALS.md.template`
+Task contracts define goal, scope, no-touch areas, verification, and permitted
+side effects. Work-package preflight and postflight add machine checks for:
 
-The base template is the preferred place for broadly reusable controls such as source indexing, project boundary definition, data scope, phase planning, and approval records.
+- common base and contract basis;
+- disjoint Windows-safe path ownership;
+- frozen shared interfaces;
+- dependency ordering;
+- deterministic plan digests;
+- actual Git change containment;
+- verifier identity and command completion; and
+- explicit separation of structural PASS from authorization.
 
-## Optional Profile Plane
+Feature and contract lanes cannot modify integration-owned authority or
+evidence surfaces. Contract changes return to the integration owner.
 
-Profiles are optional variants for recurring workflow shapes. Current profiles are regression/example variants:
-- `python_cli`
-- `csharp_desktop`
-- `plc_or_device_tool`
+## Template And Render Plane
 
-Profiles should not be created for every downstream project type. A profile is justified only when the repo needs a durable, repeated, safety-relevant variation with its own validation example.
+Base templates provide the common governance surface. Profiles add durable
+workflow-specific guidance for:
 
-## Optional Pack Plane
+- `python_cli`;
+- `csharp_desktop`; and
+- `plc_or_device_tool`.
 
-Optional packs are reusable document packs that are not part of the base render path and are not profiles.
+The renderer supports `minimal`, `standard`, and `full` tiers, deterministic
+file planning, generated Read Order closure, dry-run, provenance preview, and
+diff preview. Repository-internal writes are restricted to controlled example
+targets; real adoption uses a separately approved target.
 
-The current optional pack is the optional design-stage pack:
-- `templates/optional/design_stage/`
-- `docs/OPTIONAL_DESIGN_STAGE_PACK_USAGE.md`
-- `docs/OPTIONAL_DESIGN_STAGE_PACK_REVIEW.md`
-- `docs/OPTIONAL_DESIGN_STAGE_PACK_INTEGRATION_DECISION.md`
+Optional packs remain outside the base render path until explicitly integrated.
 
-Current optional design-stage pack state:
+## Verification Plane
 
-- Template files exist.
-- Usage guide exists.
-- Review record is refreshed.
-- Manual feedback 001 and 002 are documented.
-- All seven optional design-stage templates have PASS manual-use evidence.
-- Manual-use-only baseline is closed.
-- Render integration is deferred.
-- Gate integration is deferred.
-- Example integration is deferred.
+Verification has separate layers:
 
-The optional design-stage pack is not a profile, not a downstream application, and not part of the base render behavior. Future render, gate, or example integration requires a separate explicit owner approval.
+- focused tests for the changed contract or implementation;
+- V2 core: full pytest, standalone eval, and quality gates;
+- impact-required extras: checksum, corpus, render, or focused checks;
+- manual exact-SHA Local Verify for approved remote V3 evidence; and
+- artifact-writing release verification as a distinct explicit workflow.
 
-## Render Plane
+`docs/VERIFICATION_IMPACT_MAP.json` is an operational input for advisory
+planning. It selects commands but does not execute them or authenticate
+approval.
 
-The render plane is local-first and explicit:
-- `scripts/render_template.py`
-- `template.config.example.yml`
-- profile-specific `template.config.yml` files in examples
+## Agent Quality Plane
 
-Rendering supports dry-run first. The renderer refuses to write into the template repository except for controlled `examples/<name>` validation targets. Real downstream use should render into a separate target folder.
+Agent Quality Stability supplements deterministic repository checks with
+repeated agentic trials. It binds:
 
-## Verification/Gate Plane
+- canonical suite and task definitions;
+- source and contract bases;
+- work-package and tool policy hashes;
+- model and environment fingerprint fields;
+- exact verifier contracts;
+- grader-bound invariant results;
+- owner-held holdout summaries; and
+- semantic review outcomes.
 
-The verification plane checks the template system before release or adoption:
-- `scripts/quality_gate.py`
-- `scripts/gates/docs_gate.py`
-- `scripts/gates/repo_hygiene_gate.py`
-- `scripts/gates/template_schema_gate.py`
-- `scripts/gates/example_gate.py`
-- `scripts/gates/secret_scan_gate.py`
-- `tests/`
+Raw prompts, transcripts, model output, private inputs, and holdout fixtures are
+not tracked. Baseline creation is approval-gated and remains unavailable until
+all comparability and quality thresholds pass.
 
-Current verification covers required docs, required base templates, template config schema, example config consistency, simple private-pattern scanning, and regression examples.
+## Evidence And Retrieval Plane
+
+The repository keeps JSON evidence schemas, release evidence, an exact approved
+corpus source set, a checkout-independent corpus digest, and a local read-only
+retriever. Evidence is identifier-first and bounded. Retrieval is advisory and
+cannot expand approval.
+
+Release checksums and the approved corpus digest are separate integrity
+surfaces. Regeneration requires an explicit write approval and a declared
+source basis.
 
 ## Side-Effect Boundary
 
-The default boundary is read-only first, dry-run first, and approval-gated before mutation. The template must not add:
-- real application code
-- C# solution or project files
-- PLC/device code
-- live target write support
-- live configuration
-- private input
-- secret values
-- equipment connection details
+The default is read-only and dry-run first. File mutation, dependency
+installation, network access, downstream access, staging, commit, push,
+workflow dispatch, artifact upload, release, deploy, and live action are
+independent side-effect classes.
 
-Downstream projects can use the generated docs to request approval before crossing any side-effect boundary.
+No policy document, package, validator result, or historical approval grants
+standing authority for those actions.
 
-## Release/Record Plane
+## Downstream Boundary
 
-Release evidence is tracked as documents:
-- `docs/RELEASE_CHECKLIST.md`
-- `docs/RELEASE_NOTES_v0.1.0-rc1.md`
-- `docs/RELEASE_NOTES_v0.1.0-rc2.md`
-- `docs/RELEASE_RECORD_v0.1.0-rc1.md`
-- `docs/RELEASE_RECORD_v0.1.0-rc2.md`
-- `docs/RELEASE_RECORD_v0.1.0.md`
-- `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md`
-- `docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc2.md`
-- `docs/CLEAN_CLONE_VALIDATION_v0.1.0.md`
-- `docs/GITHUB_RELEASE_DRAFT_v0.1.0.md`
-- `docs/LOCAL_DOWNSTREAM_ADOPTION_RUN_v0.1.0.md`
-- `docs/DOWNSTREAM_DOC_REVIEW_CHECKLIST_v0.1.0.md`
-- `docs/POST_V0.1.0_ROADMAP.md`
-- `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`
-- `docs/POST_V0.1.0_EVIDENCE_BASELINE_CLOSEOUT.md`
-- `docs/RELEASE_PAGE_DECISION.md`
-- `docs/LOCAL_PACKAGE_CHECKLIST.md`
-- `docs/OPTIONAL_EVAL_HARNESS_PLAN.md`
-- `docs/MINIMAL_EVAL_HARNESS_DESIGN.md`
-- `docs/RELEASE_BUNDLE_POLICY.md`
-- `docs/RELEASE_MANIFEST_POLICY.md`
-- `docs/SBOM_PROVENANCE_PLAN.md`
-- `docs/LOCAL_TARGET_EXPERIMENT_python_cli_v0.1.0-rc1.md`
+Downstream repositories have their own authority. Harness-facing contracts use
+safe aliases and bounded summaries, not private raw data or persisted absolute
+paths. In-place overwrite is not allowed without explicit target-specific
+approval and collision review.
 
-Release records document what happened. They do not create tags, move tags, publish GitHub Releases, or enable CI.
-
-Current release state:
-
-- Formal `v0.1.0` tag exists and is recorded.
-- Formal `v0.1.0` clean clone validation is recorded.
-- Formal GitHub Release draft exists, but the GitHub Release page is still NOT CREATED.
-- Downstream adoption run and downstream doc review checklist are recorded.
-- Post-v0.1.0 roadmap, evidence baseline closeout, release page decision,
-  local package checklist, and optional eval harness plan are recorded.
-- Standalone local eval harness, eval gate wrapper, 14 named eval cases, and
-  explicit local eval report evidence exist; eval remains separate from
-  `scripts/quality_gate.py`, CI, and release blocking.
-- Local release manifest/checksum generation, generated release evidence
-  artifacts, minimal SBOM/provenance generation, and the local release
-  verification wrapper exist.
-- GitHub Actions workflow is still NOT INSTALLED.
-- Optional CI actualization remains not installed, but read-only CI +
-  verification hygiene is the first implementation target in the capability
-  implementation roadmap.
-- Release publication, release archives, signing, tag movement, external
-  SBOM/provenance metadata, RAG/model tooling, real audit logs, MCP/Hermes,
-  and application/device/live-write behavior remain approval-gated roadmap
-  targets.
-
-## Optional CI Plane
-
-GitHub Actions are approval-gated. The repository includes disabled templates
-under `templates/ci/`, but no `.github/workflows` file is installed by
-default.
-
-Per `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`, the first implementation
-target is read-only CI + verification hygiene. The first CI phase should only
-mirror local verification checks. It must not deploy, create runtime code,
-connect to live targets, upload artifacts, publish releases, move tags, or
-perform release actions without explicit approval.
-
-## Downstream Application Boundary
-
-Complex projects such as a scenario simulator design are downstream application candidates, not built-in profiles by default.
-
-A downstream project should use the base templates to define:
-- source index
-- project boundary
-- data scope
-- phase plan
-- approvals
-
-Raw source bulk copy, sensitive values, equipment connection details, and live parameters must stay out of this repository.
+The completed greenfield pilot demonstrates the control model; it does not make
+application code part of this repository.

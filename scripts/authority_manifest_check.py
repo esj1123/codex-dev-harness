@@ -44,6 +44,7 @@ EXPECTED_KEYS = {
     *CLASSIFICATION_KEYS,
     "integration_only_exact",
     "integration_only_prefixes",
+    "operational_inputs",
     "unlisted_document_policy",
 }
 ALLOWED_CURRENT_STATES = {
@@ -85,6 +86,14 @@ EXPECTED_INTEGRATION_ONLY_PREFIXES = {
     "evals/agentic/",
     "scripts/agent_quality_lib/",
 }
+EXPECTED_OPERATIONAL_INPUTS = [
+    "docs/APPROVED_CORPUS_SOURCE_SET.v2.json",
+    "docs/DOWNSTREAM_PRODUCT_INTEGRATION_BOUNDARY_REVIEW.md",
+    "docs/JSON_EVIDENCE_POLICY.md",
+    "docs/RELEASE_AUTOMATION_CANDIDATE_CONTRACT.md",
+    "docs/RELEASE_AUTOMATION_PROVENANCE_BOUNDARY_REVIEW.md",
+    "docs/VERIFICATION_IMPACT_MAP.json",
+]
 
 
 def base_result() -> dict[str, Any]:
@@ -104,6 +113,7 @@ def base_result() -> dict[str, Any]:
             "conditional_read_order_count": 0,
             "integration_only_exact_count": 0,
             "integration_only_prefix_count": 0,
+            "operational_input_count": 0,
         },
         "performed_actions": [],
     }
@@ -139,7 +149,10 @@ def validate_manifest(payload: Any, *, repo_root: Path) -> dict[str, Any]:
         issues.add("SCHEMA_VERSION_INVALID")
     if payload["manifest_id"] != MANIFEST_ID:
         issues.add("MANIFEST_ID_INVALID")
-    if payload["unlisted_document_policy"] != "non_authoritative_reference_only":
+    if (
+        payload["unlisted_document_policy"]
+        != "non_authoritative_reference_only_except_declared_operational_inputs"
+    ):
         issues.add("UNLISTED_DOCUMENT_POLICY_INVALID")
     if payload["current_state"] not in ALLOWED_CURRENT_STATES:
         issues.add("CURRENT_STATE_INVALID")
@@ -151,6 +164,7 @@ def validate_manifest(payload: Any, *, repo_root: Path) -> dict[str, Any]:
         "default_read_order",
         "integration_only_exact",
         "integration_only_prefixes",
+        "operational_inputs",
     )
     invalid_lists = [key for key in list_keys if not unique_string_list(payload[key])]
     if invalid_lists:
@@ -178,6 +192,7 @@ def validate_manifest(payload: Any, *, repo_root: Path) -> dict[str, Any]:
     )
     summary["integration_only_exact_count"] = len(payload["integration_only_exact"])
     summary["integration_only_prefix_count"] = len(payload["integration_only_prefixes"])
+    summary["operational_input_count"] = len(payload["operational_inputs"])
 
     declared_paths = [path for key in CLASSIFICATION_KEYS for path in classifications[key]]
     if any(not safe_repo_path(path) for path in declared_paths):
@@ -225,6 +240,21 @@ def validate_manifest(payload: Any, *, repo_root: Path) -> dict[str, Any]:
         issues.add("INTEGRATION_EXACT_SET_INVALID")
     if set(integration_prefixes) != EXPECTED_INTEGRATION_ONLY_PREFIXES:
         issues.add("INTEGRATION_PREFIX_SET_INVALID")
+
+    operational_inputs = payload["operational_inputs"]
+    if operational_inputs != EXPECTED_OPERATIONAL_INPUTS:
+        issues.add("OPERATIONAL_INPUT_SET_INVALID")
+    if any(not safe_repo_path(path) for path in operational_inputs):
+        issues.add("OPERATIONAL_INPUT_PATH_UNSAFE")
+    if set(operational_inputs).intersection(declared_paths):
+        issues.add("OPERATIONAL_INPUT_CLASSIFICATION_OVERLAP")
+    if any(
+        not (repo_root / PurePosixPath(path)).is_file()
+        or (repo_root / PurePosixPath(path)).is_symlink()
+        for path in operational_inputs
+        if safe_repo_path(path)
+    ):
+        issues.add("OPERATIONAL_INPUT_MISSING_OR_NOT_REGULAR")
 
     if any(
         not (repo_root / PurePosixPath(path)).is_file()

@@ -15,12 +15,14 @@ The repository has moved beyond the historical P0 docs-only baseline. It current
 - A base quality gate.
 - Minimal example skeletons under `examples/`.
 - Tests for render and gate behavior.
-- A capability implementation roadmap that records CI, RAG, audit/trace,
-  eval integration, MCP/Hermes, release automation, provenance, and downstream
-  application as final implementation targets.
-- Work-package v2 preflight/postflight controls with case-insensitive and
+- A compact capability-selection roadmap that records implemented, held, and
+  candidate capabilities without duplicating phase history.
+- Work-package v3 preflight/postflight controls with case-insensitive and
   parent/child path conflict detection, frozen contract surfaces, and explicit
   non-authentication of structural PASS results.
+- An Agent Quality control plane with run fingerprints, suite-bound invariant
+  evidence, safe aggregation, semantic review, and approval-gated baseline
+  adoption.
 - A completed first greenfield application pilot proving two disjoint feature
   lanes, integration, synthetic E2E evaluation, and cleanup.
 
@@ -61,7 +63,8 @@ Load the manifest's conditional groups only when needed:
 - capability selection: `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`
 - handoff: `docs/AI_HANDOFF.md`
 
-Documents not listed by the manifest are non-authoritative reference material.
+The manifest also lists bounded operational inputs used by specific tools.
+Other unlisted documents are non-authoritative reference material.
 
 ## Repository Structure
 
@@ -97,24 +100,26 @@ Documents not listed by the manifest are non-authoritative reference material.
 - Authority separation: the manifest distinguishes current authority, durable
   policy, and historical evidence before work is planned.
 
-## Validation
+## Read-Only Validation
 
-Use the quality gate and dry-run renderer before treating the template as healthy:
+Use the standing local wrapper for the normal V2 verification surface:
 
 - `python --version`
-- `python -m pip install -r requirements-dev.txt`
-- `python -m pytest`
-- `python scripts/quality_gate.py`
+- `python -m pip install -r requirements-dev.lock`
+- `python -m pip check`
 - `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1`
-- `powershell -ExecutionPolicy Bypass -File scripts/run_release_verify.ps1`
-- `python scripts/render_template.py --config examples/python_cli_minimal/template.config.yml --target examples/python_cli_minimal --dry-run`
-- `python scripts/render_template.py --config examples/csharp_desktop_minimal/template.config.yml --target examples/csharp_desktop_minimal --dry-run`
-- `python scripts/render_template.py --config examples/plc_tool_minimal/template.config.yml --target examples/plc_tool_minimal --dry-run`
 
-The release verification wrapper is local-only. Its local verification step
-already includes standalone evals before it generates release evidence under
-`artifacts/`; it does not publish releases, move tags, sign artifacts, create
-archives, or install CI workflows.
+That wrapper runs pytest, standalone eval without report flags, the nine
+quality gates, and the three profile dry-runs. Impact planning may additionally
+require checksum, corpus, render, or focused checks.
+
+## Artifact-Writing Release Verification
+
+`scripts/run_release_verify.ps1` is a separate, explicit artifact-writing
+workflow. It first calls the standing local verification wrapper and then
+generates approved release evidence under `artifacts/`. Run it only when the
+task explicitly authorizes those artifact writes. It does not publish a
+release, move tags, sign artifacts, create archives, or install workflows.
 
 Python runtime and dependency reproducibility are documented in
 `docs/PYTHON_RUNTIME_POLICY.md`. The local verification runtime is pinned in
