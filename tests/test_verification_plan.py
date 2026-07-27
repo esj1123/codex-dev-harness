@@ -178,6 +178,28 @@ def test_agent_quality_surface_requires_manual_static_check(
     ]
 
 
+@pytest.mark.parametrize(
+    "relative_path",
+    [
+        "prompts/task_contract/task_contract.md",
+        "prompts/task_contract/verification_closeout.md",
+    ],
+)
+def test_work_package_prompt_contracts_require_v2_integration_owner(
+    tmp_path: Path,
+    relative_path: str,
+) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    commit_file(repo, relative_path, "# Synthetic contract\n")
+
+    result = inspect(repo, base_sha)
+
+    assert result["minimum_tier"] == "V2"
+    assert result["integration_owner_required"] is True
+    assert result["reason_codes"] == []
+    assert "work_package_prompt_contracts" in result["matched_rule_ids"]
+
+
 def test_corpus_source_change_requires_digest_check(tmp_path: Path) -> None:
     repo, base_sha = init_repo(tmp_path)
     commit_file(repo, "docs/corpus-policy.md", "# Policy\n")

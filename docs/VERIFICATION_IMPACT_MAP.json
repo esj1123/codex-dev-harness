@@ -201,6 +201,20 @@
       "checksum_check_required": false,
       "command_ids": [],
       "digest_check_required": false,
+      "integration_owner_required": true,
+      "match_kind": "exact",
+      "minimum_tier": "V2",
+      "patterns": [
+        "prompts/task_contract/task_contract.md",
+        "prompts/task_contract/verification_closeout.md"
+      ],
+      "render_check_required": false,
+      "rule_id": "work_package_prompt_contracts"
+    },
+    {
+      "checksum_check_required": false,
+      "command_ids": [],
+      "digest_check_required": false,
       "integration_owner_required": false,
       "match_kind": "exact",
       "minimum_tier": "V2",
