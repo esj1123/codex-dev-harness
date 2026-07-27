@@ -97,6 +97,8 @@ def fixture(tmp_path: Path) -> dict[str, object]:
     suite = {
         "schema_version": "2",
         "suite_id": "agentic-regression-v2",
+        "profile_set_id": profiles["profile_set_id"],
+        "profile_set_hash": sha256_json(profiles),
         "tasks": [
             {
                 "task_id": package["task_id"],

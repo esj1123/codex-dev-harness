@@ -14,7 +14,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.agent_quality_lib.adoption import build_baseline, compare_baseline
-from scripts.agent_quality_lib.aggregation import aggregate_runs
+from scripts.agent_quality_lib.aggregation import aggregate_runs, compare_role_aggregates
 from scripts.agent_quality_lib.capture import capture_run, write_captured_run
 from scripts.agent_quality_lib.contracts import (
     AgentQualityValidationError,
@@ -153,6 +153,8 @@ def _compare_command(
     baseline = _load_exact_baseline(baseline_path)
     suite, runs = _load_suite_and_runs(suite_path, runs_dir)
     candidate = aggregate_runs(suite, runs)
+    if candidate.get("schema_version") == "2":
+        return compare_role_aggregates(baseline, candidate)
     return compare_baseline(baseline, candidate, suite=suite)
 
 

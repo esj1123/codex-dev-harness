@@ -23,7 +23,7 @@
     "docs/SAFETY_POLICY.md",
     "docs/VERIFICATION.md"
   ],
-  "current_state": "AGENT_QUALITY_BASELINE_NOT_ESTABLISHED",
+  "current_state": "READY_FOR_PROFILE_CALIBRATION",
   "default_read_order": [
     "AGENTS.md",
     "docs/AUTHORITY_MANIFEST.json",
@@ -130,7 +130,9 @@
     "docs/JSON_EVIDENCE_POLICY.md",
     "docs/RELEASE_AUTOMATION_CANDIDATE_CONTRACT.md",
     "docs/RELEASE_AUTOMATION_PROVENANCE_BOUNDARY_REVIEW.md",
-    "docs/VERIFICATION_IMPACT_MAP.json"
+    "docs/VERIFICATION_IMPACT_MAP.json",
+    "evals/agentic/agent-role-profiles.json",
+    "evals/agentic/suites/agentic-regression-v2.json"
   ],
   "schema_version": "1",
   "unlisted_document_policy": "non_authoritative_reference_only_except_declared_operational_inputs"

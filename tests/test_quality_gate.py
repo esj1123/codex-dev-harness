@@ -237,7 +237,7 @@ def test_current_authority_is_manifest_driven() -> None:
     agents = Path("AGENTS.md").read_text(encoding="utf-8")
     readme = Path("README.md").read_text(encoding="utf-8")
 
-    assert manifest["current_state"] == "AGENT_QUALITY_BASELINE_NOT_ESTABLISHED"
+    assert manifest["current_state"] == "READY_FOR_PROFILE_CALIBRATION"
     assert manifest["default_read_order"][0:2] == [
         "AGENTS.md",
         docs_gate.MANIFEST_PATH,
@@ -263,6 +263,8 @@ def test_current_authority_is_manifest_driven() -> None:
         "docs/RELEASE_AUTOMATION_CANDIDATE_CONTRACT.md",
         "docs/RELEASE_AUTOMATION_PROVENANCE_BOUNDARY_REVIEW.md",
         "docs/VERIFICATION_IMPACT_MAP.json",
+        "evals/agentic/agent-role-profiles.json",
+        "evals/agentic/suites/agentic-regression-v2.json",
     ]
     assert (
         manifest["unlisted_document_policy"]

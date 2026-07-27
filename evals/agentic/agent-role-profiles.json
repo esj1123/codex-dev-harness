@@ -1,0 +1,41 @@
+{
+  "profile_set_id": "agent-role-profiles-v1",
+  "profiles": [
+    {
+      "lane": "contract",
+      "model_id": "gpt-5.6-sol",
+      "profile_id": "contract_planner",
+      "read_only": true,
+      "reasoning_profile": "high"
+    },
+    {
+      "lane": "feature",
+      "model_id": "gpt-5.6-sol",
+      "profile_id": "critical_implementer",
+      "read_only": false,
+      "reasoning_profile": "high"
+    },
+    {
+      "lane": "feature",
+      "model_id": "gpt-5.6-sol",
+      "profile_id": "feature_implementer",
+      "read_only": false,
+      "reasoning_profile": "medium"
+    },
+    {
+      "lane": "integration",
+      "model_id": "gpt-5.6-sol",
+      "profile_id": "integration_owner",
+      "read_only": false,
+      "reasoning_profile": "high"
+    },
+    {
+      "lane": "review",
+      "model_id": "gpt-5.6-sol",
+      "profile_id": "semantic_reviewer",
+      "read_only": true,
+      "reasoning_profile": "xhigh"
+    }
+  ],
+  "schema_version": "1"
+}

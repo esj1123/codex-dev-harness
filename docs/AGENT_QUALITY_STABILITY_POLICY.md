@@ -73,7 +73,19 @@ fingerprint field makes the run `PARTIAL` and prevents baseline adoption.
 
 ## Trial Evidence
 
-Run envelopes are bounded safe summaries. They must not contain:
+Historical v1 run envelopes are bounded manually supplied safe summaries and
+remain readable only as historical evidence. New adoption evidence uses
+`agent-run-v2`: the recorder executes the package verification commands and
+owner-held grader itself, observes Git state, and records only exit codes,
+counts, identifiers, and SHA-256 values. Manual `execution.status=PASS` and
+manual completed-command declarations are not v2 evidence.
+
+The launch receipt binds the requested role profile, safe agent identifier, and
+request hash. It records `model_selection_source=ADAPTER_REQUEST` and
+`model_observation_status=NOT_INDEPENDENTLY_OBSERVABLE`; it does not claim
+independent provider-side model attestation.
+
+Run envelopes must not contain:
 
 - raw prompts, transcripts, command logs, or model output;
 - private or live source;
@@ -107,6 +119,22 @@ notation:
 The first provisional baseline requires both strict-pass rates to equal `1.0`
 and every blocker count to equal zero. Agentic regression v1 also requires
 exactly one owner-held holdout result per run; every holdout must pass.
+
+## Role-Aware Profiles
+
+`evals/agentic/agent-role-profiles.json` is the machine-readable role profile
+set. The initial set keeps `gpt-5.6-sol` fixed and varies reasoning only:
+contract planning uses `high`, ordinary feature implementation uses `medium`,
+critical implementation and integration ownership use `high`, and blinded
+semantic review uses `xhigh`. These profiles apply to future subagent launch
+requests, not to the current interactive chat.
+
+Work-package plan digests bind `agent_profile_id` and `agent_profile_hash`.
+Agentic regression v2 aggregates one configuration per role and derives an
+ordered `profile_set_hash` and `system_configuration_id`. Comparisons are made
+only within the same role/profile set. A profile-set mismatch is `HOLD`, not a
+quality regression. Profile calibration is required before a fresh nineteen
+trial adoption run.
 
 ## Semantic Review
 

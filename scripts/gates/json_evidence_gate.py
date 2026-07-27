@@ -22,6 +22,7 @@ BUNDLE_PATHS = [
 AGENT_QUALITY_SCHEMA_PATHS = [
     "evals/agentic/schemas/agent-run.schema.json",
     "evals/agentic/schemas/agent-run-v2.schema.json",
+    "evals/agentic/schemas/agent-role-profiles.schema.json",
     "evals/agentic/schemas/agent-quality-baseline.schema.json",
     "evals/agentic/schemas/failure-case.schema.json",
 ]
@@ -464,6 +465,11 @@ def check_agent_quality_bundle(repo_root: Path) -> list[str]:
             "repository",
             "grading",
             "metrics",
+        },
+        "agent-role-profiles.schema.json": {
+            "schema_version",
+            "profile_set_id",
+            "profiles",
         },
         "agent-quality-baseline.schema.json": {
             "schema_version",

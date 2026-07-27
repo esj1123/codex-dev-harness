@@ -113,6 +113,36 @@ _RUN_EVIDENCE_KEYS = {
 }
 _OPTIONAL_OPERATIONAL_KEYS = {"duration_seconds", "cost_units", "operational_metrics"}
 _EXPECTED_HOLDOUTS_PER_RUN = 1
+_SUITE_V2_KEYS = (
+    _SUITE_KEYS
+    - {"required_configuration"}
+    | {
+        "profile_set_id",
+        "profile_set_hash",
+        "semantic_review_profile_id",
+        "semantic_review_profile_hash",
+    }
+)
+_TASK_V2_PROFILE_KEYS = {"agent_profile_id", "agent_profile_hash"}
+_ROLE_AGGREGATE_KEYS = (
+    _AGGREGATE_KEYS
+    - {"configuration_id"}
+    | {
+        "profile_set_hash",
+        "role_configuration_manifest",
+        "system_configuration_id",
+    }
+)
+_ROLE_CONFIGURATION_KEYS = {
+    "agent_profile_id",
+    "agent_profile_hash",
+    "configuration_id",
+    "run_count",
+}
+_RUN_EVIDENCE_V2_KEYS = _RUN_EVIDENCE_KEYS | {
+    "agent_profile_id",
+    "configuration_id",
+}
 
 
 def _safe_path(value: Any) -> bool:
@@ -284,6 +314,73 @@ def _suite_tasks(suite: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
     if declared_total != total_trials:
         raise ValueError("suite total_trials does not match task budgets")
     return by_id
+
+
+def _suite_tasks_v2(suite: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
+    if set(suite) != _SUITE_V2_KEYS:
+        raise ValueError("suite v2 key set is invalid")
+    if (
+        suite.get("schema_version") != "2"
+        or suite.get("status") != "READY"
+        or suite.get("suite_class") != "agentic_regression"
+        or not isinstance(suite.get("profile_set_id"), str)
+        or not _SAFE_ID.fullmatch(suite["profile_set_id"])
+        or not isinstance(suite.get("profile_set_hash"), str)
+        or not _HASH.fullmatch(suite["profile_set_hash"])
+        or not isinstance(suite.get("semantic_review_profile_id"), str)
+        or not _SAFE_ID.fullmatch(suite["semantic_review_profile_id"])
+        or not isinstance(suite.get("semantic_review_profile_hash"), str)
+        or not _HASH.fullmatch(suite["semantic_review_profile_hash"])
+    ):
+        raise ValueError("suite v2 metadata is invalid")
+    raw_tasks = suite.get("tasks")
+    if not isinstance(raw_tasks, list) or not raw_tasks:
+        raise ValueError("suite v2 tasks must be a non-empty list")
+
+    stripped_tasks: list[dict[str, Any]] = []
+    profile_bindings: dict[str, tuple[str, str]] = {}
+    for task in raw_tasks:
+        if not isinstance(task, Mapping) or not _TASK_V2_PROFILE_KEYS <= set(task):
+            raise ValueError("suite v2 task profile binding is missing")
+        profile_id = task.get("agent_profile_id")
+        profile_hash = task.get("agent_profile_hash")
+        if (
+            not isinstance(profile_id, str)
+            or not _SAFE_ID.fullmatch(profile_id)
+            or not isinstance(profile_hash, str)
+            or not _HASH.fullmatch(profile_hash)
+        ):
+            raise ValueError("suite v2 task profile binding is invalid")
+        stripped = {
+            key: value
+            for key, value in task.items()
+            if key not in _TASK_V2_PROFILE_KEYS
+        }
+        stripped_tasks.append(stripped)
+        profile_bindings[str(task.get("task_id"))] = (profile_id, profile_hash)
+
+    surrogate = {
+        "schema_version": "1",
+        "status": suite["status"],
+        "suite_class": suite["suite_class"],
+        "suite_id": suite["suite_id"],
+        "required_configuration": {
+            "agent_adapter_id": "role-aware",
+            "agent_adapter_version": "2.0.0",
+            "environment_profile_id": "windows-python-3.12.13",
+            "model_id": "role-aware",
+            "reasoning_profile": "role-aware",
+        },
+        "target_checkpoint": suite["target_checkpoint"],
+        "tasks": stripped_tasks,
+        "total_trials": suite["total_trials"],
+    }
+    tasks = _suite_tasks(surrogate)
+    for task_id, task in tasks.items():
+        profile_id, profile_hash = profile_bindings[task_id]
+        task["agent_profile_id"] = profile_id
+        task["agent_profile_hash"] = profile_hash
+    return tasks
 
 
 def _validated_metrics(value: Any) -> dict[str, int | float]:
@@ -575,7 +672,7 @@ def _reason_codes(metrics: Mapping[str, int | float]) -> list[str]:
     return reasons
 
 
-def aggregate_runs(
+def _aggregate_runs_v1(
     suite: Mapping[str, Any], runs: Sequence[Mapping[str, Any]]
 ) -> dict[str, Any]:
     """Aggregate one complete, comparable suite without retaining raw run data."""
@@ -644,7 +741,11 @@ def aggregate_runs(
                 command["command_id"]
                 for command in verification_contract["commands"]
             ]
-            if (
+            historical_unbound_execution = set(execution) == {
+                "status",
+                "reason_codes",
+            }
+            if not historical_unbound_execution and (
                 set(execution)
                 != {
                     "status",
@@ -665,18 +766,20 @@ def aggregate_runs(
                 )
             if "invariant_grader_id" in task:
                 invariant_results = run["grading"].get("invariant_results")
-                if not isinstance(invariant_results, list):
+                if invariant_results is None and historical_unbound_execution:
+                    invariant_results = []
+                elif not isinstance(invariant_results, list):
                     raise ValueError(
                         f"run invariant evidence is missing: {task_id}"
                     )
                 required_invariants = task["required_invariant_ids"]
-                if [result["invariant_id"] for result in invariant_results] != sorted(
-                    required_invariants
-                ):
+                if invariant_results and [
+                    result["invariant_id"] for result in invariant_results
+                ] != sorted(required_invariants):
                     raise ValueError(
                         f"run invariant evidence does not match task: {task_id}"
                     )
-                if any(
+                if invariant_results and any(
                     result["grader_id"] != task["invariant_grader_id"]
                     for result in invariant_results
                 ):
@@ -787,3 +890,315 @@ def aggregate_runs(
         "performed_actions": [],
     }
     return validate_aggregate_record(result, suite=suite)
+
+
+def _aggregate_runs_v2(
+    suite: Mapping[str, Any], runs: Sequence[Mapping[str, Any]]
+) -> dict[str, Any]:
+    tasks = _suite_tasks_v2(suite)
+    validated_runs = [_validated_run(run) for run in runs]
+    if len(validated_runs) != suite["total_trials"]:
+        raise ValueError("run count does not match the suite trial budget")
+
+    runs_by_task: dict[str, list[dict[str, Any]]] = {
+        task_id: [] for task_id in tasks
+    }
+    run_ids: set[str] = set()
+    trial_keys: set[tuple[str, str]] = set()
+    harness_commits: set[str] = set()
+    configurations: dict[str, set[str]] = {}
+    profile_hashes: dict[str, set[str]] = {}
+    manifest: list[dict[str, Any]] = []
+
+    for run in validated_runs:
+        if run.get("schema_version") != "2":
+            raise ValueError("suite v2 requires agent-run-v2 evidence")
+        task_id = run["task_id"]
+        if run["suite_id"] != suite["suite_id"] or task_id not in tasks:
+            raise ValueError("run does not belong to suite v2")
+        task = tasks[task_id]
+        fingerprint = run["fingerprint"]
+        profile = run["agent_profile"]
+        if (
+            run["task_class"] != task["lane"]
+            or run["criticality"] != task["criticality"]
+            or fingerprint["target_base_commit"] != task["source_basis"]
+            or fingerprint["contract_basis_sha"] != task["source_basis"]
+            or fingerprint["verification_suite_id"] != suite["suite_id"]
+            or profile["agent_profile_id"] != task["agent_profile_id"]
+            or profile["agent_profile_hash"] != task["agent_profile_hash"]
+        ):
+            raise ValueError("run task or profile binding does not match suite v2")
+        if fingerprint["comparability"] != "FULL":
+            raise ValueError("suite v2 runs must have FULL comparability")
+        verification = _verification_contract(
+            task["verification_contract"], task_id=task_id
+        )
+        expected_ids = sorted(
+            command["command_id"] for command in verification["commands"]
+        )
+        if (
+            run["execution"]["verification_contract_hash"]
+            != sha256_json(verification)
+            or run["execution"]["interpreter_id"]
+            != verification["interpreter_id"]
+            or run["execution"]["required_command_ids"] != expected_ids
+        ):
+            raise ValueError("run verification evidence does not match suite v2")
+        invariants = run["grading"]["invariant_results"]
+        if (
+            [item["invariant_id"] for item in invariants]
+            != sorted(task["required_invariant_ids"])
+            or any(
+                item["grader_id"] != task["invariant_grader_id"]
+                for item in invariants
+            )
+        ):
+            raise ValueError("run grader evidence does not match suite v2")
+        holdout_count = (
+            run["metrics"]["holdout_passed_count"]
+            + run["metrics"]["holdout_failed_count"]
+        )
+        if holdout_count != _EXPECTED_HOLDOUTS_PER_RUN:
+            raise ValueError("run holdout count is incomplete")
+
+        run_id = run["run_id"]
+        trial_key = (task_id, run["trial_id"])
+        if run_id in run_ids or trial_key in trial_keys:
+            raise ValueError("duplicate suite v2 run or task/trial")
+        run_ids.add(run_id)
+        trial_keys.add(trial_key)
+        runs_by_task[task_id].append(run)
+        harness_commits.add(fingerprint["harness_commit"])
+        role_configuration_id = sha256_json(
+            {
+                "agent_adapter_id": fingerprint["agent_adapter_id"],
+                "agent_adapter_version": fingerprint["agent_adapter_version"],
+                "model_id": profile["model_id"],
+                "reasoning_profile": profile["reasoning_profile"],
+                "tool_policy_hash": fingerprint["tool_policy_hash"],
+                "skill_set_hash": fingerprint["skill_set_hash"],
+                "dependency_lock_hash": fingerprint["dependency_lock_hash"],
+                "environment_profile_id": fingerprint["environment_profile_id"],
+            }
+        )
+        configurations.setdefault(profile["agent_profile_id"], set()).add(
+            role_configuration_id
+        )
+        profile_hashes.setdefault(profile["agent_profile_id"], set()).add(
+            profile["agent_profile_hash"]
+        )
+        manifest.append(
+            {
+                "agent_profile_id": profile["agent_profile_id"],
+                "configuration_id": role_configuration_id,
+                "criticality": run["criticality"],
+                "holdout_status": (
+                    "PASS"
+                    if run["metrics"]["holdout_passed_count"] == 1
+                    else "FAIL"
+                ),
+                "run_hash": sha256_json(run),
+                "run_id": run_id,
+                "run_fingerprint_id": fingerprint["run_fingerprint_id"],
+                "work_package_plan_digest": fingerprint[
+                    "work_package_plan_digest"
+                ],
+                "strict_pass": _is_strict_pass(run),
+                "task_id": task_id,
+                "trial_id": run["trial_id"],
+            }
+        )
+
+    if len(harness_commits) != 1:
+        raise ValueError("suite v2 runs must use one harness commit")
+    if any(len(values) != 1 for values in configurations.values()):
+        raise ValueError("one role must use exactly one configuration")
+    if any(len(values) != 1 for values in profile_hashes.values()):
+        raise ValueError("one role must use exactly one profile hash")
+    for task_id, task in tasks.items():
+        if len(runs_by_task[task_id]) != task["trials"]:
+            raise ValueError(f"missing or extra trials for task: {task_id}")
+
+    role_configuration_manifest = [
+        {
+            "agent_profile_id": profile_id,
+            "agent_profile_hash": next(iter(profile_hashes[profile_id])),
+            "configuration_id": next(iter(configuration_ids)),
+            "run_count": sum(
+                run["agent_profile"]["agent_profile_id"] == profile_id
+                for run in validated_runs
+            ),
+        }
+        for profile_id, configuration_ids in sorted(configurations.items())
+    ]
+    metrics: dict[str, int | float] = {
+        "strict_pass_3_task_rate": _rate_for_group(
+            tasks, runs_by_task, trials=3, criticality="normal"
+        ),
+        "strict_pass_5_critical_rate": _rate_for_group(
+            tasks, runs_by_task, trials=5, criticality="critical"
+        ),
+    }
+    for field in _SUMMED_METRICS:
+        metrics[field] = sum(run["metrics"][field] for run in validated_runs)
+    reasons = _reason_codes(metrics)
+    ordered_manifest = sorted(
+        manifest,
+        key=lambda item: (item["task_id"], item["trial_id"], item["run_id"]),
+    )
+    result = {
+        "schema_version": "2",
+        "status": "PASS" if not reasons else "HOLD",
+        "reason_codes": reasons,
+        "suite_id": suite["suite_id"],
+        "suite_manifest_hash": sha256_json(suite),
+        "profile_set_hash": suite["profile_set_hash"],
+        "role_configuration_manifest": role_configuration_manifest,
+        "system_configuration_id": sha256_json(role_configuration_manifest),
+        "comparability": "FULL",
+        "source_basis": {
+            "harness_commit": harness_commits.pop(),
+            "target_commit": suite["target_checkpoint"],
+        },
+        "task_count": len(tasks),
+        "run_count": len(validated_runs),
+        "metrics": metrics,
+        "run_evidence_manifest": ordered_manifest,
+        "run_manifest_hash": sha256_json(ordered_manifest),
+        "performed_actions": [],
+    }
+    return validate_role_aggregate(result, suite=suite)
+
+
+def validate_role_aggregate(
+    record: Mapping[str, Any],
+    *,
+    suite: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    if not isinstance(record, Mapping) or set(record) != _ROLE_AGGREGATE_KEYS:
+        raise ValueError("role aggregate key set is invalid")
+    if record.get("schema_version") != "2":
+        raise ValueError("role aggregate schema version is invalid")
+    for field in (
+        "suite_manifest_hash",
+        "profile_set_hash",
+        "system_configuration_id",
+        "run_manifest_hash",
+    ):
+        if not isinstance(record.get(field), str) or not _HASH.fullmatch(record[field]):
+            raise ValueError(f"role aggregate {field} is invalid")
+    roles = record.get("role_configuration_manifest")
+    if not isinstance(roles, list) or not roles:
+        raise ValueError("role configuration manifest is invalid")
+    if any(not isinstance(item, Mapping) or set(item) != _ROLE_CONFIGURATION_KEYS for item in roles):
+        raise ValueError("role configuration entry is invalid")
+    if roles != sorted(roles, key=lambda item: item["agent_profile_id"]):
+        raise ValueError("role configuration ordering is invalid")
+    if len({item["agent_profile_id"] for item in roles}) != len(roles):
+        raise ValueError("role configuration profile is duplicated")
+    for item in roles:
+        if (
+            not _SAFE_ID.fullmatch(str(item["agent_profile_id"]))
+            or not _HASH.fullmatch(str(item["agent_profile_hash"]))
+            or not _HASH.fullmatch(str(item["configuration_id"]))
+            or not isinstance(item["run_count"], int)
+            or isinstance(item["run_count"], bool)
+            or item["run_count"] <= 0
+        ):
+            raise ValueError("role configuration entry is invalid")
+    if sha256_json(roles) != record["system_configuration_id"]:
+        raise ValueError("system configuration ID is invalid")
+    if record.get("comparability") != "FULL":
+        raise ValueError("role aggregate comparability is invalid")
+    metrics = _validated_metrics(record.get("metrics"))
+    expected_reasons = _reason_codes(metrics)
+    if record.get("reason_codes") != expected_reasons:
+        raise ValueError("role aggregate reason codes are invalid")
+    if record.get("status") != ("PASS" if not expected_reasons else "HOLD"):
+        raise ValueError("role aggregate status is invalid")
+    if record.get("performed_actions") != []:
+        raise ValueError("role aggregate performed_actions must be empty")
+    manifest = record.get("run_evidence_manifest")
+    if (
+        not isinstance(manifest, list)
+        or len(manifest) != record.get("run_count")
+        or any(
+            not isinstance(item, Mapping) or set(item) != _RUN_EVIDENCE_V2_KEYS
+            for item in manifest
+        )
+        or sha256_json(manifest) != record["run_manifest_hash"]
+    ):
+        raise ValueError("role aggregate run manifest is invalid")
+    if sum(item["run_count"] for item in roles) != record["run_count"]:
+        raise ValueError("role aggregate run totals are invalid")
+    if suite is not None:
+        tasks = _suite_tasks_v2(suite)
+        if (
+            record["suite_id"] != suite["suite_id"]
+            or record["suite_manifest_hash"] != sha256_json(suite)
+            or record["profile_set_hash"] != suite["profile_set_hash"]
+            or record["task_count"] != len(tasks)
+            or record["run_count"] != suite["total_trials"]
+        ):
+            raise ValueError("role aggregate does not bind to suite v2")
+    return dict(record)
+
+
+def compare_role_aggregates(
+    baseline: Mapping[str, Any], candidate: Mapping[str, Any]
+) -> dict[str, Any]:
+    baseline_record = validate_role_aggregate(baseline)
+    if (
+        not isinstance(candidate, Mapping)
+        or set(candidate) != _ROLE_AGGREGATE_KEYS
+        or not isinstance(candidate.get("profile_set_hash"), str)
+        or not _HASH.fullmatch(candidate["profile_set_hash"])
+    ):
+        raise ValueError("candidate role aggregate is malformed")
+    if baseline_record["profile_set_hash"] != candidate["profile_set_hash"]:
+        return {
+            "schema_version": "2",
+            "status": "HOLD",
+            "decision": "HOLD",
+            "reason_codes": ["PROFILE_SET_MISMATCH"],
+            "performed_actions": [],
+        }
+    candidate_record = validate_role_aggregate(candidate)
+    if (
+        baseline_record["system_configuration_id"]
+        != candidate_record["system_configuration_id"]
+    ):
+        return {
+            "schema_version": "2",
+            "status": "HOLD",
+            "decision": "HOLD",
+            "reason_codes": ["SYSTEM_CONFIGURATION_MISMATCH"],
+            "performed_actions": [],
+        }
+    regressions = []
+    for field in _STRICT_BLOCKERS:
+        if candidate_record["metrics"][field] > baseline_record["metrics"][field]:
+            regressions.append(field.upper())
+    for field in ("strict_pass_3_task_rate", "strict_pass_5_critical_rate"):
+        if candidate_record["metrics"][field] < baseline_record["metrics"][field]:
+            regressions.append(field.upper())
+    return {
+        "schema_version": "2",
+        "status": "REJECT" if regressions else "PASS",
+        "decision": "REJECT" if regressions else "ADOPT",
+        "reason_codes": (
+            ["COMPARABLE_QUALITY_REGRESSION"] if regressions else []
+        ),
+        "performed_actions": [],
+    }
+
+
+def aggregate_runs(
+    suite: Mapping[str, Any], runs: Sequence[Mapping[str, Any]]
+) -> dict[str, Any]:
+    """Dispatch to the historical v1 or role-aware v2 aggregate contract."""
+
+    if isinstance(suite, Mapping) and suite.get("schema_version") == "2":
+        return _aggregate_runs_v2(suite, runs)
+    return _aggregate_runs_v1(suite, runs)

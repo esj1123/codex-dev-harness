@@ -2,7 +2,7 @@
 
 ## Current State
 
-`AGENT_QUALITY_BASELINE_NOT_ESTABLISHED`
+`READY_FOR_PROFILE_CALIBRATION`
 
 The harness has completed its first governed greenfield application pilot,
 work-package v3 hardening, and the standalone Agent Quality Stability control
@@ -31,8 +31,16 @@ historical phase and run details remain available in Git history and
     package plan digest;
   - postflight `PASS` requires every declared command ID to be complete.
 - Fail-closed docs gate with runtime manifest validation.
-- Manual agent-quality run validation, deterministic fingerprinting,
-  aggregation, comparison, semantic review, and failure-lifecycle validation.
+- Machine-captured Agent Quality run evidence v2, deterministic fingerprinting,
+  role-aware aggregation and comparison, semantic review, and
+  failure-lifecycle validation. Historical v1 envelopes remain readable.
+- Role profiles keep model selection at `gpt-5.6-sol` while binding contract,
+  feature, critical, review, and integration work to explicit reasoning
+  profiles. Requested model selection is recorded as adapter evidence and is
+  not represented as independently observed provider state.
+- Local verification rejects Python versions other than `3.12.13`, requires
+  every locked development package at its exact version, and runs `pip check`
+  before pytest.
 - Baseline adoption trust chain:
   - writer and candidate comparison recompute from the canonical suite and
     sanitized run directory;
@@ -121,9 +129,8 @@ not authenticate approval.
 
 ## Next Recommended Step
 
-Keep baseline adoption at `HOLD`. Review the sanitized numeric-bound and
-non-encodable-Unicode failure families against the frozen target contracts,
-then decide whether a fresh complete suite should run under one fingerprint.
-Current suite runs must use the declared grader-bound invariant evidence;
-historical unbound runs remain reviewable but are not adoption inputs. Tracked
-baseline creation remains blocked until every adoption condition passes.
+Run a separately approved 6-9 trial role-profile calibration using v2 captured
+evidence. Do not reuse historical envelopes, start the fresh 19-trial suite, or
+create a tracked baseline until profile calibration confirms the role mapping.
+The current chat model is outside this mapping; profiles apply only to future
+subagent launch requests.

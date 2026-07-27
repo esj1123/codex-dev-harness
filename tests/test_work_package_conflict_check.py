@@ -71,6 +71,7 @@ def test_parallel_contract_and_verification_tiers_are_documented() -> None:
     assert "plan_digest" in closeout_prompt
     assert "actual changed files remained within the declared write set" in closeout_prompt
     assert {"contract_basis_sha", "contract_frozen_paths"} <= checker.EXPECTED_KEYS
+    assert {"agent_profile_id", "agent_profile_hash"} <= checker.PROFILE_BOUND_KEYS
     assert "`contract_basis_sha`" in change_control
     assert "`contract_frozen_paths`" in change_control
     assert "`authorization_status`" in change_control
@@ -122,6 +123,33 @@ def test_plan_digest_binds_exact_verification_contract() -> None:
     ]
 
     assert checker.plan_digest([original]) != checker.plan_digest([changed])
+
+
+def test_plan_digest_binds_agent_profile_identity() -> None:
+    original = package("feature-a")
+    changed = copy.deepcopy(original)
+    changed["agent_profile_id"] = "critical_implementer"
+    changed["agent_profile_hash"] = "f" * 64
+
+    assert checker.package_issues(original) == []
+    assert checker.package_issues(changed) == []
+    assert checker.plan_digest([original]) != checker.plan_digest([changed])
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "reason"),
+    [
+        ("agent_profile_id", "UNKNOWN PROFILE", "AGENT_PROFILE_ID_INVALID"),
+        ("agent_profile_hash", "not-a-hash", "AGENT_PROFILE_HASH_INVALID"),
+    ],
+)
+def test_agent_profile_binding_is_validated(
+    field: str, value: str, reason: str
+) -> None:
+    payload = package("feature-a")
+    payload[field] = value
+
+    assert reason in checker.package_issues(payload)
 
 
 def test_write_write_conflict_is_blocked_without_disclosing_paths() -> None:

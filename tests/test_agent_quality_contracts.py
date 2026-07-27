@@ -41,6 +41,8 @@ def test_agentic_schemas_are_strict_and_safe() -> None:
     }
     assert set(schemas) == {
         "agent-quality-baseline.schema.json",
+        "agent-role-profiles.schema.json",
+        "agent-run-v2.schema.json",
         "agent-run.schema.json",
         "failure-case.schema.json",
     }
@@ -104,6 +106,15 @@ def test_agentic_schemas_are_strict_and_safe() -> None:
         "^evals/agentic/fixtures/"
     )
     assert len(failure["allOf"]) == 4
+    run_v2 = schemas["agent-run-v2.schema.json"]
+    assert run_v2["properties"]["schema_version"]["const"] == "2"
+    assert {"agent_profile", "repository"} <= set(run_v2["required"])
+    command_result = run_v2["$defs"]["commandResult"]
+    assert {"argv_hash", "exit_code", "stdout_sha256", "stderr_sha256"} <= set(
+        command_result["required"]
+    )
+    profile_schema = schemas["agent-role-profiles.schema.json"]
+    assert profile_schema["properties"]["profiles"]["items"]["additionalProperties"] is False
 
 
 def test_regression_suite_has_exact_tasks_and_trial_budget() -> None:

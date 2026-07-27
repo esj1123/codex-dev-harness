@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+import re
 import subprocess
 import sys
 from typing import Any
@@ -75,7 +76,11 @@ def _hash_bytes(value: bytes) -> str:
 
 
 def _safe_id(value: Any) -> bool:
-    return preflight.safe_identifier(value)
+    return (
+        isinstance(value, str)
+        and len(value.encode("utf-8")) <= 160
+        and re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:-]*", value) is not None
+    )
 
 
 def _run(
@@ -391,7 +396,12 @@ def capture_run(
     task = tasks.get(task_id)
     if task is None or not _safe_id(trial_id):
         raise AgentQualityValidationError(("TASK_OR_TRIAL_INVALID",))
-    _, profile_map = load_profiles(profiles)
+    profile_set_id, profile_map = load_profiles(profiles)
+    if (
+        suite.get("profile_set_id") != profile_set_id
+        or suite.get("profile_set_hash") != sha256_json(profiles)
+    ):
+        raise AgentQualityValidationError(("PROFILE_SET_MISMATCH",))
     profile_id = task.get("agent_profile_id")
     profile = profile_map.get(profile_id)
     if profile is None:
@@ -404,7 +414,6 @@ def capture_run(
         package.get("agent_profile_id") != profile_id
         or package.get("agent_profile_hash") != profile_hash
         or package.get("task_id") != task_id
-        or package.get("base_sha") != task.get("source_basis")
         or package.get("lane") != task.get("lane")
     ):
         raise AgentQualityValidationError(("AGENT_PROFILE_MISMATCH",))
@@ -475,8 +484,8 @@ def capture_run(
     fingerprint = normalize_fingerprint(
         {
             "harness_commit": _git_text(harness_root, "rev-parse", "HEAD"),
-            "target_base_commit": package["base_sha"],
-            "contract_basis_sha": package["contract_basis_sha"],
+            "target_base_commit": task["source_basis"],
+            "contract_basis_sha": task["source_basis"],
             "work_package_plan_digest": preflight_result["plan_digest"],
             "agent_adapter_id": launch["agent_adapter_id"],
             "agent_adapter_version": launch["agent_adapter_version"],

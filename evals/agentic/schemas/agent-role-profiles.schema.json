@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "profile_set_id": {
+      "$ref": "#/$defs/safeIdentifier"
+    },
+    "profiles": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "lane": {
+            "enum": [
+              "contract",
+              "feature",
+              "integration",
+              "review"
+            ]
+          },
+          "model_id": {
+            "const": "gpt-5.6-sol"
+          },
+          "profile_id": {
+            "$ref": "#/$defs/safeIdentifier"
+          },
+          "read_only": {
+            "type": "boolean"
+          },
+          "reasoning_profile": {
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "xhigh"
+            ]
+          }
+        },
+        "required": [
+          "profile_id",
+          "model_id",
+          "reasoning_profile",
+          "lane",
+          "read_only"
+        ],
+        "type": "object"
+      },
+      "maxItems": 16,
+      "minItems": 1,
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "1"
+    }
+  },
+  "required": [
+    "schema_version",
+    "profile_set_id",
+    "profiles"
+  ],
+  "type": "object",
+  "$defs": {
+    "safeIdentifier": {
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "type": "string"
+    }
+  }
+}
