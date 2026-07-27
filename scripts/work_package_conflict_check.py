@@ -18,13 +18,15 @@ except ImportError:  # pragma: no cover - direct script execution
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-SCHEMA_VERSION = "2"
+SCHEMA_VERSION = "3"
 CHECKER_ID = "work_package_conflict_check"
 MAX_INPUT_BYTES = 64 * 1024
 MAX_OUTPUT_BYTES = 16 * 1024
 MAX_PACKAGES = 32
 MAX_PATH_ITEMS = 128
 MAX_STRING_BYTES = 512
+MAX_VERIFICATION_COMMANDS = 16
+MAX_ARGV_ITEMS = 32
 LANES = ("contract", "feature", "integration")
 VERIFICATION_TIERS = ("V0", "V1", "V2", "V3")
 SIDE_EFFECT_CLASSES = (
@@ -70,6 +72,7 @@ EXPECTED_KEYS = {
     "write_set",
     "generated_outputs",
     "verification_tier",
+    "verification_contract",
     "declared_side_effects",
     "approval_ref",
 }
@@ -95,6 +98,8 @@ INTEGRATION_ONLY_PREFIXES = (
 )
 SAFE_ID_PATTERN = re.compile(r"^[a-z0-9](?:[a-z0-9._-]{0,62}[a-z0-9])?$")
 SHA_PATTERN = re.compile(r"^[0-9a-f]{40}$")
+VERIFICATION_CONTRACT_KEYS = {"interpreter_id", "commands"}
+VERIFICATION_COMMAND_KEYS = {"command_id", "argv"}
 
 
 def base_result() -> dict[str, Any]:
@@ -164,6 +169,59 @@ def unique_string_list(value: Any, *, item_limit: int = MAX_PATH_ITEMS) -> bool:
     )
 
 
+def safe_argv_token(value: Any) -> bool:
+    return (
+        isinstance(value, str)
+        and 0 < len(value.encode("utf-8")) <= MAX_STRING_BYTES
+        and not any(character in value for character in ("\x00", "\r", "\n", "\t"))
+        and "://" not in value
+        and "\\" not in value
+        and re.match(r"^[A-Za-z]:", value) is None
+    )
+
+
+def verification_contract_issues(value: Any) -> list[str]:
+    if not isinstance(value, dict) or set(value) != VERIFICATION_CONTRACT_KEYS:
+        return ["VERIFICATION_CONTRACT_INVALID"]
+    if not safe_identifier(value["interpreter_id"]):
+        return ["VERIFICATION_INTERPRETER_ID_INVALID"]
+    commands = value["commands"]
+    if (
+        not isinstance(commands, list)
+        or not 0 < len(commands) <= MAX_VERIFICATION_COMMANDS
+    ):
+        return ["VERIFICATION_COMMANDS_INVALID"]
+
+    command_ids: list[str] = []
+    for command in commands:
+        if not isinstance(command, dict) or set(command) != VERIFICATION_COMMAND_KEYS:
+            return ["VERIFICATION_COMMAND_INVALID"]
+        command_id = command["command_id"]
+        argv = command["argv"]
+        if not safe_identifier(command_id):
+            return ["VERIFICATION_COMMAND_ID_INVALID"]
+        if (
+            not isinstance(argv, list)
+            or not 0 < len(argv) <= MAX_ARGV_ITEMS
+            or not all(safe_argv_token(token) for token in argv)
+        ):
+            return ["VERIFICATION_ARGV_INVALID"]
+        command_ids.append(command_id)
+    if len(command_ids) != len(set(command_ids)):
+        return ["VERIFICATION_COMMAND_ID_DUPLICATE"]
+    return []
+
+
+def verification_contract_hash(value: dict[str, Any]) -> str:
+    canonical = json.dumps(
+        value,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+    ).encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest()
+
+
 def integration_only(path: str) -> bool:
     canonical = "/".join(canonical_repo_path(path))
     exact = {"/".join(canonical_repo_path(item)) for item in INTEGRATION_ONLY_EXACT}
@@ -193,6 +251,7 @@ def package_issues(payload: Any) -> list[str]:
         issues.append("LANE_INVALID")
     if payload["verification_tier"] not in VERIFICATION_TIERS:
         issues.append("VERIFICATION_TIER_INVALID")
+    issues.extend(verification_contract_issues(payload["verification_contract"]))
     if not safe_reference(payload["approval_ref"]):
         issues.append("APPROVAL_REF_INVALID")
 

@@ -54,11 +54,24 @@ def make_suite() -> dict:
                 "task_id": task_id,
                 "criticality": criticality,
                 "lane": "feature",
+                "required_invariant_ids": ["FOCUSED_CONTRACT_PRESERVED"],
                 "source_basis": "2" * 40,
                 "trials": trials,
-                "work_package_plan_digest": hashlib.sha256(
-                    task_id.encode("ascii")
-                ).hexdigest(),
+                "verification_contract": {
+                    "commands": [
+                        {
+                            "argv": [
+                                "{PYTHON}",
+                                "-m",
+                                "pytest",
+                                f"tests/test_{task_id}.py",
+                                "-q",
+                            ],
+                            "command_id": "focused_pytest",
+                        }
+                    ],
+                    "interpreter_id": "python-3.12.13-pytest-9.0.3",
+                },
                 "write_set": [f"src/{task_id}.py"],
             }
             for task_id, criticality, trials in TASKS
@@ -68,7 +81,13 @@ def make_suite() -> dict:
 
 def make_runs() -> list[dict]:
     runs = []
+    tasks = {task["task_id"]: task for task in make_suite()["tasks"]}
     for task_id, criticality, trials in TASKS:
+        task = tasks[task_id]
+        verification_contract = task["verification_contract"]
+        command_ids = [
+            command["command_id"] for command in verification_contract["commands"]
+        ]
         for trial_number in range(1, trials + 1):
             run_id = f"{task_id}-run-{trial_number}"
             fingerprint = normalize_fingerprint(
@@ -103,7 +122,18 @@ def make_runs() -> list[dict]:
                     "task_class": "feature",
                     "criticality": criticality,
                     "fingerprint": fingerprint,
-                    "execution": {"status": "PASS", "reason_codes": []},
+                    "execution": {
+                        "status": "PASS",
+                        "reason_codes": [],
+                        "verification_contract_hash": sha256_json(
+                            verification_contract
+                        ),
+                        "interpreter_id": verification_contract[
+                            "interpreter_id"
+                        ],
+                        "required_command_ids": command_ids,
+                        "completed_command_ids": command_ids,
+                    },
                     "grading": {
                         "functional_correctness": "PASS",
                         "contract_adherence": "PASS",
@@ -167,12 +197,53 @@ def test_aggregate_complete_suite_is_deterministic_and_safe() -> None:
         "criticality",
         "run_hash",
         "run_fingerprint_id",
+        "work_package_plan_digest",
         "strict_pass",
         "holdout_status",
     }
     serialized = json.dumps(first, sort_keys=True)
     assert "evidence_refs" not in serialized
     assert "raw" not in serialized.lower()
+
+
+def test_aggregate_preserves_read_only_legacy_suite_compatibility() -> None:
+    suite = make_suite()
+    runs = make_runs()
+    plan_by_task = {
+        run["task_id"]: run["fingerprint"]["work_package_plan_digest"]
+        for run in runs
+    }
+    for task in suite["tasks"]:
+        task.pop("required_invariant_ids")
+        task.pop("verification_contract")
+        task["work_package_plan_digest"] = plan_by_task[task["task_id"]]
+    for run in runs:
+        run["execution"] = {"status": "PASS", "reason_codes": []}
+
+    aggregate = aggregate_runs(suite, runs)
+
+    assert aggregate["status"] == "PASS"
+    assert aggregate["run_count"] == 19
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ["hash", "interpreter", "required_commands", "incomplete"],
+)
+def test_aggregate_rejects_verification_contract_drift(mutation: str) -> None:
+    runs = make_runs()
+    execution = runs[0]["execution"]
+    if mutation == "hash":
+        execution["verification_contract_hash"] = "f" * 64
+    elif mutation == "interpreter":
+        execution["interpreter_id"] = "python-3.12.13-pytest-8.0.0"
+    elif mutation == "required_commands":
+        execution["required_command_ids"] = ["other"]
+    else:
+        execution["completed_command_ids"] = []
+
+    with pytest.raises(ValueError):
+        aggregate_runs(make_suite(), runs)
 
 
 @pytest.mark.parametrize("mutation", ["duplicate", "missing", "extra"])
@@ -211,6 +282,7 @@ def test_aggregate_requires_one_full_configuration(mutation: str) -> None:
         ("target_base_commit", "a" * 40),
         ("contract_basis_sha", "b" * 40),
         ("work_package_plan_digest", "c" * 64),
+        ("task_contract_hash", "d" * 64),
     ],
 )
 def test_aggregate_binds_run_fingerprint_to_declared_task(
@@ -258,7 +330,7 @@ def test_aggregate_rejects_suite_contract_drift(mutation: str) -> None:
     if mutation == "missing_suite_key":
         suite.pop("status")
     elif mutation == "missing_task_key":
-        suite["tasks"][0].pop("work_package_plan_digest")
+        suite["tasks"][0].pop("verification_contract")
     else:
         suite["tasks"][0]["unexpected"] = True
 

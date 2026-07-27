@@ -55,6 +55,10 @@ def base_result() -> dict[str, Any]:
         "verification": {
             "tier": None,
             "status": "NOT_RUN",
+            "contract_hash": None,
+            "interpreter_id": None,
+            "required_command_ids": [],
+            "completed_command_ids": [],
         },
         "central_authority_changed": False,
         "performed_actions": [],
@@ -192,6 +196,8 @@ def inspect_postflight(
     *,
     task_id: str,
     verification_status: str,
+    verification_interpreter_id: str,
+    completed_command_ids: list[str],
     repo_root: Path = REPO_ROOT,
 ) -> dict[str, Any]:
     result = base_result()
@@ -213,6 +219,10 @@ def inspect_postflight(
         return result
 
     package = matching[0]
+    verification_contract = package["verification_contract"]
+    required_command_ids = [
+        command["command_id"] for command in verification_contract["commands"]
+    ]
     result.update(
         {
             "task_id": task_id,
@@ -230,6 +240,12 @@ def inspect_postflight(
     result["verification"] = {
         "tier": package["verification_tier"],
         "status": verification_status,
+        "contract_hash": preflight.verification_contract_hash(
+            verification_contract
+        ),
+        "interpreter_id": verification_interpreter_id,
+        "required_command_ids": required_command_ids,
+        "completed_command_ids": sorted(completed_command_ids),
     }
 
     try:
@@ -259,6 +275,18 @@ def inspect_postflight(
     result["central_authority_changed"] = central_changed
 
     reasons: set[str] = set()
+    if verification_interpreter_id != verification_contract["interpreter_id"]:
+        reasons.add("VERIFICATION_INTERPRETER_MISMATCH")
+    if (
+        len(completed_command_ids) != len(set(completed_command_ids))
+        or set(completed_command_ids) - set(required_command_ids)
+    ):
+        reasons.add("VERIFICATION_COMMAND_SET_INVALID")
+    if (
+        verification_status == "PASS"
+        and set(completed_command_ids) != set(required_command_ids)
+    ):
+        reasons.add("VERIFICATION_COMMANDS_INCOMPLETE")
     changed = observed["changed_paths"]
     untracked = observed["untracked_paths"]
     if any(not preflight.path_is_covered(path, package["write_set"]) for path in changed):
@@ -325,6 +353,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--package", action="append", required=True, help="Repo-relative work-package JSON path")
     parser.add_argument("--task-id", required=True, help="Task ID to validate")
     parser.add_argument("--verification-status", required=True, choices=VERIFICATION_STATUSES)
+    parser.add_argument("--verification-interpreter-id", required=True)
+    parser.add_argument(
+        "--completed-command-id",
+        action="append",
+        default=[],
+        help="Completed verification command ID; repeat for each command",
+    )
     parser.add_argument("--json", action="store_true", help="Emit bounded deterministic JSON")
     return parser
 
@@ -335,6 +370,8 @@ def main(argv: list[str] | None = None) -> int:
         args.package,
         task_id=args.task_id,
         verification_status=args.verification_status,
+        verification_interpreter_id=args.verification_interpreter_id,
+        completed_command_ids=args.completed_command_id,
         repo_root=Path(args.repo_root),
     )
     if args.json:

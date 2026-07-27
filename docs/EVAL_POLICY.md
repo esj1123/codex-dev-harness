@@ -49,6 +49,11 @@ The agent-quality command validates safe trial summaries, aggregates repeated
 trials, compares a candidate with an approved aggregate baseline, and validates
 failure lifecycle transitions. It does not call a model, capture prompts or
 outputs, create worktrees, run trial commands, or authenticate approval.
+The tracked agentic suite fixes exact verification argument arrays, a safe
+interpreter identity, and required invariant IDs. Run envelopes contain only
+the verification-contract hash and completed command IDs; they do not retain
+raw command logs. Historical suite manifests remain read-only compatible, but
+baseline creation always uses the current tracked suite.
 
 ## Integration Decision
 

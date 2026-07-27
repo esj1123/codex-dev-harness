@@ -59,6 +59,7 @@ def test_parallel_contract_and_verification_tiers_are_documented() -> None:
         "write_set",
         "generated_outputs",
         "verification_tier",
+        "verification_contract",
         "declared_side_effects",
     ]:
         assert f"`{field}`" in change_control
@@ -74,6 +75,9 @@ def test_parallel_contract_and_verification_tiers_are_documented() -> None:
     assert "`contract_frozen_paths`" in change_control
     assert "`authorization_status`" in change_control
     assert "`NOT_AUTHENTICATED`" in change_control
+    assert "`verification_contract`" in change_control
+    assert "`interpreter_id`" in change_control
+    assert "exact argument list" in change_control
 
 
 def test_disjoint_packages_are_parallelizable() -> None:
@@ -104,6 +108,20 @@ def test_plan_digest_is_order_independent_and_content_sensitive() -> None:
 
     assert forward["plan_digest"] == reverse["plan_digest"]
     assert forward["plan_digest"] != changed_result["plan_digest"]
+
+
+def test_plan_digest_binds_exact_verification_contract() -> None:
+    original = package("feature-a")
+    changed = copy.deepcopy(original)
+    changed["verification_contract"]["commands"][0]["argv"] = [
+        "{PYTHON}",
+        "-m",
+        "pytest",
+        "tests/test_contracts.py",
+        "-q",
+    ]
+
+    assert checker.plan_digest([original]) != checker.plan_digest([changed])
 
 
 def test_write_write_conflict_is_blocked_without_disclosing_paths() -> None:
@@ -360,6 +378,44 @@ def test_unsafe_or_inconsistent_package_fields_are_rejected(
     payload[key] = value
 
     assert reason_code in checker.package_issues(payload)
+
+
+@pytest.mark.parametrize(
+    ("mutation", "reason_code"),
+    [
+        (
+            lambda contract: contract.update(interpreter_id="Python 3.12"),
+            "VERIFICATION_INTERPRETER_ID_INVALID",
+        ),
+        (
+            lambda contract: contract.update(commands=[]),
+            "VERIFICATION_COMMANDS_INVALID",
+        ),
+        (
+            lambda contract: contract["commands"][0].update(
+                argv=["C:\\Python312\\python.exe", "-m", "pytest"]
+            ),
+            "VERIFICATION_ARGV_INVALID",
+        ),
+        (
+            lambda contract: contract.update(
+                commands=[
+                    contract["commands"][0],
+                    copy.deepcopy(contract["commands"][0]),
+                ]
+            ),
+            "VERIFICATION_COMMAND_ID_DUPLICATE",
+        ),
+    ],
+)
+def test_verification_contract_is_exact_bounded_and_path_safe(
+    mutation,
+    reason_code: str,
+) -> None:
+    payload = package("feature-a")
+    mutation(payload["verification_contract"])
+
+    assert checker.package_issues(payload) == [reason_code]
 
 
 def test_generated_outputs_must_be_in_write_set() -> None:

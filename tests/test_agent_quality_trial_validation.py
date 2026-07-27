@@ -43,6 +43,7 @@ def base_fingerprint() -> dict:
 
 
 def valid_run() -> dict:
+    required_command_ids = ["focused_pytest"]
     return {
         "schema_version": "1",
         "run_id": "run-001",
@@ -52,7 +53,14 @@ def valid_run() -> dict:
         "task_class": "feature",
         "criticality": "normal",
         "fingerprint": normalize_fingerprint(base_fingerprint()),
-        "execution": {"status": "PASS", "reason_codes": []},
+        "execution": {
+            "status": "PASS",
+            "reason_codes": [],
+            "verification_contract_hash": "3" * 64,
+            "interpreter_id": "python-3.12.13-pytest-9.0.3",
+            "required_command_ids": required_command_ids,
+            "completed_command_ids": required_command_ids,
+        },
         "grading": {
             "functional_correctness": "PASS",
             "contract_adherence": "PASS",
@@ -153,6 +161,20 @@ def test_validate_run_rejects_unknown_top_level_and_nested_fields() -> None:
     payload = valid_run()
     payload["execution"]["raw"] = "hidden"
     assert_run_issues(payload, ["EXECUTION_KEY_SET_INVALID"])
+
+
+def test_validate_run_requires_complete_bound_verification_for_pass() -> None:
+    payload = valid_run()
+    payload["execution"]["completed_command_ids"] = []
+
+    assert_run_issues(payload, ["VERIFICATION_COMMANDS_INCOMPLETE"])
+
+
+def test_validate_run_accepts_historical_unbound_execution_summary() -> None:
+    payload = valid_run()
+    payload["execution"] = {"status": "FAIL", "reason_codes": ["HISTORICAL_RUN"]}
+
+    assert validate_run(payload) == payload
 
 
 @pytest.mark.parametrize(

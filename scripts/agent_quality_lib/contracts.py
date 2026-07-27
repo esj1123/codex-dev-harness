@@ -58,6 +58,12 @@ FINGERPRINT_DERIVED_KEYS = {
 }
 FINGERPRINT_KEYS = FINGERPRINT_BASE_KEYS | FINGERPRINT_DERIVED_KEYS
 EXECUTION_KEYS = {"status", "reason_codes"}
+BOUND_EXECUTION_KEYS = EXECUTION_KEYS | {
+    "verification_contract_hash",
+    "interpreter_id",
+    "required_command_ids",
+    "completed_command_ids",
+}
 GRADING_KEYS = {
     "functional_correctness",
     "contract_adherence",
@@ -329,7 +335,11 @@ def _validate_fingerprint(fingerprint: Any, issues: list[str]) -> None:
 
 
 def _validate_execution(value: Any, issues: list[str]) -> None:
-    if not _exact_keys(value, EXECUTION_KEYS, "EXECUTION_KEY_SET_INVALID", issues):
+    if not isinstance(value, dict) or set(value) not in {
+        frozenset(EXECUTION_KEYS),
+        frozenset(BOUND_EXECUTION_KEYS),
+    }:
+        issues.append("EXECUTION_KEY_SET_INVALID")
         return
     if value["status"] not in STATUSES:
         issues.append("EXECUTION_STATUS_INVALID")
@@ -337,6 +347,27 @@ def _validate_execution(value: Any, issues: list[str]) -> None:
         value["reason_codes"], limit=MAX_LIST_ITEMS, validator=_safe_reason_code
     ):
         issues.append("EXECUTION_REASON_CODES_INVALID")
+    if set(value) == BOUND_EXECUTION_KEYS:
+        if (
+            not isinstance(value["verification_contract_hash"], str)
+            or HASH_PATTERN.fullmatch(value["verification_contract_hash"]) is None
+        ):
+            issues.append("VERIFICATION_CONTRACT_HASH_INVALID")
+        if not _safe_identifier(value["interpreter_id"]):
+            issues.append("VERIFICATION_INTERPRETER_ID_INVALID")
+        for key in ("required_command_ids", "completed_command_ids"):
+            if not _safe_unique_list(
+                value[key],
+                limit=MAX_LIST_ITEMS,
+                validator=_safe_identifier,
+            ):
+                issues.append(f"{key.upper()}_INVALID")
+        if (
+            value["status"] == "PASS"
+            and set(value["required_command_ids"])
+            != set(value["completed_command_ids"])
+        ):
+            issues.append("VERIFICATION_COMMANDS_INCOMPLETE")
 
 
 def _validate_grading(value: Any, issues: list[str]) -> None:

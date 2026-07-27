@@ -17,7 +17,7 @@ This template is documentation-only. It does not grant approval for side effects
 ## Work Package
 
 - Task ID: [safe task identifier]
-- Schema version: [2]
+- Schema version: [3]
 - Lane: [contract / feature / integration]
 - Base SHA: [40-character commit SHA]
 - Contract basis SHA: [same 40-character commit SHA]
@@ -27,6 +27,8 @@ This template is documentation-only. It does not grant approval for side effects
 - Write set: [exact repo-relative paths]
 - Generated outputs: [exact repo-relative paths, or none]
 - Verification tier: [V0 / V1 / V2 / V3]
+- Verification runtime ID: [safe runtime identity, for example python-3.12.13-pytest-9.0.3]
+- Verification command IDs and exact argv: [command ID plus argument-list tokens]
 - Declared side effects: [classes requested by this task]
 - Approval reference: [safe reference, or none]
 
@@ -45,14 +47,16 @@ Record the returned `plan_digest`. After the lane has one coherent commit and
 its focused verification is complete, run:
 
 ```text
-python scripts/work_package_postflight.py --repo-root . --package <PACKAGE_JSON> [--package <PACKAGE_JSON> ...] --task-id <TASK_ID> --verification-status PASS --json
+python scripts/work_package_postflight.py --repo-root . --package <PACKAGE_JSON> [--package <PACKAGE_JSON> ...] --task-id <TASK_ID> --verification-status PASS --verification-interpreter-id <INTERPRETER_ID> --completed-command-id <COMMAND_ID> --json
 ```
 
 Do not integrate the lane unless preflight and postflight use the same
 `plan_digest`, postflight reports `PASS`, the frozen contract is unchanged, and
 the required owner/side-effect approvals exist outside the package. Stop with
 `CONTRACT_CHANGE_REQUIRED` and create a new contract basis when a feature lane
-needs to change a frozen path.
+needs to change a frozen path. Do not report `PASS` when the agent omitted a
+required command, selected a different runtime, or only the owner reran the
+command afterward.
 
 ## Write Scope
 

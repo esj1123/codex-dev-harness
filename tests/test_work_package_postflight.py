@@ -81,11 +81,23 @@ def inspect(
     *,
     task_id: str = "feature-a",
     verification_status: str = "PASS",
+    verification_interpreter_id: str | None = None,
+    completed_command_ids: list[str] | None = None,
 ) -> dict[str, object]:
+    payload = json.loads((repo / package_path).read_text(encoding="utf-8"))
+    contract = payload["verification_contract"]
     return postflight.inspect_postflight(
         [package_path],
         task_id=task_id,
         verification_status=verification_status,
+        verification_interpreter_id=(
+            verification_interpreter_id or contract["interpreter_id"]
+        ),
+        completed_command_ids=(
+            completed_command_ids
+            if completed_command_ids is not None
+            else [command["command_id"] for command in contract["commands"]]
+        ),
         repo_root=repo,
     )
 
@@ -101,6 +113,11 @@ def test_clean_single_commit_passes_and_matches_preflight_digest(tmp_path: Path)
 
     assert result["status"] == "PASS"
     assert result["plan_digest"] == expected["plan_digest"]
+    assert result["verification"]["contract_hash"] == (
+        preflight.verification_contract_hash(payload["verification_contract"])
+    )
+    assert result["verification"]["required_command_ids"] == ["focused_pytest"]
+    assert result["verification"]["completed_command_ids"] == ["focused_pytest"]
     assert result["head_sha"] == git(repo, "rev-parse", "HEAD")
     assert result["actual_surface"] == {
         "changed_paths": ["feature.txt"],
@@ -297,6 +314,38 @@ def test_verification_status_controls_outcome(
     assert reason_code in result["reason_codes"]
 
 
+@pytest.mark.parametrize(
+    ("kwargs", "reason_code"),
+    [
+        (
+            {"verification_interpreter_id": "python-3.12.13-pytest-8.0.0"},
+            "VERIFICATION_INTERPRETER_MISMATCH",
+        ),
+        (
+            {"completed_command_ids": []},
+            "VERIFICATION_COMMANDS_INCOMPLETE",
+        ),
+        (
+            {"completed_command_ids": ["focused_pytest", "unknown"]},
+            "VERIFICATION_COMMAND_SET_INVALID",
+        ),
+    ],
+)
+def test_pass_requires_exact_interpreter_and_complete_command_set(
+    tmp_path: Path,
+    kwargs: dict[str, object],
+    reason_code: str,
+) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    package_path = write_package(repo, package(base_sha))
+    commit_file(repo, "feature.txt", "feature\n")
+
+    result = inspect(repo, package_path, **kwargs)
+
+    assert result["status"] == "BLOCKED"
+    assert reason_code in result["reason_codes"]
+
+
 def test_diff_check_failure_is_blocked(tmp_path: Path) -> None:
     repo, base_sha = init_repo(tmp_path)
     package_path = write_package(repo, package(base_sha))
@@ -348,6 +397,10 @@ def test_cli_json_is_deterministic_bounded_and_path_safe(
         "feature-a",
         "--verification-status",
         "PASS",
+        "--verification-interpreter-id",
+        "python-3.12.13-pytest-9.0.3",
+        "--completed-command-id",
+        "focused_pytest",
         "--json",
     ]
 

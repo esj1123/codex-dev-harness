@@ -78,12 +78,17 @@ Each package must declare:
 - exact repo-relative `read_set` and `write_set`
 - `generated_outputs`
 - `verification_tier`
+- `verification_contract`, containing one safe `interpreter_id` and one or
+  more command records with a unique `command_id` and exact argument list
 - `declared_side_effects`
 - an optional safe `approval_ref`
 
-Schema version `2` requires `contract_basis_sha` to equal `base_sha`. Feature
+Schema version `3` requires `contract_basis_sha` to equal `base_sha`. Feature
 packages must declare a non-empty shared `contract_frozen_paths` list and include
-that surface in `read_set`.
+that surface in `read_set`. Verification commands use argument arrays rather
+than shell strings. `{PYTHON}` denotes the separately selected runtime whose
+identity is recorded by `interpreter_id`; the package must not persist an
+absolute interpreter path.
 
 Package declarations do not authenticate approval. They describe the intended
 scope so the checker can detect overlap before independent tasks begin. A
@@ -105,7 +110,9 @@ invalid.
 The preflight result includes `plan_digest`, calculated as SHA-256 over the
 package objects sorted by `task_id` and serialized as deterministic compact
 JSON. Every lane in one batch must use the same package set and therefore the
-same `plan_digest`.
+same `plan_digest`. The digest binds the exact verification command arrays and
+runtime identity. `approval_ref` remains part of the execution instance and
+does not authenticate authorization.
 
 After focused verification and one coherent lane commit, run the postflight
 checker for that task. Postflight observes Git without writing and verifies:
@@ -118,7 +125,14 @@ checker for that task. Postflight observes Git without writing and verifies:
 - rename and delete operations are absent;
 - `git diff --check` passes; and
 - feature and contract lanes did not change integration-only paths; and
-- actual tracked or generated changes do not overlap `contract_frozen_paths`.
+- actual tracked or generated changes do not overlap `contract_frozen_paths`;
+- the observed verification runtime matches `interpreter_id`; and
+- a `PASS` declares every required verification `command_id` complete.
+
+Postflight accepts bounded command IDs, not raw logs. It does not execute the
+commands or infer success from an owner rerun. The caller must report a missing
+agent command as incomplete even when an integration owner later verifies the
+same code successfully.
 
 Postflight emits deterministic JSON to stdout. A caller may store that output
 under ignored `local/checkpoints/<checkpoint-id>/` only when local evidence
@@ -210,7 +224,8 @@ push, dispatch workflows, or record remote verification evidence.
 
 A lane is not ready for integration until preflight and postflight report the
 same `plan_digest`, the declared verification status is `PASS`, and postflight
-reports `PASS`. Those PASS values establish consistency only. The separate
+reports `PASS` for the exact `interpreter_id` and complete command-ID set.
+Those PASS values establish consistency only. The separate
 `authorization_status=NOT_AUTHENTICATED` result means owner approval and every
 side-effect permission still require external evidence.
 

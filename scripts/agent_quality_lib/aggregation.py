@@ -57,12 +57,24 @@ _SUITE_KEYS = {
 _TASK_KEYS = {
     "criticality",
     "lane",
+    "required_invariant_ids",
+    "source_basis",
+    "task_id",
+    "trials",
+    "verification_contract",
+    "write_set",
+}
+_LEGACY_TASK_KEYS = {
+    "criticality",
+    "lane",
     "source_basis",
     "task_id",
     "trials",
     "work_package_plan_digest",
     "write_set",
 }
+_VERIFICATION_CONTRACT_KEYS = {"interpreter_id", "commands"}
+_VERIFICATION_COMMAND_KEYS = {"command_id", "argv"}
 _REQUIRED_CONFIGURATION_KEYS = {
     "agent_adapter_id",
     "agent_adapter_version",
@@ -93,6 +105,7 @@ _RUN_EVIDENCE_KEYS = {
     "criticality",
     "run_hash",
     "run_fingerprint_id",
+    "work_package_plan_digest",
     "strict_pass",
     "holdout_status",
 }
@@ -112,6 +125,54 @@ def _safe_string_list(value: Any, *, path: bool = False) -> bool:
         return False
     validator = _safe_path if path else lambda item: isinstance(item, str) and bool(_SAFE_ID.fullmatch(item))
     return all(validator(item) for item in value)
+
+
+def _verification_contract(value: Any, *, task_id: str) -> dict[str, Any]:
+    if (
+        not isinstance(value, Mapping)
+        or set(value) != _VERIFICATION_CONTRACT_KEYS
+        or not isinstance(value.get("interpreter_id"), str)
+        or not _SAFE_ID.fullmatch(value["interpreter_id"])
+    ):
+        raise ValueError(f"invalid verification contract for task: {task_id}")
+    commands = value.get("commands")
+    if not isinstance(commands, list) or not commands or len(commands) > 16:
+        raise ValueError(f"invalid verification commands for task: {task_id}")
+    command_ids: set[str] = set()
+    normalized: list[dict[str, Any]] = []
+    for command in commands:
+        if (
+            not isinstance(command, Mapping)
+            or set(command) != _VERIFICATION_COMMAND_KEYS
+        ):
+            raise ValueError(f"invalid verification command for task: {task_id}")
+        command_id = command.get("command_id")
+        argv = command.get("argv")
+        if (
+            not isinstance(command_id, str)
+            or not _SAFE_ID.fullmatch(command_id)
+            or command_id in command_ids
+            or not isinstance(argv, list)
+            or not argv
+            or len(argv) > 32
+            or any(
+                not isinstance(token, str)
+                or not token
+                or len(token.encode("utf-8")) > 512
+                or any(character in token for character in ("\x00", "\r", "\n", "\t"))
+                or "://" in token
+                or "\\" in token
+                or re.match(r"^[A-Za-z]:", token)
+                for token in argv
+            )
+        ):
+            raise ValueError(f"invalid verification command for task: {task_id}")
+        command_ids.add(command_id)
+        normalized.append({"command_id": command_id, "argv": list(argv)})
+    return {
+        "interpreter_id": value["interpreter_id"],
+        "commands": normalized,
+    }
 
 
 def _validated_run(run: Mapping[str, Any]) -> dict[str, Any]:
@@ -152,9 +213,13 @@ def _suite_tasks(suite: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
         if not isinstance(task, Mapping):
             raise ValueError("suite task must be an object")
         lane = task.get("lane")
-        expected_keys = _TASK_KEYS | ({"fixture_recipe"} if lane == "integration" else set())
-        if set(task) != expected_keys:
+        fixture_key = {"fixture_recipe"} if lane == "integration" else set()
+        expected_keys = _TASK_KEYS | fixture_key
+        legacy_keys = _LEGACY_TASK_KEYS | fixture_key
+        task_keys = frozenset(task)
+        if task_keys not in {frozenset(expected_keys), frozenset(legacy_keys)}:
             raise ValueError("suite task key set is invalid")
+        legacy = task_keys == frozenset(legacy_keys)
         task_id = task.get("task_id")
         trials = task.get("trials")
         criticality = task.get("criticality")
@@ -172,12 +237,21 @@ def _suite_tasks(suite: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
             task["source_basis"]
         ):
             raise ValueError(f"invalid source_basis for task: {task_id}")
-        if not isinstance(task.get("work_package_plan_digest"), str) or not _HASH.fullmatch(
-            task["work_package_plan_digest"]
-        ):
-            raise ValueError(f"invalid work-package digest for task: {task_id}")
         if not _safe_string_list(task.get("write_set"), path=True):
             raise ValueError(f"invalid write_set for task: {task_id}")
+        if legacy:
+            if (
+                not isinstance(task.get("work_package_plan_digest"), str)
+                or not _HASH.fullmatch(task["work_package_plan_digest"])
+            ):
+                raise ValueError(f"invalid work-package digest for task: {task_id}")
+        else:
+            if not _safe_string_list(task.get("required_invariant_ids")):
+                raise ValueError(f"invalid required invariants for task: {task_id}")
+            _verification_contract(
+                task.get("verification_contract"),
+                task_id=task_id,
+            )
         if lane == "integration":
             recipe = task["fixture_recipe"]
             if (
@@ -245,6 +319,11 @@ def _validated_run_evidence_manifest(
                 entry[field]
             ):
                 raise ValueError(f"run evidence manifest {field} is invalid")
+        if (
+            not isinstance(entry.get("work_package_plan_digest"), str)
+            or not _HASH.fullmatch(entry["work_package_plan_digest"])
+        ):
+            raise ValueError("run evidence manifest plan digest is invalid")
         if entry.get("criticality") not in {"normal", "critical"}:
             raise ValueError("run evidence manifest criticality is invalid")
         if not isinstance(entry.get("strict_pass"), bool):
@@ -516,6 +595,9 @@ def aggregate_runs(
     }
     configuration_ids: set[str] = set()
     harness_commits: set[str] = set()
+    plan_digests_by_task: dict[str, set[str]] = {
+        task_id: set() for task_id in tasks
+    }
     manifest: list[dict[str, Any]] = []
 
     for run in validated_runs:
@@ -536,10 +618,45 @@ def aggregate_runs(
             raise ValueError(f"run target basis does not match task: {task_id}")
         if fingerprint["contract_basis_sha"] != task["source_basis"]:
             raise ValueError(f"run contract basis does not match task: {task_id}")
-        if fingerprint["work_package_plan_digest"] != task["work_package_plan_digest"]:
-            raise ValueError(f"run plan digest does not match task: {task_id}")
         if fingerprint["verification_suite_id"] != suite_id:
             raise ValueError(f"run verification suite does not match: {task_id}")
+        execution = run["execution"]
+        if "verification_contract" in task:
+            verification_contract = _verification_contract(
+                task["verification_contract"],
+                task_id=task_id,
+            )
+            expected_command_ids = [
+                command["command_id"]
+                for command in verification_contract["commands"]
+            ]
+            if (
+                set(execution)
+                != {
+                    "status",
+                    "reason_codes",
+                    "verification_contract_hash",
+                    "interpreter_id",
+                    "required_command_ids",
+                    "completed_command_ids",
+                }
+                or execution["verification_contract_hash"]
+                != sha256_json(verification_contract)
+                or execution["interpreter_id"]
+                != verification_contract["interpreter_id"]
+                or execution["required_command_ids"] != expected_command_ids
+            ):
+                raise ValueError(
+                    f"run verification contract does not match: {task_id}"
+                )
+        elif (
+            fingerprint["work_package_plan_digest"]
+            != task["work_package_plan_digest"]
+        ):
+            raise ValueError(f"run plan digest does not match task: {task_id}")
+        plan_digests_by_task[task_id].add(
+            fingerprint["work_package_plan_digest"]
+        )
         holdout_count = (
             run["metrics"]["holdout_passed_count"]
             + run["metrics"]["holdout_failed_count"]
@@ -573,6 +690,9 @@ def aggregate_runs(
                 "run_hash": sha256_json(run),
                 "run_id": run_id,
                 "run_fingerprint_id": fingerprint["run_fingerprint_id"],
+                "work_package_plan_digest": fingerprint[
+                    "work_package_plan_digest"
+                ],
                 "strict_pass": _is_strict_pass(run),
                 "task_id": task_id,
                 "trial_id": trial_id,
@@ -583,6 +703,8 @@ def aggregate_runs(
         raise ValueError("runs must use exactly one configuration_id")
     if len(harness_commits) != 1:
         raise ValueError("runs must use exactly one harness_commit")
+    if any(len(digests) != 1 for digests in plan_digests_by_task.values()):
+        raise ValueError("runs for one task must use one work-package plan digest")
 
     actual_counts = Counter(
         run["task_id"] for run in validated_runs

@@ -43,9 +43,19 @@ modify the target repository main branch.
 Each run records repository and contract bases, work-package plan digest,
 agent/model configuration, prompt and tool-policy hashes, dependency and corpus
 hashes, environment profile, verification suite, and grader version.
-Aggregation binds each run to the suite task's declared source basis, lane, and
-work-package plan digest. A suite manifest hash prevents comparison across
-different task definitions that happen to reuse the same suite ID.
+Aggregation binds each run to the suite task's declared source basis, lane,
+verification contract, and required invariant IDs. The suite fixes a safe
+interpreter identity and exact argument arrays for every required command.
+Run evidence records the execution-specific work-package digest and must show
+all required command IDs complete before a `PASS` is eligible for strict pass.
+All trials for one task must share one package digest.
+
+The canonical suite does not embed an execution-specific package digest because
+approval references and fixture instances can differ between governed runs.
+Legacy suite manifests that contain a declared package digest remain readable
+for historical aggregation, but they cannot satisfy the current tracked suite.
+A suite manifest hash prevents comparison across different task definitions
+that happen to reuse the same suite ID.
 
 Canonical compact JSON with sorted keys is hashed with SHA-256 to produce:
 
@@ -103,6 +113,13 @@ and cross-lane consistency.
 Human adjudication is required for any critical disagreement or semantic
 blocker. Agent majority voting is not sufficient.
 
+Observed failure families may be named as required task invariants before they
+become tracked regression fixtures. This makes the next trial contract
+fail-closed without claiming that lifecycle promotion occurred. The current
+parser invariants cover bounded finite Decimal forms, malformed numeric bounds,
+and non-encodable Unicode. The integration invariants require historical
+evidence preservation and malformed-schema regression coverage.
+
 ## Failure-To-Eval Lifecycle
 
 Failures move only through:
@@ -120,6 +137,8 @@ declared review references. Reproduction dates and review references are
 forbidden before their lifecycle stage. Transition validation accepts complete
 current and next case JSON records, preserves identity fields, and requires
 reproduction dates and review references to advance monotonically.
+Adding an invariant ID to a suite is not a `HUMAN_REVIEWED`,
+`GRADER_VALIDATED`, or `REGRESSION` lifecycle transition.
 
 ## Baseline And Adoption
 

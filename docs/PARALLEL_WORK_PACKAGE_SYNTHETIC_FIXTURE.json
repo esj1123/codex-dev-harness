@@ -18,8 +18,23 @@
     "docs/INTERFACE_CONTRACT.md",
     "scripts/example_dependency.py"
   ],
-  "schema_version": "2",
+  "schema_version": "3",
   "task_id": "example-feature-lane",
+  "verification_contract": {
+    "commands": [
+      {
+        "argv": [
+          "{PYTHON}",
+          "-m",
+          "pytest",
+          "tests/test_example_feature.py",
+          "-q"
+        ],
+        "command_id": "focused_pytest"
+      }
+    ],
+    "interpreter_id": "python-3.12.13-pytest-9.0.3"
+  },
   "verification_tier": "V1",
   "write_set": [
     "scripts/example_feature.py",

@@ -78,6 +78,7 @@ def test_agentic_schemas_are_strict_and_safe() -> None:
         "criticality",
         "run_hash",
         "run_fingerprint_id",
+        "work_package_plan_digest",
         "strict_pass",
         "holdout_status",
     }
@@ -108,8 +109,27 @@ def test_regression_suite_has_exact_tasks_and_trial_budget() -> None:
         "allowed-values-evaluator",
         "allowed-values-integration",
     ]
-    assert all(len(task["work_package_plan_digest"]) == 64 for task in suite["tasks"])
     assert all(task["lane"] in {"feature", "integration"} for task in suite["tasks"])
+    assert all(task["required_invariant_ids"] for task in suite["tasks"])
+    assert all(
+        task["verification_contract"]["interpreter_id"]
+        == "python-3.12.13-pytest-9.0.3"
+        for task in suite["tasks"]
+    )
+    assert all(
+        task["verification_contract"]["commands"][0]["argv"][:3]
+        == ["{PYTHON}", "-m", "pytest"]
+        for task in suite["tasks"]
+    )
+    integration = suite["tasks"][-1]
+    assert {
+        "HISTORICAL_EVIDENCE_PRESERVED",
+        "MALFORMED_SCHEMA_REGRESSION_COVERED",
+    } <= set(integration["required_invariant_ids"])
+    parser = suite["tasks"][2]
+    assert "NON_ENCODABLE_UNICODE_FAILS_CLOSED" in parser[
+        "required_invariant_ids"
+    ]
     assert sum(task["trials"] for task in suite["tasks"]) == 19
 
 

@@ -37,6 +37,29 @@
             "NOT RUN",
             "ENVIRONMENT BLOCKED"
           ]
+        },
+        "completed_command_ids": {
+          "items": {
+            "$ref": "#/$defs/safeIdentifier"
+          },
+          "maxItems": 20,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "interpreter_id": {
+          "$ref": "#/$defs/safeIdentifier"
+        },
+        "required_command_ids": {
+          "items": {
+            "$ref": "#/$defs/safeIdentifier"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "verification_contract_hash": {
+          "$ref": "#/$defs/hash"
         }
       },
       "required": [

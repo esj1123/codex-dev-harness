@@ -21,12 +21,15 @@ historical phase and run details remain available in Git history and
 - Work-package postflight over actual Git changes.
 - Authority manifest separating current, durable, and historical documents.
 - Advisory verification-impact planning.
-- Work-package schema v2:
+- Work-package schema v3:
   - case-insensitive and parent/child path ownership checks;
   - Windows trailing-dot and trailing-space rejection;
   - `contract_basis_sha` and shared `contract_frozen_paths`;
   - `CONTRACT_CHANGE_REQUIRED` stop/reopen behavior;
   - explicit `authorization_status=NOT_AUTHENTICATED`.
+  - exact verification interpreter identity and argument arrays bound into the
+    package plan digest;
+  - postflight `PASS` requires every declared command ID to be complete.
 - Fail-closed docs gate with runtime manifest validation.
 - Manual agent-quality run validation, deterministic fingerprinting,
   aggregation, comparison, semantic review, and failure-lifecycle validation.
@@ -41,19 +44,28 @@ historical phase and run details remain available in Git history and
 
 ## Agent Quality Pilot
 
-The first fixed-configuration suite completed all 19 planned trials across five
-replay tasks. All critical 5-trial tasks passed, and no scope, safety,
-postflight, or contract-reopen violation occurred. One of three numeric parser
-trials rejected valid bounded finite Decimal forms in the owner-held holdout.
+A fresh fixed-configuration suite completed all 19 planned trials across five
+replay tasks. No critical, scope, safety, postflight, or contract-reopen
+violation occurred, but the aggregate remains `HOLD`:
 
-The aggregate result is `HOLD`:
+- strict 3-trial task rate: `0.0`;
+- strict 5-trial critical task rate: `0.0`;
+- holdout results: `17 PASS / 2 FAIL`;
+- confirmed semantic blockers: `5`.
 
-- normal 3-trial task rate: `2/3`;
-- critical 5-trial task rate: `1.0`;
-- confirmed semantic blockers: `1`;
-- holdout failures: `1`.
+The observed causes were two repeated malformed numeric-bound failures,
+non-encodable Unicode handling gaps in two allowed-values parser trials,
+required agent verification omitted in several otherwise owner-verified
+trials, one historical-authority rewrite, and one malformed-schema regression
+coverage gap.
 
-Safe run envelopes and the quarantined failure candidate remain ignored under
+The current suite now declares exact verification commands and the failure-
+derived invariant IDs. Execution-specific package digests remain in run
+evidence rather than the canonical suite, so a new approval reference does not
+change the comparison contract. The previous suite and run envelopes remain
+readable as historical evidence; they are not eligible for the new suite.
+
+Safe run envelopes and failure candidates remain ignored under
 `local/agent-quality/`. Raw prompts, transcripts, model output, and holdout
 fixtures are not tracked. The adoption conditions were not met, so
 `artifacts/agent-quality-baseline.json` was not created.
@@ -98,16 +110,17 @@ not authenticate approval.
 - New downstream access, render, write, commit, push, or workflow dispatch.
 - Additional application capabilities without an owner-selected feature
   contract.
-- Agent-quality baseline adoption until the observed numeric parser failure is
-  sanitized, reproduced, reviewed, and the complete suite meets every
-  adoption threshold.
+- Agent-quality baseline adoption until the numeric-bound and Unicode failures
+  complete their required human/grader review, the owner-held graders match
+  the hardened invariants, and a fresh complete suite meets every adoption
+  threshold.
 
 ## Next Recommended Step
 
-Run one separately approved diagnostic trial against the numeric parser
-failure using the frozen task contract and owner-held grader. If the failure is
-reproduced, keep the baseline on hold and review the failure evidence. If the
-diagnostic passes and the contract and grader remain aligned, run a fresh,
+Review the sanitized numeric-bound and non-encodable-Unicode failure families
+against the frozen target contracts. Only after explicit human review should
+the owner-held graders be updated to match the declared invariant IDs. Then
+create schema-v3 work packages with the exact verifier contracts and run a new
 complete 19-trial suite under one fingerprint. Tracked baseline creation
-remains blocked until every adoption condition passes; do not replace only the
-failed trial after a fingerprint-defining change.
+remains blocked until every adoption condition passes; do not reuse or replace
+individual runs from the historical suites.
