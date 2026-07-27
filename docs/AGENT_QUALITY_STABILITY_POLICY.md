@@ -44,8 +44,12 @@ Each run records repository and contract bases, work-package plan digest,
 agent/model configuration, prompt and tool-policy hashes, dependency and corpus
 hashes, environment profile, verification suite, and grader version.
 Aggregation binds each run to the suite task's declared source basis, lane,
-verification contract, and required invariant IDs. The suite fixes a safe
-interpreter identity and exact argument arrays for every required command.
+verification contract, required invariant IDs, and invariant grader ID. The
+suite fixes a safe interpreter identity and exact argument arrays for every
+required command. A current run must provide exactly one result for every
+declared invariant. Each result records the bound grader ID, `PASS`, `FAIL`, or
+`NOT RUN`, and a SHA-256 result hash. Only all-`PASS` invariant evidence is
+eligible for strict pass.
 Run evidence records the execution-specific work-package digest and must show
 all required command IDs complete before a `PASS` is eligible for strict pass.
 All trials for one task must share one package digest.
@@ -53,7 +57,9 @@ All trials for one task must share one package digest.
 The canonical suite does not embed an execution-specific package digest because
 approval references and fixture instances can differ between governed runs.
 Legacy suite manifests that contain a declared package digest remain readable
-for historical aggregation, but they cannot satisfy the current tracked suite.
+for historical aggregation, and historical unbound run envelopes remain
+readable with their historical suite. They cannot satisfy the current tracked
+suite or become evidence for a new bound baseline.
 A suite manifest hash prevents comparison across different task definitions
 that happen to reuse the same suite ID.
 
@@ -119,6 +125,10 @@ fail-closed without claiming that lifecycle promotion occurred. The current
 parser invariants cover bounded finite Decimal forms, malformed numeric bounds,
 and non-encodable Unicode. The integration invariants require historical
 evidence preservation and malformed-schema regression coverage.
+
+An invariant result proves only that the declared grader produced the recorded
+safe status and result hash for that run. The binding is structural evidence;
+it does not authenticate grader ownership, owner approval, or human review.
 
 ## Failure-To-Eval Lifecycle
 

@@ -66,6 +66,44 @@
         "status",
         "reason_codes"
       ],
+      "oneOf": [
+        {
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "verification_contract_hash"
+                ]
+              },
+              {
+                "required": [
+                  "interpreter_id"
+                ]
+              },
+              {
+                "required": [
+                  "required_command_ids"
+                ]
+              },
+              {
+                "required": [
+                  "completed_command_ids"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "required": [
+            "status",
+            "reason_codes",
+            "verification_contract_hash",
+            "interpreter_id",
+            "required_command_ids",
+            "completed_command_ids"
+          ]
+        }
+      ],
       "type": "object"
     },
     "fingerprint": {
@@ -187,6 +225,39 @@
         "functional_correctness": {
           "$ref": "#/$defs/grade"
         },
+        "invariant_results": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "grader_id": {
+                "$ref": "#/$defs/safeIdentifier"
+              },
+              "invariant_id": {
+                "$ref": "#/$defs/safeIdentifier"
+              },
+              "result_hash": {
+                "$ref": "#/$defs/hash"
+              },
+              "status": {
+                "enum": [
+                  "PASS",
+                  "FAIL",
+                  "NOT RUN"
+                ]
+              }
+            },
+            "required": [
+              "invariant_id",
+              "grader_id",
+              "status",
+              "result_hash"
+            ],
+            "type": "object"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "type": "array"
+        },
         "reproducibility": {
           "$ref": "#/$defs/grade"
         },
@@ -209,6 +280,20 @@
         "safety_compliance",
         "reproducibility",
         "blocker_count"
+      ],
+      "oneOf": [
+        {
+          "not": {
+            "required": [
+              "invariant_results"
+            ]
+          }
+        },
+        {
+          "required": [
+            "invariant_results"
+          ]
+        }
       ],
       "type": "object"
     },

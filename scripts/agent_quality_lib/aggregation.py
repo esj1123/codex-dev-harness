@@ -6,6 +6,7 @@ import re
 from typing import Any
 
 from scripts.agent_quality_lib.contracts import sha256_json, validate_run
+from scripts.repo_path_policy import safe_repo_path as shared_safe_repo_path
 
 
 _SUMMED_METRICS = (
@@ -43,7 +44,6 @@ _GRADE_FIELDS = (
 _GIT_SHA = re.compile(r"^[0-9a-f]{40,64}$")
 _HASH = re.compile(r"^[0-9a-f]{64}$")
 _SAFE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,159}$")
-_SAFE_PATH = re.compile(r"^[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$")
 _SUITE_KEYS = {
     "schema_version",
     "status",
@@ -56,6 +56,7 @@ _SUITE_KEYS = {
 }
 _TASK_KEYS = {
     "criticality",
+    "invariant_grader_id",
     "lane",
     "required_invariant_ids",
     "source_basis",
@@ -64,6 +65,7 @@ _TASK_KEYS = {
     "verification_contract",
     "write_set",
 }
+_UNBOUND_TASK_KEYS = _TASK_KEYS - {"invariant_grader_id"}
 _LEGACY_TASK_KEYS = {
     "criticality",
     "lane",
@@ -114,10 +116,7 @@ _EXPECTED_HOLDOUTS_PER_RUN = 1
 
 
 def _safe_path(value: Any) -> bool:
-    if not isinstance(value, str) or not _SAFE_PATH.fullmatch(value):
-        return False
-    parts = value.split("/")
-    return all(part not in {".", ".."} and not part.endswith(".") for part in parts)
+    return shared_safe_repo_path(value, max_bytes=512)
 
 
 def _safe_string_list(value: Any, *, path: bool = False) -> bool:
@@ -215,11 +214,17 @@ def _suite_tasks(suite: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
         lane = task.get("lane")
         fixture_key = {"fixture_recipe"} if lane == "integration" else set()
         expected_keys = _TASK_KEYS | fixture_key
+        unbound_keys = _UNBOUND_TASK_KEYS | fixture_key
         legacy_keys = _LEGACY_TASK_KEYS | fixture_key
         task_keys = frozenset(task)
-        if task_keys not in {frozenset(expected_keys), frozenset(legacy_keys)}:
+        if task_keys not in {
+            frozenset(expected_keys),
+            frozenset(unbound_keys),
+            frozenset(legacy_keys),
+        }:
             raise ValueError("suite task key set is invalid")
         legacy = task_keys == frozenset(legacy_keys)
+        invariant_bound = task_keys == frozenset(expected_keys)
         task_id = task.get("task_id")
         trials = task.get("trials")
         criticality = task.get("criticality")
@@ -248,6 +253,11 @@ def _suite_tasks(suite: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
         else:
             if not _safe_string_list(task.get("required_invariant_ids")):
                 raise ValueError(f"invalid required invariants for task: {task_id}")
+            if invariant_bound and (
+                not isinstance(task.get("invariant_grader_id"), str)
+                or not _SAFE_ID.fullmatch(task["invariant_grader_id"])
+            ):
+                raise ValueError(f"invalid invariant grader for task: {task_id}")
             _verification_contract(
                 task.get("verification_contract"),
                 task_id=task_id,
@@ -514,6 +524,10 @@ def _is_strict_pass(run: Mapping[str, Any]) -> bool:
         return False
     if any(grading[field] != "PASS" for field in _GRADE_FIELDS):
         return False
+    if "invariant_results" in grading and any(
+        result["status"] != "PASS" for result in grading["invariant_results"]
+    ):
+        return False
     metrics = run["metrics"]
     return all(metrics[field] == 0 for field in _STRICT_BLOCKERS)
 
@@ -649,6 +663,26 @@ def aggregate_runs(
                 raise ValueError(
                     f"run verification contract does not match: {task_id}"
                 )
+            if "invariant_grader_id" in task:
+                invariant_results = run["grading"].get("invariant_results")
+                if not isinstance(invariant_results, list):
+                    raise ValueError(
+                        f"run invariant evidence is missing: {task_id}"
+                    )
+                required_invariants = task["required_invariant_ids"]
+                if [result["invariant_id"] for result in invariant_results] != sorted(
+                    required_invariants
+                ):
+                    raise ValueError(
+                        f"run invariant evidence does not match task: {task_id}"
+                    )
+                if any(
+                    result["grader_id"] != task["invariant_grader_id"]
+                    for result in invariant_results
+                ):
+                    raise ValueError(
+                        f"run invariant grader does not match task: {task_id}"
+                    )
         elif (
             fingerprint["work_package_plan_digest"]
             != task["work_package_plan_digest"]

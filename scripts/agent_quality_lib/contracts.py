@@ -74,6 +74,13 @@ GRADING_KEYS = {
     "reproducibility",
     "blocker_count",
 }
+BOUND_GRADING_KEYS = GRADING_KEYS | {"invariant_results"}
+INVARIANT_RESULT_KEYS = {
+    "invariant_id",
+    "grader_id",
+    "status",
+    "result_hash",
+}
 METRIC_KEYS = {
     "critical_failure_count",
     "scope_violation_count",
@@ -371,13 +378,44 @@ def _validate_execution(value: Any, issues: list[str]) -> None:
 
 
 def _validate_grading(value: Any, issues: list[str]) -> None:
-    if not _exact_keys(value, GRADING_KEYS, "GRADING_KEY_SET_INVALID", issues):
+    if not isinstance(value, dict) or set(value) not in {
+        frozenset(GRADING_KEYS),
+        frozenset(BOUND_GRADING_KEYS),
+    }:
+        issues.append("GRADING_KEY_SET_INVALID")
         return
     for key in GRADING_KEYS - {"blocker_count"}:
         if value[key] not in STATUSES:
             issues.append(f"GRADING_{key.upper()}_INVALID")
     if not _non_negative_integer(value["blocker_count"]):
         issues.append("GRADING_BLOCKER_COUNT_INVALID")
+    if set(value) == BOUND_GRADING_KEYS:
+        results = value["invariant_results"]
+        if not isinstance(results, list) or not results or len(results) > MAX_LIST_ITEMS:
+            issues.append("INVARIANT_RESULTS_INVALID")
+            return
+        invariant_ids: list[str] = []
+        for result in results:
+            if not isinstance(result, dict) or set(result) != INVARIANT_RESULT_KEYS:
+                issues.append("INVARIANT_RESULT_KEY_SET_INVALID")
+                continue
+            if not _safe_identifier(result["invariant_id"]):
+                issues.append("INVARIANT_ID_INVALID")
+            else:
+                invariant_ids.append(result["invariant_id"])
+            if not _safe_identifier(result["grader_id"]):
+                issues.append("INVARIANT_GRADER_ID_INVALID")
+            if result["status"] not in {"PASS", "FAIL", "NOT RUN"}:
+                issues.append("INVARIANT_STATUS_INVALID")
+            if (
+                not isinstance(result["result_hash"], str)
+                or HASH_PATTERN.fullmatch(result["result_hash"]) is None
+            ):
+                issues.append("INVARIANT_RESULT_HASH_INVALID")
+        if len(invariant_ids) != len(set(invariant_ids)):
+            issues.append("INVARIANT_ID_DUPLICATE")
+        if invariant_ids != sorted(invariant_ids):
+            issues.append("INVARIANT_RESULT_ORDER_INVALID")
 
 
 def _validate_metrics(value: Any, issues: list[str]) -> None:

@@ -53,6 +53,7 @@ def make_suite() -> dict:
             {
                 "task_id": task_id,
                 "criticality": criticality,
+                "invariant_grader_id": f"{task_id}-grader-v1",
                 "lane": "feature",
                 "required_invariant_ids": ["FOCUSED_CONTRACT_PRESERVED"],
                 "source_basis": "2" * 40,
@@ -143,6 +144,18 @@ def make_runs() -> list[dict]:
                         "safety_compliance": "PASS",
                         "reproducibility": "PASS",
                         "blocker_count": 0,
+                        "invariant_results": [
+                            {
+                                "invariant_id": "FOCUSED_CONTRACT_PRESERVED",
+                                "grader_id": task["invariant_grader_id"],
+                                "status": "PASS",
+                                "result_hash": hashlib.sha256(
+                                    f"{run_id}:FOCUSED_CONTRACT_PRESERVED".encode(
+                                        "ascii"
+                                    )
+                                ).hexdigest(),
+                            }
+                        ],
                     },
                     "metrics": deepcopy(ZERO_METRICS),
                     "evidence_refs": [],
@@ -214,11 +227,13 @@ def test_aggregate_preserves_read_only_legacy_suite_compatibility() -> None:
         for run in runs
     }
     for task in suite["tasks"]:
+        task.pop("invariant_grader_id")
         task.pop("required_invariant_ids")
         task.pop("verification_contract")
         task["work_package_plan_digest"] = plan_by_task[task["task_id"]]
     for run in runs:
         run["execution"] = {"status": "PASS", "reason_codes": []}
+        run["grading"].pop("invariant_results")
 
     aggregate = aggregate_runs(suite, runs)
 
@@ -244,6 +259,60 @@ def test_aggregate_rejects_verification_contract_drift(mutation: str) -> None:
 
     with pytest.raises(ValueError):
         aggregate_runs(make_suite(), runs)
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ["missing", "extra", "duplicate", "grader", "hash"],
+)
+def test_aggregate_binds_required_invariants_to_grader_evidence(
+    mutation: str,
+) -> None:
+    runs = make_runs()
+    results = runs[0]["grading"]["invariant_results"]
+    if mutation == "missing":
+        runs[0]["grading"].pop("invariant_results")
+    elif mutation == "extra":
+        results.append(
+            {
+                "invariant_id": "UNDECLARED_INVARIANT",
+                "grader_id": results[0]["grader_id"],
+                "status": "PASS",
+                "result_hash": "a" * 64,
+            }
+        )
+    elif mutation == "duplicate":
+        results.append(deepcopy(results[0]))
+    elif mutation == "grader":
+        results[0]["grader_id"] = "other-grader"
+    else:
+        results[0]["result_hash"] = "not-a-hash"
+
+    with pytest.raises((TypeError, ValueError)):
+        aggregate_runs(make_suite(), runs)
+
+
+@pytest.mark.parametrize("status", ["FAIL", "NOT RUN"])
+def test_invariant_failure_or_not_run_blocks_strict_pass(status: str) -> None:
+    runs = make_runs()
+    runs[0]["grading"]["invariant_results"][0]["status"] = status
+
+    aggregate = aggregate_runs(make_suite(), runs)
+
+    assert aggregate["status"] == "HOLD"
+    assert aggregate["metrics"]["strict_pass_3_task_rate"] == pytest.approx(2 / 3)
+    assert aggregate["reason_codes"] == ["STRICT_PASS_3_TASK_RATE_BELOW_ONE"]
+
+
+@pytest.mark.parametrize("unsafe_path", ["CON", "src/" + "a" * 256])
+def test_suite_write_set_uses_shared_windows_safe_path_policy(
+    unsafe_path: str,
+) -> None:
+    suite = make_suite()
+    suite["tasks"][0]["write_set"] = [unsafe_path]
+
+    with pytest.raises(ValueError, match="write_set"):
+        aggregate_runs(suite, make_runs())
 
 
 @pytest.mark.parametrize("mutation", ["duplicate", "missing", "extra"])

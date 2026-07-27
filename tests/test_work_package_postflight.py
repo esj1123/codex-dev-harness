@@ -346,6 +346,64 @@ def test_pass_requires_exact_interpreter_and_complete_command_set(
     assert reason_code in result["reason_codes"]
 
 
+@pytest.mark.parametrize(
+    ("interpreter_id", "command_ids", "reason_code"),
+    [
+        ("C:/private/python.exe", [], "VERIFICATION_INTERPRETER_INVALID"),
+        (
+            "python-3.12.13-pytest-9.0.3",
+            ["focused_pytest", "focused_pytest"],
+            "VERIFICATION_COMMAND_ID_SET_INVALID",
+        ),
+        (
+            "python-3.12.13-pytest-9.0.3",
+            [f"command-{index}" for index in range(17)],
+            "VERIFICATION_COMMAND_ID_SET_INVALID",
+        ),
+        (
+            "python-3.12.13-pytest-9.0.3",
+            ["C:/private/result"],
+            "VERIFICATION_COMMAND_ID_SET_INVALID",
+        ),
+    ],
+)
+def test_invalid_verifier_inputs_fail_before_git_observation_without_reflection(
+    tmp_path: Path,
+    interpreter_id: str,
+    command_ids: list[str],
+    reason_code: str,
+) -> None:
+    result = postflight.inspect_postflight(
+        ["missing.json"],
+        task_id="feature-a",
+        verification_status="PASS",
+        verification_interpreter_id=interpreter_id,
+        completed_command_ids=command_ids,
+        repo_root=tmp_path,
+    )
+    serialized = postflight.safe_output_bytes(result).decode("ascii")
+
+    assert result["status"] == "FAIL"
+    assert result["reason_codes"] == [reason_code]
+    assert "private" not in serialized
+    assert "command-16" not in serialized
+
+
+def test_safe_output_replaces_oversized_payload_with_bounded_failure() -> None:
+    result = postflight.base_result()
+    result["actual_surface"]["changed_paths"] = [
+        f"generated/{index:04d}.txt" for index in range(2000)
+    ]
+
+    payload = postflight.safe_output_bytes(result)
+    decoded = json.loads(payload)
+
+    assert len(payload) <= postflight.MAX_OUTPUT_BYTES
+    assert decoded["status"] == "FAIL"
+    assert decoded["reason_codes"] == ["OUTPUT_TOO_LARGE"]
+    assert decoded["actual_surface"]["changed_paths"] == []
+
+
 def test_diff_check_failure_is_blocked(tmp_path: Path) -> None:
     repo, base_sha = init_repo(tmp_path)
     package_path = write_package(repo, package(base_sha))

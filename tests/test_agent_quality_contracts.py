@@ -65,6 +65,18 @@ def test_agentic_schemas_are_strict_and_safe() -> None:
         "verification_suite_id",
         "grader_version",
     } <= run_required
+    execution = schemas["agent-run.schema.json"]["properties"]["execution"]
+    assert len(execution["oneOf"]) == 2
+    grading = schemas["agent-run.schema.json"]["properties"]["grading"]
+    assert len(grading["oneOf"]) == 2
+    invariant_results = grading["properties"]["invariant_results"]
+    assert invariant_results["minItems"] == 1
+    assert set(invariant_results["items"]["required"]) == {
+        "invariant_id",
+        "grader_id",
+        "status",
+        "result_hash",
+    }
     baseline_required = set(schemas["agent-quality-baseline.schema.json"]["required"])
     assert {"suite_manifest_hash", "run_evidence_manifest"} <= baseline_required
     manifest = schemas["agent-quality-baseline.schema.json"]["properties"][
@@ -111,6 +123,7 @@ def test_regression_suite_has_exact_tasks_and_trial_budget() -> None:
     ]
     assert all(task["lane"] in {"feature", "integration"} for task in suite["tasks"])
     assert all(task["required_invariant_ids"] for task in suite["tasks"])
+    assert all(task["invariant_grader_id"].endswith("-grader-v1") for task in suite["tasks"])
     assert all(
         task["verification_contract"]["interpreter_id"]
         == "python-3.12.13-pytest-9.0.3"

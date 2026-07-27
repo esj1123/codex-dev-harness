@@ -129,14 +129,19 @@ checker for that task. Postflight observes Git without writing and verifies:
 - the observed verification runtime matches `interpreter_id`; and
 - a `PASS` declares every required verification `command_id` complete.
 
-Postflight accepts bounded command IDs, not raw logs. It does not execute the
-commands or infer success from an owner rerun. The caller must report a missing
-agent command as incomplete even when an integration owner later verifies the
-same code successfully.
+Postflight accepts bounded command IDs, not raw logs. It validates the
+interpreter identity and completed-command ID set before loading packages or
+observing Git. Invalid, duplicate, or excessive verifier input fails closed and
+is not reflected in output. It does not execute the commands or infer success
+from an owner rerun. The caller must report a missing agent command as
+incomplete even when an integration owner later verifies the same code
+successfully.
 
-Postflight emits deterministic JSON to stdout. A caller may store that output
-under ignored `local/checkpoints/<checkpoint-id>/` only when local evidence
-writing is approved. No result envelope is tracked.
+Postflight emits deterministic bounded JSON to stdout. If a result cannot be
+serialized safely within the output limit, it emits a minimal fail-closed
+envelope instead. A caller may store output under ignored
+`local/checkpoints/<checkpoint-id>/` only when local evidence writing is
+approved. No result envelope is tracked.
 
 ## Contract Freeze And Reopen
 

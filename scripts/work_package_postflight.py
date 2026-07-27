@@ -205,6 +205,19 @@ def inspect_postflight(
     if verification_status not in VERIFICATION_STATUSES:
         result["reason_codes"] = ["VERIFICATION_STATUS_INVALID"]
         return result
+    if not preflight.safe_identifier(verification_interpreter_id):
+        result["reason_codes"] = ["VERIFICATION_INTERPRETER_INVALID"]
+        return result
+    if (
+        len(completed_command_ids) > preflight.MAX_VERIFICATION_COMMANDS
+        or len(completed_command_ids) != len(set(completed_command_ids))
+        or any(
+            not preflight.safe_identifier(command_id)
+            for command_id in completed_command_ids
+        )
+    ):
+        result["reason_codes"] = ["VERIFICATION_COMMAND_ID_SET_INVALID"]
+        return result
 
     payloads, preflight_result = load_payloads(package_paths, repo_root)
     if not payloads:
@@ -277,10 +290,7 @@ def inspect_postflight(
     reasons: set[str] = set()
     if verification_interpreter_id != verification_contract["interpreter_id"]:
         reasons.add("VERIFICATION_INTERPRETER_MISMATCH")
-    if (
-        len(completed_command_ids) != len(set(completed_command_ids))
-        or set(completed_command_ids) - set(required_command_ids)
-    ):
+    if set(completed_command_ids) - set(required_command_ids):
         reasons.add("VERIFICATION_COMMAND_SET_INVALID")
     if (
         verification_status == "PASS"
@@ -337,6 +347,17 @@ def json_bytes(result: dict[str, Any]) -> bytes:
     return payload
 
 
+def safe_output_bytes(result: dict[str, Any]) -> bytes:
+    """Return bounded JSON or one minimal non-reflective failure."""
+
+    try:
+        return json_bytes(result)
+    except (TypeError, ValueError):
+        fallback = base_result()
+        fallback["reason_codes"] = ["OUTPUT_TOO_LARGE"]
+        return json_bytes(fallback)
+
+
 def text_summary(result: dict[str, Any]) -> str:
     reasons = ",".join(result["reason_codes"]) or "NONE"
     actual = result["actual_surface"]
@@ -375,7 +396,7 @@ def main(argv: list[str] | None = None) -> int:
         repo_root=Path(args.repo_root),
     )
     if args.json:
-        sys.stdout.buffer.write(json_bytes(result))
+        sys.stdout.buffer.write(safe_output_bytes(result))
     else:
         print(text_summary(result))
     return 0 if result["status"] == "PASS" else 1

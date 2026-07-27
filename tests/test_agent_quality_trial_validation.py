@@ -70,6 +70,14 @@ def valid_run() -> dict:
             "safety_compliance": "PASS",
             "reproducibility": "PASS",
             "blocker_count": 0,
+            "invariant_results": [
+                {
+                    "invariant_id": "FINITE_DECIMAL_FORMS_ACCEPTED",
+                    "grader_id": "numeric-rules-grader-v1",
+                    "status": "PASS",
+                    "result_hash": "4" * 64,
+                }
+            ],
         },
         "metrics": {
             "critical_failure_count": 0,
@@ -173,8 +181,49 @@ def test_validate_run_requires_complete_bound_verification_for_pass() -> None:
 def test_validate_run_accepts_historical_unbound_execution_summary() -> None:
     payload = valid_run()
     payload["execution"] = {"status": "FAIL", "reason_codes": ["HISTORICAL_RUN"]}
+    payload["grading"].pop("invariant_results")
 
     assert validate_run(payload) == payload
+
+
+@pytest.mark.parametrize(
+    ("mutation", "expected"),
+    [
+        (
+            lambda run: run["grading"]["invariant_results"].append(
+                copy.deepcopy(run["grading"]["invariant_results"][0])
+            ),
+            "INVARIANT_ID_DUPLICATE",
+        ),
+        (
+            lambda run: run["grading"]["invariant_results"][0].__setitem__(
+                "grader_id", "C:/private"
+            ),
+            "INVARIANT_GRADER_ID_INVALID",
+        ),
+        (
+            lambda run: run["grading"]["invariant_results"][0].__setitem__(
+                "status", "BLOCKED"
+            ),
+            "INVARIANT_STATUS_INVALID",
+        ),
+        (
+            lambda run: run["grading"]["invariant_results"][0].__setitem__(
+                "result_hash", "short"
+            ),
+            "INVARIANT_RESULT_HASH_INVALID",
+        ),
+    ],
+)
+def test_validate_run_rejects_invalid_invariant_evidence(
+    mutation: object, expected: str
+) -> None:
+    payload = valid_run()
+    mutation(payload)
+
+    with pytest.raises(AgentQualityValidationError) as error:
+        validate_run(payload)
+    assert expected in error.value.issues
 
 
 @pytest.mark.parametrize(
