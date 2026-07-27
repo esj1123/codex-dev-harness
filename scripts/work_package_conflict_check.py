@@ -76,6 +76,7 @@ EXPECTED_KEYS = {
     "declared_side_effects",
     "approval_ref",
 }
+PROFILE_BOUND_KEYS = EXPECTED_KEYS | {"agent_profile_id", "agent_profile_hash"}
 INTEGRATION_ONLY_EXACT = {
     "AGENTS.md",
     "README.md",
@@ -233,7 +234,7 @@ def package_issues(payload: Any) -> list[str]:
     if not isinstance(payload, dict):
         return ["PACKAGE_NOT_OBJECT"]
     issues: list[str] = []
-    if set(payload) != EXPECTED_KEYS:
+    if set(payload) not in {frozenset(EXPECTED_KEYS), frozenset(PROFILE_BOUND_KEYS)}:
         issues.append("PACKAGE_KEY_SET_INVALID")
         return issues
     if payload["schema_version"] != SCHEMA_VERSION:
@@ -254,6 +255,14 @@ def package_issues(payload: Any) -> list[str]:
     issues.extend(verification_contract_issues(payload["verification_contract"]))
     if not safe_reference(payload["approval_ref"]):
         issues.append("APPROVAL_REF_INVALID")
+    if set(payload) == PROFILE_BOUND_KEYS:
+        if not safe_identifier(payload["agent_profile_id"]):
+            issues.append("AGENT_PROFILE_ID_INVALID")
+        if (
+            not isinstance(payload["agent_profile_hash"], str)
+            or re.fullmatch(r"[0-9a-f]{64}", payload["agent_profile_hash"]) is None
+        ):
+            issues.append("AGENT_PROFILE_HASH_INVALID")
 
     for key in (
         "depends_on",

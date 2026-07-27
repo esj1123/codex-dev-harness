@@ -32,6 +32,23 @@ RUN_KEYS = {
     "evidence_refs",
     "performed_actions",
 }
+RUN_V2_KEYS = {
+    "schema_version",
+    "run_id",
+    "task_id",
+    "trial_id",
+    "suite_id",
+    "task_class",
+    "criticality",
+    "agent_profile",
+    "fingerprint",
+    "execution",
+    "repository",
+    "grading",
+    "metrics",
+    "evidence_refs",
+    "performed_actions",
+}
 FINGERPRINT_BASE_KEYS = {
     "harness_commit",
     "target_base_commit",
@@ -80,6 +97,61 @@ INVARIANT_RESULT_KEYS = {
     "grader_id",
     "status",
     "result_hash",
+}
+AGENT_PROFILE_EVIDENCE_KEYS = {
+    "agent_profile_id",
+    "agent_profile_hash",
+    "model_id",
+    "reasoning_profile",
+    "model_selection_source",
+    "model_observation_status",
+    "agent_id",
+    "request_hash",
+}
+COMMAND_RESULT_KEYS = {
+    "command_id",
+    "argv_hash",
+    "exit_code",
+    "stdout_sha256",
+    "stdout_bytes",
+    "stderr_sha256",
+    "stderr_bytes",
+    "status",
+}
+EXECUTION_V2_KEYS = {
+    "status",
+    "reason_codes",
+    "verification_contract_hash",
+    "interpreter_id",
+    "interpreter_version",
+    "required_command_ids",
+    "completed_command_ids",
+    "command_results",
+    "postflight_result_hash",
+}
+REPOSITORY_EVIDENCE_KEYS = {
+    "base_sha",
+    "head_sha",
+    "tree_sha",
+    "commit_count",
+    "diff_sha256",
+    "changed_path_count",
+    "changed_path_set_hash",
+    "untracked_path_count",
+    "untracked_path_set_hash",
+    "rename_count",
+    "delete_count",
+    "dirty",
+}
+GRADING_V2_KEYS = BOUND_GRADING_KEYS | {
+    "grader_id",
+    "grader_version",
+    "exit_code",
+    "stdout_sha256",
+    "stdout_bytes",
+    "stderr_sha256",
+    "stderr_bytes",
+    "status",
 }
 METRIC_KEYS = {
     "critical_failure_count",
@@ -457,10 +529,188 @@ def _run_issues(payload: Any) -> list[str]:
     return sorted(set(issues))
 
 
+def _hash(value: Any) -> bool:
+    return isinstance(value, str) and HASH_PATTERN.fullmatch(value) is not None
+
+
+def _git_sha(value: Any) -> bool:
+    return isinstance(value, str) and GIT_SHA_PATTERN.fullmatch(value) is not None
+
+
+def _validate_agent_profile_evidence(value: Any, issues: list[str]) -> None:
+    if not _exact_keys(
+        value, AGENT_PROFILE_EVIDENCE_KEYS, "AGENT_PROFILE_KEY_SET_INVALID", issues
+    ):
+        return
+    for key in ("agent_profile_id", "model_id", "agent_id"):
+        if not _safe_identifier(value[key]):
+            issues.append(f"{key.upper()}_INVALID")
+    for key in ("agent_profile_hash", "request_hash"):
+        if not _hash(value[key]):
+            issues.append(f"{key.upper()}_INVALID")
+    if value["reasoning_profile"] not in REASONING_PROFILES - {"UNKNOWN"}:
+        issues.append("REASONING_PROFILE_INVALID")
+    if value["model_selection_source"] != "ADAPTER_REQUEST":
+        issues.append("MODEL_SELECTION_SOURCE_INVALID")
+    if value["model_observation_status"] != "NOT_INDEPENDENTLY_OBSERVABLE":
+        issues.append("MODEL_OBSERVATION_STATUS_INVALID")
+
+
+def _validate_command_results(value: Any, issues: list[str]) -> None:
+    if not isinstance(value, list) or not value or len(value) > MAX_LIST_ITEMS:
+        issues.append("COMMAND_RESULTS_INVALID")
+        return
+    command_ids: list[str] = []
+    for item in value:
+        if not _exact_keys(
+            item, COMMAND_RESULT_KEYS, "COMMAND_RESULT_KEY_SET_INVALID", issues
+        ):
+            continue
+        command_ids.append(item["command_id"])
+        if not _safe_identifier(item["command_id"]):
+            issues.append("COMMAND_RESULT_ID_INVALID")
+        for key in ("argv_hash", "stdout_sha256", "stderr_sha256"):
+            if not _hash(item[key]):
+                issues.append(f"COMMAND_RESULT_{key.upper()}_INVALID")
+        if item["exit_code"] is not None and (
+            not isinstance(item["exit_code"], int)
+            or isinstance(item["exit_code"], bool)
+        ):
+            issues.append("COMMAND_RESULT_EXIT_CODE_INVALID")
+        for key in ("stdout_bytes", "stderr_bytes"):
+            if not _non_negative_integer(item[key]):
+                issues.append(f"COMMAND_RESULT_{key.upper()}_INVALID")
+        if item["status"] not in {"PASS", "FAIL", "ENVIRONMENT BLOCKED"}:
+            issues.append("COMMAND_RESULT_STATUS_INVALID")
+    if command_ids != sorted(set(command_ids)):
+        issues.append("COMMAND_RESULT_ORDER_INVALID")
+
+
+def _validate_execution_v2(value: Any, issues: list[str]) -> None:
+    if not _exact_keys(value, EXECUTION_V2_KEYS, "EXECUTION_KEY_SET_INVALID", issues):
+        return
+    if value["status"] not in STATUSES - {"NOT RUN"}:
+        issues.append("EXECUTION_STATUS_INVALID")
+    if not _safe_unique_list(
+        value["reason_codes"], limit=MAX_LIST_ITEMS, validator=_safe_reason_code
+    ):
+        issues.append("EXECUTION_REASON_CODES_INVALID")
+    if not _hash(value["verification_contract_hash"]):
+        issues.append("VERIFICATION_CONTRACT_HASH_INVALID")
+    if not _safe_identifier(value["interpreter_id"]):
+        issues.append("VERIFICATION_INTERPRETER_ID_INVALID")
+    if not _safe_identifier(value["interpreter_version"]):
+        issues.append("INTERPRETER_VERSION_INVALID")
+    for key in ("required_command_ids", "completed_command_ids"):
+        if not _safe_unique_list(
+            value[key], limit=MAX_LIST_ITEMS, validator=_safe_identifier
+        ):
+            issues.append(f"{key.upper()}_INVALID")
+    _validate_command_results(value["command_results"], issues)
+    if not _hash(value["postflight_result_hash"]):
+        issues.append("POSTFLIGHT_RESULT_HASH_INVALID")
+    if value["completed_command_ids"] != [
+        item["command_id"]
+        for item in value["command_results"]
+        if item.get("status") == "PASS"
+    ]:
+        issues.append("COMPLETED_COMMANDS_NOT_CAPTURED")
+    if value["status"] == "PASS" and (
+        value["required_command_ids"] != value["completed_command_ids"]
+    ):
+        issues.append("VERIFICATION_COMMANDS_INCOMPLETE")
+
+
+def _validate_repository_evidence(value: Any, issues: list[str]) -> None:
+    if not _exact_keys(
+        value, REPOSITORY_EVIDENCE_KEYS, "REPOSITORY_KEY_SET_INVALID", issues
+    ):
+        return
+    for key in ("base_sha", "head_sha", "tree_sha"):
+        if not _git_sha(value[key]):
+            issues.append(f"REPOSITORY_{key.upper()}_INVALID")
+    for key in ("diff_sha256", "changed_path_set_hash", "untracked_path_set_hash"):
+        if not _hash(value[key]):
+            issues.append(f"REPOSITORY_{key.upper()}_INVALID")
+    for key in (
+        "commit_count",
+        "changed_path_count",
+        "untracked_path_count",
+        "rename_count",
+        "delete_count",
+    ):
+        if not _non_negative_integer(value[key]):
+            issues.append(f"REPOSITORY_{key.upper()}_INVALID")
+    if not isinstance(value["dirty"], bool):
+        issues.append("REPOSITORY_DIRTY_INVALID")
+
+
+def _validate_grading_v2(value: Any, issues: list[str]) -> None:
+    if not _exact_keys(value, GRADING_V2_KEYS, "GRADING_KEY_SET_INVALID", issues):
+        return
+    _validate_grading({key: value[key] for key in BOUND_GRADING_KEYS}, issues)
+    for key in ("grader_id", "grader_version"):
+        if not _safe_identifier(value[key]):
+            issues.append(f"{key.upper()}_INVALID")
+    if value["exit_code"] is not None and (
+        not isinstance(value["exit_code"], int) or isinstance(value["exit_code"], bool)
+    ):
+        issues.append("GRADER_EXIT_CODE_INVALID")
+    for key in ("stdout_sha256", "stderr_sha256"):
+        if not _hash(value[key]):
+            issues.append(f"GRADER_{key.upper()}_INVALID")
+    for key in ("stdout_bytes", "stderr_bytes"):
+        if not _non_negative_integer(value[key]):
+            issues.append(f"GRADER_{key.upper()}_INVALID")
+    if value["status"] not in {"PASS", "FAIL", "ENVIRONMENT BLOCKED"}:
+        issues.append("GRADER_STATUS_INVALID")
+
+
+def _run_v2_issues(payload: Any) -> list[str]:
+    if not isinstance(payload, dict):
+        return ["RUN_NOT_OBJECT"]
+    if set(payload) != RUN_V2_KEYS:
+        return ["RUN_KEY_SET_INVALID"]
+    issues: list[str] = []
+    if payload["schema_version"] != "2":
+        issues.append("SCHEMA_VERSION_INVALID")
+    for key in ("run_id", "task_id", "trial_id", "suite_id", "task_class"):
+        if not _safe_identifier(payload[key]):
+            issues.append(f"{key.upper()}_INVALID")
+    if payload["criticality"] not in CRITICALITIES:
+        issues.append("CRITICALITY_INVALID")
+    _validate_agent_profile_evidence(payload["agent_profile"], issues)
+    _validate_fingerprint(payload["fingerprint"], issues)
+    _validate_execution_v2(payload["execution"], issues)
+    _validate_repository_evidence(payload["repository"], issues)
+    _validate_grading_v2(payload["grading"], issues)
+    _validate_metrics(payload["metrics"], issues)
+    if not _safe_unique_list(
+        payload["evidence_refs"], limit=MAX_LIST_ITEMS, validator=safe_repo_path
+    ):
+        issues.append("EVIDENCE_REFS_INVALID")
+    if not _safe_unique_list(
+        payload["performed_actions"], limit=5, validator=PERFORMED_ACTIONS.__contains__
+    ):
+        issues.append("PERFORMED_ACTIONS_INVALID")
+    if payload["fingerprint"]["model_id"] != payload["agent_profile"]["model_id"]:
+        issues.append("PROFILE_MODEL_MISMATCH")
+    if (
+        payload["fingerprint"]["reasoning_profile"]
+        != payload["agent_profile"]["reasoning_profile"]
+    ):
+        issues.append("PROFILE_REASONING_MISMATCH")
+    return sorted(set(issues))
+
+
 def validate_run(payload: Any) -> dict[str, Any]:
     """Return an independent validated run or raise deterministic issues."""
 
-    issues = _run_issues(payload)
+    issues = (
+        _run_v2_issues(payload)
+        if isinstance(payload, dict) and payload.get("schema_version") == "2"
+        else _run_issues(payload)
+    )
     if issues:
         raise AgentQualityValidationError(issues)
     return deepcopy(payload)

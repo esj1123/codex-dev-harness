@@ -15,6 +15,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from scripts.agent_quality_lib.adoption import build_baseline, compare_baseline
 from scripts.agent_quality_lib.aggregation import aggregate_runs
+from scripts.agent_quality_lib.capture import capture_run, write_captured_run
 from scripts.agent_quality_lib.contracts import (
     AgentQualityValidationError,
     load_json_file,
@@ -203,6 +204,69 @@ def _write_baseline_command(
     }
 
 
+def _resolve_capture_output(value: str) -> Path:
+    candidate = Path(value)
+    if candidate.suffix.lower() != ".json":
+        raise AgentQualityValidationError(("RUN_OUTPUT_EXTENSION_INVALID",))
+    resolved = candidate.resolve(strict=False)
+    roots = (
+        (REPO_ROOT / "local" / "agent-quality").resolve(strict=False),
+        Path(tempfile.gettempdir()).resolve(strict=False),
+    )
+    if not any(_is_within(resolved, root) for root in roots):
+        raise AgentQualityValidationError(("RUN_OUTPUT_BOUNDARY_INVALID",))
+    if resolved.exists():
+        raise AgentQualityValidationError(("RUN_OUTPUT_OVERWRITE_FORBIDDEN",))
+    if resolved.parent.is_symlink():
+        raise AgentQualityValidationError(("RUN_OUTPUT_SYMLINK_FORBIDDEN",))
+    return resolved
+
+
+def _capture_run_command(args: argparse.Namespace) -> dict[str, Any]:
+    repo_root = _resolve_allowed_input(args.repo_root, directory=True)
+    package_path = _resolve_allowed_input(args.package)
+    try:
+        package_relative = package_path.relative_to(repo_root).as_posix()
+    except ValueError as exc:
+        raise AgentQualityValidationError(("PACKAGE_REPOSITORY_BOUNDARY_INVALID",)) from exc
+    suite = _load_allowed_json(args.suite)
+    profiles = _load_allowed_json(args.profiles)
+    package = load_json_file(package_path)
+    launch_receipt = _load_allowed_json(args.launch_receipt)
+    grader_manifest_path = _resolve_allowed_input(args.grader_manifest)
+    grader_manifest = load_json_file(grader_manifest_path)
+    if not all(
+        isinstance(value, dict)
+        for value in (suite, profiles, package, launch_receipt, grader_manifest)
+    ):
+        raise AgentQualityValidationError(("CAPTURE_INPUT_INVALID",))
+    run = capture_run(
+        suite=suite,
+        profiles=profiles,
+        package=package,
+        package_path=package_relative,
+        task_id=args.task_id,
+        trial_id=args.trial_id,
+        repo_root=repo_root,
+        launch_receipt=launch_receipt,
+        grader_manifest=grader_manifest,
+        grader_manifest_path=grader_manifest_path,
+        harness_root=REPO_ROOT,
+    )
+    output = _resolve_capture_output(args.output)
+    write_captured_run(output, run)
+    return {
+        **_result("PASS", [], "capture-run"),
+        "capture_summary": {
+            "run_id": run["run_id"],
+            "execution_status": run["execution"]["status"],
+            "grading_status": run["grading"]["status"],
+            "command_count": len(run["execution"]["command_results"]),
+        },
+        "performed_actions": ["execute", "local_write"],
+    }
+
+
 def json_bytes(result: dict[str, Any]) -> bytes:
     data = (
         json.dumps(result, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
@@ -251,6 +315,18 @@ def build_parser() -> argparse.ArgumentParser:
     baseline_parser.add_argument("--output", required=True)
     baseline_parser.add_argument("--approval-ref", required=True)
     baseline_parser.add_argument("--created-at", required=True)
+
+    capture_parser = subparsers.add_parser("capture-run")
+    capture_parser.add_argument("--suite", required=True)
+    capture_parser.add_argument("--profiles", required=True)
+    capture_parser.add_argument("--package", required=True)
+    capture_parser.add_argument("--task-id", required=True)
+    capture_parser.add_argument("--trial-id", required=True)
+    capture_parser.add_argument("--repo-root", required=True)
+    capture_parser.add_argument("--launch-receipt", required=True)
+    capture_parser.add_argument("--grader-manifest", required=True)
+    capture_parser.add_argument("--output", required=True)
+    capture_parser.add_argument("--json", action="store_true")
     return parser
 
 
@@ -267,6 +343,8 @@ def main(argv: list[str] | None = None) -> int:
             result = _compare_command(args.baseline, args.suite, args.runs_dir)
         elif command == "validate-failure":
             result = _validate_failure_command(args.case, args.next_case)
+        elif command == "capture-run":
+            result = _capture_run_command(args)
         else:
             result = _write_baseline_command(
                 args.suite,

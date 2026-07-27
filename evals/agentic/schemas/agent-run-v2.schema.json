@@ -1,0 +1,507 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "agent_profile": {
+      "$ref": "#/$defs/agentProfile"
+    },
+    "criticality": {
+      "enum": [
+        "normal",
+        "critical"
+      ]
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 20,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "execution": {
+      "$ref": "#/$defs/execution"
+    },
+    "fingerprint": {
+      "type": "object"
+    },
+    "grading": {
+      "$ref": "#/$defs/grading"
+    },
+    "metrics": {
+      "$ref": "#/$defs/metrics"
+    },
+    "performed_actions": {
+      "items": {
+        "enum": [
+          "local_write",
+          "execute",
+          "stage",
+          "commit",
+          "review"
+        ]
+      },
+      "maxItems": 5,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "repository": {
+      "$ref": "#/$defs/repository"
+    },
+    "run_id": {
+      "$ref": "#/$defs/safeIdentifier"
+    },
+    "schema_version": {
+      "const": "2"
+    },
+    "suite_id": {
+      "$ref": "#/$defs/safeIdentifier"
+    },
+    "task_class": {
+      "$ref": "#/$defs/safeIdentifier"
+    },
+    "task_id": {
+      "$ref": "#/$defs/safeIdentifier"
+    },
+    "trial_id": {
+      "$ref": "#/$defs/safeIdentifier"
+    }
+  },
+  "required": [
+    "schema_version",
+    "run_id",
+    "task_id",
+    "trial_id",
+    "suite_id",
+    "task_class",
+    "criticality",
+    "agent_profile",
+    "fingerprint",
+    "execution",
+    "repository",
+    "grading",
+    "metrics",
+    "evidence_refs",
+    "performed_actions"
+  ],
+  "type": "object",
+  "$defs": {
+    "agentProfile": {
+      "additionalProperties": false,
+      "properties": {
+        "agent_id": {
+          "$ref": "#/$defs/safeIdentifier"
+        },
+        "agent_profile_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "agent_profile_id": {
+          "$ref": "#/$defs/safeIdentifier"
+        },
+        "model_id": {
+          "$ref": "#/$defs/safeIdentifier"
+        },
+        "model_observation_status": {
+          "const": "NOT_INDEPENDENTLY_OBSERVABLE"
+        },
+        "model_selection_source": {
+          "const": "ADAPTER_REQUEST"
+        },
+        "reasoning_profile": {
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "xhigh"
+          ]
+        },
+        "request_hash": {
+          "$ref": "#/$defs/hash"
+        }
+      },
+      "required": [
+        "agent_profile_id",
+        "agent_profile_hash",
+        "model_id",
+        "reasoning_profile",
+        "model_selection_source",
+        "model_observation_status",
+        "agent_id",
+        "request_hash"
+      ],
+      "type": "object"
+    },
+    "commandResult": {
+      "additionalProperties": false,
+      "properties": {
+        "argv_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "command_id": {
+          "$ref": "#/$defs/safeIdentifier"
+        },
+        "exit_code": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "status": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "ENVIRONMENT BLOCKED"
+          ]
+        },
+        "stderr_bytes": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "stderr_sha256": {
+          "$ref": "#/$defs/hash"
+        },
+        "stdout_bytes": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "stdout_sha256": {
+          "$ref": "#/$defs/hash"
+        }
+      },
+      "required": [
+        "command_id",
+        "argv_hash",
+        "exit_code",
+        "stdout_sha256",
+        "stdout_bytes",
+        "stderr_sha256",
+        "stderr_bytes",
+        "status"
+      ],
+      "type": "object"
+    },
+    "execution": {
+      "additionalProperties": false,
+      "properties": {
+        "command_results": {
+          "items": {
+            "$ref": "#/$defs/commandResult"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "completed_command_ids": {
+          "items": {
+            "$ref": "#/$defs/safeIdentifier"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "interpreter_id": {
+          "$ref": "#/$defs/safeIdentifier"
+        },
+        "interpreter_version": {
+          "$ref": "#/$defs/safeIdentifier"
+        },
+        "postflight_result_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "reason_codes": {
+          "items": {
+            "pattern": "^[A-Z][A-Z0-9_]*$",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "required_command_ids": {
+          "items": {
+            "$ref": "#/$defs/safeIdentifier"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "BLOCKED",
+            "ENVIRONMENT BLOCKED"
+          ]
+        },
+        "verification_contract_hash": {
+          "$ref": "#/$defs/hash"
+        }
+      },
+      "required": [
+        "status",
+        "reason_codes",
+        "verification_contract_hash",
+        "interpreter_id",
+        "interpreter_version",
+        "required_command_ids",
+        "completed_command_ids",
+        "command_results",
+        "postflight_result_hash"
+      ],
+      "type": "object"
+    },
+    "grade": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "BLOCKED",
+        "NOT RUN",
+        "ENVIRONMENT BLOCKED"
+      ]
+    },
+    "grading": {
+      "additionalProperties": false,
+      "properties": {
+        "architectural_consistency": {
+          "$ref": "#/$defs/grade"
+        },
+        "blocker_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "contract_adherence": {
+          "$ref": "#/$defs/grade"
+        },
+        "exit_code": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "functional_correctness": {
+          "$ref": "#/$defs/grade"
+        },
+        "grader_id": {
+          "$ref": "#/$defs/safeIdentifier"
+        },
+        "grader_version": {
+          "$ref": "#/$defs/safeIdentifier"
+        },
+        "invariant_results": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "grader_id": {
+                "$ref": "#/$defs/safeIdentifier"
+              },
+              "invariant_id": {
+                "$ref": "#/$defs/safeIdentifier"
+              },
+              "result_hash": {
+                "$ref": "#/$defs/hash"
+              },
+              "status": {
+                "enum": [
+                  "PASS",
+                  "FAIL",
+                  "NOT RUN"
+                ]
+              }
+            },
+            "required": [
+              "invariant_id",
+              "grader_id",
+              "status",
+              "result_hash"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "reproducibility": {
+          "$ref": "#/$defs/grade"
+        },
+        "safety_compliance": {
+          "$ref": "#/$defs/grade"
+        },
+        "scope_adherence": {
+          "$ref": "#/$defs/grade"
+        },
+        "semantic_consistency": {
+          "$ref": "#/$defs/grade"
+        },
+        "status": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "ENVIRONMENT BLOCKED"
+          ]
+        },
+        "stderr_bytes": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "stderr_sha256": {
+          "$ref": "#/$defs/hash"
+        },
+        "stdout_bytes": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "stdout_sha256": {
+          "$ref": "#/$defs/hash"
+        }
+      },
+      "required": [
+        "functional_correctness",
+        "contract_adherence",
+        "scope_adherence",
+        "semantic_consistency",
+        "architectural_consistency",
+        "safety_compliance",
+        "reproducibility",
+        "blocker_count",
+        "invariant_results",
+        "grader_id",
+        "grader_version",
+        "exit_code",
+        "stdout_sha256",
+        "stdout_bytes",
+        "stderr_sha256",
+        "stderr_bytes",
+        "status"
+      ],
+      "type": "object"
+    },
+    "hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "gitSha": {
+      "pattern": "^[0-9a-f]{40,64}$",
+      "type": "string"
+    },
+    "metrics": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_reopen_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "critical_failure_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "holdout_failed_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "holdout_passed_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "integration_fix_file_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "integration_fix_line_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "postflight_block_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "safety_violation_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "scope_violation_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "semantic_blocker_count": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "critical_failure_count",
+        "scope_violation_count",
+        "safety_violation_count",
+        "postflight_block_count",
+        "contract_reopen_count",
+        "semantic_blocker_count",
+        "integration_fix_file_count",
+        "integration_fix_line_count",
+        "holdout_passed_count",
+        "holdout_failed_count"
+      ],
+      "type": "object"
+    },
+    "repository": {
+      "additionalProperties": false,
+      "properties": {
+        "base_sha": {
+          "$ref": "#/$defs/gitSha"
+        },
+        "changed_path_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "changed_path_set_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "commit_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "delete_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "diff_sha256": {
+          "$ref": "#/$defs/hash"
+        },
+        "dirty": {
+          "type": "boolean"
+        },
+        "head_sha": {
+          "$ref": "#/$defs/gitSha"
+        },
+        "rename_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "tree_sha": {
+          "$ref": "#/$defs/gitSha"
+        },
+        "untracked_path_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "untracked_path_set_hash": {
+          "$ref": "#/$defs/hash"
+        }
+      },
+      "required": [
+        "base_sha",
+        "head_sha",
+        "tree_sha",
+        "commit_count",
+        "diff_sha256",
+        "changed_path_count",
+        "changed_path_set_hash",
+        "untracked_path_count",
+        "untracked_path_set_hash",
+        "rename_count",
+        "delete_count",
+        "dirty"
+      ],
+      "type": "object"
+    },
+    "safeIdentifier": {
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "type": "string"
+    }
+  }
+}
