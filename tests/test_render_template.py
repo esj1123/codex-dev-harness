@@ -1,6 +1,7 @@
 import json
 import os
 from pathlib import Path
+import shutil
 import stat
 import subprocess
 
@@ -157,6 +158,31 @@ def test_load_config_rejects_non_seed_status(tmp_path: Path) -> None:
     config.write_text("project:\n  name: demo\n  status: draft\n", encoding="utf-8")
 
     with pytest.raises(ValueError, match="status: seed"):
+        load_config(config)
+
+
+@pytest.mark.parametrize(
+    "profile",
+    [
+        ".",
+        "..",
+        "../python_cli",
+        "profiles/python_cli",
+        "profiles\\python_cli",
+        "C:\\profiles\\python_cli",
+        "//server/share",
+        "-leading",
+        "a" * 65,
+    ],
+)
+def test_load_config_rejects_path_like_or_invalid_profile_name(
+    tmp_path: Path,
+    profile: str,
+) -> None:
+    config = tmp_path / "template.config.yml"
+    write_config(config, profile=profile)
+
+    with pytest.raises(ValueError, match="profile name must match"):
         load_config(config)
 
 
@@ -1388,6 +1414,38 @@ def test_profile_and_tier_overrides_apply_together(
     assert target.exists() is False
 
 
+@pytest.mark.parametrize(
+    "profile",
+    ["../python_cli", "profiles/python_cli", "profiles\\python_cli", "C:\\python_cli"],
+)
+def test_cli_rejects_path_like_profile_override_before_writing(
+    tmp_path: Path,
+    profile: str,
+) -> None:
+    repo = tmp_path / "repo"
+    populate_template_repo(repo, "python_cli")
+    config = tmp_path / "template.config.yml"
+    write_config(config, tier="minimal")
+    target = tmp_path / "target"
+
+    with pytest.raises(ValueError, match="profile name must match"):
+        main(
+            [
+                "--repo-root",
+                str(repo),
+                "--config",
+                str(config),
+                "--target",
+                str(target),
+                "--profile",
+                profile,
+                "--apply",
+            ]
+        )
+
+    assert target.exists() is False
+
+
 def test_cli_rejects_unknown_tier_before_writing(tmp_path: Path) -> None:
     target = tmp_path / "target"
 
@@ -1408,6 +1466,138 @@ def test_missing_selected_template_fails_before_writing(tmp_path: Path) -> None:
 
     with pytest.raises(FileNotFoundError, match="MVP.md.template"):
         render_templates(config_path=config, target=target, repo_root=repo, dry_run=False)
+
+    assert target.exists() is False
+
+
+def test_render_rejects_symlinked_template_source_before_writing(
+    tmp_path: Path,
+) -> None:
+    repo = tmp_path / "repo"
+    populate_template_repo(repo)
+    config = tmp_path / "template.config.yml"
+    write_config(config, tier="minimal")
+    outside = tmp_path / "outside.template"
+    write(outside, "outside\n")
+    source = repo / "templates" / "base" / "README.md.template"
+    source.unlink()
+    try:
+        source.symlink_to(outside)
+    except OSError:
+        pytest.skip("file symlink creation is unavailable")
+    target = tmp_path / "target"
+
+    with pytest.raises(ValueError, match="unsafe render source link"):
+        render_templates(config_path=config, target=target, repo_root=repo, dry_run=False)
+
+    assert target.exists() is False
+
+
+def test_render_rejects_hard_link_source_before_reading_any_template(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo = tmp_path / "repo"
+    populate_template_repo(repo)
+    config = tmp_path / "template.config.yml"
+    write_config(config, tier="minimal")
+    outside = tmp_path / "outside.template"
+    write(outside, "outside\n")
+    source = repo / "templates" / "base" / "README.md.template"
+    source.unlink()
+    os.link(outside, source)
+    reads: list[Path] = []
+    original = renderer._safe_source_text
+
+    def observe(path: Path, expected: os.stat_result) -> str:
+        reads.append(path)
+        return original(path, expected)
+
+    monkeypatch.setattr(renderer, "_safe_source_text", observe)
+    target = tmp_path / "target"
+
+    with pytest.raises(ValueError, match="unsafe render source file"):
+        render_templates(config_path=config, target=target, repo_root=repo, dry_run=False)
+
+    assert reads == []
+    assert target.exists() is False
+
+
+def test_render_rejects_profile_directory_symlink_outside_repo(
+    tmp_path: Path,
+) -> None:
+    repo = tmp_path / "repo"
+    populate_template_repo(repo, "python_cli")
+    outside = tmp_path / "outside-profile"
+    shutil.copytree(repo / "profiles" / "python_cli", outside)
+    shutil.rmtree(repo / "profiles" / "python_cli")
+    try:
+        (repo / "profiles" / "python_cli").symlink_to(
+            outside,
+            target_is_directory=True,
+        )
+    except OSError:
+        pytest.skip("directory symlink creation is unavailable")
+    config = tmp_path / "template.config.yml"
+    write_config(config, tier="minimal", profile="python_cli")
+    target = tmp_path / "target"
+
+    with pytest.raises(ValueError, match="unsafe render source link"):
+        render_templates(config_path=config, target=target, repo_root=repo, dry_run=False)
+
+    assert target.exists() is False
+
+
+def test_render_rejects_base_source_directory_symlink_outside_repo(
+    tmp_path: Path,
+) -> None:
+    repo = tmp_path / "repo"
+    populate_template_repo(repo)
+    outside = tmp_path / "outside-base"
+    shutil.copytree(repo / "templates" / "base", outside)
+    shutil.rmtree(repo / "templates" / "base")
+    try:
+        (repo / "templates" / "base").symlink_to(outside, target_is_directory=True)
+    except OSError:
+        pytest.skip("directory symlink creation is unavailable")
+    config = tmp_path / "template.config.yml"
+    write_config(config, tier="minimal")
+    target = tmp_path / "target"
+
+    with pytest.raises(ValueError, match="unsafe render source link"):
+        render_templates(config_path=config, target=target, repo_root=repo, dry_run=False)
+
+    assert target.exists() is False
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows junction regression")
+def test_render_rejects_profile_source_junction(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    populate_template_repo(repo, "python_cli")
+    outside = tmp_path / "outside-profile"
+    shutil.copytree(repo / "profiles" / "python_cli", outside)
+    shutil.rmtree(repo / "profiles" / "python_cli")
+    profile_dir = repo / "profiles" / "python_cli"
+    created = subprocess.run(
+        ["cmd", "/c", "mklink", "/J", str(profile_dir), str(outside)],
+        check=False,
+        capture_output=True,
+    )
+    if created.returncode != 0:
+        pytest.skip("junction creation is unavailable")
+    config = tmp_path / "template.config.yml"
+    write_config(config, tier="minimal", profile="python_cli")
+    target = tmp_path / "target"
+    try:
+        with pytest.raises(ValueError, match="unsafe render source link"):
+            render_templates(
+                config_path=config,
+                target=target,
+                repo_root=repo,
+                dry_run=False,
+            )
+    finally:
+        profile_dir.rmdir()
 
     assert target.exists() is False
 

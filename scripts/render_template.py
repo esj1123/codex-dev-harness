@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import secrets
 import stat
 import subprocess
@@ -25,6 +26,7 @@ DIFF_PREVIEW_SCHEMA_VERSION = "render_diff_preview.v0"
 MAX_DIFF_PREVIEW_PATHS = 50
 VALID_RENDER_TIERS = ("minimal", "standard", "full")
 REPARSE_POINT_FLAG = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)
+PROFILE_NAME_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
 
 BASE_OUTPUTS_BY_TIER = {
     "minimal": (
@@ -158,6 +160,7 @@ def load_config(path: Path) -> TemplateConfig:
         raise ValueError("template config requires project.name")
     if project_status != "seed":
         raise ValueError("template config requires project.status: seed")
+    validate_profile_name(profile)
     validate_render_tier(tier)
 
     return TemplateConfig(
@@ -172,6 +175,13 @@ def validate_render_tier(tier: str) -> None:
     if tier not in VALID_RENDER_TIERS:
         allowed = ", ".join(VALID_RENDER_TIERS)
         raise ValueError(f"render tier must be one of: {allowed}")
+
+
+def validate_profile_name(profile: str | None) -> None:
+    if profile is not None and PROFILE_NAME_PATTERN.fullmatch(profile) is None:
+        raise ValueError(
+            "profile name must match ^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        )
 
 
 def selected_output_names(config: TemplateConfig) -> tuple[str, ...]:
@@ -244,6 +254,119 @@ def validate_target(target: Path, repo_root: Path) -> None:
 
 def _absolute_lexical(path: Path) -> Path:
     return Path(os.path.abspath(path))
+
+
+def _lstat_source_safe(path: Path, *, allow_directory: bool) -> os.stat_result:
+    try:
+        metadata = path.lstat()
+        is_junction = getattr(path, "is_junction", lambda: False)()
+    except FileNotFoundError as exc:
+        raise FileNotFoundError(f"missing render source: {path.name}") from exc
+    except OSError as exc:
+        raise ValueError(f"unsafe render source path: {path}") from exc
+    if (
+        path.is_symlink()
+        or is_junction
+        or bool(getattr(metadata, "st_file_attributes", 0) & REPARSE_POINT_FLAG)
+    ):
+        raise ValueError(f"unsafe render source link: {path}")
+    if allow_directory:
+        if not stat.S_ISDIR(metadata.st_mode):
+            raise ValueError(f"unsafe render source directory: {path}")
+    elif not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1:
+        raise ValueError(f"unsafe render source file: {path}")
+    return metadata
+
+
+def _validate_source_directory(
+    path: Path,
+    *,
+    repo_root: Path,
+    expected_parent: Path | None = None,
+) -> Path:
+    lexical_repo = _absolute_lexical(repo_root)
+    lexical_path = _absolute_lexical(path)
+    try:
+        relative = lexical_path.relative_to(lexical_repo)
+    except ValueError as exc:
+        raise ValueError("render source root escapes repository") from exc
+    if (
+        expected_parent is not None
+        and lexical_path.parent != _absolute_lexical(expected_parent)
+    ):
+        raise ValueError("profile source must be a direct child of profiles/")
+
+    current = lexical_repo
+    _lstat_source_safe(current, allow_directory=True)
+    for part in relative.parts:
+        current = current / part
+        _lstat_source_safe(current, allow_directory=True)
+    try:
+        lexical_path.resolve(strict=True).relative_to(
+            lexical_repo.resolve(strict=True)
+        )
+    except (OSError, ValueError) as exc:
+        raise ValueError("render source root escapes repository") from exc
+    return lexical_path
+
+
+def _preflight_template_sources(
+    *,
+    base_dir: Path,
+    profile_dir: Path | None,
+    repo_root: Path,
+    tier: str,
+) -> list[tuple[Path, Path, os.stat_result]]:
+    lexical_base = _validate_source_directory(base_dir, repo_root=repo_root)
+    lexical_profile = None
+    if profile_dir is not None:
+        lexical_profile = _validate_source_directory(
+            profile_dir,
+            repo_root=repo_root,
+            expected_parent=repo_root / "profiles",
+        )
+
+    entries: list[tuple[Path, Path, os.stat_result]] = []
+    source_keys: set[str] = set()
+    for source, source_root in iter_templates(lexical_base, lexical_profile, tier):
+        lexical_source = _absolute_lexical(source)
+        lexical_root = _absolute_lexical(source_root)
+        try:
+            lexical_source.relative_to(lexical_root)
+            lexical_source.relative_to(_absolute_lexical(repo_root))
+        except ValueError as exc:
+            raise ValueError("render source escapes repository source root") from exc
+        metadata = _lstat_source_safe(lexical_source, allow_directory=False)
+        source_key = str(lexical_source).casefold()
+        if source_key in source_keys:
+            raise ValueError("duplicate render source path")
+        source_keys.add(source_key)
+        entries.append((lexical_source, lexical_root, metadata))
+    return entries
+
+
+def _safe_source_text(path: Path, expected: os.stat_result) -> str:
+    flags = os.O_RDONLY | getattr(os, "O_BINARY", 0)
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        descriptor = os.open(path, flags)
+    except OSError as exc:
+        raise ValueError(f"unsafe render source file: {path}") from exc
+    try:
+        observed = os.fstat(descriptor)
+        if (
+            _path_identity(observed) != _path_identity(expected)
+            or not stat.S_ISREG(observed.st_mode)
+            or observed.st_nlink != 1
+        ):
+            raise ValueError(f"unsafe render source identity drift: {path}")
+        with os.fdopen(descriptor, "r", encoding="utf-8") as stream:
+            descriptor = -1
+            return stream.read()
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
 
 
 def _path_identity(metadata: os.stat_result) -> tuple[int, int, int]:
@@ -659,22 +782,33 @@ def _build_render_plan(
     *,
     base_dir: Path,
     profile_dir: Path | None,
+    repo_root: Path,
     target: Path,
     config: TemplateConfig,
     force: bool,
     dry_run: bool,
 ) -> list[RenderPlanItem]:
-    plan: list[RenderPlanItem] = []
-    destinations: set[Path] = set()
-    for source, source_root in iter_templates(base_dir, profile_dir, config.tier):
+    sources = _preflight_template_sources(
+        base_dir=base_dir,
+        profile_dir=profile_dir,
+        repo_root=repo_root,
+        tier=config.tier,
+    )
+    planned: list[tuple[Path, Path, os.stat_result, Path]] = []
+    destination_keys: set[str] = set()
+    source_keys = {str(source).casefold() for source, _, _ in sources}
+    for source, source_root, metadata in sources:
         destination = template_destination(source, source_root, target)
         _, lexical_destination = _validate_destination_boundary(
             destination,
             target=target,
         )
-        if lexical_destination in destinations:
+        destination_key = str(lexical_destination).casefold()
+        if destination_key in destination_keys:
             raise ValueError(f"duplicate render destination: {lexical_destination}")
-        destinations.add(lexical_destination)
+        if destination_key in source_keys:
+            raise ValueError("render source and destination must not overlap")
+        destination_keys.add(destination_key)
         if (
             not dry_run
             and not force
@@ -683,11 +817,15 @@ def _build_render_plan(
             raise FileExistsError(
                 f"refusing to overwrite existing file: {lexical_destination}"
             )
+        planned.append((source, source_root, metadata, lexical_destination))
+
+    plan: list[RenderPlanItem] = []
+    for source, _, metadata, lexical_destination in planned:
         plan.append(
             RenderPlanItem(
                 source=source,
                 destination=lexical_destination,
-                rendered_text=render_text(source.read_text(encoding="utf-8"), config),
+                rendered_text=render_text(_safe_source_text(source, metadata), config),
             )
         )
     return plan
@@ -706,7 +844,8 @@ def render_templates(
 ) -> list[Path]:
     target = _absolute_lexical(target)
     config = load_config(config_path)
-    if profile_override:
+    if profile_override is not None:
+        validate_profile_name(profile_override)
         config = replace(config, profile=profile_override)
     if tier_override is not None:
         validate_render_tier(tier_override)
@@ -718,16 +857,14 @@ def render_templates(
     if diff_preview and not dry_run:
         raise ValueError("diff preview is dry-run only")
 
+    validate_profile_name(config.profile)
     base_dir = repo_root / "templates" / "base"
     profile_dir = repo_root / "profiles" / config.profile if config.profile else None
-    if not base_dir.exists():
-        raise FileNotFoundError(f"missing base template directory: {base_dir}")
-    if config.profile and (profile_dir is None or not profile_dir.exists()):
-        raise FileNotFoundError(f"missing profile template directory: {profile_dir}")
 
     plan = _build_render_plan(
         base_dir=base_dir,
         profile_dir=profile_dir,
+        repo_root=repo_root,
         target=target,
         config=config,
         force=force,
