@@ -2,7 +2,7 @@
 
 ## Purpose
 
-codex-dev-harness is local-first. The primary workflow is to clone the repository, verify it locally, dry-run template rendering, then apply the generated documents to a new target project only after review.
+codex-dev-harness is local-first. The primary workflow is to clone the repository, verify it locally, preview template rendering, then apply the generated documents to a new target project only after review with explicit `--apply`.
 
 GitHub Actions are not used in the current baseline.
 
@@ -49,9 +49,9 @@ Run:
 
 1. Create or choose a separate target project folder outside this template repository.
 2. Create a target-specific `template.config.yml` based on `template.config.example.yml`.
-3. Run render with `--dry-run` first.
+3. Run render with no mode flag or with the compatible `--dry-run` preview.
 4. Review the expected output paths.
-5. Run render without `--dry-run` only after confirming the target folder is correct.
+5. Run render with explicit `--apply` only after confirming the target folder is correct.
 6. Review generated docs before committing them to the target project.
 
 ## Render Target Guard
@@ -68,11 +68,14 @@ For real usage, prefer a separate target project folder outside this repository.
 
 ## Dry-Run First
 
-Always start with `--dry-run`. Dry-run output lets you inspect generated paths before any file is written.
+Always start with the default preview (or the compatible `--dry-run` alias).
+Preview output lets you inspect generated paths before any file is written.
 
 ## Force Warning
 
-`--force` allows overwriting existing files. Use it only after reviewing expected changes. Do not use `--force` in the local verification wrapper.
+`--force` is valid only together with `--apply` and allows overwriting existing
+regular single-link files. Use it only after reviewing expected changes. Do not
+use `--apply` or `--force` in the local verification wrapper.
 
 ## Safety Boundaries
 

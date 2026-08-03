@@ -10,7 +10,6 @@ paths:
   target: examples/python_cli_minimal
 
 safety:
-  dry_run_default: true
   private_input_policy: synthetic_fixtures_only
 
 verification:

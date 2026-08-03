@@ -114,14 +114,19 @@ evidence using a minimal in-toto-style statement:
   - generator scripts
 - products/output digests:
   - `artifacts/release-manifest.json`
-  - `artifacts/checksums.sha256`
   - SBOM artifact digests when present
+
+The provenance statement computes those product digests from canonical-LF
+UTF-8 content so they match the final checksum convention. It excludes
+`artifacts/checksums.sha256` because the final checksum is generated after
+provenance, and excludes its own output to avoid self-reference.
 
 The provenance statement should not claim cloud attestation, CI generation,
 signature status, release publication, or tag movement unless those actions are
 explicitly approved and independently evidenced.
 
-The provenance output does not include its own digest to avoid self-reference.
+The final checksum file covers the completed provenance output, manifest, and
+SBOM files and is then verified read-only.
 
 ## Release Verification Wrapper
 

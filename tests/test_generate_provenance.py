@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from scripts import generate_provenance
+from scripts import generate_checksums, generate_provenance
 
 
 def write(path: Path, content: str) -> None:
@@ -25,7 +25,6 @@ def sample_manifest() -> dict:
 def write_release_artifacts(repo_root: Path) -> Path:
     manifest_path = repo_root / "artifacts" / "release-manifest.json"
     write(manifest_path, json.dumps(sample_manifest()) + "\n")
-    write(repo_root / "artifacts" / "checksums.sha256", "c" * 64 + "  artifacts/release-manifest.json\n")
     write(repo_root / "artifacts" / "sbom.spdx.json", "{}\n")
     write(repo_root / "artifacts" / "sbom.cdx.json", "{}\n")
     return manifest_path
@@ -62,7 +61,59 @@ def test_provenance_records_repo_commands_python_and_digests(tmp_path: Path) -> 
     assert statement["predicate"]["input_manifest"]["digest"]["sha256"]
     assert any("generate_sbom.py" in command for command in statement["predicate"]["commands"])
     assert any(subject["name"] == "artifacts/sbom.spdx.json" for subject in statement["subject"])
+    assert all(subject["name"] != "artifacts/checksums.sha256" for subject in statement["subject"])
     assert all(subject["name"] != "artifacts/provenance.intoto.jsonl" for subject in statement["subject"])
+    assert statement["predicate"]["checksum_entries"] == [
+        {
+            "path": product["name"],
+            "sha256": product["digest"]["sha256"],
+        }
+        for product in statement["predicate"]["products"]
+    ]
+
+
+def test_release_evidence_pipeline_final_checksum_and_product_digests_match(
+    tmp_path: Path,
+) -> None:
+    manifest_path = write_release_artifacts(tmp_path)
+    manifest_path.write_bytes(
+        (json.dumps(sample_manifest()) + "\r\n").encode("utf-8")
+    )
+    (tmp_path / "artifacts" / "sbom.spdx.json").write_bytes(b"{}\r\n")
+    output_path = tmp_path / "artifacts" / "provenance.intoto.jsonl"
+    checksums_path = tmp_path / "artifacts" / "checksums.sha256"
+    statement = generate_provenance.build_statement(
+        sample_manifest(),
+        manifest_path,
+        output_path,
+        tmp_path,
+        "2026-01-01T00:00:00Z",
+    )
+    generate_provenance.write_jsonl(statement, output_path)
+
+    lines = generate_checksums.build_checksum_lines(
+        tmp_path,
+        manifest_path,
+        checksums_path,
+    )
+    generate_checksums.write_checksums(lines, checksums_path)
+    passed, _ = generate_checksums.verify_checksums(
+        tmp_path,
+        manifest_path,
+        checksums_path,
+    )
+
+    assert passed is True
+    checksum_entries = generate_checksums.parse_checksum_lines(
+        lines,
+        "generated checksums",
+    )
+    for product in statement["predicate"]["products"]:
+        product_path = tmp_path / Path(product["name"])
+        assert product["digest"]["sha256"] == checksum_entries[product["name"]]
+        assert product["digest"]["sha256"] == generate_checksums.sha256_file(
+            product_path
+        )
 
 
 def test_provenance_jsonl_writer_uses_single_final_newline(tmp_path: Path) -> None:

@@ -2,7 +2,7 @@
 
 P2 implementation constraints:
 - No external network calls.
-- No implicit live target writes: callers must pass --target, and --dry-run is supported.
+- No implicit live target writes: callers must pass --target and --apply.
 - No project code generation beyond copying markdown templates.
 """
 
@@ -10,6 +10,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import secrets
+import stat
 import subprocess
 from dataclasses import dataclass, replace
 from pathlib import Path
@@ -21,6 +24,7 @@ PROVENANCE_PREVIEW_SCHEMA_VERSION = "render_provenance_preview.v0"
 DIFF_PREVIEW_SCHEMA_VERSION = "render_diff_preview.v0"
 MAX_DIFF_PREVIEW_PATHS = 50
 VALID_RENDER_TIERS = ("minimal", "standard", "full")
+REPARSE_POINT_FLAG = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)
 
 BASE_OUTPUTS_BY_TIER = {
     "minimal": (
@@ -104,6 +108,13 @@ class TemplateConfig:
     project_status: str
     profile: str | None
     tier: str = "full"
+
+
+@dataclass(frozen=True)
+class RenderPlanItem:
+    source: Path
+    destination: Path
+    rendered_text: str
 
 
 def parse_scalar_config(path: Path) -> dict[str, str]:
@@ -231,6 +242,319 @@ def validate_target(target: Path, repo_root: Path) -> None:
             raise ValueError("refusing to render into the template repository outside examples/<name>")
 
 
+def _absolute_lexical(path: Path) -> Path:
+    return Path(os.path.abspath(path))
+
+
+def _path_identity(metadata: os.stat_result) -> tuple[int, int, int]:
+    return (
+        metadata.st_dev,
+        metadata.st_ino,
+        getattr(metadata, "st_file_attributes", 0),
+    )
+
+
+def _lstat_safe(path: Path, *, allow_directory: bool) -> os.stat_result:
+    try:
+        metadata = path.lstat()
+        is_junction = getattr(path, "is_junction", lambda: False)()
+    except OSError as exc:
+        raise ValueError(f"unsafe render destination path: {path}") from exc
+    if (
+        path.is_symlink()
+        or is_junction
+        or bool(getattr(metadata, "st_file_attributes", 0) & REPARSE_POINT_FLAG)
+    ):
+        raise ValueError(f"unsafe render destination link: {path}")
+    if allow_directory:
+        if not stat.S_ISDIR(metadata.st_mode):
+            raise ValueError(f"unsafe render destination parent: {path}")
+    elif (
+        not stat.S_ISREG(metadata.st_mode)
+        or metadata.st_nlink != 1
+    ):
+        raise ValueError(f"unsafe render destination file: {path}")
+    return metadata
+
+
+def _existing_path_chain(path: Path) -> list[Path]:
+    path = _absolute_lexical(path)
+    chain = [path, *path.parents]
+    return [item for item in reversed(chain) if item.exists() or item.is_symlink()]
+
+
+def _validate_destination_boundary(
+    destination: Path,
+    *,
+    target: Path,
+) -> tuple[Path, Path]:
+    lexical_target = _absolute_lexical(target)
+    lexical_destination = _absolute_lexical(destination)
+    try:
+        lexical_destination.relative_to(lexical_target)
+    except ValueError as exc:
+        raise ValueError("render destination escapes target root") from exc
+    for parent in _existing_path_chain(lexical_destination.parent):
+        _lstat_safe(parent, allow_directory=True)
+    if lexical_destination.exists() or lexical_destination.is_symlink():
+        _lstat_safe(lexical_destination, allow_directory=False)
+    return lexical_target, lexical_destination
+
+
+def _ensure_safe_destination_parent(
+    destination: Path,
+    *,
+    target: Path,
+) -> os.stat_result:
+    lexical_target, lexical_destination = _validate_destination_boundary(
+        destination,
+        target=target,
+    )
+    missing: list[Path] = []
+    current = lexical_destination.parent
+    while not current.exists() and not current.is_symlink():
+        missing.append(current)
+        if current == current.parent:
+            break
+        current = current.parent
+    for directory in reversed(missing):
+        try:
+            directory.mkdir()
+        except FileExistsError:
+            pass
+        _lstat_safe(directory, allow_directory=True)
+    try:
+        lexical_destination.parent.relative_to(lexical_target)
+    except ValueError as exc:
+        raise ValueError("render destination escapes target root") from exc
+    return _lstat_safe(lexical_destination.parent, allow_directory=True)
+
+
+def _safe_destination_text(path: Path, *, target: Path) -> str:
+    _, lexical_path = _validate_destination_boundary(path, target=target)
+    before = _lstat_safe(lexical_path, allow_directory=False)
+    flags = os.O_RDONLY | getattr(os, "O_BINARY", 0)
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        descriptor = os.open(lexical_path, flags)
+    except OSError as exc:
+        raise ValueError(f"unsafe render destination file: {lexical_path}") from exc
+    try:
+        observed = os.fstat(descriptor)
+        if (
+            _path_identity(observed) != _path_identity(before)
+            or not stat.S_ISREG(observed.st_mode)
+            or observed.st_nlink != 1
+        ):
+            raise ValueError(
+                f"unsafe render destination identity drift: {lexical_path}"
+            )
+        with os.fdopen(descriptor, "r", encoding="utf-8") as stream:
+            descriptor = -1
+            return stream.read()
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+
+
+def _unlink_matching_regular_file(
+    path: Path,
+    expected_identity: tuple[int, int, int],
+) -> bool:
+    try:
+        metadata = path.lstat()
+    except FileNotFoundError:
+        return True
+    except OSError:
+        return False
+    if (
+        stat.S_ISLNK(metadata.st_mode)
+        or not stat.S_ISREG(metadata.st_mode)
+        or bool(
+            getattr(metadata, "st_file_attributes", 0)
+            & REPARSE_POINT_FLAG
+        )
+        or _path_identity(metadata) != expected_identity
+    ):
+        return False
+    try:
+        path.unlink()
+    except OSError:
+        return False
+    return True
+
+
+def _write_destination_text(
+    destination: Path,
+    text: str,
+    *,
+    target: Path,
+    force: bool,
+) -> None:
+    _, lexical_destination = _validate_destination_boundary(
+        destination,
+        target=target,
+    )
+    destination_before: os.stat_result | None = None
+    if lexical_destination.exists() or lexical_destination.is_symlink():
+        destination_before = _lstat_safe(
+            lexical_destination,
+            allow_directory=False,
+        )
+        if not force:
+            raise FileExistsError(
+                f"refusing to overwrite existing file: {lexical_destination}"
+            )
+    parent_before = _ensure_safe_destination_parent(
+        lexical_destination,
+        target=target,
+    )
+    temporary = lexical_destination.parent / (
+        f".{lexical_destination.name}.codex-{secrets.token_hex(12)}.tmp"
+    )
+    flags = (
+        os.O_WRONLY
+        | os.O_CREAT
+        | os.O_EXCL
+        | getattr(os, "O_BINARY", 0)
+    )
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    descriptor = -1
+    temporary_metadata: os.stat_result | None = None
+    linked_destination_identity: tuple[int, int, int] | None = None
+    try:
+        creation_mode = (
+            0o666
+            if destination_before is None
+            else stat.S_IMODE(destination_before.st_mode)
+        )
+        descriptor = os.open(temporary, flags, creation_mode)
+        temporary_metadata = os.fstat(descriptor)
+        if (
+            not stat.S_ISREG(temporary_metadata.st_mode)
+            or temporary_metadata.st_nlink != 1
+        ):
+            raise ValueError(
+                f"unsafe render temporary identity: {temporary}"
+            )
+        if destination_before is not None and hasattr(os, "fchmod"):
+            os.fchmod(
+                descriptor,
+                stat.S_IMODE(destination_before.st_mode),
+            )
+        encoded = text.encode("utf-8")
+        offset = 0
+        while offset < len(encoded):
+            offset += os.write(descriptor, encoded[offset:])
+        os.fsync(descriptor)
+        os.close(descriptor)
+        descriptor = -1
+        observed_temporary = _lstat_safe(
+            temporary,
+            allow_directory=False,
+        )
+        if _path_identity(observed_temporary) != _path_identity(
+            temporary_metadata
+        ):
+            raise ValueError(
+                f"unsafe render temporary identity drift: {temporary}"
+            )
+        parent_after = _lstat_safe(
+            lexical_destination.parent,
+            allow_directory=True,
+        )
+        if _path_identity(parent_after) != _path_identity(parent_before):
+            raise ValueError(
+                f"unsafe render destination parent drift: {lexical_destination.parent}"
+            )
+        if destination_before is None:
+            if lexical_destination.exists() or lexical_destination.is_symlink():
+                raise FileExistsError(
+                    f"refusing to overwrite existing file: {lexical_destination}"
+                )
+            try:
+                os.link(
+                    temporary,
+                    lexical_destination,
+                    follow_symlinks=False,
+                )
+                linked_destination_identity = _path_identity(
+                    temporary_metadata
+                )
+            except FileExistsError as exc:
+                raise FileExistsError(
+                    f"refusing to overwrite existing file: {lexical_destination}"
+                ) from exc
+            except OSError as exc:
+                raise ValueError(
+                    f"unable to publish render destination: {lexical_destination}"
+                ) from exc
+            try:
+                linked = lexical_destination.lstat()
+                linked_is_junction = getattr(
+                    lexical_destination,
+                    "is_junction",
+                    lambda: False,
+                )()
+            except OSError as exc:
+                raise ValueError(
+                    f"unsafe render destination identity drift: {lexical_destination}"
+                ) from exc
+            if (
+                lexical_destination.is_symlink()
+                or linked_is_junction
+                or bool(
+                    getattr(linked, "st_file_attributes", 0)
+                    & REPARSE_POINT_FLAG
+                )
+                or not stat.S_ISREG(linked.st_mode)
+                or linked.st_nlink != 2
+                or _path_identity(linked) != _path_identity(temporary_metadata)
+            ):
+                raise ValueError(
+                    f"unsafe render destination identity drift: {lexical_destination}"
+                )
+            if not _unlink_matching_regular_file(
+                temporary,
+                _path_identity(temporary_metadata),
+            ):
+                raise ValueError("render destination cleanup failed")
+            temporary_metadata = None
+            linked_destination_identity = None
+        else:
+            current = _lstat_safe(
+                lexical_destination,
+                allow_directory=False,
+            )
+            if _path_identity(current) != _path_identity(destination_before):
+                raise ValueError(
+                    f"unsafe render destination identity drift: {lexical_destination}"
+                )
+            os.replace(temporary, lexical_destination)
+            temporary_metadata = None
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+        cleanup_failed = False
+        if linked_destination_identity is not None:
+            cleanup_failed = not _unlink_matching_regular_file(
+                lexical_destination,
+                linked_destination_identity,
+            )
+        if temporary_metadata is not None:
+            cleanup_failed = (
+                not _unlink_matching_regular_file(
+                    temporary,
+                    _path_identity(temporary_metadata),
+                )
+                or cleanup_failed
+            )
+        if cleanup_failed:
+            raise ValueError("render destination cleanup failed")
+
+
 def safe_repo_relative_or_summary(path: Path, repo_root: Path, external_summary: str) -> str:
     resolved_path = path.resolve()
     resolved_root = repo_root.resolve()
@@ -296,15 +620,13 @@ def build_render_diff_preview(*, expected_rendered: list[tuple[Path, str]], targ
     unchanged_count = 0
 
     for destination, rendered_text in expected_rendered:
+        _validate_destination_boundary(destination, target=target)
         relative = target_relative_path(destination, target)
         if not destination.exists():
             missing_paths.append(relative)
             continue
-        if not destination.is_file():
-            changed_paths.append(relative)
-            continue
         try:
-            existing_text = destination.read_text(encoding="utf-8")
+            existing_text = _safe_destination_text(destination, target=target)
         except UnicodeDecodeError:
             changed_paths.append(relative)
             continue
@@ -332,6 +654,44 @@ def print_render_diff_preview(preview: dict[str, object]) -> None:
     payload = json.dumps(preview, sort_keys=True, separators=(",", ":"))
     print(f"DRY-RUN diff-preview {payload}")
 
+
+def _build_render_plan(
+    *,
+    base_dir: Path,
+    profile_dir: Path | None,
+    target: Path,
+    config: TemplateConfig,
+    force: bool,
+    dry_run: bool,
+) -> list[RenderPlanItem]:
+    plan: list[RenderPlanItem] = []
+    destinations: set[Path] = set()
+    for source, source_root in iter_templates(base_dir, profile_dir, config.tier):
+        destination = template_destination(source, source_root, target)
+        _, lexical_destination = _validate_destination_boundary(
+            destination,
+            target=target,
+        )
+        if lexical_destination in destinations:
+            raise ValueError(f"duplicate render destination: {lexical_destination}")
+        destinations.add(lexical_destination)
+        if (
+            not dry_run
+            and not force
+            and (lexical_destination.exists() or lexical_destination.is_symlink())
+        ):
+            raise FileExistsError(
+                f"refusing to overwrite existing file: {lexical_destination}"
+            )
+        plan.append(
+            RenderPlanItem(
+                source=source,
+                destination=lexical_destination,
+                rendered_text=render_text(source.read_text(encoding="utf-8"), config),
+            )
+        )
+    return plan
+
 def render_templates(
     *,
     config_path: Path,
@@ -344,6 +704,7 @@ def render_templates(
     provenance_preview: bool = False,
     diff_preview: bool = False,
 ) -> list[Path]:
+    target = _absolute_lexical(target)
     config = load_config(config_path)
     if profile_override:
         config = replace(config, profile=profile_override)
@@ -364,24 +725,32 @@ def render_templates(
     if config.profile and (profile_dir is None or not profile_dir.exists()):
         raise FileNotFoundError(f"missing profile template directory: {profile_dir}")
 
-    rendered_paths: list[Path] = []
-    expected_rendered: list[tuple[Path, str]] = []
-    for source, source_root in iter_templates(base_dir, profile_dir, config.tier):
-        destination = template_destination(source, source_root, target)
-        rendered_paths.append(destination)
-        rendered_text = ""
-        if diff_preview or not dry_run:
-            rendered_text = render_text(source.read_text(encoding="utf-8"), config)
-        if diff_preview:
-            expected_rendered.append((destination, rendered_text))
+    plan = _build_render_plan(
+        base_dir=base_dir,
+        profile_dir=profile_dir,
+        target=target,
+        config=config,
+        force=force,
+        dry_run=dry_run,
+    )
+    rendered_paths = [item.destination for item in plan]
+    expected_rendered = [
+        (item.destination, item.rendered_text) for item in plan
+    ]
+    for item in plan:
         if dry_run:
-            print(f"DRY-RUN render {source.relative_to(repo_root)} -> {destination}")
+            print(
+                f"DRY-RUN render {item.source.relative_to(repo_root)} -> "
+                f"{item.destination}"
+            )
             continue
-        if destination.exists() and not force:
-            raise FileExistsError(f"refusing to overwrite existing file: {destination}")
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        destination.write_text(rendered_text, encoding="utf-8")
-        print(f"rendered {source.relative_to(repo_root)} -> {destination}")
+        _write_destination_text(
+            item.destination,
+            item.rendered_text,
+            target=target,
+            force=force,
+        )
+        print(f"rendered {item.source.relative_to(repo_root)} -> {item.destination}")
 
     if dry_run and diff_preview:
         print_render_diff_preview(
@@ -413,7 +782,17 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Override render.tier from config",
     )
-    parser.add_argument("--dry-run", action="store_true", help="Preview files without writing")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
+        "--apply",
+        action="store_true",
+        help="Explicitly write the fully preflighted render plan",
+    )
+    mode.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Compatibility alias for the default no-write preview",
+    )
     parser.add_argument(
         "--provenance-preview",
         action="store_true",
@@ -433,16 +812,23 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
+    if args.force and not args.apply:
+        parser.error("--force requires --apply")
+    if args.apply and args.provenance_preview:
+        parser.error("--provenance-preview cannot be used with --apply")
+    if args.apply and args.diff_preview:
+        parser.error("--diff-preview cannot be used with --apply")
+
     config_path = Path(args.config).resolve()
     repo_root = Path(args.repo_root).resolve()
-    target = Path(args.target).resolve()
+    target = _absolute_lexical(Path(args.target))
     render_templates(
         config_path=config_path,
         target=target,
         repo_root=repo_root,
         profile_override=args.profile,
         tier_override=args.tier,
-        dry_run=args.dry_run,
+        dry_run=not args.apply,
         force=args.force,
         provenance_preview=args.provenance_preview,
         diff_preview=args.diff_preview,

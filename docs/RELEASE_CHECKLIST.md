@@ -9,10 +9,11 @@ Define the release readiness checks for a reusable codex-dev-harness baseline.
 - Root documentation is phase-aligned.
 - `requirements-dev.txt` exists and includes test dependencies.
 - `python -m pytest` passes in a prepared development environment.
-- `python scripts/quality_gate.py` passes all nine standing gates, including
-  `checksum_verify_gate`.
+- `python scripts/quality_gate.py` passes all eight core gates.
 - `python scripts/generate_checksums.py --verify` passes for the tracked local
-  release evidence bundle.
+  release evidence bundle. This confirms bundle integrity only; a historical
+  bundle remains `HISTORICAL_INVALID / REFRESH_NOT_RUN` until it is separately
+  regenerated from the exact clean release HEAD.
 - Dry-run render succeeds for:
   - `examples/python_cli_minimal`
   - `examples/csharp_desktop_minimal`

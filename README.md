@@ -109,7 +109,7 @@ Use the standing local wrapper for the normal V2 verification surface:
 - `python -m pip check`
 - `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1`
 
-That wrapper runs pytest, standalone eval without report flags, the nine
+That wrapper runs pytest, standalone eval without report flags, the eight core
 quality gates, and the three profile dry-runs. Impact planning may additionally
 require checksum, corpus, render, or focused checks.
 
@@ -120,6 +120,8 @@ workflow. It first calls the standing local verification wrapper and then
 generates approved release evidence under `artifacts/`. Run it only when the
 task explicitly authorizes those artifact writes. It does not publish a
 release, move tags, sign artifacts, create archives, or install workflows.
+The generator code is repaired, but the currently tracked release bundle is
+historical invalid evidence and has not been refreshed.
 
 Python runtime and dependency reproducibility are documented in
 `docs/PYTHON_RUNTIME_POLICY.md`. The local verification runtime is pinned in
@@ -138,9 +140,10 @@ The intended baseline workflow is local-first:
 - clone the repository
 - install development requirements
 - run local verification
-- dry-run example rendering
+- preview example rendering (no flag or `--dry-run`)
 - review expected target paths
-- apply generated docs to a separate target project only after review
+- apply generated docs to a separate target project only after review with
+  explicit `--apply`
 
 See `docs/LOCAL_USAGE.md` for the full local usage flow and `docs/LOCAL_RELEASE_PACKAGE.md` for local package boundaries.
 

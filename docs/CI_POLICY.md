@@ -42,7 +42,7 @@ The current local evidence baseline includes:
 
 These local surfaces are the baseline that CI must mirror when approved. The
 installed workflow mirrors `scripts/run_local_verify.ps1`: full pytest, the
-no-report standalone eval, all nine quality gates, and three profile render
+no-report standalone eval, all eight core quality gates, and three profile render
 dry-runs.
 Additional workflows, triggers, permissions, required-check policies, artifact
 upload, release verification CI, signing, tag movement, deployment, downstream
@@ -75,10 +75,11 @@ Release verification remains local-only unless separately approved and may use:
 The installed local verification workflow does not run release verification,
 generate an eval report, or upload artifacts.
 
-Agent-quality stability validation is also standalone and manual. Local Verify
+Agent-quality stability validation is also standalone, frozen, and manual. Local Verify
 does not execute agent trials, aggregate trial envelopes, compare model or
 prompt candidates, generate an agent-quality baseline, or promote failures.
-The existing nine quality gates may validate schema and artifact shape only.
+The core quality gate validates only the core JSON evidence bundle; optional
+Agent Quality checks remain in their standalone static-check path.
 
 ## Minimum Branch Protection
 

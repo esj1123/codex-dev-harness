@@ -29,3 +29,13 @@ def test_eval_gate_reports_failure(monkeypatch) -> None:
 
     assert result.passed is False
     assert "bad file" in result.messages
+
+
+def test_eval_gate_fails_closed_on_empty_case_inventory(tmp_path: Path) -> None:
+    result = eval_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert result.messages == [
+        "FAIL eval_case_inventory",
+        "no eval cases discovered",
+    ]

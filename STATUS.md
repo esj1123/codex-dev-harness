@@ -2,20 +2,34 @@
 
 ## Current State
 
-`READY_FOR_PROFILE_CALIBRATION`
+`CORE_HARNESS_READY`
 
-The harness has completed its first governed greenfield application pilot,
-work-package v3 hardening, and the standalone Agent Quality Stability control
-layer. Current authority is defined by `docs/AUTHORITY_MANIFEST.json`;
-historical phase and run details remain available in Git history and
-`ACCEPTANCE_TRACE.md`.
+The core template harness is ready for governed local use. Renderer application
+now requires explicit `--apply`, release evidence generators are repaired, and
+the default quality gate is limited to core verification. Current authority is
+defined by `docs/AUTHORITY_MANIFEST.json`; historical phase and run details
+remain available in Git history and `ACCEPTANCE_TRACE.md`.
+
+## Operational Capability Status
+
+| Surface | State | Meaning |
+|---|---|---|
+| Core template harness | `READY` | Core docs, templates, examples, tests, and local verification are supported. |
+| Renderer apply | `READY` | No-flag and `--dry-run` are previews; writes require explicit `--apply`. |
+| Release generator code | `REPAIRED` | Clean-HEAD Git-blob lineage and non-circular provenance/checksum generation are implemented. |
+| Tracked release bundle | `HISTORICAL_INVALID / REFRESH_NOT_RUN` | Existing tracked artifacts are historical and are not release-ready until separately regenerated. |
+| Agent Quality/provider | `FROZEN / NOT_ADOPTED` | Optional controls remain available for review, but provider execution and role adoption are held. |
+| Role calibration v7 | `NOT RUN` | No calibration trial or review batch is authorized by core readiness. |
+| Hermes/MCP | `HELD` | Runtime activation requires a selected repository use case and separate approval. |
+| Local RAG | `ADVISORY / FROZEN` | Read-only retrieval remains optional and is not part of core verification. |
 
 ## Implemented Control Surface
 
 - Render tiers: `minimal`, `standard`, and `full`, with closed Read Orders.
 - Manual read-only Local Verify with pytest, standalone eval, quality gates,
   and three profile dry-runs, bound to a required exact checkout SHA.
-- Exact 34-source approved corpus digest and read-only local retrieval.
+- Approved 34-source corpus contract and read-only local retrieval. Digest
+  freshness remains an impact-required integration check.
 - Read-only downstream contract validation and release-evidence preflight.
 - Work-package preflight with deterministic `plan_digest`.
 - Work-package postflight over actual Git changes.
@@ -53,11 +67,12 @@ historical phase and run details remain available in Git history and
     current run must provide an exact status and result hash for every
     invariant before strict pass is possible.
 
-## Agent Quality Pilot
+## Historical Agent Quality Evidence
 
-A fresh fixed-configuration suite completed all 19 planned trials across five
-replay tasks. No critical, scope, safety, postflight, or contract-reopen
-violation occurred, but the aggregate remains `HOLD`:
+A fixed-configuration suite previously completed all 19 planned trials across
+five replay tasks. No critical, scope, safety, postflight, or contract-reopen
+violation occurred, but the historical aggregate remains `HOLD` and is not an
+adopted baseline:
 
 - strict 3-trial task rate: `0.0`;
 - strict 5-trial critical task rate: `0.0`;
@@ -70,12 +85,10 @@ required agent verification omitted in several otherwise owner-verified
 trials, one historical-authority rewrite, and one malformed-schema regression
 coverage gap.
 
-The current suite now declares exact verification commands, failure-derived
-invariant IDs, and invariant grader bindings. Execution-specific package
-digests remain in run
-evidence rather than the canonical suite, so a new approval reference does not
-change the comparison contract. The previous suite and run envelopes remain
-readable as historical evidence; they are not eligible for the new suite.
+The tracked suite, schemas, and validation helpers remain preserved, but Agent
+Quality/provider execution is frozen and not adopted. Previous suite and run
+envelopes remain readable as historical evidence; they do not establish core
+readiness, provider isolation, or a role-profile mapping.
 
 Safe run envelopes and failure candidates remain ignored under
 `local/agent-quality/`. Raw prompts, transcripts, model output, and holdout
@@ -116,9 +129,12 @@ not authenticate approval.
 
 ## Held Or Not Authorized
 
-- Release evidence regeneration, tag, release, signing, upload, or publication.
+- Tracked release evidence regeneration until the eval-report inclusion policy
+  and exact source basis are separately approved.
+- Tag, release, signing, upload, or publication.
 - Automatic digest writes or release automation.
 - MCP execution, Hermes execution bridges, AgentOps, or durable audit logging.
+- Agent Quality/provider execution and role calibration v7.
 - New downstream access, render, write, commit, push, or workflow dispatch.
 - Additional application capabilities without an owner-selected feature
   contract.
@@ -129,8 +145,10 @@ not authenticate approval.
 
 ## Next Recommended Step
 
-Run a separately approved 6-9 trial role-profile calibration using v2 captured
-evidence. Do not reuse historical envelopes, start the fresh 19-trial suite, or
-create a tracked baseline until profile calibration confirms the role mapping.
-The current chat model is outside this mapping; profiles apply only to future
-subagent launch requests.
+Complete the core-only integration checks from the new exact source basis. If
+the approved corpus digest is stale, refresh it only under a separate
+artifact-write approval and commit it separately. After that, decide whether
+the tracked release bundle should include an eval report before any release
+evidence regeneration. Keep Agent Quality/provider, role calibration v7,
+Hermes, MCP, publication, and remote work frozen unless a separate value
+decision and approval explicitly reopens them.

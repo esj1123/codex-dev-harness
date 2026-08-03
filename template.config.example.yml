@@ -15,7 +15,6 @@ paths:
   target: _rendered/example_project
 
 safety:
-  dry_run_default: true
   live_target_write: forbidden
   external_network: forbidden
   private_input_policy: synthetic_fixtures_only

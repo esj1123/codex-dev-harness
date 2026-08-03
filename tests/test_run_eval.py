@@ -311,6 +311,34 @@ def test_eval_case_discovery_order_is_deterministic() -> None:
     assert case_filenames == sorted(case_filenames)
 
 
+def test_empty_eval_inventory_is_a_bounded_control_failure(
+    tmp_path: Path,
+) -> None:
+    summary = run_eval.run_all(tmp_path, [])
+
+    assert summary.passed is False
+    assert summary.results == [
+        run_eval.EvalResult(
+            "eval_case_inventory",
+            False,
+            ["no eval cases discovered"],
+        )
+    ]
+
+
+def test_empty_discovered_eval_inventory_makes_cli_exit_one(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    exit_code = run_eval.main(["--repo-root", str(tmp_path)])
+
+    assert exit_code == 1
+    output = capsys.readouterr().out
+    assert "[FAIL] eval_case_inventory" in output
+    assert "Local evals failed." in output
+    assert not (tmp_path / "artifacts").exists()
+
+
 def test_summary_report_shape_is_safe_and_stable() -> None:
     summary = run_eval.EvalSummary(
         False,

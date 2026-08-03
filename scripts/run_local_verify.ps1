@@ -20,9 +20,9 @@ function Find-Python {
     foreach ($candidate in $candidates) {
         try {
             if ($candidate -eq "py") {
-                & py -3 scripts/verify_dev_environment.py --expected-version-file .python-version --lock requirements-dev.lock --version-only --json *> $null
+                & py -3 scripts/verify_dev_environment.py --expected-version-file .python-version --lock requirements-dev.lock --json *> $null
             } else {
-                & $candidate scripts/verify_dev_environment.py --expected-version-file .python-version --lock requirements-dev.lock --version-only --json *> $null
+                & $candidate scripts/verify_dev_environment.py --expected-version-file .python-version --lock requirements-dev.lock --json *> $null
             }
             if ($LASTEXITCODE -eq 0) {
                 return $candidate
@@ -32,7 +32,7 @@ function Find-Python {
         }
     }
 
-    throw "Python was not found. Install Python or set the PYTHON environment variable."
+    throw "No Python candidate satisfies .python-version and requirements-dev.lock. Install the exact development environment or set PYTHON."
 }
 
 $PythonCommand = Find-Python

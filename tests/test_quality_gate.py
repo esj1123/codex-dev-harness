@@ -237,7 +237,7 @@ def test_current_authority_is_manifest_driven() -> None:
     agents = Path("AGENTS.md").read_text(encoding="utf-8")
     readme = Path("README.md").read_text(encoding="utf-8")
 
-    assert manifest["current_state"] == "READY_FOR_PROFILE_CALIBRATION"
+    assert manifest["current_state"] == "CORE_HARNESS_READY"
     assert manifest["default_read_order"][0:2] == [
         "AGENTS.md",
         docs_gate.MANIFEST_PATH,
@@ -370,7 +370,7 @@ def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
         assert forbidden not in text
 
 
-def test_local_and_release_wrappers_run_eval_once() -> None:
+def test_local_wrapper_runs_console_eval_and_release_refreshes_present_report() -> None:
     local = Path("scripts/run_local_verify.ps1").read_text(encoding="utf-8")
     release = Path("scripts/run_release_verify.ps1").read_text(encoding="utf-8")
 
@@ -386,7 +386,39 @@ def test_local_and_release_wrappers_run_eval_once() -> None:
         < local.index(quality_step)
     )
     assert "scripts/run_local_verify.ps1" in release
-    assert '"optional eval"' not in release
+    report_refresh = (
+        'Invoke-PythonStep "optional eval report refresh" '
+        '@("scripts/run_eval.py", "--report", $EvalReportPath)'
+    )
+    assert release.count(report_refresh) == 1
+    assert "Test-Path -LiteralPath" in release
+    selector = "$PythonCommand = Find-Python"
+    propagation = "$env:PYTHON = $PythonCommand"
+    local_verify = (
+        'Invoke-PowerShellStep "local verification wrapper" '
+        '(Join-Path $RepoRoot "scripts/run_local_verify.ps1")'
+    )
+    release_generation = 'Invoke-PythonStep "release manifest generation"'
+    clean_tree = "Assert-CleanGitTree"
+    sbom_generation = 'Invoke-OptionalPythonScript "optional SBOM generation"'
+    provenance_generation = 'Invoke-OptionalPythonScript "optional provenance generation"'
+    checksum_generation = 'Invoke-PythonStep "final checksum generation"'
+    checksum_verification = 'Invoke-PythonStep "checksum verification"'
+    assert release.count(selector) == 1
+    assert (
+        release.index(selector)
+        < release.index(propagation)
+        < release.rindex(clean_tree)
+        < release.index(local_verify)
+        < release.index(release_generation)
+        < release.index(report_refresh)
+        < release.index(sbom_generation)
+        < release.index(provenance_generation)
+        < release.index(checksum_generation)
+        < release.index(checksum_verification)
+    )
+    assert "--allow-missing" not in release
+    assert release.count("scripts/generate_checksums.py") == 2
 
 
 def test_eval_policy_docs_define_manual_console_integration_boundary() -> None:
@@ -687,5 +719,33 @@ def test_quality_gate_passes_minimal_repo(tmp_path: Path) -> None:
     summary = run_quality_gate(tmp_path)
 
     assert summary.passed is True
-    assert len(summary.results) == 9
-    assert summary.results[-1].name == "checksum_verify_gate"
+    assert len(summary.results) == 8
+    assert summary.results[-1].name == "json_evidence_gate"
+
+
+def test_core_quality_gate_ignores_optional_release_and_agent_quality_defects(
+    tmp_path: Path,
+) -> None:
+    minimal_repo(tmp_path)
+    for example_name, profile in example_gate.REQUIRED_EXAMPLES.items():
+        write_valid_example(tmp_path, example_name, profile)
+    write(
+        tmp_path / generate_checksums.REQUIRED_RELEASE_ARTIFACTS[-1],
+        "changed after checksum\n",
+    )
+    write(
+        tmp_path / json_evidence_gate.AGENT_QUALITY_SCHEMA_PATHS[0],
+        "{}\n",
+    )
+
+    summary = run_quality_gate(tmp_path)
+
+    assert summary.passed is True
+    assert json_evidence_gate.run(tmp_path).passed is False
+    checksums_path = tmp_path / generate_checksums.DEFAULT_CHECKSUMS_PATH
+    passed, _ = generate_checksums.verify_checksums(
+        tmp_path,
+        tmp_path / generate_checksums.DEFAULT_MANIFEST_PATH,
+        checksums_path,
+    )
+    assert passed is False

@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import importlib.metadata
 import json
+import os
 from pathlib import Path
+import shutil
+import subprocess
 
 import pytest
 
@@ -99,13 +102,194 @@ def test_json_cli_is_bounded_and_action_free(monkeypatch, capsys) -> None:
 
 def test_local_wrapper_gates_candidates_and_environment_before_pytest() -> None:
     text = Path("scripts/run_local_verify.ps1").read_text(encoding="utf-8")
-    version_command = (
+    full_environment_command = (
         "scripts/verify_dev_environment.py --expected-version-file "
-        ".python-version --lock requirements-dev.lock --version-only --json"
+        ".python-version --lock requirements-dev.lock --json"
     )
+    selector = text.split("function Find-Python", 1)[1].split(
+        "$PythonCommand = Find-Python",
+        1,
+    )[0]
     environment_step = 'Invoke-PythonStep "development environment"'
     pytest_step = 'Invoke-PythonStep "pytest"'
 
-    assert text.count(version_command) == 2
+    assert selector.count(full_environment_command) == 2
+    assert "--version-only" not in selector
+    assert (
+        "No Python candidate satisfies .python-version and "
+        "requirements-dev.lock"
+    ) in selector
     assert environment_step in text
     assert text.index(environment_step) < text.index(pytest_step)
+
+
+def release_selector_text() -> str:
+    text = Path("scripts/run_release_verify.ps1").read_text(encoding="utf-8")
+    body = text.split("function Find-Python", 1)[1].split(
+        "function Invoke-PowerShellStep",
+        1,
+    )[0]
+    return "function Find-Python" + body
+
+
+def write_fake_python(
+    path: Path,
+    *,
+    full_gate_passes: bool,
+    argument_log: Path | None = None,
+) -> None:
+    lines = ["@echo off"]
+    if argument_log is not None:
+        lines.append(f'echo %* > "{argument_log}"')
+    if full_gate_passes:
+        lines.append("exit /b 0")
+    else:
+        lines.extend(
+            [
+                'if "%1"=="--version" exit /b 0',
+                "exit /b 1",
+            ]
+        )
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+@pytest.mark.skipif(
+    shutil.which("powershell") is None,
+    reason="PowerShell is unavailable",
+)
+def test_release_selector_rejects_version_only_candidate(
+    tmp_path: Path,
+) -> None:
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    invalid = fake_bin / "invalid-python.cmd"
+    selected_log = tmp_path / "selected-args.txt"
+    write_fake_python(invalid, full_gate_passes=False)
+    write_fake_python(
+        fake_bin / "python.cmd",
+        full_gate_passes=True,
+        argument_log=selected_log,
+    )
+    harness = tmp_path / "selector.ps1"
+    harness.write_text(
+        "\n".join(
+            [
+                '$ErrorActionPreference = "Stop"',
+                (
+                    "function Test-Path { "
+                    "param([string]$LiteralPath) return $false }"
+                ),
+                release_selector_text(),
+                "$selected = Find-Python",
+                "Write-Output $selected",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    environment = dict(os.environ)
+    environment["PYTHON"] = str(invalid)
+    environment["PATH"] = str(fake_bin)
+    result = subprocess.run(
+        [
+            shutil.which("powershell") or "powershell",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(harness),
+        ],
+        cwd=Path.cwd(),
+        env=environment,
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == "python"
+    assert selected_log.read_text(encoding="utf-8").strip() == (
+        "scripts/verify_dev_environment.py --expected-version-file "
+        ".python-version --lock requirements-dev.lock --json"
+    )
+
+
+@pytest.mark.skipif(
+    shutil.which("powershell") is None,
+    reason="PowerShell is unavailable",
+)
+def test_release_selector_stops_before_follow_on_steps_when_all_invalid(
+    tmp_path: Path,
+) -> None:
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    invalid = fake_bin / "invalid-python.cmd"
+    write_fake_python(invalid, full_gate_passes=False)
+    write_fake_python(fake_bin / "python.cmd", full_gate_passes=False)
+    write_fake_python(fake_bin / "py.cmd", full_gate_passes=False)
+    follow_on = tmp_path / "follow-on-ran.txt"
+    harness = tmp_path / "selector.ps1"
+    harness.write_text(
+        "\n".join(
+            [
+                '$ErrorActionPreference = "Stop"',
+                (
+                    "function Test-Path { "
+                    "param([string]$LiteralPath) return $false }"
+                ),
+                release_selector_text(),
+                "$null = Find-Python",
+                f'Set-Content -LiteralPath "{follow_on}" -Value "ran"',
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    environment = dict(os.environ)
+    environment["PYTHON"] = str(invalid)
+    environment["PATH"] = str(fake_bin)
+    result = subprocess.run(
+        [
+            shutil.which("powershell") or "powershell",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(harness),
+        ],
+        cwd=Path.cwd(),
+        env=environment,
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+
+    assert result.returncode != 0
+    assert not follow_on.exists()
+
+
+def test_release_wrapper_reuses_one_fully_validated_python() -> None:
+    text = Path("scripts/run_release_verify.ps1").read_text(encoding="utf-8")
+    full_environment_command = (
+        "scripts/verify_dev_environment.py --expected-version-file "
+        ".python-version --lock requirements-dev.lock --json"
+    )
+    selector = text.split("function Find-Python", 1)[1].split(
+        "function Invoke-PowerShellStep",
+        1,
+    )[0]
+    select = "$PythonCommand = Find-Python"
+    propagate = "$env:PYTHON = $PythonCommand"
+    local_verify = (
+        'Invoke-PowerShellStep "local verification wrapper" '
+        '(Join-Path $RepoRoot "scripts/run_local_verify.ps1")'
+    )
+    generator = 'Invoke-PythonStep "release manifest generation"'
+
+    assert selector.count(full_environment_command) == 2
+    assert "--version *> $null" not in selector
+    assert text.count(select) == 1
+    assert text.index(select) < text.index(propagate) < text.index(local_verify)
+    assert text.index(local_verify) < text.index(generator)

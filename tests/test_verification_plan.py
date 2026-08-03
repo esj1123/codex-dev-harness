@@ -212,9 +212,24 @@ def test_corpus_source_change_requires_digest_check(tmp_path: Path) -> None:
     assert "corpus_digest_check" in result["required_command_ids"]
 
 
-def test_checksum_generator_change_requires_checksum_check(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    "relative_path",
+    [
+        "scripts/generate_manifest.py",
+        "scripts/generate_checksums.py",
+        "scripts/generate_sbom.py",
+        "scripts/generate_provenance.py",
+        "scripts/run_eval.py",
+        "scripts/run_release_verify.ps1",
+        "tests/test_run_eval.py",
+    ],
+)
+def test_release_generator_change_requires_checksum_check(
+    tmp_path: Path,
+    relative_path: str,
+) -> None:
     repo, base_sha = init_repo(tmp_path)
-    commit_file(repo, "scripts/generate_checksums.py", "print('synthetic')\n")
+    commit_file(repo, relative_path, "print('synthetic')\n")
 
     result = inspect(repo, base_sha)
 

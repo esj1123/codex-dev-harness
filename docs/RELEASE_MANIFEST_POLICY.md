@@ -39,6 +39,12 @@ Each `files` entry should include:
 - `size_bytes`
 - `sha256`
 
+The generator requires the exact repository root, an exact 40-character
+`HEAD`, and a clean tracked/untracked tree. File paths, sizes, and SHA-256 values
+come from regular blob entries in the committed `HEAD` tree, not from mutable
+working-tree bytes. Symlink, gitlink/submodule, and other non-regular entries in
+the included roots fail closed.
+
 ## Field Rules
 
 `schema_version` should identify the manifest schema version.

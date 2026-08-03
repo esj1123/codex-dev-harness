@@ -74,24 +74,28 @@ Recommended release evidence command:
 
 The release wrapper is local-only. It runs, in order:
 
-1. `scripts/run_local_verify.ps1`
-2. `scripts/generate_manifest.py`
-3. `scripts/generate_checksums.py` as an intermediate bootstrap checksum
-4. `scripts/generate_sbom.py`, if present
-5. `scripts/generate_provenance.py`, if present
-6. final checksum regeneration using the current full-bundle checksum policy
-7. read-only `scripts/generate_checksums.py --verify`
+1. fail-closed clean tracked/untracked Git tree check
+2. `scripts/run_local_verify.ps1`
+3. `scripts/generate_manifest.py` from regular blobs in the exact `HEAD` tree
+4. refresh `artifacts/eval-report.json` if that optional artifact is present
+5. `scripts/generate_sbom.py`, if present
+6. `scripts/generate_provenance.py`, if present
+7. final checksum generation using the current full-bundle checksum policy
+8. read-only `scripts/generate_checksums.py --verify`
 
-The intermediate checksum step may allow missing optional later evidence while
-the bundle is still being produced. The final checksum step is strict for the
+There is no intermediate checksum. Provenance records the same canonical-LF
+SHA-256 digests used by the final checksum for the manifest and present SBOM
+products, excludes the checksum file and itself, and the final
+checksum is written only after provenance. The checksum step is strict for the
 current local release evidence bundle and covers all present release evidence
 artifacts except `artifacts/checksums.sha256` itself. The following verify step
 recomputes canonical LF hashes without writing and must match every entry. The
 expected strict set is
 `artifacts/release-manifest.json`, `artifacts/sbom.spdx.json`,
 `artifacts/sbom.cdx.json`, and `artifacts/provenance.intoto.jsonl`.
-`artifacts/eval-report.json` is included only if it was explicitly generated
-and is present.
+If `artifacts/eval-report.json` is present when the wrapper runs, the wrapper
+explicitly regenerates it after manifest generation and before the final
+checksum. If it is absent, report generation is skipped and it is not included.
 
 Optional steps are reported as `SKIPPED` with a reason when their scripts are
 absent. The wrapper prints generated artifact paths and a PASS/FAIL/SKIPPED
@@ -295,9 +299,16 @@ The quality gate includes:
 - Documentation presence.
 - Repository hygiene.
 - Template config/schema validation.
-- Secret/private-pattern scan.
 - Example skeleton validation.
-- Example config validation.
+- Rendered example file-set drift validation.
+- Golden rendered-content validation.
+- Secret/private-pattern scan.
+- Core JSON evidence validation.
+
+Agent Quality bundle validation remains in the full standalone
+`json_evidence_gate.run()` path and `agent_quality_static_check`. Release
+checksums remain in `generate_checksums.py --verify` and the release wrapper;
+neither optional surface is part of the default core quality gate.
 
 ## Render Dry-Run Checks
 
@@ -306,6 +317,9 @@ Run:
 - `python scripts/render_template.py --config examples/python_cli_minimal/template.config.yml --target examples/python_cli_minimal --dry-run`
 - `python scripts/render_template.py --config examples/csharp_desktop_minimal/template.config.yml --target examples/csharp_desktop_minimal --dry-run`
 - `python scripts/render_template.py --config examples/plc_tool_minimal/template.config.yml --target examples/plc_tool_minimal --dry-run`
+
+No mode flag is also a preview. An actual target write requires explicit
+`--apply`; `--force` is valid only with `--apply`.
 
 ## Historical P0 Verification
 

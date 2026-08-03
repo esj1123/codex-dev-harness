@@ -533,7 +533,7 @@ def check_agent_quality_bundle(repo_root: Path) -> list[str]:
     return findings
 
 
-def run(repo_root: Path) -> GateResult:
+def _run(repo_root: Path, *, include_agent_quality: bool) -> GateResult:
     marker_present = has_phase_marker(repo_root)
     present_paths = [relative for relative in BUNDLE_PATHS if (repo_root / relative).is_file()]
     missing_paths = [relative for relative in BUNDLE_PATHS if relative not in present_paths]
@@ -573,13 +573,14 @@ def run(repo_root: Path) -> GateResult:
         findings.extend(check_receipt_schema(receipt_schema))
     if trace_schema is not None:
         findings.extend(check_trace_schema(trace_schema))
-    findings.extend(check_agent_quality_bundle(repo_root))
-    findings.extend(
-        check_no_sensitive_values(
-            repo_root,
-            [*AGENT_QUALITY_SCHEMA_PATHS, AGENT_QUALITY_BASELINE_PATH],
+    if include_agent_quality:
+        findings.extend(check_agent_quality_bundle(repo_root))
+        findings.extend(
+            check_no_sensitive_values(
+                repo_root,
+                [*AGENT_QUALITY_SCHEMA_PATHS, AGENT_QUALITY_BASELINE_PATH],
+            )
         )
-    )
 
     if findings:
         return GateResult("json_evidence_gate", False, findings)
@@ -587,5 +588,21 @@ def run(repo_root: Path) -> GateResult:
     return GateResult(
         "json_evidence_gate",
         True,
-        ["JSON evidence policy and core schemas validated"],
+        [
+            "JSON evidence policy, core schemas, and Agent Quality bundle validated"
+            if include_agent_quality
+            else "JSON evidence policy and core schemas validated"
+        ],
     )
+
+
+def run_core(repo_root: Path) -> GateResult:
+    """Validate the core JSON evidence bundle without optional Agent Quality."""
+
+    return _run(repo_root, include_agent_quality=False)
+
+
+def run(repo_root: Path) -> GateResult:
+    """Preserve full validation for standalone and Agent Quality callers."""
+
+    return _run(repo_root, include_agent_quality=True)

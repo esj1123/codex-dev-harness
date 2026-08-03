@@ -416,15 +416,23 @@ def test_quality_gate_runs_json_evidence_gate(monkeypatch, tmp_path: Path) -> No
         passing_gate("rendered_golden_content_gate"),
     )
     monkeypatch.setattr(quality_gate.secret_scan_gate, "run", passing_gate("secret_scan_gate"))
-    monkeypatch.setattr(quality_gate.json_evidence_gate, "run", passing_gate("json_evidence_gate"))
     monkeypatch.setattr(
-        quality_gate.checksum_verify_gate,
-        "run",
-        passing_gate("checksum_verify_gate"),
+        quality_gate.json_evidence_gate,
+        "run_core",
+        passing_gate("json_evidence_gate"),
     )
 
     summary = quality_gate.run_quality_gate(tmp_path)
 
     assert summary.passed is True
     assert "json_evidence_gate" in calls
-    assert calls[-1] == "checksum_verify_gate"
+    assert calls[-1] == "json_evidence_gate"
+
+
+def test_json_evidence_core_excludes_agent_quality_bundle(tmp_path: Path) -> None:
+    write_valid_bundle(tmp_path)
+    write_agent_quality_bundle(tmp_path)
+    write(tmp_path / json_evidence_gate.AGENT_QUALITY_SCHEMA_PATHS[0], "{}\n")
+
+    assert json_evidence_gate.run_core(tmp_path).passed is True
+    assert json_evidence_gate.run(tmp_path).passed is False

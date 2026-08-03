@@ -164,14 +164,15 @@ bundle except the checksum file itself. The strict release evidence set requires
 - `artifacts/sbom.cdx.json`
 - `artifacts/provenance.intoto.jsonl`
 
-`artifacts/eval-report.json` is included only if it is present. This policy does
-not make routine eval report generation part of the baseline.
+`artifacts/eval-report.json` is included only if it is present. The release
+wrapper must explicitly regenerate a present report before the final checksum;
+if it is absent, the wrapper skips report generation. This policy does not make
+routine eval report generation part of the baseline.
 
-The local release verification wrapper may run an intermediate checksum
-generation step with explicit missing-artifact allowance after manifest
-generation. Its final checksum regeneration runs after SBOM and provenance
-generation, uses the strict full-bundle requirement, and is followed by
-read-only checksum verification.
+The local release verification wrapper does not create an intermediate
+checksum. It requires a clean tracked/untracked tree, generates the manifest,
+refreshes a present optional eval report, generates SBOM and provenance, then
+writes one strict final checksum and runs read-only checksum verification.
 
 ## Local Artifact Path Boundary
 

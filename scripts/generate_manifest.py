@@ -10,8 +10,9 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import platform
+import re
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -23,6 +24,9 @@ sys.dont_write_bytecode = True
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_VERSION = "1"
 ARTIFACTS_ROOT = "artifacts"
+GIT_TIMEOUT_SECONDS = 15
+SHA1_PATTERN = re.compile(r"^[0-9a-f]{40}$")
+REGULAR_BLOB_MODES = {"100644", "100755"}
 
 INCLUDED_ROOTS = [
     ".python-version",
@@ -98,7 +102,9 @@ QUALITY_GATES = [
     "template_schema_gate",
     "example_gate",
     "example_render_drift_gate",
+    "rendered_golden_content_gate",
     "secret_scan_gate",
+    "json_evidence_gate",
 ]
 
 EXAMPLE_RENDER_DRY_RUNS = [
@@ -142,45 +148,99 @@ def should_exclude(path: Path, repo_root: Path) -> bool:
     return False
 
 
-def iter_manifest_files(repo_root: Path, included_roots: list[str] | None = None) -> list[Path]:
-    roots = included_roots or INCLUDED_ROOTS
-    files: dict[str, Path] = {}
-    for root in roots:
-        base = repo_root / root
-        if not base.exists() or should_exclude(base, repo_root):
-            continue
-        candidates = [base] if base.is_file() else list(base.rglob("*"))
-        for path in candidates:
-            if not path.is_file() or should_exclude(path, repo_root):
-                continue
-            files[relpath(path, repo_root)] = path
-    return [files[key] for key in sorted(files)]
-
-
-def file_record(path: Path, repo_root: Path) -> dict[str, Any]:
-    return {
-        "path": relpath(path, repo_root),
-        "size_bytes": path.stat().st_size,
-        "sha256": sha256_file(path),
-    }
-
-
-def run_git(repo_root: Path, args: list[str]) -> str | None:
+def run_git_bytes(
+    repo_root: Path,
+    args: list[str],
+    *,
+    required: bool = True,
+) -> bytes | None:
     try:
         completed = subprocess.run(
             ["git", "-C", str(repo_root), *args],
             check=False,
             stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
-            text=True,
-            encoding="utf-8",
+            stderr=subprocess.PIPE,
+            timeout=GIT_TIMEOUT_SECONDS,
         )
-    except (OSError, ValueError):
+    except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
+        if required:
+            raise ValueError("Git repository inspection failed") from exc
         return None
     if completed.returncode != 0:
+        if required:
+            raise ValueError("Git repository inspection failed")
         return None
-    output = completed.stdout.strip()
-    return output or None
+    return completed.stdout
+
+
+def run_git_text(
+    repo_root: Path,
+    args: list[str],
+    *,
+    required: bool = True,
+) -> str | None:
+    raw = run_git_bytes(repo_root, args, required=required)
+    if raw is None:
+        return None
+    try:
+        value = raw.decode("utf-8").strip()
+    except UnicodeDecodeError as exc:
+        raise ValueError("Git repository output is not UTF-8") from exc
+    return value or None
+
+
+def _validate_git_path(path: str) -> None:
+    parts = PurePosixPath(path).parts
+    if (
+        not path
+        or path.startswith("/")
+        or "\\" in path
+        or any(part in ("", ".", "..") for part in parts)
+        or any(ord(character) < 32 or ord(character) == 127 for character in path)
+    ):
+        raise ValueError("Git tree contains an unsafe path")
+
+
+def git_tree_file_records(
+    repo_root: Path,
+    head_sha: str,
+    included_roots: list[str] | None = None,
+) -> list[dict[str, Any]]:
+    roots = included_roots or INCLUDED_ROOTS
+    raw = run_git_bytes(
+        repo_root,
+        ["ls-tree", "-rz", "--full-tree", head_sha, "--", *roots],
+    )
+    assert raw is not None
+    records: dict[str, dict[str, Any]] = {}
+    casefold_paths: dict[str, str] = {}
+    for entry in raw.split(b"\0"):
+        if not entry:
+            continue
+        try:
+            header, raw_path = entry.split(b"\t", 1)
+            mode, object_type, object_id = header.decode("ascii").split(" ")
+            path = raw_path.decode("utf-8")
+        except (UnicodeDecodeError, ValueError) as exc:
+            raise ValueError("Git tree entry is malformed") from exc
+        _validate_git_path(path)
+        relative = Path(*PurePosixPath(path).parts)
+        if should_exclude(repo_root / relative, repo_root):
+            continue
+        if object_type != "blob" or mode not in REGULAR_BLOB_MODES:
+            raise ValueError(f"Git tree entry is not a regular blob: {path}")
+        folded = path.casefold()
+        if path in records or (folded in casefold_paths and casefold_paths[folded] != path):
+            raise ValueError("Git tree contains duplicate manifest paths")
+        blob = run_git_bytes(repo_root, ["cat-file", "blob", object_id])
+        assert blob is not None
+        records[path] = {
+            "path": path,
+            "size_bytes": len(blob),
+            "sha256": hashlib.sha256(blob).hexdigest(),
+        }
+        casefold_paths[folded] = path
+    return [records[path] for path in sorted(records)]
 
 
 def normalize_repository(remote_url: str | None) -> str:
@@ -197,15 +257,39 @@ def normalize_repository(remote_url: str | None) -> str:
 
 
 def git_metadata(repo_root: Path) -> dict[str, str | None]:
-    remote = run_git(repo_root, ["config", "--get", "remote.origin.url"])
-    branch = run_git(repo_root, ["branch", "--show-current"])
-    commit = run_git(repo_root, ["rev-parse", "HEAD"])
-    exact_tag = run_git(repo_root, ["describe", "--tags", "--exact-match"])
+    resolved_root = repo_root.resolve()
+    top_level = run_git_text(resolved_root, ["rev-parse", "--show-toplevel"])
+    if top_level is None or Path(top_level).resolve() != resolved_root:
+        raise ValueError("--repo-root must be the exact Git repository root")
+    commit = run_git_text(resolved_root, ["rev-parse", "--verify", "HEAD"])
+    if commit is None or SHA1_PATTERN.fullmatch(commit) is None:
+        raise ValueError("Git HEAD must be an exact 40-character commit")
+    status = run_git_bytes(
+        resolved_root,
+        ["status", "--porcelain=v1", "--untracked-files=all"],
+    )
+    if status:
+        raise ValueError("Git repository must be clean, including untracked files")
+    remote = run_git_text(
+        resolved_root,
+        ["config", "--get", "remote.origin.url"],
+        required=False,
+    )
+    branch = run_git_text(
+        resolved_root,
+        ["branch", "--show-current"],
+        required=False,
+    )
+    exact_tag = run_git_text(
+        resolved_root,
+        ["describe", "--tags", "--exact-match"],
+        required=False,
+    )
 
     return {
         "repository": normalize_repository(remote),
         "git_ref": branch or "UNKNOWN",
-        "git_commit": commit or "UNKNOWN",
+        "git_commit": commit,
         "git_tag": exact_tag,
     }
 
@@ -238,7 +322,10 @@ def render_metadata(entry: dict[str, str]) -> dict[str, str]:
 def build_manifest(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
     repo_root = repo_root.resolve()
     metadata = git_metadata(repo_root)
-    files = [file_record(path, repo_root) for path in iter_manifest_files(repo_root)]
+    commit = str(metadata["git_commit"])
+    if SHA1_PATTERN.fullmatch(commit) is None:
+        raise ValueError("release source basis is UNKNOWN")
+    files = git_tree_file_records(repo_root, commit)
 
     return {
         "schema_version": SCHEMA_VERSION,
@@ -300,7 +387,10 @@ def main(argv: list[str] | None = None) -> int:
     except ValueError as exc:
         parser.error(str(exc))
 
-    manifest = build_manifest(repo_root)
+    try:
+        manifest = build_manifest(repo_root)
+    except ValueError as exc:
+        parser.error(str(exc))
     write_manifest(manifest, output_path)
     print(f"Wrote release manifest: {relpath(output_path, repo_root)}")
     print(f"Manifest files recorded: {len(manifest['files'])}")

@@ -31,14 +31,16 @@ This roadmap does not authorize implementation or side effects.
 | Authority manifest and docs gate | Implemented | Change only when authority classes or required documents change. |
 | Work-package preflight/postflight | Implemented | Extend only for a reproduced coordination escape. |
 | Verification impact planner | Implemented, advisory | Extend when a real changed path cannot be classified safely. |
-| Tiered template rendering | Implemented | Change after an approved downstream adoption exposes a common template defect. |
+| Tiered template rendering | Ready; explicit apply | Preview is the default; use `--apply` only after reviewing the complete plan. |
 | Read-only Local Verify | Implemented | Keep manual and exact-SHA unless owner selects a different CI policy. |
-| JSON evidence and release integrity | Implemented locally | Regenerate only with explicit artifact-write approval. |
-| Approved corpus and local retrieval | Implemented, advisory | Change source membership or retrieval behavior only through separate review. |
+| JSON evidence core | Ready | Core schema validation is in the default gate; optional bundles stay standalone. |
+| Release evidence generators | Repaired; refresh not run | Decide eval-report inclusion, then separately approve exact-basis regeneration. |
+| Tracked release bundle | Historical invalid | Do not cite as release-ready before approved regeneration and checksum verification. |
+| Approved corpus and local retrieval | Advisory, frozen | Change source membership or retrieval behavior only through separate review. |
 | Downstream contract validator | Implemented | Use only with target-specific authority and side-effect declarations. |
-| Agent Quality Stability | Implemented, baseline not established | Review failure families, then decide whether to run a fresh complete suite. |
-| MCP boundary | Contracted, runtime held | Reconsider only for a selected tool integration use case. |
-| Hermes sidecar | Planned, runtime held | Reconsider only after MCP boundary use is justified. |
+| Agent Quality/provider | Frozen, not adopted | Reopen only after a separate value decision; role calibration v7 is not run. |
+| MCP boundary | Held | Reconsider only for a selected repository tool-integration use case. |
+| Hermes sidecar | Held | Reconsider only after an MCP-backed use case is justified. |
 | Release publication automation | Held | Requires an explicit publication target and owner approval. |
 | Durable audit automation | Held | Requires a demonstrated need and retention/redaction contract. |
 

@@ -1,9 +1,13 @@
 import json
+import os
 from pathlib import Path
+import stat
+import subprocess
 
 import pytest
 
 from scripts import ai_readiness_scanner as scanner
+from scripts import render_template as renderer
 from scripts.render_template import (
     CANONICAL_READ_ORDER,
     MAX_DIFF_PREVIEW_PATHS,
@@ -191,6 +195,91 @@ def test_render_templates_dry_run_does_not_write(
     assert "DRY-RUN render" in capsys.readouterr().out
 
 
+def test_cli_no_flag_and_dry_run_are_identical_preview(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo = tmp_path / "repo"
+    populate_template_repo(repo)
+    config = tmp_path / "template.config.yml"
+    write_config(config, tier="minimal")
+    target = tmp_path / "target"
+    common = [
+        "--repo-root",
+        str(repo),
+        "--config",
+        str(config),
+        "--target",
+        str(target),
+    ]
+
+    assert main(common) == 0
+    default_output = capsys.readouterr().out
+    assert main([*common, "--dry-run"]) == 0
+    explicit_output = capsys.readouterr().out
+
+    assert default_output == explicit_output
+    assert target.exists() is False
+
+
+def test_cli_apply_writes_preflighted_plan(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    populate_template_repo(repo)
+    config = tmp_path / "template.config.yml"
+    write_config(config, tier="minimal")
+    target = tmp_path / "target"
+
+    assert main(
+        [
+            "--repo-root",
+            str(repo),
+            "--config",
+            str(config),
+            "--target",
+            str(target),
+            "--apply",
+        ]
+    ) == 0
+
+    assert (target / "README.md").is_file()
+
+
+@pytest.mark.parametrize(
+    "mode_args",
+    [
+        ("--apply", "--dry-run"),
+        ("--apply", "--provenance-preview"),
+        ("--apply", "--diff-preview"),
+        ("--force",),
+    ],
+)
+def test_cli_rejects_incompatible_apply_modes_before_writing(
+    tmp_path: Path,
+    mode_args: tuple[str, ...],
+) -> None:
+    repo = tmp_path / "repo"
+    populate_template_repo(repo)
+    config = tmp_path / "template.config.yml"
+    write_config(config, tier="minimal")
+    target = tmp_path / "target"
+
+    with pytest.raises(SystemExit) as exc_info:
+        main(
+            [
+                "--repo-root",
+                str(repo),
+                "--config",
+                str(config),
+                "--target",
+                str(target),
+                *mode_args,
+            ]
+        )
+
+    assert exc_info.value.code == 2
+    assert target.exists() is False
+
+
 def test_render_templates_dry_run_provenance_preview_is_safe_and_deterministic(
     tmp_path: Path,
     capsys: pytest.CaptureFixture[str],
@@ -280,24 +369,25 @@ def test_render_templates_provenance_preview_is_dry_run_only(tmp_path: Path) -> 
         )
 
 
-def test_render_template_cli_provenance_preview_requires_dry_run(tmp_path: Path) -> None:
+def test_render_template_cli_provenance_preview_uses_default_preview(tmp_path: Path) -> None:
     repo = tmp_path / "repo"
-    write(repo / "templates/base/README.md.template", "# {{ project.name }}\n")
+    populate_template_repo(repo)
     config = repo / "template.config.yml"
-    config.write_text("project:\n  name: demo\n  status: seed\n", encoding="utf-8")
+    write_config(config, tier="minimal")
 
-    with pytest.raises(ValueError, match="provenance preview is dry-run only"):
-        main(
-            [
-                "--repo-root",
-                str(repo),
-                "--config",
-                str(config),
-                "--target",
-                str(tmp_path / "target"),
-                "--provenance-preview",
-            ]
-        )
+    target = tmp_path / "target"
+    assert main(
+        [
+            "--repo-root",
+            str(repo),
+            "--config",
+            str(config),
+            "--target",
+            str(target),
+            "--provenance-preview",
+        ]
+    ) == 0
+    assert target.exists() is False
 
 
 def test_render_templates_dry_run_diff_preview_reports_summary_without_raw_content(
@@ -340,6 +430,29 @@ def test_render_templates_dry_run_diff_preview_reports_summary_without_raw_conte
     assert (target / "AGENTS.md").exists() is False
 
 
+def test_render_templates_diff_preview_normalizes_relative_target(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo = tmp_path / "repo"
+    populate_template_repo(repo)
+    config = repo / "template.config.yml"
+    write_config(config, tier="minimal")
+    monkeypatch.chdir(tmp_path)
+
+    rendered = render_templates(
+        config_path=config,
+        target=Path("rendered"),
+        repo_root=repo,
+        dry_run=True,
+        diff_preview=True,
+    )
+
+    assert rendered
+    assert all(path.is_absolute() for path in rendered)
+    assert (tmp_path / "rendered").exists() is False
+
+
 def test_render_templates_dry_run_diff_preview_bounds_path_lists(tmp_path: Path) -> None:
     target = tmp_path / "target"
     expected_rendered = [
@@ -375,24 +488,25 @@ def test_render_templates_diff_preview_is_dry_run_only(tmp_path: Path) -> None:
         )
 
 
-def test_render_template_cli_diff_preview_requires_dry_run(tmp_path: Path) -> None:
+def test_render_template_cli_diff_preview_uses_default_preview(tmp_path: Path) -> None:
     repo = tmp_path / "repo"
-    write(repo / "templates/base/README.md.template", "# {{ project.name }}\n")
+    populate_template_repo(repo)
     config = repo / "template.config.yml"
-    config.write_text("project:\n  name: demo\n  status: seed\n", encoding="utf-8")
+    write_config(config, tier="minimal")
 
-    with pytest.raises(ValueError, match="diff preview is dry-run only"):
-        main(
-            [
-                "--repo-root",
-                str(repo),
-                "--config",
-                str(config),
-                "--target",
-                str(tmp_path / "target"),
-                "--diff-preview",
-            ]
-        )
+    target = tmp_path / "target"
+    assert main(
+        [
+            "--repo-root",
+            str(repo),
+            "--config",
+            str(config),
+            "--target",
+            str(target),
+            "--diff-preview",
+        ]
+    ) == 0
+    assert target.exists() is False
 
 
 def test_render_tier_contract_records_implemented_scope() -> None:
@@ -560,6 +674,467 @@ def test_render_templates_writes_base_and_profile(tmp_path: Path) -> None:
     assert (target / "README.profile.md").read_text(encoding="utf-8") == (
         "# README.profile.md for python_cli\n"
     )
+
+
+def test_render_refuses_existing_file_without_force_and_leaves_no_temp(
+    tmp_path: Path,
+) -> None:
+    repo = tmp_path / "repo"
+    populate_template_repo(repo)
+    config = tmp_path / "template.config.yml"
+    write_config(config, tier="minimal")
+    target = tmp_path / "target"
+    write(target / "AGENTS.md", "preserve\n")
+
+    with pytest.raises(FileExistsError, match="refusing to overwrite"):
+        render_templates(
+            config_path=config,
+            target=target,
+            repo_root=repo,
+            dry_run=False,
+        )
+
+    assert (target / "AGENTS.md").read_text(encoding="utf-8") == "preserve\n"
+    assert not list(target.glob(".*.codex-*.tmp"))
+
+
+def test_render_late_collision_preflight_leaves_all_outputs_unwritten(
+    tmp_path: Path,
+) -> None:
+    repo = tmp_path / "repo"
+    populate_template_repo(repo)
+    config = tmp_path / "template.config.yml"
+    write_config(config, tier="minimal")
+    target = tmp_path / "target"
+    write(target / "README.md", "preserve\n")
+
+    with pytest.raises(FileExistsError, match="refusing to overwrite"):
+        render_templates(
+            config_path=config,
+            target=target,
+            repo_root=repo,
+            dry_run=False,
+        )
+
+    assert (target / "README.md").read_text(encoding="utf-8") == "preserve\n"
+    assert not (target / "AGENTS.md").exists()
+    assert not (target / "MVP.md").exists()
+    assert not list(target.glob(".*.codex-*.tmp"))
+
+
+def test_render_force_atomically_replaces_regular_single_link_file(
+    tmp_path: Path,
+) -> None:
+    repo = tmp_path / "repo"
+    populate_template_repo(repo)
+    config = tmp_path / "template.config.yml"
+    write_config(config, tier="minimal")
+    target = tmp_path / "target"
+    write(target / "AGENTS.md", "old\n")
+
+    render_templates(
+        config_path=config,
+        target=target,
+        repo_root=repo,
+        dry_run=False,
+        force=True,
+    )
+
+    rendered = target / "AGENTS.md"
+    assert rendered.read_text(encoding="utf-8").startswith("# demo\n")
+    assert rendered.stat().st_nlink == 1
+    assert not list(target.glob(".*.codex-*.tmp"))
+
+
+def test_render_new_file_uses_normal_creation_mode(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    target = tmp_path / "target"
+    target.mkdir()
+    destination = target / "README.md"
+    observed_modes: list[int] = []
+    original_open = renderer.os.open
+
+    def observe_open(path, flags, mode=0o777):
+        if str(path).endswith(".tmp"):
+            observed_modes.append(mode)
+        return original_open(path, flags, mode)
+
+    monkeypatch.setattr(renderer.os, "open", observe_open)
+    renderer._write_destination_text(
+        destination,
+        "rendered\n",
+        target=target,
+        force=False,
+    )
+
+    assert observed_modes == [0o666]
+    assert destination.read_text(encoding="utf-8") == "rendered\n"
+
+
+def test_render_rolls_back_new_destination_on_link_validation_failure(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    target = tmp_path / "target"
+    target.mkdir()
+    destination = target / "README.md"
+    original_is_symlink = Path.is_symlink
+    injected = False
+
+    def report_one_unsafe_link(path: Path) -> bool:
+        nonlocal injected
+        if path == destination and path.exists() and not injected:
+            injected = True
+            return True
+        return original_is_symlink(path)
+
+    monkeypatch.setattr(Path, "is_symlink", report_one_unsafe_link)
+    with pytest.raises(ValueError, match="identity drift"):
+        renderer._write_destination_text(
+            destination,
+            "rendered\n",
+            target=target,
+            force=False,
+        )
+
+    assert injected is True
+    assert not destination.exists()
+    assert not list(target.glob(".*.codex-*.tmp"))
+
+
+def test_render_preserves_noncollision_publish_error(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    target = tmp_path / "target"
+    target.mkdir()
+    destination = target / "README.md"
+
+    def blocked_link(*_args, **_kwargs):
+        raise PermissionError("synthetic hard-link denial")
+
+    monkeypatch.setattr(renderer.os, "link", blocked_link)
+    with pytest.raises(ValueError, match="unable to publish"):
+        renderer._write_destination_text(
+            destination,
+            "rendered\n",
+            target=target,
+            force=False,
+        )
+
+    assert not destination.exists()
+    assert not list(target.glob(".*.codex-*.tmp"))
+
+
+def test_render_new_destination_collision_preserves_raced_file(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    target = tmp_path / "target"
+    target.mkdir()
+    destination = target / "README.md"
+    original_link = renderer.os.link
+
+    def collide(source, target_path, **kwargs):
+        Path(target_path).write_text("raced\n", encoding="utf-8")
+        return original_link(source, target_path, **kwargs)
+
+    monkeypatch.setattr(renderer.os, "link", collide)
+    with pytest.raises(FileExistsError, match="refusing to overwrite"):
+        renderer._write_destination_text(
+            destination,
+            "rendered\n",
+            target=target,
+            force=False,
+        )
+
+    assert destination.read_text(encoding="utf-8") == "raced\n"
+    assert not list(target.glob(".*.codex-*.tmp"))
+
+
+def test_render_force_has_no_fallible_post_replace_check(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    target = tmp_path / "target"
+    target.mkdir()
+    destination = target / "README.md"
+    destination.write_text("old\n", encoding="utf-8")
+    replaced = False
+    original_replace = renderer.os.replace
+    original_lstat_safe = renderer._lstat_safe
+    original_unlink_matching = renderer._unlink_matching_regular_file
+
+    def observe_replace(source, target_path):
+        nonlocal replaced
+        original_replace(source, target_path)
+        replaced = True
+
+    def reject_postcheck(path: Path, *, allow_directory: bool):
+        if replaced and path == destination:
+            pytest.fail("destination must not be rechecked after replace")
+        return original_lstat_safe(path, allow_directory=allow_directory)
+
+    def reject_post_replace_cleanup(
+        path: Path,
+        identity: tuple[int, int, int],
+    ) -> bool:
+        if replaced:
+            pytest.fail("temporary path must not be checked after replace")
+        return original_unlink_matching(path, identity)
+
+    monkeypatch.setattr(renderer.os, "replace", observe_replace)
+    monkeypatch.setattr(renderer, "_lstat_safe", reject_postcheck)
+    monkeypatch.setattr(
+        renderer,
+        "_unlink_matching_regular_file",
+        reject_post_replace_cleanup,
+    )
+    renderer._write_destination_text(
+        destination,
+        "rendered\n",
+        target=target,
+        force=True,
+    )
+
+    assert replaced is True
+    assert destination.read_text(encoding="utf-8") == "rendered\n"
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX mode regression")
+def test_render_force_preserves_mode_under_restrictive_umask(
+    tmp_path: Path,
+) -> None:
+    target = tmp_path / "target"
+    target.mkdir()
+    destination = target / "README.md"
+    destination.write_text("old\n", encoding="utf-8")
+    destination.chmod(0o664)
+    original_umask = os.umask(0o077)
+    try:
+        renderer._write_destination_text(
+            destination,
+            "rendered\n",
+            target=target,
+            force=True,
+        )
+    finally:
+        os.umask(original_umask)
+
+    assert stat.S_IMODE(destination.stat().st_mode) == 0o664
+
+
+def test_render_write_failure_cleans_opened_temporary(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    target = tmp_path / "target"
+    target.mkdir()
+    destination = target / "README.md"
+
+    def fail_write(*_args, **_kwargs):
+        raise OSError("synthetic write failure")
+
+    monkeypatch.setattr(renderer.os, "write", fail_write)
+    with pytest.raises(OSError, match="synthetic write failure"):
+        renderer._write_destination_text(
+            destination,
+            "rendered\n",
+            target=target,
+            force=False,
+        )
+
+    assert not destination.exists()
+    assert not list(target.glob(".*.codex-*.tmp"))
+
+
+def test_render_cleanup_failure_is_explicit(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    target = tmp_path / "target"
+    target.mkdir()
+    destination = target / "README.md"
+    original_unlink = renderer._unlink_matching_regular_file
+    cleanup_attempts: list[tuple[Path, tuple[int, int, int]]] = []
+
+    def fail_write(*_args, **_kwargs):
+        raise OSError("synthetic write failure")
+
+    def refuse_cleanup(
+        path: Path,
+        identity: tuple[int, int, int],
+    ) -> bool:
+        cleanup_attempts.append((path, identity))
+        return False
+
+    monkeypatch.setattr(renderer.os, "write", fail_write)
+    monkeypatch.setattr(
+        renderer,
+        "_unlink_matching_regular_file",
+        refuse_cleanup,
+    )
+    try:
+        with pytest.raises(
+            ValueError,
+            match="render destination cleanup failed",
+        ):
+            renderer._write_destination_text(
+                destination,
+                "rendered\n",
+                target=target,
+                force=False,
+            )
+    finally:
+        for path, identity in cleanup_attempts:
+            original_unlink(path, identity)
+
+    assert cleanup_attempts
+    assert not destination.exists()
+    assert not list(target.glob(".*.codex-*.tmp"))
+
+
+@pytest.mark.parametrize("force", [False, True])
+def test_render_rejects_output_symlink_and_preserves_outside_file(
+    tmp_path: Path,
+    force: bool,
+) -> None:
+    target = tmp_path / "target"
+    target.mkdir()
+    outside = tmp_path / "outside.md"
+    outside.write_text("outside\n", encoding="utf-8")
+    destination = target / "README.md"
+    try:
+        destination.symlink_to(outside)
+    except OSError:
+        pytest.skip("file symlink creation is unavailable")
+
+    with pytest.raises(ValueError, match="unsafe render destination link"):
+        renderer._write_destination_text(
+            destination,
+            "rendered\n",
+            target=target,
+            force=force,
+        )
+
+    assert outside.read_text(encoding="utf-8") == "outside\n"
+
+
+@pytest.mark.parametrize("force", [False, True])
+def test_render_rejects_dangling_output_symlink(
+    tmp_path: Path,
+    force: bool,
+) -> None:
+    target = tmp_path / "target"
+    target.mkdir()
+    outside = tmp_path / "missing-outside.md"
+    destination = target / "README.md"
+    try:
+        destination.symlink_to(outside)
+    except OSError:
+        pytest.skip("file symlink creation is unavailable")
+
+    with pytest.raises(ValueError, match="unsafe render destination link"):
+        renderer._write_destination_text(
+            destination,
+            "rendered\n",
+            target=target,
+            force=force,
+        )
+
+    assert not outside.exists()
+
+
+@pytest.mark.parametrize("diff_preview", [False, True])
+def test_render_rejects_symlinked_target_parent_for_write_and_preview(
+    tmp_path: Path,
+    diff_preview: bool,
+) -> None:
+    repo = tmp_path / "repo"
+    populate_template_repo(repo)
+    config = tmp_path / "template.config.yml"
+    write_config(config, tier="minimal")
+    real_target = tmp_path / "real-target"
+    real_target.mkdir()
+    target = tmp_path / "linked-target"
+    try:
+        target.symlink_to(real_target, target_is_directory=True)
+    except OSError:
+        pytest.skip("directory symlink creation is unavailable")
+
+    with pytest.raises(ValueError, match="unsafe render destination link"):
+        render_templates(
+            config_path=config,
+            target=target,
+            repo_root=repo,
+            dry_run=diff_preview,
+            diff_preview=diff_preview,
+        )
+
+    assert not (real_target / "AGENTS.md").exists()
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows junction regression")
+def test_render_rejects_junction_target_parent(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    populate_template_repo(repo)
+    config = tmp_path / "template.config.yml"
+    write_config(config, tier="minimal")
+    real_target = tmp_path / "real-target"
+    real_target.mkdir()
+    target = tmp_path / "junction-target"
+    created = subprocess.run(
+        ["cmd", "/c", "mklink", "/J", str(target), str(real_target)],
+        check=False,
+        capture_output=True,
+    )
+    if created.returncode != 0:
+        pytest.skip("junction creation is unavailable")
+    try:
+        with pytest.raises(ValueError, match="unsafe render destination link"):
+            render_templates(
+                config_path=config,
+                target=target,
+                repo_root=repo,
+                dry_run=True,
+                diff_preview=True,
+            )
+    finally:
+        target.rmdir()
+
+    assert not (real_target / "AGENTS.md").exists()
+
+
+@pytest.mark.parametrize("dry_run,diff_preview", [(False, False), (True, True)])
+def test_render_rejects_hard_link_destination_for_write_and_preview(
+    tmp_path: Path,
+    dry_run: bool,
+    diff_preview: bool,
+) -> None:
+    repo = tmp_path / "repo"
+    populate_template_repo(repo)
+    config = tmp_path / "template.config.yml"
+    write_config(config, tier="minimal")
+    target = tmp_path / "target"
+    target.mkdir()
+    outside = tmp_path / "outside.md"
+    outside.write_text("outside\n", encoding="utf-8")
+    os.link(outside, target / "README.md")
+
+    with pytest.raises(ValueError, match="unsafe render destination file"):
+        render_templates(
+            config_path=config,
+            target=target,
+            repo_root=repo,
+            dry_run=dry_run,
+            diff_preview=diff_preview,
+            force=True,
+        )
+
+    assert outside.read_text(encoding="utf-8") == "outside\n"
+    assert not (target / "AGENTS.md").exists()
 
 
 def test_render_refuses_repo_root_target(tmp_path: Path) -> None:

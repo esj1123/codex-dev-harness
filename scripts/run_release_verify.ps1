@@ -55,9 +55,9 @@ function Find-Python {
     foreach ($candidate in $candidates) {
         try {
             if ($candidate -eq "py") {
-                & py -3 --version *> $null
+                & py -3 scripts/verify_dev_environment.py --expected-version-file .python-version --lock requirements-dev.lock --json *> $null
             } else {
-                & $candidate --version *> $null
+                & $candidate scripts/verify_dev_environment.py --expected-version-file .python-version --lock requirements-dev.lock --json *> $null
             }
             if ($LASTEXITCODE -eq 0) {
                 return $candidate
@@ -67,7 +67,7 @@ function Find-Python {
         }
     }
 
-    throw "Python was not found. Install Python or set the PYTHON environment variable."
+    throw "No Python candidate satisfies .python-version and requirements-dev.lock. Install the exact development environment or set PYTHON."
 }
 
 function Invoke-PowerShellStep {
@@ -125,13 +125,25 @@ function Invoke-OptionalPythonScript {
     Invoke-PythonStep $Label $PythonArgs
 }
 
+function Assert-CleanGitTree {
+    $status = & git status --porcelain=v1 --untracked-files=all
+    if ($LASTEXITCODE -ne 0) {
+        Fail-Step "clean Git tree" "unable to inspect repository state" $LASTEXITCODE
+    }
+    if ($status) {
+        Fail-Step "clean Git tree" "tracked or untracked changes are present"
+    }
+    Add-Result "clean Git tree" "PASS" "HEAD source basis is clean"
+}
+
 function Write-ArtifactPaths {
     $artifactPaths = @(
         "artifacts/release-manifest.json",
         "artifacts/checksums.sha256",
         "artifacts/sbom.spdx.json",
         "artifacts/sbom.cdx.json",
-        "artifacts/provenance.intoto.jsonl"
+        "artifacts/provenance.intoto.jsonl",
+        "artifacts/eval-report.json"
     )
 
     Write-Host "==> Release evidence artifacts"
@@ -150,16 +162,23 @@ $ChecksumsPath = "artifacts/checksums.sha256"
 $SpdxPath = "artifacts/sbom.spdx.json"
 $CycloneDxPath = "artifacts/sbom.cdx.json"
 $ProvenancePath = "artifacts/provenance.intoto.jsonl"
-
-Invoke-PowerShellStep "local verification wrapper" (Join-Path $RepoRoot "scripts/run_local_verify.ps1")
+$EvalReportPath = "artifacts/eval-report.json"
 
 $PythonCommand = Find-Python
+$env:PYTHON = $PythonCommand
+
+Assert-CleanGitTree
+Invoke-PowerShellStep "local verification wrapper" (Join-Path $RepoRoot "scripts/run_local_verify.ps1")
 
 Invoke-PythonStep "release manifest generation" @("scripts/generate_manifest.py", "--output", $ManifestPath)
-Invoke-PythonStep "checksum generation" @("scripts/generate_checksums.py", "--manifest", $ManifestPath, "--output", $ChecksumsPath, "--allow-missing")
+if (Test-Path -LiteralPath (Join-Path $RepoRoot $EvalReportPath) -PathType Leaf) {
+    Invoke-PythonStep "optional eval report refresh" @("scripts/run_eval.py", "--report", $EvalReportPath)
+} else {
+    Add-Result "optional eval report refresh" "SKIPPED" "optional eval report is absent"
+}
 Invoke-OptionalPythonScript "optional SBOM generation" (Join-Path $RepoRoot "scripts/generate_sbom.py") @("scripts/generate_sbom.py", "--manifest", $ManifestPath, "--spdx", $SpdxPath, "--cyclonedx", $CycloneDxPath)
 Invoke-OptionalPythonScript "optional provenance generation" (Join-Path $RepoRoot "scripts/generate_provenance.py") @("scripts/generate_provenance.py", "--manifest", $ManifestPath, "--output", $ProvenancePath)
-Invoke-PythonStep "final checksum regeneration" @("scripts/generate_checksums.py", "--manifest", $ManifestPath, "--output", $ChecksumsPath)
+Invoke-PythonStep "final checksum generation" @("scripts/generate_checksums.py", "--manifest", $ManifestPath, "--output", $ChecksumsPath)
 Invoke-PythonStep "checksum verification" @("scripts/generate_checksums.py", "--verify")
 
 Write-ArtifactPaths

@@ -420,6 +420,13 @@ def run_all(repo_root: Path = REPO_ROOT, case_paths: list[Path] | None = None) -
     repo_root = repo_root.resolve()
     if case_paths is None:
         case_paths = discover_case_paths(repo_root)
+    if not case_paths:
+        result = EvalResult(
+            "eval_case_inventory",
+            False,
+            ["no eval cases discovered"],
+        )
+        return EvalSummary(False, [result])
     results = [run_case(repo_root, path) for path in case_paths]
     return EvalSummary(all(result.passed for result in results), results)
 

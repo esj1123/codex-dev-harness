@@ -25,6 +25,8 @@ default operating context.
   `scripts/verification_plan.py`
 - Agent Quality validation and aggregation:
   `scripts/agent_quality.py`
+- Core-only quality gate:
+  `scripts/quality_gate.py`
 - Current deterministic verification:
   `scripts/run_local_verify.ps1`
 - Manual exact-SHA remote verification:
@@ -35,11 +37,17 @@ control-plane evidence. They do not authenticate approval and must not contain
 raw prompts, transcripts, private payloads, secrets, absolute paths, or command
 logs.
 
+Agent Quality remains optional and `FROZEN / NOT ADOPTED`. Provider execution
+and role calibration v7 are `NOT RUN`; neither is implied by
+`CORE_HARNESS_READY`.
+
 ## Required Boundaries
 
 - Structural PASS does not grant execution or side-effect permission.
 - A frozen contract change stops with `CONTRACT_CHANGE_REQUIRED`.
 - Agent-quality baseline creation remains separately approval-gated.
+- Existing tracked release evidence is `HISTORICAL_INVALID / REFRESH_NOT_RUN`;
+  repaired generator code is not evidence that the bundle was regenerated.
 - Push, workflow dispatch, release, upload, downstream access, MCP/Hermes
   execution, and live/private data use require separate authority.
 - Tracked authority does not store workflow run IDs.

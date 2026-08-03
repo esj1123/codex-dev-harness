@@ -19,16 +19,19 @@ SCHEMA_VERSION = "1"
 TOOL_NAME = "codex-dev-harness generate_provenance.py"
 DEFAULT_PRODUCTS = [
     "artifacts/release-manifest.json",
-    "artifacts/checksums.sha256",
     "artifacts/sbom.spdx.json",
     "artifacts/sbom.cdx.json",
 ]
-PROTECTED_OUTPUT_PATHS = DEFAULT_PRODUCTS + ["artifacts/checksums.txt"]
+PROTECTED_OUTPUT_PATHS = DEFAULT_PRODUCTS + [
+    "artifacts/checksums.sha256",
+    "artifacts/checksums.txt",
+]
 DEFAULT_COMMANDS = [
     "python scripts/generate_manifest.py --output artifacts/release-manifest.json",
-    "python scripts/generate_checksums.py --manifest artifacts/release-manifest.json --output artifacts/checksums.sha256",
     "python scripts/generate_sbom.py --manifest artifacts/release-manifest.json --spdx artifacts/sbom.spdx.json --cyclonedx artifacts/sbom.cdx.json",
     "python scripts/generate_provenance.py --manifest artifacts/release-manifest.json --output artifacts/provenance.intoto.jsonl",
+    "python scripts/generate_checksums.py --manifest artifacts/release-manifest.json --output artifacts/checksums.sha256",
+    "python scripts/generate_checksums.py --verify",
 ]
 
 
@@ -72,28 +75,13 @@ def validate_provenance_paths(repo_root: Path, manifest_path: Path, output_path:
 def sha256_file(path: Path) -> str:
     import hashlib
 
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
+    text = path.read_bytes().decode("utf-8")
+    canonical = text.replace("\r\n", "\n").replace("\r", "\n").encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest()
 
 
 def load_manifest(manifest_path: Path) -> dict[str, Any]:
     return json.loads(manifest_path.read_text(encoding="utf-8"))
-
-
-def read_checksums(checksums_path: Path) -> list[dict[str, str]]:
-    if not checksums_path.is_file():
-        return []
-    entries = []
-    for line in checksums_path.read_text(encoding="utf-8").splitlines():
-        if not line.strip():
-            continue
-        digest, _, path = line.partition("  ")
-        if digest and path:
-            entries.append({"path": path, "sha256": digest})
-    return sorted(entries, key=lambda entry: entry["path"])
 
 
 def digest_record(path: Path, repo_root: Path) -> dict[str, Any] | None:
@@ -137,10 +125,15 @@ def build_statement(
     created_at: str | None = None,
 ) -> dict[str, Any]:
     created = created_at or utc_now()
-    checksums_path = repo_root / "artifacts" / "checksums.sha256"
     manifest_digest = sha256_file(manifest_path)
     products = existing_products(repo_root, output_path)
-    checksum_entries = read_checksums(checksums_path)
+    checksum_entries = [
+        {
+            "path": str(product["name"]),
+            "sha256": str(product["digest"]["sha256"]),
+        }
+        for product in products
+    ]
 
     return {
         "_type": "https://in-toto.io/Statement/v1",
