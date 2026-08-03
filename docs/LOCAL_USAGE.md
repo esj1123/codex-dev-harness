@@ -2,23 +2,35 @@
 
 ## Purpose
 
-codex-dev-harness is local-first. The primary workflow is to clone the repository, verify it locally, preview template rendering, then apply the generated documents to a new target project only after review with explicit `--apply`.
+codex-dev-harness is local-first. The primary workflow is to clone the
+repository, verify it locally, preview template rendering, then apply the
+generated documents to a new target project only after review with explicit
+`--apply`.
 
-GitHub Actions are not used in the current baseline.
+The repository includes a manual read-only `.github/workflows/local-verify.yml`
+workflow. It runs only through `workflow_dispatch` with an exact commit SHA; it
+is not automatic and is not a required check.
 
 ## Clone And Prepare
 
 1. Clone the repository.
 2. Open a shell at the repository root.
-3. Install development requirements:
+3. For focused development, install the direct development requirements:
 
 `python -m pip install -r requirements-dev.txt`
 
-4. Run tests:
+4. For an exact Local Verify or release-wrapper environment, install the lock
+   instead and run the dependency check:
+
+`python -m pip install -r requirements-dev.lock`
+
+`python -m pip check`
+
+5. Run focused tests as needed:
 
 `python -m pytest`
 
-5. Run the quality gate:
+6. Run the core quality gate:
 
 `python scripts/quality_gate.py`
 
@@ -29,11 +41,12 @@ Use the wrapper from the repository root:
 `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1`
 
 The wrapper runs:
-- `python -m pytest`
-- `python scripts/quality_gate.py`
-- Python CLI example render dry-run.
-- C# desktop example render dry-run.
-- PLC/device tool example render dry-run.
+
+1. exact development-environment validation and `pip check`
+2. full `python -m pytest tests`
+3. standalone `python scripts/run_eval.py`
+4. core `python scripts/quality_gate.py`
+5. Python CLI, C# desktop, and PLC/device profile render dry-runs
 
 The wrapper does not perform real render writes and does not use `--force`.
 

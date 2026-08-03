@@ -145,10 +145,11 @@ not authenticate approval.
 
 ## Next Recommended Step
 
-Complete the core-only integration checks from the new exact source basis. If
-the approved corpus digest is stale, refresh it only under a separate
-artifact-write approval and commit it separately. After that, decide whether
-the tracked release bundle should include an eval report before any release
-evidence regeneration. Keep Agent Quality/provider, role calibration v7,
-Hermes, MCP, publication, and remote work frozen unless a separate value
-decision and approval explicitly reopens them.
+Review the verified P1 branch tip and decide whether to promote it to `main`.
+Promotion, upstream configuration, push, and remote verification remain
+separate owner decisions. Before regenerating the historical release bundle,
+decide whether it should include an eval report and separately approve the
+artifact-writing refresh from the promoted exact source basis. Keep Agent
+Quality/provider, role calibration v7, Hermes, MCP, publication, and other
+remote work frozen unless a separate value decision and approval explicitly
+reopens them.

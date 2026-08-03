@@ -25,9 +25,9 @@ prefer the pinned version when practical.
 Development dependencies are split into two files:
 
 - `requirements-dev.txt`: minimal direct development dependencies used by the
-  standard local verification command.
+  focused development and narrow test commands.
 - `requirements-dev.lock`: exact local verification dependency set for the
-  pinned Python runtime.
+  pinned Python runtime and the Local Verify/release wrappers.
 
 `requirements-dev.txt` should stay small and contain only direct development
 requirements needed by this repository. It is not a place for application,
@@ -41,27 +41,33 @@ runtime.
 
 ## Recommended Commands
 
-For normal local verification setup:
+For focused development or a narrow test:
 
 ```powershell
 python --version
 python -m pip install -r requirements-dev.txt
 ```
 
-For exact local dependency reproduction:
+For `scripts/run_local_verify.ps1`, `scripts/run_release_verify.ps1`, or another
+exact V2 verification run:
 
 ```powershell
 python --version
 python -m pip install -r requirements-dev.lock
+python -m pip check
 ```
 
-Then run:
+Focused work may then run its scoped pytest command. The Local Verify wrapper
+uses the exact environment and runs, in order:
 
 ```powershell
-python -m pytest
+python -m pytest tests
+python scripts/run_eval.py
 python scripts/quality_gate.py
-powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1
 ```
+
+The wrapper then performs the three profile render dry-runs documented in
+`docs/VERIFICATION.md`.
 
 If `scripts/run_release_verify.ps1` is present and the task explicitly allows
 local release evidence regeneration, run it as a final local wrapper check.

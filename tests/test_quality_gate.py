@@ -231,6 +231,46 @@ def test_readme_describes_installed_manual_local_verify_workflow() -> None:
     assert "next planned CI step is a read-only verification hygiene path" not in text
 
 
+def test_operational_docs_match_current_core_and_release_state() -> None:
+    status = Path("STATUS.md").read_text(encoding="utf-8")
+    usage = Path("docs/LOCAL_USAGE.md").read_text(encoding="utf-8")
+    checklist = Path("docs/LOCAL_PACKAGE_CHECKLIST.md").read_text(encoding="utf-8")
+    runtime = Path("docs/PYTHON_RUNTIME_POLICY.md").read_text(encoding="utf-8")
+    normalized_checklist = " ".join(checklist.split())
+
+    assert "`CORE_HARNESS_READY`" in status
+    assert "Review the verified P1 branch tip" in status
+    assert "decide whether to promote it to `main`" in status
+    assert "decide whether it should include an eval report" in status
+    assert "Complete the core-only integration checks" not in status
+
+    assert "manual read-only `.github/workflows/local-verify.yml`" in usage
+    assert "`workflow_dispatch` with an exact commit SHA" in usage
+    assert "is not automatic and is not a required check" in usage
+    assert usage.index("full `python -m pytest tests`") < usage.index(
+        "standalone `python scripts/run_eval.py`"
+    ) < usage.index("core `python scripts/quality_gate.py`") < usage.index(
+        "profile render dry-runs"
+    )
+    assert "requirements-dev.txt" in usage
+    assert "requirements-dev.lock" in usage
+    assert "python -m pip check" in usage
+
+    assert "local release generators" in checklist
+    assert "`HISTORICAL_INVALID / REFRESH_NOT_RUN`" in checklist
+    assert (
+        "separate artifact-regeneration and package-inclusion approval"
+        in normalized_checklist
+    )
+    assert "This checklist does not run them" in checklist
+
+    assert "focused development and narrow test commands" in runtime
+    assert "exact V2 verification run" in runtime
+    assert runtime.index("python -m pip install -r requirements-dev.lock") < runtime.index(
+        "python -m pip check"
+    )
+
+
 def test_current_authority_is_manifest_driven() -> None:
     manifest = json.loads(Path(docs_gate.MANIFEST_PATH).read_text(encoding="utf-8"))
     handoff = Path("docs/AI_HANDOFF.md").read_text(encoding="utf-8")

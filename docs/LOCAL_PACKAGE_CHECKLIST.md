@@ -8,7 +8,9 @@ This checklist is documentation-only. It does not build a package or write a rel
 
 Machine-readable release bundle and manifest policy is documented in
 `docs/RELEASE_BUNDLE_POLICY.md` and `docs/RELEASE_MANIFEST_POLICY.md`. Those
-policies do not implement generators or create release artifacts.
+policies are implemented by the local release generators. The currently
+tracked release bundle is `HISTORICAL_INVALID / REFRESH_NOT_RUN`; generator
+availability does not make that historical bundle release-ready.
 
 ## Included Files
 
@@ -21,11 +23,12 @@ Include:
 - `scripts/`.
 - `examples/`.
 - `tests/`.
-- `requirements-dev.txt`.
+- `.python-version`, `requirements-dev.txt`, and `requirements-dev.lock`.
 - `template.config.example.yml`.
 
-Future machine-readable release evidence may be included only after separate
-approval and should follow `docs/RELEASE_BUNDLE_POLICY.md`.
+Fresh machine-readable release evidence may be included only after a separate
+artifact-regeneration and package-inclusion approval. It must follow
+`docs/RELEASE_BUNDLE_POLICY.md` and bind the promoted exact source basis.
 
 ## Excluded Files
 
@@ -51,9 +54,10 @@ Exclude:
 Run local verification before packaging:
 
 - `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1`
-- local Python runtime `scripts/quality_gate.py`
 
-Packaging should not proceed if docs, hygiene, template schema, examples, render drift, or secret scan gates fail.
+The wrapper runs full pytest, standalone eval, the eight core quality gates,
+and three profile render dry-runs. Packaging should not proceed if any required
+check fails.
 
 ## Safety Checklist
 
@@ -66,13 +70,15 @@ Packaging should not proceed if docs, hygiene, template schema, examples, render
 - No real application code added for packaging.
 - No PLC/device code.
 - No live target write support.
-- No GitHub Actions workflow required.
+- The installed manual GitHub workflow is not a packaging prerequisite and is
+  not a required check.
 
 ## Notes
 
 The local package should preserve the local-first baseline. It should not become a distribution vehicle for downstream target output or sensitive source material.
 
-Release bundle components such as `release-manifest.json`, `checksums.sha256`,
-`sbom.spdx.json`, `sbom.cdx.json`, `provenance.intoto.jsonl`, and
-`audits/session-*.jsonl` remain future optional artifacts. They are not generated
-by this checklist.
+Release generators for `release-manifest.json`, `checksums.sha256`,
+`sbom.spdx.json`, `sbom.cdx.json`, and `provenance.intoto.jsonl` are
+implemented. This checklist does not run them, refresh tracked artifacts, or
+approve inclusion of an optional eval report. The tracked bundle remains
+historical until a separately approved regeneration is completed.
