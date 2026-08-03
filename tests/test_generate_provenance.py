@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from scripts import generate_checksums, generate_provenance
+from scripts import generate_checksums, generate_provenance, generate_sbom
 
 
 def write(path: Path, content: str) -> None:
@@ -79,7 +79,15 @@ def test_release_evidence_pipeline_final_checksum_and_product_digests_match(
     manifest_path.write_bytes(
         (json.dumps(sample_manifest()) + "\r\n").encode("utf-8")
     )
-    (tmp_path / "artifacts" / "sbom.spdx.json").write_bytes(b"{}\r\n")
+    created = "2026-01-01T00:00:00Z"
+    generate_sbom.write_json(
+        generate_sbom.build_spdx(sample_manifest(), manifest_path, tmp_path, created),
+        tmp_path / "artifacts" / "sbom.spdx.json",
+    )
+    generate_sbom.write_json(
+        generate_sbom.build_cyclonedx(sample_manifest(), manifest_path, tmp_path, created),
+        tmp_path / "artifacts" / "sbom.cdx.json",
+    )
     output_path = tmp_path / "artifacts" / "provenance.intoto.jsonl"
     checksums_path = tmp_path / "artifacts" / "checksums.sha256"
     statement = generate_provenance.build_statement(
@@ -87,7 +95,7 @@ def test_release_evidence_pipeline_final_checksum_and_product_digests_match(
         manifest_path,
         output_path,
         tmp_path,
-        "2026-01-01T00:00:00Z",
+        created,
     )
     generate_provenance.write_jsonl(statement, output_path)
 
@@ -147,11 +155,17 @@ def test_provenance_rejects_overwriting_release_artifacts(tmp_path: Path) -> Non
     output_path = tmp_path / "artifacts" / "provenance.intoto.jsonl"
 
     generate_provenance.validate_provenance_paths(tmp_path, manifest_path, output_path)
+    generate_provenance.validate_provenance_paths(
+        tmp_path,
+        manifest_path,
+        tmp_path / "artifacts" / "custom-provenance.jsonl",
+    )
     for protected_path, expected in [
         (manifest_path, "--manifest"),
-        (tmp_path / "artifacts" / "checksums.sha256", "checksums.sha256"),
-        (tmp_path / "artifacts" / "checksums.txt", "checksums.txt"),
-        (tmp_path / "artifacts" / "sbom.spdx.json", "sbom.spdx.json"),
-        (tmp_path / "artifacts" / "sbom.cdx.json", "sbom.cdx.json"),
+        (tmp_path / "artifacts" / "checksums.sha256", "reserved release artifact"),
+        (tmp_path / "artifacts" / "checksums.txt", "reserved release artifact"),
+        (tmp_path / "artifacts" / "sbom.spdx.json", "reserved release artifact"),
+        (tmp_path / "artifacts" / "sbom.cdx.json", "reserved release artifact"),
+        (tmp_path / "artifacts" / "eval-report.json", "reserved release artifact"),
     ]:
         assert_provenance_path_rejected(tmp_path, manifest_path, protected_path, expected)

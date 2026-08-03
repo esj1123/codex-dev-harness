@@ -10,6 +10,11 @@ import platform
 import sys
 from typing import Any
 
+try:
+    from scripts import generate_checksums as release_artifacts
+except ImportError:  # Direct script execution from scripts/.
+    import generate_checksums as release_artifacts
+
 
 sys.dont_write_bytecode = True
 
@@ -18,14 +23,11 @@ ARTIFACTS_ROOT = "artifacts"
 SCHEMA_VERSION = "1"
 TOOL_NAME = "codex-dev-harness generate_provenance.py"
 DEFAULT_PRODUCTS = [
-    "artifacts/release-manifest.json",
+    release_artifacts.DEFAULT_MANIFEST_PATH,
     "artifacts/sbom.spdx.json",
     "artifacts/sbom.cdx.json",
 ]
-PROTECTED_OUTPUT_PATHS = DEFAULT_PRODUCTS + [
-    "artifacts/checksums.sha256",
-    "artifacts/checksums.txt",
-]
+DEFAULT_PROVENANCE_PATH = "artifacts/provenance.intoto.jsonl"
 DEFAULT_COMMANDS = [
     "python scripts/generate_manifest.py --output artifacts/release-manifest.json",
     "python scripts/generate_sbom.py --manifest artifacts/release-manifest.json --spdx artifacts/sbom.spdx.json --cyclonedx artifacts/sbom.cdx.json",
@@ -65,11 +67,14 @@ def resolve_artifact_path(repo_root: Path, path_arg: str, flag_name: str) -> Pat
 
 
 def validate_provenance_paths(repo_root: Path, manifest_path: Path, output_path: Path) -> None:
-    protected_paths = [("--manifest", manifest_path.resolve())]
-    protected_paths.extend((relative_path, (repo_root / relative_path).resolve()) for relative_path in PROTECTED_OUTPUT_PATHS)
-    for protected_name, protected_path in protected_paths:
-        if output_path.resolve() == protected_path:
-            raise ValueError(f"--output must not overwrite {protected_name}")
+    if output_path.resolve() == manifest_path.resolve():
+        raise ValueError("--output must not overwrite --manifest")
+    release_artifacts.validate_release_output_path(
+        repo_root,
+        output_path,
+        allowed_reserved_paths=(DEFAULT_PROVENANCE_PATH,),
+        flag_name="--output",
+    )
 
 
 def sha256_file(path: Path) -> str:
@@ -180,7 +185,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Generate minimal local in-toto-style provenance.")
     parser.add_argument("--repo-root", default=str(REPO_ROOT), help="Repository root")
     parser.add_argument("--manifest", required=True, help="Repo-internal release manifest path under artifacts/")
-    parser.add_argument("--output", default="artifacts/provenance.intoto.jsonl", help="Repo-internal provenance output path under artifacts/")
+    parser.add_argument("--output", default=DEFAULT_PROVENANCE_PATH, help="Repo-internal provenance output path under artifacts/")
     return parser
 
 

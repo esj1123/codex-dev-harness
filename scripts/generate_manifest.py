@@ -17,6 +17,12 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 from typing import Any
+from urllib.parse import urlsplit
+
+try:
+    from scripts import generate_checksums as release_artifacts
+except ImportError:  # Direct script execution from scripts/.
+    import generate_checksums as release_artifacts
 
 
 sys.dont_write_bytecode = True
@@ -243,17 +249,55 @@ def git_tree_file_records(
     return [records[path] for path in sorted(records)]
 
 
+def _remote_host_path(remote_url: str) -> tuple[str, str] | None:
+    value = remote_url.strip()
+    if not value or any(ord(character) < 32 or ord(character) == 127 for character in value):
+        return None
+
+    try:
+        if "://" in value:
+            parsed = urlsplit(value)
+            host = parsed.hostname
+            path = parsed.path
+        else:
+            match = re.fullmatch(
+                r"(?:[^@/:\s]+@)?(?P<host>[^/:\s]+):(?P<path>[^?#]+)(?:[?#].*)?",
+                value,
+            )
+            if match is None:
+                return None
+            host = match.group("host")
+            path = match.group("path")
+    except ValueError:
+        return None
+
+    if not host:
+        return None
+    normalized_path = path.replace("\\", "/").strip("/")
+    if normalized_path.endswith(".git"):
+        normalized_path = normalized_path[:-4]
+    parts = normalized_path.split("/") if normalized_path else []
+    if (
+        not parts
+        or any(part in ("", ".", "..") for part in parts)
+        or any(any(ord(character) < 32 or ord(character) == 127 for character in part) for part in parts)
+    ):
+        return None
+    return host.lower(), "/".join(parts)
+
+
 def normalize_repository(remote_url: str | None) -> str:
     if not remote_url:
         return "UNKNOWN"
-    value = remote_url.strip()
-    if value.endswith(".git"):
-        value = value[:-4]
-    if "github.com/" in value:
-        return value.split("github.com/", 1)[1]
-    if value.startswith("git@github.com:"):
-        return value.split(":", 1)[1]
-    return value or "UNKNOWN"
+    parsed = _remote_host_path(remote_url)
+    if parsed is None:
+        return "UNKNOWN"
+    host, path = parsed
+    if host == "github.com":
+        parts = path.split("/")
+        return path if len(parts) == 2 else "UNKNOWN"
+    identity = hashlib.sha256(f"{host}/{path}".encode("utf-8")).hexdigest()[:16]
+    return f"external-repository/{identity}"
 
 
 def git_metadata(repo_root: Path) -> dict[str, str | None]:
@@ -363,6 +407,12 @@ def resolve_output_path(repo_root: Path, output_arg: str) -> Path:
         raise ValueError("--output must resolve inside the repository") from exc
     if output_path == resolved_root:
         raise ValueError("--output must name a file")
+    release_artifacts.validate_release_output_path(
+        resolved_root,
+        output_path,
+        allowed_reserved_paths=(release_artifacts.DEFAULT_MANIFEST_PATH,),
+        flag_name="--output",
+    )
     return output_path
 
 

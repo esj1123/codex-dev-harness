@@ -14,14 +14,23 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS_ROOT = "artifacts"
 DEFAULT_MANIFEST_PATH = "artifacts/release-manifest.json"
 DEFAULT_CHECKSUMS_PATH = "artifacts/checksums.sha256"
+LEGACY_CHECKSUMS_PATHS = (
+    "artifacts/checksums.txt",
+)
 REQUIRED_RELEASE_ARTIFACTS = (
-    "artifacts/release-manifest.json",
+    DEFAULT_MANIFEST_PATH,
     "artifacts/sbom.spdx.json",
     "artifacts/sbom.cdx.json",
     "artifacts/provenance.intoto.jsonl",
 )
 OPTIONAL_RELEASE_ARTIFACTS = (
     "artifacts/eval-report.json",
+)
+CHECKSUM_OUTPUT_PATHS = (DEFAULT_CHECKSUMS_PATH, *LEGACY_CHECKSUMS_PATHS)
+RESERVED_RELEASE_ARTIFACTS = tuple(
+    dict.fromkeys(
+        (*REQUIRED_RELEASE_ARTIFACTS, *CHECKSUM_OUTPUT_PATHS, *OPTIONAL_RELEASE_ARTIFACTS)
+    )
 )
 
 
@@ -74,17 +83,39 @@ def release_artifact_path(repo_root: Path, relative_path: str) -> Path:
     return (repo_root / relative_path).resolve()
 
 
+def validate_release_output_path(
+    repo_root: Path,
+    output_path: Path,
+    *,
+    allowed_reserved_paths: tuple[str, ...],
+    flag_name: str,
+) -> None:
+    resolved_output = output_path.resolve()
+    reserved_paths = {
+        release_artifact_path(repo_root, relative_path)
+        for relative_path in RESERVED_RELEASE_ARTIFACTS
+    }
+    allowed_paths = {
+        release_artifact_path(repo_root, relative_path)
+        for relative_path in allowed_reserved_paths
+    }
+    if resolved_output in reserved_paths and resolved_output not in allowed_paths:
+        raise ValueError(f"{flag_name} must not overwrite a reserved release artifact")
+
+
 def collect_release_artifacts(
     repo_root: Path,
     manifest_path: Path,
     output_path: Path,
     allow_missing: bool = False,
 ) -> list[Path]:
-    reserved_paths = {
-        release_artifact_path(repo_root, relative_path)
-        for relative_path in REQUIRED_RELEASE_ARTIFACTS + OPTIONAL_RELEASE_ARTIFACTS
-    }
-    if output_path in reserved_paths or output_path == manifest_path:
+    validate_release_output_path(
+        repo_root,
+        output_path,
+        allowed_reserved_paths=CHECKSUM_OUTPUT_PATHS,
+        flag_name="--output",
+    )
+    if output_path == manifest_path:
         raise ValueError("--output must not overwrite a release evidence artifact")
 
     required_paths = [manifest_path]

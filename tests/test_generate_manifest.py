@@ -255,3 +255,60 @@ def test_manifest_rejects_absolute_output_path(tmp_path: Path) -> None:
     output_arg = str(tmp_path / "artifacts" / "release-manifest.json")
 
     assert_output_rejected(tmp_path, output_arg, "relative path")
+
+
+@pytest.mark.parametrize(
+    ("remote", "expected"),
+    [
+        ("https://github.com/owner/repo.git", "owner/repo"),
+        ("ssh://git@github.com/owner/repo.git", "owner/repo"),
+        ("git@github.com:owner/repo.git", "owner/repo"),
+    ],
+)
+def test_manifest_normalizes_github_repository_identity(
+    remote: str,
+    expected: str,
+) -> None:
+    assert generate_manifest.normalize_repository(remote) == expected
+
+
+def test_manifest_hashes_non_github_repository_without_exposing_remote() -> None:
+    remote = "https://user:synthetic@git.example.invalid:8443/org/repo.git?token=synthetic#fragment"
+    expected_hash = hashlib.sha256(
+        b"git.example.invalid/org/repo"
+    ).hexdigest()[:16]
+
+    identity = generate_manifest.normalize_repository(remote)
+
+    assert identity == f"external-repository/{expected_hash}"
+    assert "user" not in identity
+    assert "synthetic" not in identity
+    assert "token" not in identity
+    assert "git.example.invalid" not in identity
+
+
+@pytest.mark.parametrize("remote", [None, "", "not-a-remote", "file:///tmp/repo.git"])
+def test_manifest_uses_unknown_for_unparseable_repository(remote: str | None) -> None:
+    assert generate_manifest.normalize_repository(remote) == "UNKNOWN"
+
+
+def test_manifest_allows_only_its_reserved_output_or_custom_output(
+    tmp_path: Path,
+) -> None:
+    canonical = generate_manifest.resolve_output_path(
+        tmp_path,
+        "artifacts/release-manifest.json",
+    )
+    custom = generate_manifest.resolve_output_path(tmp_path, "artifacts/custom-manifest.json")
+
+    assert canonical == (tmp_path / "artifacts" / "release-manifest.json").resolve()
+    assert custom == (tmp_path / "artifacts" / "custom-manifest.json").resolve()
+    for reserved in [
+        "artifacts/checksums.sha256",
+        "artifacts/checksums.txt",
+        "artifacts/sbom.spdx.json",
+        "artifacts/sbom.cdx.json",
+        "artifacts/provenance.intoto.jsonl",
+        "artifacts/eval-report.json",
+    ]:
+        assert_output_rejected(tmp_path, reserved, "reserved release artifact")

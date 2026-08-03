@@ -62,9 +62,7 @@ def test_spdx_uses_manifest_files_and_repository_license(tmp_path: Path) -> None
     manifest_path = write_manifest(tmp_path)
     write(tmp_path / "LICENSE", MIT_LICENSE_TEXT)
     write(tmp_path / "requirements-dev.txt", "pytest>=9\n")
-    checksums = [{"path": "artifacts/release-manifest.json", "sha256": "c" * 64}]
-
-    spdx = generate_sbom.build_spdx(sample_manifest(), manifest_path, tmp_path, checksums, "2026-01-01T00:00:00Z")
+    spdx = generate_sbom.build_spdx(sample_manifest(), manifest_path, tmp_path, "2026-01-01T00:00:00Z")
 
     assert spdx["spdxVersion"] == "SPDX-2.3"
     assert any(file_entry["fileName"] == "README.md" for file_entry in spdx["files"])
@@ -73,7 +71,7 @@ def test_spdx_uses_manifest_files_and_repository_license(tmp_path: Path) -> None
     assert repository_package["licenseConcluded"] == "MIT"
     assert repository_package["copyrightText"] == "Copyright (c) 2026 esj1123"
     assert any(package["name"] == "pytest" and package["licenseDeclared"] == "UNKNOWN" for package in spdx["packages"])
-    assert "checksum_entries=1" in spdx["annotations"][0]["comment"]
+    assert "checksum_entries" not in spdx["annotations"][0]["comment"]
 
 
 def test_cyclonedx_uses_manifest_files_and_dev_dependencies(tmp_path: Path) -> None:
@@ -81,13 +79,39 @@ def test_cyclonedx_uses_manifest_files_and_dev_dependencies(tmp_path: Path) -> N
     write(tmp_path / "LICENSE", MIT_LICENSE_TEXT)
     write(tmp_path / "requirements-dev.txt", "pytest==9.0.3\n")
 
-    cdx = generate_sbom.build_cyclonedx(sample_manifest(), manifest_path, tmp_path, [], "2026-01-01T00:00:00Z")
+    cdx = generate_sbom.build_cyclonedx(sample_manifest(), manifest_path, tmp_path, "2026-01-01T00:00:00Z")
 
     assert cdx["bomFormat"] == "CycloneDX"
     assert cdx["metadata"]["component"]["name"] == "esj1123/codex-dev-harness"
     assert cdx["metadata"]["component"]["licenses"] == [{"license": {"id": "MIT"}}]
     assert any(component["type"] == "file" and component["name"] == "README.md" for component in cdx["components"])
     assert any(component["type"] == "library" and component["name"] == "pytest" for component in cdx["components"])
+    assert all(
+        property_entry["name"] != "checksum_entries"
+        for property_entry in cdx["metadata"]["component"]["properties"]
+    )
+
+
+def test_sbom_bytes_do_not_depend_on_checksum_file_state(tmp_path: Path) -> None:
+    manifest_path = write_manifest(tmp_path)
+    checksum_path = tmp_path / "artifacts" / "checksums.sha256"
+    created = "2026-01-01T00:00:00Z"
+
+    def rendered() -> tuple[bytes, bytes]:
+        spdx = generate_sbom.build_spdx(sample_manifest(), manifest_path, tmp_path, created)
+        cdx = generate_sbom.build_cyclonedx(sample_manifest(), manifest_path, tmp_path, created)
+        return (
+            (json.dumps(spdx, indent=2) + "\n").encode("utf-8"),
+            (json.dumps(cdx, indent=2) + "\n").encode("utf-8"),
+        )
+
+    absent = rendered()
+    write(checksum_path, "0" * 64 + "  artifacts/release-manifest.json\n")
+    stale = rendered()
+    write(checksum_path, "f" * 64 + "  artifacts/release-manifest.json\n")
+    current = rendered()
+
+    assert absent == stale == current
 
 
 def test_current_repository_license_is_detected_as_mit() -> None:
@@ -135,10 +159,32 @@ def test_sbom_rejects_overlapping_artifact_paths(tmp_path: Path) -> None:
     cyclonedx_path = tmp_path / "artifacts" / "sbom.cdx.json"
 
     generate_sbom.validate_sbom_paths(tmp_path, manifest_path, spdx_path, cyclonedx_path)
+    generate_sbom.validate_sbom_paths(
+        tmp_path,
+        manifest_path,
+        tmp_path / "artifacts" / "custom-spdx.json",
+        tmp_path / "artifacts" / "custom-cyclonedx.json",
+    )
     assert_sbom_paths_rejected(tmp_path, manifest_path, manifest_path, cyclonedx_path, "--manifest")
-    assert_sbom_paths_rejected(tmp_path, manifest_path, checksums_path, cyclonedx_path, "checksums.sha256")
-    assert_sbom_paths_rejected(tmp_path, manifest_path, checksums_txt_path, cyclonedx_path, "checksums.txt")
-    assert_sbom_paths_rejected(tmp_path, manifest_path, provenance_path, cyclonedx_path, "provenance.intoto.jsonl")
+    assert_sbom_paths_rejected(tmp_path, manifest_path, checksums_path, cyclonedx_path, "reserved release artifact")
+    assert_sbom_paths_rejected(tmp_path, manifest_path, checksums_txt_path, cyclonedx_path, "reserved release artifact")
+    assert_sbom_paths_rejected(tmp_path, manifest_path, provenance_path, cyclonedx_path, "reserved release artifact")
     assert_sbom_paths_rejected(tmp_path, manifest_path, spdx_path, manifest_path, "--manifest")
-    assert_sbom_paths_rejected(tmp_path, manifest_path, spdx_path, checksums_path, "checksums.sha256")
-    assert_sbom_paths_rejected(tmp_path, manifest_path, spdx_path, spdx_path, "--spdx")
+    assert_sbom_paths_rejected(tmp_path, manifest_path, spdx_path, checksums_path, "reserved release artifact")
+    assert_sbom_paths_rejected(tmp_path, manifest_path, spdx_path, spdx_path, "reserved release artifact")
+
+    for reserved in [
+        manifest_path,
+        checksums_path,
+        checksums_txt_path,
+        provenance_path,
+        tmp_path / "artifacts" / "eval-report.json",
+        cyclonedx_path,
+    ]:
+        assert_sbom_paths_rejected(
+            tmp_path,
+            manifest_path,
+            reserved,
+            cyclonedx_path,
+            "manifest" if reserved == manifest_path else "reserved release artifact",
+        )

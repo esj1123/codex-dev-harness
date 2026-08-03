@@ -157,6 +157,33 @@ def test_checksums_reject_release_artifact_output_overlap(tmp_path: Path) -> Non
             raise AssertionError(f"checksum output should not overwrite {output}")
 
 
+def test_reserved_release_artifact_registry_is_complete_and_checksum_owned(
+    tmp_path: Path,
+) -> None:
+    assert generate_checksums.RESERVED_RELEASE_ARTIFACTS == (
+        "artifacts/release-manifest.json",
+        "artifacts/sbom.spdx.json",
+        "artifacts/sbom.cdx.json",
+        "artifacts/provenance.intoto.jsonl",
+        "artifacts/checksums.sha256",
+        "artifacts/checksums.txt",
+        "artifacts/eval-report.json",
+    )
+    for relative_path in generate_checksums.CHECKSUM_OUTPUT_PATHS:
+        generate_checksums.validate_release_output_path(
+            tmp_path,
+            tmp_path / relative_path,
+            allowed_reserved_paths=generate_checksums.CHECKSUM_OUTPUT_PATHS,
+            flag_name="--output",
+        )
+    generate_checksums.validate_release_output_path(
+        tmp_path,
+        tmp_path / "artifacts" / "custom-checksums.sha256",
+        allowed_reserved_paths=generate_checksums.CHECKSUM_OUTPUT_PATHS,
+        flag_name="--output",
+    )
+
+
 def test_checksums_fail_when_required_artifact_is_missing(tmp_path: Path) -> None:
     manifest = tmp_path / "artifacts" / "release-manifest.json"
     output = tmp_path / "artifacts" / "checksums.sha256"

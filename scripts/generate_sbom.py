@@ -10,6 +10,11 @@ import re
 import sys
 from typing import Any
 
+try:
+    from scripts import generate_checksums as release_artifacts
+except ImportError:  # Direct script execution from scripts/.
+    import generate_checksums as release_artifacts
+
 
 sys.dont_write_bytecode = True
 
@@ -17,7 +22,9 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS_ROOT = "artifacts"
 SCHEMA_VERSION = "1"
 TOOL_NAME = "codex-dev-harness generate_sbom.py"
-DEFAULT_CHECKSUMS_PATH = "artifacts/checksums.sha256"
+DEFAULT_MANIFEST_PATH = "artifacts/release-manifest.json"
+DEFAULT_SPDX_PATH = "artifacts/sbom.spdx.json"
+DEFAULT_CYCLONEDX_PATH = "artifacts/sbom.cdx.json"
 MIT_LICENSE_ID = "MIT"
 MIT_COPYRIGHT_TEXT = "Copyright (c) 2026 esj1123"
 MIT_LICENSE_MARKERS = (
@@ -27,13 +34,6 @@ MIT_LICENSE_MARKERS = (
     "The above copyright notice and this permission notice shall be included",
     'THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND',
 )
-PROTECTED_RELEASE_ARTIFACT_PATHS = [
-    DEFAULT_CHECKSUMS_PATH,
-    "artifacts/checksums.txt",
-    "artifacts/provenance.intoto.jsonl",
-]
-
-
 def relpath(path: Path, repo_root: Path) -> str:
     return path.relative_to(repo_root).as_posix()
 
@@ -69,19 +69,23 @@ def resolve_artifact_path(repo_root: Path, path_arg: str, flag_name: str) -> Pat
 
 
 def validate_sbom_paths(repo_root: Path, manifest_path: Path, spdx_path: Path, cyclonedx_path: Path) -> None:
-    protected_paths = [
-        ("--manifest", manifest_path.resolve()),
-    ]
-    protected_paths.extend((relative_path, (repo_root / relative_path).resolve()) for relative_path in PROTECTED_RELEASE_ARTIFACT_PATHS)
-    output_paths = [
-        ("--spdx", spdx_path.resolve()),
-        ("--cyclonedx", cyclonedx_path.resolve()),
-    ]
-    for output_name, output_path in output_paths:
-        for protected_name, protected_path in protected_paths:
-            if output_path == protected_path:
-                raise ValueError(f"{output_name} must not overwrite {protected_name}")
-    if output_paths[0][1] == output_paths[1][1]:
+    if spdx_path.resolve() == manifest_path.resolve():
+        raise ValueError("--spdx must not overwrite --manifest")
+    if cyclonedx_path.resolve() == manifest_path.resolve():
+        raise ValueError("--cyclonedx must not overwrite --manifest")
+    release_artifacts.validate_release_output_path(
+        repo_root,
+        spdx_path,
+        allowed_reserved_paths=(DEFAULT_SPDX_PATH,),
+        flag_name="--spdx",
+    )
+    release_artifacts.validate_release_output_path(
+        repo_root,
+        cyclonedx_path,
+        allowed_reserved_paths=(DEFAULT_CYCLONEDX_PATH,),
+        flag_name="--cyclonedx",
+    )
+    if spdx_path.resolve() == cyclonedx_path.resolve():
         raise ValueError("--spdx must not overlap --cyclonedx")
 
 
@@ -97,19 +101,6 @@ def sha256_file(path: Path) -> str:
 
 def load_manifest(manifest_path: Path) -> dict[str, Any]:
     return json.loads(manifest_path.read_text(encoding="utf-8"))
-
-
-def read_checksums(checksums_path: Path, repo_root: Path) -> list[dict[str, str]]:
-    if not checksums_path.is_file():
-        return []
-    entries: list[dict[str, str]] = []
-    for line in checksums_path.read_text(encoding="utf-8").splitlines():
-        if not line.strip():
-            continue
-        digest, _, path = line.partition("  ")
-        if digest and path:
-            entries.append({"path": path, "sha256": digest})
-    return sorted(entries, key=lambda entry: entry["path"])
 
 
 def parse_requirement_line(line: str) -> dict[str, str] | None:
@@ -172,7 +163,6 @@ def build_spdx(
     manifest: dict[str, Any],
     manifest_path: Path,
     repo_root: Path,
-    checksums: list[dict[str, str]],
     created_at: str | None = None,
 ) -> dict[str, Any]:
     created = created_at or utc_now()
@@ -246,7 +236,7 @@ def build_spdx(
                 "annotationDate": created,
                 "annotationType": "OTHER",
                 "annotator": f"Tool: {TOOL_NAME}",
-                "comment": f"manifest={relpath(manifest_path, repo_root)} sha256={manifest_digest}; checksum_entries={len(checksums)}",
+                "comment": f"manifest={relpath(manifest_path, repo_root)} sha256={manifest_digest}",
             }
         ],
     }
@@ -256,7 +246,6 @@ def build_cyclonedx(
     manifest: dict[str, Any],
     manifest_path: Path,
     repo_root: Path,
-    checksums: list[dict[str, str]],
     created_at: str | None = None,
 ) -> dict[str, Any]:
     created = created_at or utc_now()
@@ -294,7 +283,6 @@ def build_cyclonedx(
             {"name": "git_ref", "value": str(manifest.get("git_ref") or "UNKNOWN")},
             {"name": "manifest_path", "value": relpath(manifest_path, repo_root)},
             {"name": "manifest_sha256", "value": manifest_digest},
-            {"name": "checksum_entries", "value": str(len(checksums))},
         ],
     }
     if repo_license != "UNKNOWN":
@@ -330,8 +318,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Generate minimal local SPDX and CycloneDX SBOM artifacts.")
     parser.add_argument("--repo-root", default=str(REPO_ROOT), help="Repository root")
     parser.add_argument("--manifest", required=True, help="Repo-internal release manifest path under artifacts/")
-    parser.add_argument("--spdx", default="artifacts/sbom.spdx.json", help="Repo-internal SPDX output path under artifacts/")
-    parser.add_argument("--cyclonedx", default="artifacts/sbom.cdx.json", help="Repo-internal CycloneDX output path under artifacts/")
+    parser.add_argument("--spdx", default=DEFAULT_SPDX_PATH, help="Repo-internal SPDX output path under artifacts/")
+    parser.add_argument("--cyclonedx", default=DEFAULT_CYCLONEDX_PATH, help="Repo-internal CycloneDX output path under artifacts/")
     return parser
 
 
@@ -348,10 +336,9 @@ def main(argv: list[str] | None = None) -> int:
         parser.error(str(exc))
 
     manifest = load_manifest(manifest_path)
-    checksums = read_checksums(repo_root / DEFAULT_CHECKSUMS_PATH, repo_root)
     created = utc_now()
-    write_json(build_spdx(manifest, manifest_path, repo_root, checksums, created), spdx_path)
-    write_json(build_cyclonedx(manifest, manifest_path, repo_root, checksums, created), cyclonedx_path)
+    write_json(build_spdx(manifest, manifest_path, repo_root, created), spdx_path)
+    write_json(build_cyclonedx(manifest, manifest_path, repo_root, created), cyclonedx_path)
     print(f"Wrote SPDX SBOM: {relpath(spdx_path, repo_root)}")
     print(f"Wrote CycloneDX SBOM: {relpath(cyclonedx_path, repo_root)}")
     print(f"Manifest files represented: {len(manifest_files(manifest))}")
