@@ -17,9 +17,9 @@ target behavior. Dispatch requires a lowercase 40-character `expected_sha`;
 checkout uses that exact ref and fails before verification if the observed HEAD
 does not match. Checkout and Python setup actions are pinned to immutable
 commit SHAs, checkout credentials are not persisted, and hosted Windows
-verification uses exact Python `3.12.10`. The preferred local runtime remains
-Python `3.12.13`; later Python 3.12 security-only releases do not provide the
-Windows binaries required by `setup-python`.
+verification uses exact Python `3.12.10`. The preferred local runtime is the
+same exact Python `3.12.10`, so local V2 and hosted V3 share one executable
+version contract.
 
 The workflow also runs exactly `python scripts/run_eval.py` without report
 flags after pytest and before the quality gate. This is console-only validation:

@@ -52,7 +52,7 @@ remain available in Git history and `ACCEPTANCE_TRACE.md`.
   feature, critical, review, and integration work to explicit reasoning
   profiles. Requested model selection is recorded as adapter evidence and is
   not represented as independently observed provider state.
-- Local verification rejects Python versions other than `3.12.13`, requires
+- Local verification rejects Python versions other than `3.12.10`, requires
   every locked development package at its exact version, and runs `pip check`
   before pytest.
 - Baseline adoption trust chain:

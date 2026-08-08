@@ -2,6 +2,8 @@ import hashlib
 import json
 from pathlib import Path
 
+import pytest
+
 from scripts import run_eval
 
 
@@ -242,11 +244,14 @@ def test_forbidden_artifacts_detects_application_file(tmp_path: Path) -> None:
     assert any("App.csproj" in message for message in result.messages)
 
 
-def test_forbidden_artifacts_ignores_root_local(tmp_path: Path) -> None:
-    write(tmp_path / "local/examples/demo/App.csproj", "<Project />\n")
+@pytest.mark.parametrize("root_name", ["local", ".venv"])
+def test_forbidden_artifacts_ignores_tool_root(
+    tmp_path: Path, root_name: str
+) -> None:
+    write(tmp_path / root_name / "examples/demo/App.csproj", "<Project />\n")
     case = {
         "eval": "forbidden_artifacts",
-        "ignored_root_parts": ["local"],
+        "ignored_root_parts": [root_name],
         "forbidden_path_globs": ["examples/**/*.csproj"],
         "forbidden_suffixes": [".csproj"],
         "text_suffixes": [".md", ".yml"],

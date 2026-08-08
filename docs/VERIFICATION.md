@@ -27,9 +27,10 @@ Recommended local command:
 
 `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1`
 
-The wrapper runs full pytest, the no-report standalone eval, the quality gate,
-and all three example render dry-runs in that order. It does not write rendered
-files and does not use `--force`.
+The wrapper runs full pytest with the 50 slowest durations and skip reasons,
+the no-report standalone eval, the quality gate, and all three example render
+dry-runs in that order. It does not write rendered files and does not use
+`--force`.
 
 ## Read-Only CI Verification Flow
 
@@ -51,9 +52,8 @@ running checks. It mirrors the non-release local verification subset:
 
 It installs the exact development set from `requirements-dev.lock`, runs
 `python -m pip check`, and uses Python `3.12.10`, the final Python 3.12 release
-with Windows binary installers. The preferred local runtime remains Python
-`3.12.13` as declared in `.python-version`; that security-only source release
-is not available to the hosted Windows runner through `setup-python`.
+with Windows binary installers. Local V2 and hosted V3 both require that exact
+patch version as declared in `.python-version`.
 Third-party actions are pinned to immutable commit SHAs, checkout credentials
 are not persisted, and the workflow retains only `contents: read`.
 
@@ -119,11 +119,10 @@ that distinction honestly instead of treating it as a failure:
 The preferred local verification runtime is pinned in `.python-version` and
 documented in `docs/PYTHON_RUNTIME_POLICY.md`.
 
-The hosted Windows V3 workflow uses the exact compatible Python `3.12.10`
-runtime because later Python 3.12 security releases do not provide Windows
-binary installers. Both local V2 and hosted V3 remain within Python 3.12, use
-the same exact development dependency lock, and report the resolved runtime in
-their console output.
+The hosted Windows V3 workflow and local V2 use exact Python `3.12.10`, the
+final Python 3.12 release with Windows binary installers. Both use the same
+exact development dependency lock and report the resolved runtime in their
+console output.
 
 Use `requirements-dev.txt` only when intentionally resolving the standard
 local development requirement:
@@ -161,9 +160,9 @@ Run:
 
 If bare `python.exe` is blocked in a Codex desktop Windows shell, use the
 documented local verification runtime selected by `scripts/run_local_verify.ps1`.
-In the current Codex desktop environment this is typically:
+The preferred local path is:
 
-`$HOME\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe`
+`.venv\Scripts\python.exe`
 
 Report the bare Python command as ENVIRONMENT BLOCKED when this fallback is
 needed.

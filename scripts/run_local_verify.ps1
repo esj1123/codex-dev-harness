@@ -9,6 +9,12 @@ function Find-Python {
     if ($env:PYTHON) {
         $candidates += $env:PYTHON
     }
+
+    $repoVenvPython = Join-Path $RepoRoot ".venv\Scripts\python.exe"
+    if (Test-Path -LiteralPath $repoVenvPython) {
+        $candidates += $repoVenvPython
+    }
+
     $candidates += "python"
     $candidates += "py"
 
@@ -57,7 +63,7 @@ function Invoke-PythonStep {
 }
 
 Invoke-PythonStep "development environment" @("scripts/verify_dev_environment.py", "--expected-version-file", ".python-version", "--lock", "requirements-dev.lock", "--json")
-Invoke-PythonStep "pytest" @("-m", "pytest", "tests")
+Invoke-PythonStep "pytest" @("-m", "pytest", "tests", "--durations=50", "-rs")
 Invoke-PythonStep "standalone eval" @("scripts/run_eval.py")
 Invoke-PythonStep "quality gate" @("scripts/quality_gate.py")
 Invoke-PythonStep "python_cli_minimal render dry-run" @("scripts/render_template.py", "--config", "examples/python_cli_minimal/template.config.yml", "--target", "examples/python_cli_minimal", "--dry-run")

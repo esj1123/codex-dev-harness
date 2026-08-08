@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+import subprocess
 
 import pytest
 
@@ -634,6 +635,30 @@ def test_repo_hygiene_gate_ignores_local_workspace(tmp_path: Path) -> None:
     result = repo_hygiene_gate.run(tmp_path)
 
     assert result.passed is True
+
+
+def test_repo_hygiene_gate_ignores_untracked_root_venv(tmp_path: Path) -> None:
+    write(tmp_path / ".venv" / "pyvenv.cfg", "home = synthetic\n")
+
+    result = repo_hygiene_gate.run(tmp_path)
+
+    assert result.passed is True
+
+
+def test_repo_hygiene_gate_rejects_force_tracked_root_venv(tmp_path: Path) -> None:
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    write(tmp_path / ".venv" / "pyvenv.cfg", "home = synthetic\n")
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "add", "-f", ".venv/pyvenv.cfg"],
+        check=True,
+    )
+
+    result = repo_hygiene_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert result.messages == [
+        f"prohibited tracked root: {Path('.venv/pyvenv.cfg')}"
+    ]
 
 
 def test_repo_hygiene_gate_checks_nested_local_named_folders(tmp_path: Path) -> None:

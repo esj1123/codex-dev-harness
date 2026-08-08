@@ -44,6 +44,12 @@ function Find-Python {
     if ($env:PYTHON) {
         $candidates += $env:PYTHON
     }
+
+    $repoVenvPython = Join-Path $RepoRoot ".venv\Scripts\python.exe"
+    if (Test-Path -LiteralPath $repoVenvPython) {
+        $candidates += $repoVenvPython
+    }
+
     $candidates += "python"
     $candidates += "py"
 

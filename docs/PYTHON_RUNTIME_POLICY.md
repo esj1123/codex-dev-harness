@@ -13,12 +13,12 @@ deployment behavior, application code, device code, or live target behavior.
 
 The repository pins the local verification runtime in `.python-version`:
 
-- Python `3.12.13`
+- Python `3.12.10`
 
-This pin matches the currently used local verification runtime in the Codex
-desktop environment. Contributors may use another compatible Python 3.12
-runtime for local work, but release evidence and reproducibility reviews should
-prefer the pinned version when practical.
+This pin matches the hosted Windows verification runtime and the final Python
+3.12 release with Windows binary installers. Contributors may use another
+compatible Python 3.12 runtime for focused local work, but exact V2 and V3
+verification require the pinned patch version.
 
 ## Development Dependencies
 
@@ -57,11 +57,23 @@ python -m pip install -r requirements-dev.lock
 python -m pip check
 ```
 
+On Windows, create an ignored repository-local environment with the pinned
+runtime when practical:
+
+```powershell
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements-dev.lock
+```
+
+An explicit `PYTHON` environment variable has first selection priority. The
+verification wrappers then consider `.venv\Scripts\python.exe`, system
+`python`, the Python launcher, and the Codex bundled fallback in that order.
+
 Focused work may then run its scoped pytest command. The Local Verify wrapper
 uses the exact environment and runs, in order:
 
 ```powershell
-python -m pytest tests
+python -m pytest tests --durations=50 -rs
 python scripts/run_eval.py
 python scripts/quality_gate.py
 ```
@@ -100,6 +112,6 @@ present. The manifest records them as file inventory evidence only; dependency
 changes remain governed by the lock update rule above.
 
 Bare `python.exe` may be unavailable in some Codex desktop Windows shells. In
-that case, verification may use the local runtime selected by
-`scripts/run_local_verify.ps1` and should report the bare Python command as
-ENVIRONMENT BLOCKED.
+that case, verification may use the repository-local environment or another
+runtime selected by `scripts/run_local_verify.ps1` and should report the bare
+Python command as ENVIRONMENT BLOCKED.
