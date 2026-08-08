@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import importlib.metadata
 import json
 import os
 from pathlib import Path
@@ -12,6 +11,18 @@ from types import SimpleNamespace
 import pytest
 
 from scripts import verify_dev_environment as gate
+
+
+def set_installed_distributions(
+    monkeypatch: pytest.MonkeyPatch, packages: list[tuple[object, object]]
+) -> None:
+    distributions = [
+        SimpleNamespace(metadata={"Name": name}, version=version)
+        for name, version in packages
+    ]
+    monkeypatch.setattr(
+        gate.importlib.metadata, "distributions", lambda: iter(distributions)
+    )
 
 
 def test_version_only_requires_exact_patch_version(monkeypatch) -> None:
@@ -27,8 +38,10 @@ def test_version_only_requires_exact_patch_version(monkeypatch) -> None:
 
 def test_lock_packages_and_pip_check_are_enforced(monkeypatch) -> None:
     monkeypatch.setattr(gate.sys, "version_info", (3, 12, 10))
-    versions = {"pytest": "9.0.3", "pluggy": "1.6.0"}
-    monkeypatch.setattr(gate.importlib.metadata, "version", versions.__getitem__)
+    set_installed_distributions(
+        monkeypatch,
+        [("pytest", "9.0.3"), ("pluggy", "1.6.0"), ("pip", "25.0.1")],
+    )
     monkeypatch.setattr(gate, "run_pip_check", lambda: "PASS")
 
     result = gate.inspect_environment(
@@ -52,12 +65,8 @@ def test_missing_or_mismatched_lock_package_fails(
 ) -> None:
     monkeypatch.setattr(gate.sys, "version_info", (3, 12, 10))
 
-    def version(name: str) -> str:
-        if name not in observed:
-            raise importlib.metadata.PackageNotFoundError(name)
-        return observed[name]
-
-    monkeypatch.setattr(gate.importlib.metadata, "version", version)
+    installed = [(name, version) for name, version in observed.items()]
+    set_installed_distributions(monkeypatch, installed + [("pip", "25.0.1")])
     result = gate.inspect_environment(
         "3.12.10", {"pytest": "9.0.3"}, version_only=False
     )
@@ -65,6 +74,78 @@ def test_missing_or_mismatched_lock_package_fails(
     assert result["status"] == "FAIL"
     assert result["reason_codes"] == [reason]
     assert result["environment"]["pip_check"] == "NOT RUN"
+
+
+def test_unexpected_distribution_fails_closed(monkeypatch) -> None:
+    monkeypatch.setattr(gate.sys, "version_info", (3, 12, 10))
+    set_installed_distributions(
+        monkeypatch,
+        [("pytest", "9.0.3"), ("pip", "25.0.1"), ("wheel", "0.46.0")],
+    )
+
+    result = gate.inspect_environment(
+        "3.12.10", {"pytest": "9.0.3"}, version_only=False
+    )
+
+    assert result["status"] == "FAIL"
+    assert result["reason_codes"] == ["LOCK_PACKAGE_UNEXPECTED"]
+    assert result["environment"]["pip_check"] == "NOT RUN"
+
+
+def test_distribution_names_are_normalized_before_membership_check(monkeypatch) -> None:
+    monkeypatch.setattr(gate.sys, "version_info", (3, 12, 10))
+    set_installed_distributions(
+        monkeypatch, [("Py_Test", "9.0.3"), ("PIP", "25.0.1")]
+    )
+    monkeypatch.setattr(gate, "run_pip_check", lambda: "PASS")
+
+    result = gate.inspect_environment(
+        "3.12.10", {"py-test": "9.0.3"}, version_only=False
+    )
+
+    assert result["status"] == "PASS"
+
+
+def test_duplicate_normalized_distribution_fails_closed(monkeypatch) -> None:
+    monkeypatch.setattr(gate.sys, "version_info", (3, 12, 10))
+    set_installed_distributions(
+        monkeypatch,
+        [("Py_Test", "9.0.3"), ("py-test", "9.0.3"), ("pip", "25.0.1")],
+    )
+
+    result = gate.inspect_environment(
+        "3.12.10", {"py-test": "9.0.3"}, version_only=False
+    )
+
+    assert result["status"] == "FAIL"
+    assert result["reason_codes"] == ["LOCK_PACKAGE_DUPLICATE"]
+
+
+def test_malformed_distribution_metadata_fails_closed(monkeypatch) -> None:
+    monkeypatch.setattr(gate.sys, "version_info", (3, 12, 10))
+    set_installed_distributions(
+        monkeypatch,
+        [(None, "9.0.3"), ("pytest", "9.0.3"), ("pip", "25.0.1")],
+    )
+
+    result = gate.inspect_environment(
+        "3.12.10", {"pytest": "9.0.3"}, version_only=False
+    )
+
+    assert result["status"] == "FAIL"
+    assert result["reason_codes"] == ["DISTRIBUTION_METADATA_INVALID"]
+
+
+def test_missing_bootstrap_pip_fails_closed(monkeypatch) -> None:
+    monkeypatch.setattr(gate.sys, "version_info", (3, 12, 10))
+    set_installed_distributions(monkeypatch, [("pytest", "9.0.3")])
+
+    result = gate.inspect_environment(
+        "3.12.10", {"pytest": "9.0.3"}, version_only=False
+    )
+
+    assert result["status"] == "FAIL"
+    assert result["reason_codes"] == ["BOOTSTRAP_PACKAGE_MISSING"]
 
 
 def test_lock_parser_is_exact_and_deterministic(tmp_path: Path) -> None:

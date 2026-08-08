@@ -57,26 +57,35 @@ jobs:
       - name: Show Python version
         run: python --version
 
+      - name: Create repository verification environment
+        run: python -m venv .venv
+
+      - name: Show verification Python version
+        run: .\.venv\Scripts\python.exe --version
+
       - name: Install development requirements
-        run: python -m pip install --require-hashes --only-binary=:all: -r requirements-dev.lock
+        run: .\.venv\Scripts\python.exe -m pip install --require-hashes --only-binary=:all: -r requirements-dev.lock
+
+      - name: Verify exact development environment
+        run: .\.venv\Scripts\python.exe scripts/verify_dev_environment.py --expected-version-file .python-version --lock requirements-dev.lock --json
 
       - name: Check development dependencies
-        run: python -m pip check
+        run: .\.venv\Scripts\python.exe -m pip check
 
       - name: Run tests
-        run: python -m pytest tests --durations=50 -rs
+        run: .\.venv\Scripts\python.exe -m pytest tests --durations=50 -rs
 
       - name: Run standalone evals
-        run: python scripts/run_eval.py
+        run: .\.venv\Scripts\python.exe scripts/run_eval.py
 
       - name: Run quality gate
-        run: python scripts/quality_gate.py
+        run: .\.venv\Scripts\python.exe scripts/quality_gate.py
 
       - name: Render python_cli example dry-run
-        run: python scripts/render_template.py --config examples/python_cli_minimal/template.config.yml --target examples/python_cli_minimal --dry-run
+        run: .\.venv\Scripts\python.exe scripts/render_template.py --config examples/python_cli_minimal/template.config.yml --target examples/python_cli_minimal --dry-run
 
       - name: Render csharp_desktop example dry-run
-        run: python scripts/render_template.py --config examples/csharp_desktop_minimal/template.config.yml --target examples/csharp_desktop_minimal --dry-run
+        run: .\.venv\Scripts\python.exe scripts/render_template.py --config examples/csharp_desktop_minimal/template.config.yml --target examples/csharp_desktop_minimal --dry-run
 
       - name: Render plc_tool example dry-run
-        run: python scripts/render_template.py --config examples/plc_tool_minimal/template.config.yml --target examples/plc_tool_minimal --dry-run
+        run: .\.venv\Scripts\python.exe scripts/render_template.py --config examples/plc_tool_minimal/template.config.yml --target examples/plc_tool_minimal --dry-run

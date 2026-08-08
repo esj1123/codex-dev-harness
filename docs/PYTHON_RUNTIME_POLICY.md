@@ -36,8 +36,10 @@ device, C#, PLC, cloud deployment, or live-target dependencies.
 `requirements-dev.lock` is a pip-compatible exact pin and SHA-256 hash set for
 reproducing the Windows x64 local verification dependency environment. It
 includes `pytest` and the pytest dependency packages observed in the local
-verification runtime. It intentionally excludes unrelated packages bundled
-with the Codex desktop runtime.
+verification runtime. Exact verification permits only those locked packages
+plus the bootstrap `pip` distribution supplied by the isolated environment.
+Any other installed distribution, including an unrelated package bundled with
+another Python runtime, fails the environment gate.
 
 ## Recommended Commands
 
@@ -54,6 +56,7 @@ exact V2 verification run:
 ```powershell
 python --version
 python -m pip install --require-hashes --only-binary=:all: -r requirements-dev.lock
+python scripts/verify_dev_environment.py --expected-version-file .python-version --lock requirements-dev.lock --json
 python -m pip check
 ```
 
@@ -67,7 +70,9 @@ python -m venv .venv
 
 An explicit `PYTHON` environment variable has first selection priority. The
 verification wrappers then consider `.venv\Scripts\python.exe`, system
-`python`, the Python launcher, and the Codex bundled fallback in that order.
+`python`, the Python 3.12 launcher, and the Codex bundled fallback in that
+order. Every selected interpreter must expose exactly the locked distributions
+plus bootstrap `pip`; selection priority is not an environment-check bypass.
 
 Focused work may then run its scoped pytest command. The Local Verify wrapper
 uses the exact environment and runs, in order:

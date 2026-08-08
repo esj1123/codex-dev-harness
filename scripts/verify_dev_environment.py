@@ -25,6 +25,8 @@ LOCK_LINE = re.compile(
 )
 LOCK_HASH = re.compile(r"^--hash=sha256:(?P<digest>[0-9a-f]{64})$")
 VERSION_LINE = re.compile(r"^\d+\.\d+\.\d+$")
+PACKAGE_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
+BOOTSTRAP_PACKAGES = frozenset({"pip"})
 
 
 class EnvironmentContractError(ValueError):
@@ -70,6 +72,10 @@ def read_expected_version(path: Path) -> str:
     return value
 
 
+def normalize_package_name(value: str) -> str:
+    return re.sub(r"[-_.]+", "-", value).lower()
+
+
 def parse_lock_text(value: str) -> dict[str, LockedRequirement]:
     lines = value.splitlines()
     logical_lines: list[str] = []
@@ -103,7 +109,7 @@ def parse_lock_text(value: str) -> dict[str, LockedRequirement]:
             hashes.append(digest)
         if not hashes:
             raise EnvironmentContractError(("LOCK_HASH_MISSING",))
-        normalized = re.sub(r"[-_.]+", "-", match.group("name")).lower()
+        normalized = normalize_package_name(match.group("name"))
         if normalized in packages:
             raise EnvironmentContractError(("LOCK_PACKAGE_DUPLICATE",))
         packages[normalized] = LockedRequirement(
@@ -144,6 +150,32 @@ def run_pip_check() -> str:
     return "PASS" if result.returncode == 0 else "FAIL"
 
 
+def installed_distribution_inventory() -> tuple[dict[str, str], list[str]]:
+    inventory: dict[str, str] = {}
+    reason_codes: list[str] = []
+    try:
+        for distribution in importlib.metadata.distributions():
+            name = distribution.metadata["Name"]
+            version = distribution.version
+            if (
+                not isinstance(name, str)
+                or PACKAGE_NAME.fullmatch(name) is None
+                or not isinstance(version, str)
+                or not version
+                or len(version) > 128
+            ):
+                reason_codes.append("DISTRIBUTION_METADATA_INVALID")
+                continue
+            normalized = normalize_package_name(name)
+            if normalized in inventory:
+                reason_codes.append("LOCK_PACKAGE_DUPLICATE")
+                continue
+            inventory[normalized] = version
+    except Exception:
+        reason_codes.append("DISTRIBUTION_METADATA_INVALID")
+    return inventory, reason_codes
+
+
 def inspect_environment(
     expected_version: str,
     packages: dict[str, str],
@@ -158,10 +190,16 @@ def inspect_environment(
     matched = 0
     pip_status = "NOT RUN"
     if not version_only and not reason_codes:
+        inventory, inventory_reasons = installed_distribution_inventory()
+        reason_codes.extend(inventory_reasons)
+        allowed_packages = set(packages) | BOOTSTRAP_PACKAGES
+        if set(inventory) - allowed_packages:
+            reason_codes.append("LOCK_PACKAGE_UNEXPECTED")
+        if "pip" not in inventory:
+            reason_codes.append("BOOTSTRAP_PACKAGE_MISSING")
         for name, expected in sorted(packages.items()):
-            try:
-                observed = importlib.metadata.version(name)
-            except importlib.metadata.PackageNotFoundError:
+            observed = inventory.get(name)
+            if observed is None:
                 reason_codes.append("LOCK_PACKAGE_MISSING")
                 continue
             if observed != expected:

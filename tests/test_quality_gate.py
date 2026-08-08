@@ -373,9 +373,10 @@ def test_acceptance_trace_is_historical_through_last_existing_checkpoint() -> No
 
 def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
     text = Path(".github/workflows/local-verify.yml").read_text(encoding="utf-8")
-    tests_command = "run: python -m pytest tests --durations=50 -rs"
-    eval_command = "run: python scripts/run_eval.py"
-    quality_gate_command = "run: python scripts/quality_gate.py"
+    verify_python = r".\.venv\Scripts\python.exe"
+    tests_command = f"run: {verify_python} -m pytest tests --durations=50 -rs"
+    eval_command = f"run: {verify_python} scripts/run_eval.py"
+    quality_gate_command = f"run: {verify_python} scripts/quality_gate.py"
 
     assert "workflow_dispatch:" in text
     assert "expected_sha:" in text
@@ -390,9 +391,16 @@ def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
     assert 'python-version: "3.12.10"' in text
     assert "python-version-file:" not in text
     assert "check-latest: false" in text
-    install = "python -m pip install --require-hashes --only-binary=:all: -r requirements-dev.lock"
+    assert "run: python -m venv .venv" in text
+    install = f"{verify_python} -m pip install --require-hashes --only-binary=:all: -r requirements-dev.lock"
     assert install in text
-    assert "python -m pip check" in text
+    verifier = (
+        f"{verify_python} scripts/verify_dev_environment.py "
+        "--expected-version-file .python-version --lock requirements-dev.lock --json"
+    )
+    pip_check = f"{verify_python} -m pip check"
+    assert verifier in text
+    assert pip_check in text
     assert 'PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"' in text
     assert 'PYTEST_ADDOPTS: ""' in text
     assert 'PYTEST_PLUGINS: ""' in text
@@ -400,7 +408,8 @@ def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
     assert text.count(eval_command) == 1
     assert (
         text.index(install)
-        < text.index("python -m pip check")
+        < text.index(verifier)
+        < text.index(pip_check)
         < text.index(tests_command)
         < text.index(eval_command)
         < text.index(quality_gate_command)
