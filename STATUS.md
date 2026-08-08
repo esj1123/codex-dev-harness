@@ -26,8 +26,13 @@ remain available in Git history and `ACCEPTANCE_TRACE.md`.
 ## Implemented Control Surface
 
 - Render tiers: `minimal`, `standard`, and `full`, with closed Read Orders.
-- Manual read-only Local Verify with pytest, standalone eval, quality gates,
-  and three profile dry-runs, bound to a required exact checkout SHA.
+- Manual read-only Local Verify defaults to the authoritative `Full` lane with
+  pytest, standalone eval, quality gates, and three profile dry-runs. Explicit
+  `-Lane Routine` is non-authoritative feedback that excludes only the exact
+  frozen/held Agent Quality, Hermes/MCP, and Local RAG test inventory.
+- The core JSON evidence gate excludes frozen Agent Quality and held Hermes
+  receipt/trace shapes; standalone full validation preserves both optional
+  surfaces.
 - Approved 34-source corpus contract and read-only local retrieval. Digest
   freshness remains an impact-required integration check.
 - Read-only downstream contract validation and release-evidence preflight.
@@ -114,6 +119,8 @@ effect.
 - `V2 core`: full pytest, standalone eval, and all quality gates.
 - Standing local integration verification runs the V2 core followed by the
   three profile dry-runs through `scripts/run_local_verify.ps1`.
+- `Routine`: explicit non-authoritative local feedback only. It cannot satisfy
+  V2, V3, promotion, or release evidence requirements.
 - `V2 impact-required extras`: checksum, corpus, and relevant render checks.
 - `V3`: one approved push and one manual Local Verify whose required
   `expected_sha` is checked out and asserted before verification.
@@ -145,9 +152,10 @@ not authenticate approval.
 
 ## Next Recommended Step
 
-Review the verified P1 branch tip and decide whether to promote it to `main`.
-Promotion, upstream configuration, push, and remote verification remain
-separate owner decisions. Before regenerating the historical release bundle,
+Review the verified verification-lane branch tip and decide whether to promote
+it to local `main`. Promotion, upstream configuration, push, and remote
+verification remain separate owner decisions. Before regenerating the
+historical release bundle,
 decide whether it should include an eval report and separately approve the
 artifact-writing refresh from the promoted exact source basis. Keep Agent
 Quality/provider, role calibration v7, Hermes, MCP, publication, and other

@@ -2,6 +2,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 from types import SimpleNamespace
 
 import pytest
@@ -266,13 +267,14 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     usage = Path("docs/LOCAL_USAGE.md").read_text(encoding="utf-8")
     checklist = Path("docs/LOCAL_PACKAGE_CHECKLIST.md").read_text(encoding="utf-8")
     runtime = Path("docs/PYTHON_RUNTIME_POLICY.md").read_text(encoding="utf-8")
+    normalized_status = " ".join(status.split())
     normalized_checklist = " ".join(checklist.split())
 
-    assert "`CORE_HARNESS_READY`" in status
-    assert "Review the verified P1 branch tip" in status
-    assert "decide whether to promote it to `main`" in status
-    assert "decide whether it should include an eval report" in status
-    assert "Complete the core-only integration checks" not in status
+    assert "`CORE_HARNESS_READY`" in normalized_status
+    assert "Review the verified verification-lane branch tip" in normalized_status
+    assert "decide whether to promote it to local `main`" in normalized_status
+    assert "decide whether it should include an eval report" in normalized_status
+    assert "Complete the core-only integration checks" not in normalized_status
 
     assert "manual read-only `.github/workflows/local-verify.yml`" in usage
     assert "`workflow_dispatch` with an exact commit SHA" in usage
@@ -554,6 +556,157 @@ def test_local_wrapper_defaults_to_full_and_routine_excludes_only_exact_held_fil
     assert '$PytestArgs += @("--ignore", $heldTestFile)' in local
     assert "Test-Path -LiteralPath $heldTestPath -PathType Leaf" in local
     assert 'Invoke-PythonStep "pytest" $PytestArgs' in local
+
+
+def _wrapper_pytest_args(
+    tmp_path: Path, lane: str, *, explicit: bool
+) -> list[str]:
+    invocation_kind = "explicit" if explicit else "default"
+    argument_log = tmp_path / f"{lane.lower()}-{invocation_kind}-arguments.txt"
+    python_shim = tmp_path / f"python-{lane.lower()}-{invocation_kind}.cmd"
+    python_shim.write_text(
+        '@echo off\r\n>>"%CODEX_TEST_ARGUMENT_LOG%" echo %*\r\nexit /b 0\r\n',
+        encoding="utf-8",
+    )
+    environment = os.environ.copy()
+    environment["PYTHON"] = str(python_shim)
+    environment["CODEX_TEST_ARGUMENT_LOG"] = str(argument_log)
+    command = [
+        "powershell.exe",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "scripts/run_local_verify.ps1",
+    ]
+    if explicit:
+        command.extend(["-Lane", lane])
+    result = subprocess.run(
+        command,
+        cwd=Path.cwd(),
+        env=environment,
+        capture_output=True,
+        text=True,
+        timeout=60,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    invocations = argument_log.read_text(encoding="utf-8").splitlines()
+    pytest_invocation = next(
+        invocation for invocation in invocations if invocation.startswith("-m pytest ")
+    )
+    return pytest_invocation.split()[2:]
+
+
+def _collected_nodes(pytest_args: list[str]) -> set[str]:
+    environment = os.environ.copy()
+    for name in ["PYTEST_ADDOPTS", "PYTEST_PLUGINS", "PYTHONPATH"]:
+        environment.pop(name, None)
+    environment["PYTEST_DISABLE_PLUGIN_AUTOLOAD"] = "1"
+    environment["PYTHONDONTWRITEBYTECODE"] = "1"
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pytest",
+            *pytest_args,
+            "--collect-only",
+            "-q",
+            "-p",
+            "no:cacheprovider",
+        ],
+        cwd=Path.cwd(),
+        env=environment,
+        capture_output=True,
+        text=True,
+        timeout=120,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    return {
+        line.replace("\\", "/")
+        for line in result.stdout.splitlines()
+        if line.startswith(("tests/", "tests\\")) and "::" in line
+    }
+
+
+def test_local_wrapper_lane_arguments_produce_exact_collection_difference(
+    tmp_path: Path,
+) -> None:
+    default_full_args = _wrapper_pytest_args(tmp_path, "Full", explicit=False)
+    explicit_full_args = _wrapper_pytest_args(tmp_path, "Full", explicit=True)
+    routine_args = _wrapper_pytest_args(tmp_path, "Routine", explicit=True)
+    assert default_full_args == explicit_full_args
+    assert default_full_args == ["tests", "--durations=50", "-rs"]
+    assert routine_args[:3] == default_full_args
+    assert len(routine_args) == len(default_full_args) + (29 * 2)
+    assert routine_args.count("--ignore") == 29
+    assert all(
+        routine_args[index] == "--ignore"
+        for index in range(len(default_full_args), len(routine_args), 2)
+    )
+
+    full_nodes = _collected_nodes(default_full_args)
+    routine_nodes = _collected_nodes(routine_args)
+    held_files = {
+        routine_args[index + 1].replace("\\", "/")
+        for index, argument in enumerate(routine_args)
+        if argument == "--ignore"
+    }
+    held_nodes = {
+        node for node in full_nodes if node.split("::", 1)[0] in held_files
+    }
+    expected_routine_nodes = full_nodes - held_nodes
+
+    assert held_nodes
+    assert {node.split("::", 1)[0] for node in held_nodes} == held_files
+    assert routine_nodes == expected_routine_nodes
+    assert any(node.startswith("tests/test_quality_gate.py::") for node in routine_nodes)
+    assert any(
+        node.startswith("tests/test_json_evidence_gate.py::")
+        for node in routine_nodes
+    )
+    assert any(
+        node.startswith("tests/test_release_evidence_preflight.py::")
+        for node in routine_nodes
+    )
+    assert any(
+        node.startswith("tests/test_downstream_task_contract_validator.py::")
+        for node in routine_nodes
+    )
+
+
+def test_local_wrapper_rejects_unknown_lane_before_execution(tmp_path: Path) -> None:
+    argument_log = tmp_path / "unknown-lane-arguments.txt"
+    python_shim = tmp_path / "python-unknown-lane.cmd"
+    python_shim.write_text(
+        '@echo off\r\n>>"%CODEX_TEST_ARGUMENT_LOG%" echo %*\r\nexit /b 0\r\n',
+        encoding="utf-8",
+    )
+    environment = os.environ.copy()
+    environment["PYTHON"] = str(python_shim)
+    environment["CODEX_TEST_ARGUMENT_LOG"] = str(argument_log)
+    result = subprocess.run(
+        [
+            "powershell.exe",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            "scripts/run_local_verify.ps1",
+            "-Lane",
+            "Unknown",
+        ],
+        cwd=Path.cwd(),
+        env=environment,
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+
+    assert result.returncode != 0
+    assert not argument_log.exists()
 
 
 def test_release_and_hosted_verification_remain_full_only() -> None:

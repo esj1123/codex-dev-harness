@@ -385,6 +385,34 @@ def test_json_evidence_gate_reports_missing_hermes_preflight_trace_ref_shape(tmp
     )
 
 
+def test_json_evidence_core_excludes_held_hermes_shapes(tmp_path: Path) -> None:
+    write_valid_bundle(tmp_path)
+    receipt = schema(receipt_required_fields(), "receipt_summary")
+    del receipt["properties"]["hermes_git_push_preflight_evidence"]
+    write(
+        tmp_path / "audits" / "receipt-summary.schema.json",
+        json.dumps(receipt),
+    )
+    trace = schema(trace_required_fields(), "trace_event")
+    del trace["properties"]["hermes_git_push_preflight_evidence_ref"]
+    write(
+        tmp_path / "audits" / "trace-event.schema.json",
+        json.dumps(trace),
+    )
+
+    assert json_evidence_gate.run_core(tmp_path).passed is True
+    full_result = json_evidence_gate.run(tmp_path)
+    assert full_result.passed is False
+    assert any(
+        "missing optional hermes_git_push_preflight_evidence property" in message
+        for message in full_result.messages
+    )
+    assert any(
+        "missing optional hermes_git_push_preflight_evidence_ref property" in message
+        for message in full_result.messages
+    )
+
+
 def test_json_evidence_gate_reports_missing_policy_boundary(tmp_path: Path) -> None:
     write_valid_bundle(tmp_path)
     write(tmp_path / "docs" / "JSON_EVIDENCE_POLICY.md", "Phase 4B JSON Evidence Core\n")

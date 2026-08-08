@@ -375,7 +375,9 @@ def check_hermes_preflight_trace_ref_shape(schema: dict[str, Any]) -> list[str]:
     return findings
 
 
-def check_receipt_schema(schema: dict[str, Any]) -> list[str]:
+def check_receipt_schema(
+    schema: dict[str, Any], *, include_held_hermes: bool
+) -> list[str]:
     relative = "audits/receipt-summary.schema.json"
     required_fields = {
         "schema_version",
@@ -403,11 +405,14 @@ def check_receipt_schema(schema: dict[str, Any]) -> list[str]:
     if evidence_kind.get("const") != "receipt_summary":
         findings.append(f"{relative} evidence_kind must be receipt_summary")
     findings.extend(check_eval_evidence_shape(schema))
-    findings.extend(check_hermes_preflight_receipt_shape(schema))
+    if include_held_hermes:
+        findings.extend(check_hermes_preflight_receipt_shape(schema))
     return findings
 
 
-def check_trace_schema(schema: dict[str, Any]) -> list[str]:
+def check_trace_schema(
+    schema: dict[str, Any], *, include_held_hermes: bool
+) -> list[str]:
     relative = "audits/trace-event.schema.json"
     required_fields = {
         "schema_version",
@@ -432,7 +437,8 @@ def check_trace_schema(schema: dict[str, Any]) -> list[str]:
     enum_values = set(payload_capture.get("enum", []))
     if not {"none", "redacted_summary_only"} <= enum_values:
         findings.append(f"{relative} payload_capture must allow none and redacted_summary_only")
-    findings.extend(check_hermes_preflight_trace_ref_shape(schema))
+    if include_held_hermes:
+        findings.extend(check_hermes_preflight_trace_ref_shape(schema))
     return findings
 
 
@@ -533,7 +539,12 @@ def check_agent_quality_bundle(repo_root: Path) -> list[str]:
     return findings
 
 
-def _run(repo_root: Path, *, include_agent_quality: bool) -> GateResult:
+def _run(
+    repo_root: Path,
+    *,
+    include_agent_quality: bool,
+    include_held_hermes: bool,
+) -> GateResult:
     marker_present = has_phase_marker(repo_root)
     present_paths = [relative for relative in BUNDLE_PATHS if (repo_root / relative).is_file()]
     missing_paths = [relative for relative in BUNDLE_PATHS if relative not in present_paths]
@@ -570,9 +581,19 @@ def _run(repo_root: Path, *, include_agent_quality: bool) -> GateResult:
             findings.append(error)
 
     if receipt_schema is not None:
-        findings.extend(check_receipt_schema(receipt_schema))
+        findings.extend(
+            check_receipt_schema(
+                receipt_schema,
+                include_held_hermes=include_held_hermes,
+            )
+        )
     if trace_schema is not None:
-        findings.extend(check_trace_schema(trace_schema))
+        findings.extend(
+            check_trace_schema(
+                trace_schema,
+                include_held_hermes=include_held_hermes,
+            )
+        )
     if include_agent_quality:
         findings.extend(check_agent_quality_bundle(repo_root))
         findings.extend(
@@ -597,12 +618,20 @@ def _run(repo_root: Path, *, include_agent_quality: bool) -> GateResult:
 
 
 def run_core(repo_root: Path) -> GateResult:
-    """Validate the core JSON evidence bundle without optional Agent Quality."""
+    """Validate core JSON evidence without held Hermes or Agent Quality."""
 
-    return _run(repo_root, include_agent_quality=False)
+    return _run(
+        repo_root,
+        include_agent_quality=False,
+        include_held_hermes=False,
+    )
 
 
 def run(repo_root: Path) -> GateResult:
-    """Preserve full validation for standalone and Agent Quality callers."""
+    """Preserve full validation for standalone optional-surface callers."""
 
-    return _run(repo_root, include_agent_quality=True)
+    return _run(
+        repo_root,
+        include_agent_quality=True,
+        include_held_hermes=True,
+    )
