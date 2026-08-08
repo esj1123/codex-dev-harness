@@ -63,8 +63,9 @@ checks:
 - `python scripts/render_template.py --config examples/csharp_desktop_minimal/template.config.yml --target examples/csharp_desktop_minimal --dry-run`
 - `python scripts/render_template.py --config examples/plc_tool_minimal/template.config.yml --target examples/plc_tool_minimal --dry-run`
 
-The workflow installs development requirements from `requirements-dev.lock`,
-runs `python -m pip check`, and uses exact hosted Windows Python `3.12.10`.
+The workflow installs development requirements from `requirements-dev.lock`
+with `--require-hashes --only-binary=:all:`, runs `python -m pip check`, and
+uses exact hosted Windows Python `3.12.10`.
 Local V2 and hosted V3 both remain on Python 3.12 and use the same locked
 development dependencies. Both clear ambient pytest and Python-path options,
 disable third-party pytest plugin autoload, and report slow-test durations and

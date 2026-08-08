@@ -22,7 +22,7 @@ is not automatic and is not a required check.
 4. For an exact Local Verify or release-wrapper environment, install the lock
    instead and run the dependency check:
 
-`python -m pip install -r requirements-dev.lock`
+`python -m pip install --require-hashes --only-binary=:all: -r requirements-dev.lock`
 
 `python -m pip check`
 

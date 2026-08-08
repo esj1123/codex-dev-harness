@@ -56,8 +56,9 @@ running checks. It mirrors the non-release local verification subset:
 - `python scripts/render_template.py --config examples/csharp_desktop_minimal/template.config.yml --target examples/csharp_desktop_minimal --dry-run`
 - `python scripts/render_template.py --config examples/plc_tool_minimal/template.config.yml --target examples/plc_tool_minimal --dry-run`
 
-It installs the exact development set from `requirements-dev.lock`, runs
-`python -m pip check`, and uses Python `3.12.10`, the final Python 3.12 release
+It installs the exact development set from `requirements-dev.lock` with
+`--require-hashes --only-binary=:all:`, runs `python -m pip check`, and uses
+Python `3.12.10`, the final Python 3.12 release
 with Windows binary installers. Local V2 and hosted V3 both require that exact
 patch version as declared in `.python-version`.
 Third-party actions are pinned to immutable commit SHAs, checkout credentials
@@ -137,10 +138,11 @@ local development requirement:
 
 Use `requirements-dev.lock` for V2 and V3 exact verification:
 
-`python -m pip install -r requirements-dev.lock`
+`python -m pip install --require-hashes --only-binary=:all: -r requirements-dev.lock`
 
-The lock file is pip-compatible and limited to development verification
-dependencies. It does not add runtime application, C#, PLC, device, cloud, or
+The lock file is pip-compatible, exact-pinned, hash-locked, and limited to
+development verification dependencies. Exact verification rejects source
+distributions. It does not add runtime application, C#, PLC, device, cloud, or
 live-target dependencies.
 
 After installation, exact verification runs:

@@ -70,15 +70,62 @@ def test_missing_or_mismatched_lock_package_fails(
 def test_lock_parser_is_exact_and_deterministic(tmp_path: Path) -> None:
     valid = tmp_path / "valid.lock"
     valid.write_text(
-        "# comment\npytest==9.0.3\nPygments==2.20.0\n",
+        "# comment\n"
+        "pytest==9.0.3 \\\n"
+        f"    --hash=sha256:{'a' * 64}\n"
+        "Pygments==2.20.0 \\\n"
+        f"    --hash=sha256:{'b' * 64}\n",
         encoding="utf-8",
     )
     invalid = tmp_path / "invalid.lock"
     invalid.write_text("pytest>=9\n", encoding="utf-8")
 
     assert gate.read_lock(valid) == {"pytest": "9.0.3", "pygments": "2.20.0"}
+    parsed = gate.parse_lock(valid)
+    assert parsed["pytest"].requirement == "pytest==9.0.3"
+    assert parsed["pytest"].hashes == ("a" * 64,)
     with pytest.raises(gate.EnvironmentContractError, match="LOCK_ENTRY_INVALID"):
         gate.read_lock(invalid)
+
+
+@pytest.mark.parametrize(
+    ("content", "reason"),
+    [
+        ("pytest==9.0.3\n", "LOCK_HASH_MISSING"),
+        ("pytest>=9 --hash=sha256:" + "a" * 64 + "\n", "LOCK_ENTRY_INVALID"),
+        ("pytest==9.0.3 --hash=sha256:not-a-hash\n", "LOCK_ENTRY_INVALID"),
+        (
+            "pytest==9.0.3 --hash=sha256:"
+            + "a" * 64
+            + " --index-url=https://example.invalid\n",
+            "LOCK_ENTRY_INVALID",
+        ),
+        (
+            "pytest==9.0.3 --hash=sha256:"
+            + "a" * 64
+            + "\npytest==9.0.3 --hash=sha256:"
+            + "b" * 64
+            + "\n",
+            "LOCK_PACKAGE_DUPLICATE",
+        ),
+        (
+            "pytest==9.0.3 --hash=sha256:"
+            + "a" * 64
+            + " --hash=sha256:"
+            + "a" * 64
+            + "\n",
+            "LOCK_HASH_DUPLICATE",
+        ),
+    ],
+)
+def test_lock_parser_rejects_unsafe_entries(
+    tmp_path: Path, content: str, reason: str
+) -> None:
+    lock = tmp_path / "unsafe.lock"
+    lock.write_text(content, encoding="utf-8")
+
+    with pytest.raises(gate.EnvironmentContractError, match=reason):
+        gate.parse_lock(lock)
 
 
 def test_json_cli_is_bounded_and_action_free(monkeypatch, capsys) -> None:

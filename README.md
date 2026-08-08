@@ -105,7 +105,7 @@ Other unlisted documents are non-authoritative reference material.
 Use the standing local wrapper for the normal V2 verification surface:
 
 - `python --version`
-- `python -m pip install -r requirements-dev.lock`
+- `python -m pip install --require-hashes --only-binary=:all: -r requirements-dev.lock`
 - `python -m pip check`
 - `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1`
 
@@ -127,7 +127,8 @@ Python runtime and dependency reproducibility are documented in
 `docs/PYTHON_RUNTIME_POLICY.md`. The local verification runtime is pinned in
 `.python-version`, direct development dependencies are declared in
 `requirements-dev.txt`, and exact local verification pins are recorded in
-`requirements-dev.lock`.
+`requirements-dev.lock`. Exact verification installs are hash-checked and
+restricted to the approved binary wheels.
 
 CI policy is documented in `docs/CI_POLICY.md`. The repository includes the
 manual read-only `.github/workflows/local-verify.yml` workflow. It uses

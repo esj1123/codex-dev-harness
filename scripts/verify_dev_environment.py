@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import dataclass
 import importlib.metadata
 import json
 from pathlib import Path
@@ -22,6 +23,7 @@ LOCK_LINE = re.compile(
     r"^(?P<name>[A-Za-z0-9][A-Za-z0-9._-]{0,127})=="
     r"(?P<version>[A-Za-z0-9][A-Za-z0-9.!+_-]{0,127})$"
 )
+LOCK_HASH = re.compile(r"^--hash=sha256:(?P<digest>[0-9a-f]{64})$")
 VERSION_LINE = re.compile(r"^\d+\.\d+\.\d+$")
 
 
@@ -29,6 +31,17 @@ class EnvironmentContractError(ValueError):
     def __init__(self, reason_codes: list[str] | tuple[str, ...]):
         self.reason_codes = sorted(set(reason_codes))
         super().__init__(", ".join(self.reason_codes))
+
+
+@dataclass(frozen=True)
+class LockedRequirement:
+    name: str
+    version: str
+    hashes: tuple[str, ...]
+
+    @property
+    def requirement(self) -> str:
+        return f"{self.name}=={self.version}"
 
 
 def _resolve_repo_file(value: str) -> Path:
@@ -57,26 +70,57 @@ def read_expected_version(path: Path) -> str:
     return value
 
 
-def read_lock(path: Path) -> dict[str, str]:
+def parse_lock(path: Path) -> dict[str, LockedRequirement]:
     try:
         lines = path.read_text(encoding="utf-8").splitlines()
     except (OSError, UnicodeDecodeError) as exc:
         raise EnvironmentContractError(("LOCK_FILE_INVALID",)) from exc
-    packages: dict[str, str] = {}
+    logical_lines: list[str] = []
+    current = ""
     for raw in lines:
         line = raw.strip()
-        if not line or line.startswith("#"):
+        if not line or (line.startswith("#") and not current):
             continue
-        match = LOCK_LINE.fullmatch(line)
+        if line.endswith("\\"):
+            current += line[:-1].rstrip() + " "
+            continue
+        logical_lines.append(current + line)
+        current = ""
+    if current:
+        raise EnvironmentContractError(("LOCK_ENTRY_INVALID",))
+
+    packages: dict[str, LockedRequirement] = {}
+    for line in logical_lines:
+        tokens = line.split()
+        match = LOCK_LINE.fullmatch(tokens[0]) if tokens else None
         if match is None:
             raise EnvironmentContractError(("LOCK_ENTRY_INVALID",))
+        hashes: list[str] = []
+        for token in tokens[1:]:
+            hash_match = LOCK_HASH.fullmatch(token)
+            if hash_match is None:
+                raise EnvironmentContractError(("LOCK_ENTRY_INVALID",))
+            digest = hash_match.group("digest")
+            if digest in hashes:
+                raise EnvironmentContractError(("LOCK_HASH_DUPLICATE",))
+            hashes.append(digest)
+        if not hashes:
+            raise EnvironmentContractError(("LOCK_HASH_MISSING",))
         normalized = re.sub(r"[-_.]+", "-", match.group("name")).lower()
         if normalized in packages:
             raise EnvironmentContractError(("LOCK_PACKAGE_DUPLICATE",))
-        packages[normalized] = match.group("version")
+        packages[normalized] = LockedRequirement(
+            name=match.group("name"),
+            version=match.group("version"),
+            hashes=tuple(hashes),
+        )
     if not packages:
         raise EnvironmentContractError(("LOCK_EMPTY",))
     return packages
+
+
+def read_lock(path: Path) -> dict[str, str]:
+    return {name: item.version for name, item in parse_lock(path).items()}
 
 
 def run_pip_check() -> str:

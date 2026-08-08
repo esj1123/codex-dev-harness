@@ -267,7 +267,8 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
 
     assert "focused development and narrow test commands" in runtime
     assert "exact V2 verification run" in runtime
-    assert runtime.index("python -m pip install -r requirements-dev.lock") < runtime.index(
+    install = "python -m pip install --require-hashes --only-binary=:all: -r requirements-dev.lock"
+    assert runtime.index(install) < runtime.index(
         "python -m pip check"
     )
 
@@ -389,7 +390,8 @@ def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
     assert 'python-version: "3.12.10"' in text
     assert "python-version-file:" not in text
     assert "check-latest: false" in text
-    assert "python -m pip install -r requirements-dev.lock" in text
+    install = "python -m pip install --require-hashes --only-binary=:all: -r requirements-dev.lock"
+    assert install in text
     assert "python -m pip check" in text
     assert 'PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"' in text
     assert 'PYTEST_ADDOPTS: ""' in text
@@ -397,7 +399,7 @@ def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
     assert 'PYTHONPATH: ""' in text
     assert text.count(eval_command) == 1
     assert (
-        text.index("python -m pip install -r requirements-dev.lock")
+        text.index(install)
         < text.index("python -m pip check")
         < text.index(tests_command)
         < text.index(eval_command)

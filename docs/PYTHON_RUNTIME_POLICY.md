@@ -33,11 +33,11 @@ Development dependencies are split into two files:
 requirements needed by this repository. It is not a place for application,
 device, C#, PLC, cloud deployment, or live-target dependencies.
 
-`requirements-dev.lock` is a pip-compatible exact pin set for reproducing the
-current local verification dependency environment. It includes `pytest` and the
-pytest dependency packages observed in the local verification runtime. It
-intentionally excludes unrelated packages bundled with the Codex desktop
-runtime.
+`requirements-dev.lock` is a pip-compatible exact pin and SHA-256 hash set for
+reproducing the Windows x64 local verification dependency environment. It
+includes `pytest` and the pytest dependency packages observed in the local
+verification runtime. It intentionally excludes unrelated packages bundled
+with the Codex desktop runtime.
 
 ## Recommended Commands
 
@@ -53,7 +53,7 @@ exact V2 verification run:
 
 ```powershell
 python --version
-python -m pip install -r requirements-dev.lock
+python -m pip install --require-hashes --only-binary=:all: -r requirements-dev.lock
 python -m pip check
 ```
 
@@ -62,7 +62,7 @@ runtime when practical:
 
 ```powershell
 python -m venv .venv
-.venv\Scripts\python.exe -m pip install -r requirements-dev.lock
+.venv\Scripts\python.exe -m pip install --require-hashes --only-binary=:all: -r requirements-dev.lock
 ```
 
 An explicit `PYTHON` environment variable has first selection priority. The
@@ -93,7 +93,9 @@ when the task explicitly approves runtime or dependency changes.
 When updating the lock:
 
 - keep Python aligned with `.python-version`
-- use standard pip-compatible requirement lines
+- exact-pin every package and include at least one approved SHA-256 wheel hash
+- validate hashes against official package release metadata
+- install with `--require-hashes --only-binary=:all:`
 - pin exact versions with `==`
 - include only development verification dependencies
 - exclude unrelated bundled packages
@@ -102,8 +104,9 @@ When updating the lock:
 
 ## Known Limitations
 
-The lock file does not include wheel hashes. It records exact package versions
-only. Hash-locked, platform-specific wheel evidence would require a separate
+The lock permits only the recorded universal wheels for the approved Windows
+x64/Python 3.12.10 verification environment. A platform-specific dependency,
+new hash, source distribution, or package/version change requires a separate
 owner-approved dependency locking task.
 
 The release manifest inventory includes `.python-version`,
