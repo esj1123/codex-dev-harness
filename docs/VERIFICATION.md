@@ -32,6 +32,12 @@ the no-report standalone eval, the quality gate, and all three example render
 dry-runs in that order. It does not write rendered files and does not use
 `--force`.
 
+Before selecting Python, the wrapper removes ambient `PYTEST_ADDOPTS`,
+`PYTEST_PLUGINS`, and `PYTHONPATH`, then disables third-party pytest plugin
+autoload. The test session also isolates temporary Git repositories from
+global config, signing, hooks, and interactive credential prompts. Platform
+skips are limited to the reviewed node-and-reason policy in `tests/conftest.py`.
+
 ## Read-Only CI Verification Flow
 
 The owner-approved first CI implementation target is installed at:
@@ -43,7 +49,7 @@ The workflow is manual-only through `workflow_dispatch` and uses
 `expected_sha`; checkout uses that ref and asserts the observed HEAD before
 running checks. It mirrors the non-release local verification subset:
 
-- `python -m pytest tests`
+- `python -m pytest tests --durations=50 -rs`
 - `python scripts/run_eval.py`
 - `python scripts/quality_gate.py`
 - `python scripts/render_template.py --config examples/python_cli_minimal/template.config.yml --target examples/python_cli_minimal --dry-run`

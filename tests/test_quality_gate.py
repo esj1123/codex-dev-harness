@@ -372,7 +372,7 @@ def test_acceptance_trace_is_historical_through_last_existing_checkpoint() -> No
 
 def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
     text = Path(".github/workflows/local-verify.yml").read_text(encoding="utf-8")
-    tests_command = "run: python -m pytest tests"
+    tests_command = "run: python -m pytest tests --durations=50 -rs"
     eval_command = "run: python scripts/run_eval.py"
     quality_gate_command = "run: python scripts/quality_gate.py"
 
@@ -391,6 +391,10 @@ def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
     assert "check-latest: false" in text
     assert "python -m pip install -r requirements-dev.lock" in text
     assert "python -m pip check" in text
+    assert 'PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"' in text
+    assert 'PYTEST_ADDOPTS: ""' in text
+    assert 'PYTEST_PLUGINS: ""' in text
+    assert 'PYTHONPATH: ""' in text
     assert text.count(eval_command) == 1
     assert (
         text.index("python -m pip install -r requirements-dev.lock")

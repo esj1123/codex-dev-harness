@@ -56,7 +56,7 @@ The first CI implementation target is now implemented as
 CI starts as a manual read-only workflow that only runs repository validation
 checks:
 
-- `python -m pytest tests`
+- `python -m pytest tests --durations=50 -rs`
 - `python scripts/run_eval.py`
 - `python scripts/quality_gate.py`
 - `python scripts/render_template.py --config examples/python_cli_minimal/template.config.yml --target examples/python_cli_minimal --dry-run`
@@ -66,7 +66,9 @@ checks:
 The workflow installs development requirements from `requirements-dev.lock`,
 runs `python -m pip check`, and uses exact hosted Windows Python `3.12.10`.
 Local V2 and hosted V3 both remain on Python 3.12 and use the same locked
-development dependencies.
+development dependencies. Both clear ambient pytest and Python-path options,
+disable third-party pytest plugin autoload, and report slow-test durations and
+reviewed skip reasons.
 
 Release verification remains local-only unless separately approved and may use:
 

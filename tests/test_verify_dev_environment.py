@@ -6,6 +6,8 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
+from types import SimpleNamespace
 
 import pytest
 
@@ -124,6 +126,46 @@ def test_local_wrapper_gates_candidates_and_environment_before_pytest() -> None:
     assert environment_step in text
     assert text.index(environment_step) < text.index(pytest_step)
     assert '"--durations=50", "-rs"' in text
+
+
+def test_local_wrapper_clears_ambient_test_controls_before_python_selection() -> None:
+    text = Path("scripts/run_local_verify.ps1").read_text(encoding="utf-8")
+    clear_call = "\nClear-AmbientVerificationEnvironment\n"
+    select_call = "\n$PythonCommand = Find-Python\n"
+
+    for name in [
+        "PYTEST_ADDOPTS",
+        "PYTEST_PLUGINS",
+        "PYTHONPATH",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD",
+    ]:
+        assert name in text
+    assert text.index(clear_call) < text.index(select_call)
+
+
+def test_git_test_environment_is_isolated() -> None:
+    assert os.environ["GIT_CONFIG_NOSYSTEM"] == "1"
+    assert os.environ["GIT_CONFIG_GLOBAL"] == os.devnull
+    assert os.environ["GIT_TERMINAL_PROMPT"] == "0"
+    assert os.environ["GCM_INTERACTIVE"] == "Never"
+    assert os.environ["GIT_CONFIG_KEY_0"] == "commit.gpgSign"
+    assert os.environ["GIT_CONFIG_VALUE_0"] == "false"
+    assert os.environ["GIT_CONFIG_KEY_2"] == "core.hooksPath"
+    assert os.environ["GIT_CONFIG_KEY_3"] == "safe.directory"
+    assert os.environ["GIT_CONFIG_VALUE_3"] == str(Path.cwd().resolve())
+
+
+def test_unreviewed_skip_is_rejected_by_session_policy() -> None:
+    policy = sys.modules["conftest"]
+    report = SimpleNamespace(
+        nodeid="tests/test_synthetic.py::test_unreviewed_skip",
+        longrepr=("synthetic.py", 1, "Skipped: synthetic reason"),
+    )
+
+    assert policy._unexpected_skips([report]) == [
+        "tests/test_synthetic.py::test_unreviewed_skip: "
+        "expected=None observed='synthetic reason'"
+    ]
 
 
 def release_selector_text() -> str:

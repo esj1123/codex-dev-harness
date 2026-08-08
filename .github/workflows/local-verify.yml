@@ -15,6 +15,11 @@ jobs:
   local-verify:
     runs-on: windows-latest
     timeout-minutes: 20
+    env:
+      PYTEST_ADDOPTS: ""
+      PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
+      PYTEST_PLUGINS: ""
+      PYTHONPATH: ""
 
     steps:
       - name: Validate expected SHA
@@ -59,7 +64,7 @@ jobs:
         run: python -m pip check
 
       - name: Run tests
-        run: python -m pytest tests
+        run: python -m pytest tests --durations=50 -rs
 
       - name: Run standalone evals
         run: python scripts/run_eval.py

@@ -4,6 +4,19 @@ $ErrorActionPreference = "Stop"
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location -LiteralPath $RepoRoot
 
+function Clear-AmbientVerificationEnvironment {
+    foreach ($name in @("PYTEST_ADDOPTS", "PYTEST_PLUGINS", "PYTHONPATH")) {
+        [Environment]::SetEnvironmentVariable(
+            $name,
+            $null,
+            [EnvironmentVariableTarget]::Process
+        )
+    }
+    $env:PYTEST_DISABLE_PLUGIN_AUTOLOAD = "1"
+}
+
+Clear-AmbientVerificationEnvironment
+
 function Find-Python {
     $candidates = @()
     if ($env:PYTHON) {
