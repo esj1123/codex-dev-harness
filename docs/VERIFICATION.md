@@ -32,6 +32,29 @@ the no-report standalone eval, the quality gate, and all three example render
 dry-runs in that order. It does not write rendered files and does not use
 `--force`.
 
+The default lane is `Full` and remains the canonical V2 behavior:
+
+`powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1`
+
+For faster, non-authoritative local feedback, select the explicit `Routine`
+lane:
+
+`powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1 -Lane Routine`
+
+`Routine` runs the same environment verification, standalone eval, core
+quality gate, and three render dry-runs. Its pytest step excludes only the
+exact test files declared in `$RoutineHeldTestFiles` for the frozen Agent
+Quality and Local RAG surfaces and the held Hermes/MCP surfaces. It does not
+exclude release planning, downstream validation, or other core tests. The
+declaration uses exact file paths rather than filename patterns, so a new test
+is included in both lanes unless the integration owner explicitly adds it to
+the held list. A missing declared held file fails closed instead of silently
+changing Routine coverage.
+
+Routine PASS is a feedback result, not canonical V2, release, or promotion
+evidence. Full collection and execution are still required wherever this
+document or `docs/CI_POLICY.md` requires V2.
+
 Before selecting Python, the wrapper removes ambient `PYTEST_ADDOPTS`,
 `PYTEST_PLUGINS`, and `PYTHONPATH`, then disables third-party pytest plugin
 autoload. The test session also isolates temporary Git repositories from

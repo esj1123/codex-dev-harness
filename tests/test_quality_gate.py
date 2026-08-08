@@ -506,6 +506,65 @@ def test_local_wrapper_runs_console_eval_and_release_refreshes_present_report() 
     assert release.count("scripts/generate_checksums.py") == 2
 
 
+def test_local_wrapper_defaults_to_full_and_routine_excludes_only_exact_held_files() -> None:
+    local = Path("scripts/run_local_verify.ps1").read_text(encoding="utf-8")
+    held_block = local.split("$RoutineHeldTestFiles = @(", 1)[1].split("\n)", 1)[0]
+    expected_held = {
+        "tests/test_agent_quality_aggregation.py",
+        "tests/test_agent_quality_capture.py",
+        "tests/test_agent_quality_cli.py",
+        "tests/test_agent_quality_contracts.py",
+        "tests/test_agent_quality_semantic_failure.py",
+        "tests/test_agent_quality_trial_validation.py",
+        "tests/test_agent_role_profiles.py",
+        "tests/test_hermes_git_push_preflight.py",
+        "tests/test_hermes_git_push_preflight_durable_writer_proposal.py",
+        "tests/test_hermes_git_push_preflight_evidence_decision.py",
+        "tests/test_hermes_git_push_preflight_output_contract.py",
+        "tests/test_hermes_git_push_preflight_receipt_trace_plan.py",
+        "tests/test_hermes_git_push_preflight_receipt_writer.py",
+        "tests/test_hermes_git_push_preflight_schema_alignment.py",
+        "tests/test_hermes_git_push_preflight_selection_review.py",
+        "tests/test_hermes_git_push_preflight_tracked_receipt_contract.py",
+        "tests/test_hermes_git_push_preflight_tracked_receipt_policy.py",
+        "tests/test_hermes_git_push_preflight_tracked_receipt_post_generation_review.py",
+        "tests/test_hermes_git_push_preflight_usage_probe.py",
+        "tests/test_hermes_git_push_preflight_writer.py",
+        "tests/test_hermes_git_push_preflight_writer_persistence_hold.py",
+        "tests/test_hermes_mcp_security_alignment.py",
+        "tests/test_hermes_preflight_caller_boundary.py",
+        "tests/test_hermes_preflight_use_planning_contract.py",
+        "tests/test_hermes_sidecar.py",
+        "tests/test_hermes_sidecar_planning_contract.py",
+        "tests/test_hermes_sidecar_result_schema_contract.py",
+        "tests/test_local_rag_retriever.py",
+        "tests/test_mcp_tool_boundary_contract.py",
+    }
+    declared_held = {
+        line.strip().strip('\",')
+        for line in held_block.splitlines()
+        if line.strip().startswith('\"tests/')
+    }
+
+    assert '[ValidateSet("Full", "Routine")]' in local
+    assert '[string]$Lane = "Full"' in local
+    assert declared_held == expected_held
+    assert "*" not in held_block
+    assert '$Lane -eq "Routine"' in local
+    assert '$PytestArgs += @("--ignore", $heldTestFile)' in local
+    assert "Test-Path -LiteralPath $heldTestPath -PathType Leaf" in local
+    assert 'Invoke-PythonStep "pytest" $PytestArgs' in local
+
+
+def test_release_and_hosted_verification_remain_full_only() -> None:
+    release = Path("scripts/run_release_verify.ps1").read_text(encoding="utf-8")
+    workflow = Path(".github/workflows/local-verify.yml").read_text(encoding="utf-8")
+
+    assert "-Lane Routine" not in release
+    assert "-Lane Routine" not in workflow
+    assert ".\\.venv\\Scripts\\python.exe -m pytest tests --durations=50 -rs" in workflow
+
+
 def test_eval_policy_docs_define_manual_console_integration_boundary() -> None:
     decision = Path("docs/EVAL_INTEGRATION_DECISION.md").read_text(encoding="utf-8")
     policy = Path("docs/EVAL_POLICY.md").read_text(encoding="utf-8")

@@ -44,6 +44,15 @@ These local surfaces are the baseline that CI must mirror when approved. The
 installed workflow mirrors `scripts/run_local_verify.ps1`: full pytest, the
 no-report standalone eval, all eight core quality gates, and three profile render
 dry-runs.
+
+The wrapper also offers an explicit local `-Lane Routine` feedback mode. It is
+non-authoritative and excludes only the exact held test-file inventory for
+frozen Agent Quality and Local RAG plus held Hermes/MCP. The no-argument wrapper,
+release verification wrapper, and hosted Local Verify workflow all remain
+`Full`. Routine PASS does not satisfy V2 or V3 and cannot be used as release or
+promotion evidence. New tests remain in Routine unless the integration owner
+explicitly adds their exact path to the held inventory.
+
 Additional workflows, triggers, permissions, required-check policies, artifact
 upload, release verification CI, signing, tag movement, deployment, downstream
 integration, or live behavior require a separate owner-approved implementation
