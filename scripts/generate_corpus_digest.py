@@ -9,9 +9,11 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 import hashlib
 import json
+import os
 from pathlib import Path, PurePosixPath
 import re
 import subprocess
+import tempfile
 from typing import Any
 
 
@@ -219,7 +221,27 @@ def load_digest(digest_path: Path) -> dict[str, Any]:
 
 
 def write_digest(digest: dict[str, Any], digest_path: Path) -> None:
-    digest_path.write_text(json.dumps(digest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    payload = json.dumps(digest, indent=2, ensure_ascii=False) + "\n"
+    temporary_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            newline="\n",
+            dir=digest_path.parent,
+            prefix=f".{digest_path.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as handle:
+            temporary_path = Path(handle.name)
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary_path, digest_path)
+        temporary_path = None
+    finally:
+        if temporary_path is not None:
+            temporary_path.unlink(missing_ok=True)
 
 
 def is_absolute_path_text(path_text: str) -> bool:
@@ -447,13 +469,24 @@ def git_changed_paths(repo_root: Path, args: list[str], source_paths: list[str])
     return [line.strip() for line in output.splitlines() if line.strip()]
 
 
-def require_clean_digest_source_basis(repo_root: Path, digest: dict[str, Any]) -> str:
-    head = current_git_sha(repo_root)
-    if head == "UNKNOWN":
+def require_current_head(repo_root: Path, expected_head: str, stage: str) -> None:
+    observed_head = current_git_sha(repo_root)
+    if observed_head != expected_head:
+        raise ValueError(
+            f"cannot write digest: HEAD changed during {stage}: "
+            f"expected {expected_head}, observed {observed_head}"
+        )
+
+
+def require_clean_digest_source_basis(
+    repo_root: Path, digest: dict[str, Any], expected_head: str
+) -> str:
+    if SHA1_HEX_RE.fullmatch(expected_head) is None:
         raise ValueError("cannot write digest: current HEAD is unavailable")
+    require_current_head(repo_root, expected_head, "source-basis validation")
 
     source_paths = unique_preserving_order(digest_source_paths(digest))
-    blobs = git_blob_sources(repo_root, source_paths, head)
+    blobs = git_blob_sources(repo_root, source_paths, expected_head)
     missing_from_head = [path for path in source_paths if path not in blobs]
     if missing_from_head:
         raise ValueError(
@@ -462,7 +495,11 @@ def require_clean_digest_source_basis(repo_root: Path, digest: dict[str, Any]) -
         )
 
     try:
-        staged = git_changed_paths(repo_root, ["diff", "--cached", "--name-only"], source_paths)
+        staged = git_changed_paths(
+            repo_root,
+            ["diff", "--cached", "--name-only", expected_head],
+            source_paths,
+        )
         unstaged = git_changed_paths(repo_root, ["diff", "--name-only"], source_paths)
     except (OSError, subprocess.CalledProcessError) as exc:
         raise ValueError("cannot write digest: source-basis git diff check failed") from exc
@@ -473,7 +510,8 @@ def require_clean_digest_source_basis(repo_root: Path, digest: dict[str, Any]) -
             "cannot write digest: digest-listed source differs from HEAD: "
             + ", ".join(changed)
         )
-    return head
+    require_current_head(repo_root, expected_head, "source-basis validation")
+    return expected_head
 
 
 def build_report(digest: dict[str, Any], checks: list[SourceCheck], *, mode: str) -> dict[str, Any]:
@@ -728,23 +766,36 @@ def write_refreshed_digest(
 ) -> dict[str, Any]:
     if not approval_ref or not approval_ref.strip():
         raise ValueError("--write requires --approval-ref")
+    source_basis_sha = current_git_sha(repo_root)
+    if source_basis_sha == "UNKNOWN":
+        raise ValueError("cannot write digest: current HEAD is unavailable")
+    if git_sha is not None and git_sha != source_basis_sha:
+        raise ValueError("--git-sha cannot override the current clean source-basis commit")
+    generated_at_value = generated_at or utc_now()
     digest = load_digest(digest_path)
-    checks = check_sources(repo_root, digest)
+    checks = check_sources(repo_root, digest, source_basis_sha)
     blocking = [check for check in checks if check.status in {"missing", "invalid_utf8", "unsafe"}]
     if blocking:
         raise ValueError("cannot write digest while sources are missing, unsafe, or invalid UTF-8")
-    source_basis_sha = require_clean_digest_source_basis(repo_root, digest)
-    if git_sha is not None and git_sha != source_basis_sha:
-        raise ValueError("--git-sha cannot override the current clean source-basis commit")
+    require_clean_digest_source_basis(repo_root, digest, source_basis_sha)
     refreshed = build_refreshed_digest(
         digest,
         checks,
         git_sha=source_basis_sha,
-        generated_at=generated_at or utc_now(),
+        generated_at=generated_at_value,
         approval_ref=approval_ref,
     )
+    require_current_head(repo_root, source_basis_sha, "pre-write validation")
     write_digest(refreshed, digest_path)
-    return build_report(refreshed, check_sources(repo_root, refreshed), mode="write")
+    report = build_report(
+        refreshed,
+        check_sources(repo_root, refreshed, source_basis_sha),
+        mode="write",
+    )
+    if report["refresh_required"]:
+        raise ValueError("cannot write digest: post-write validation requires refresh")
+    require_current_head(repo_root, source_basis_sha, "post-write validation")
+    return report
 
 
 def write_rebaselined_digest(
@@ -758,33 +809,37 @@ def write_rebaselined_digest(
 ) -> dict[str, Any]:
     if not approval_ref or not approval_ref.strip():
         raise ValueError("--write requires --approval-ref")
-    digest = load_digest(digest_path)
-    source_set_spec = load_source_set_spec(source_set_spec_path)
-    candidate = build_rebaselined_digest(
-        digest,
-        source_set_spec,
-        repo_root=repo_root,
-        git_sha=current_git_sha(repo_root),
-        generated_at=generated_at or utc_now(),
-        approval_ref=approval_ref,
-    )
-    checks = check_sources(repo_root, candidate)
-    blocking = [check for check in checks if check.status in {"missing", "invalid_utf8", "unsafe", "malformed"}]
-    if blocking:
-        raise ValueError("cannot write digest while rebaseline sources are missing, unsafe, invalid UTF-8, or malformed")
-    source_basis_sha = require_clean_digest_source_basis(repo_root, candidate)
+    source_basis_sha = current_git_sha(repo_root)
+    if source_basis_sha == "UNKNOWN":
+        raise ValueError("cannot write digest: current HEAD is unavailable")
     if git_sha is not None and git_sha != source_basis_sha:
         raise ValueError("--git-sha cannot override the current clean source-basis commit")
+    generated_at_value = generated_at or utc_now()
+    digest = load_digest(digest_path)
+    source_set_spec = load_source_set_spec(source_set_spec_path)
     rebaselined = build_rebaselined_digest(
         digest,
         source_set_spec,
         repo_root=repo_root,
         git_sha=source_basis_sha,
-        generated_at=generated_at or utc_now(),
+        generated_at=generated_at_value,
         approval_ref=approval_ref,
     )
+    checks = check_sources(repo_root, rebaselined, source_basis_sha)
+    blocking = [check for check in checks if check.status in {"missing", "invalid_utf8", "unsafe", "malformed"}]
+    if blocking:
+        raise ValueError("cannot write digest while rebaseline sources are missing, unsafe, invalid UTF-8, or malformed")
+    require_clean_digest_source_basis(repo_root, rebaselined, source_basis_sha)
+    require_current_head(repo_root, source_basis_sha, "pre-write validation")
     write_digest(rebaselined, digest_path)
-    report = build_report(rebaselined, check_sources(repo_root, rebaselined), mode="rebaseline_write")
+    report = build_report(
+        rebaselined,
+        check_sources(repo_root, rebaselined, source_basis_sha),
+        mode="rebaseline_write",
+    )
+    if report["refresh_required"]:
+        raise ValueError("cannot write digest: post-write validation requires refresh")
+    require_current_head(repo_root, source_basis_sha, "post-write validation")
     report["source_set_spec_path"] = str(source_set_spec_path.relative_to(repo_root.resolve()).as_posix())
     return add_source_set_diff_fields(report, digest, source_set_spec)
 

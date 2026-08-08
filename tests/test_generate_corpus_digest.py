@@ -145,6 +145,27 @@ def commit_all(root: Path, message: str = "synthetic commit") -> str:
     return run_git(root, "rev-parse", "HEAD")
 
 
+def prepare_head_drift_repo(root: Path) -> tuple[Path, str, str]:
+    source_text = "# Source at A\n"
+    write(root / "docs" / "A.md", source_text)
+    digest_path = write_digest(
+        root,
+        [digest_entry("docs/A.md", content_hash=digest_hash("# Stale\n"))],
+        initialize_git=False,
+    )
+    init_git_repo(root)
+    first_head = commit_all(root, "source A")
+    write(root / "docs" / "A.md", "# Source at B\n")
+    second_head = commit_all(root, "source B")
+    run_git(root, "reset", "--hard", first_head)
+    return digest_path, first_head, second_head
+
+
+def move_head_ref_only(root: Path, new_head: str, expected_head: str) -> None:
+    branch = run_git(root, "symbolic-ref", "--short", "HEAD")
+    run_git(root, "update-ref", f"refs/heads/{branch}", new_head, expected_head)
+
+
 def refreshed_from(root: Path, digest_path: Path) -> dict[str, object]:
     digest = generate_corpus_digest.load_digest(digest_path)
     checks = generate_corpus_digest.check_sources(root, digest)
@@ -313,6 +334,119 @@ def test_git_sha_override_cannot_weaken_source_basis_guard(tmp_path: Path) -> No
             digest_path,
             approval_ref=APPROVAL_REF,
             git_sha="not-the-head-commit",
+        )
+
+
+def test_head_drift_between_source_check_and_clean_guard_blocks_refresh(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    digest_path, _first_head, second_head = prepare_head_drift_repo(tmp_path)
+    before = digest_path.read_bytes()
+    original_check_sources = generate_corpus_digest.check_sources
+
+    def check_then_advance(*args, **kwargs):
+        checks = original_check_sources(*args, **kwargs)
+        run_git(tmp_path, "reset", "--hard", second_head)
+        return checks
+
+    monkeypatch.setattr(generate_corpus_digest, "check_sources", check_then_advance)
+
+    with pytest.raises(ValueError, match="HEAD changed during source-basis validation"):
+        generate_corpus_digest.write_refreshed_digest(
+            tmp_path, digest_path, approval_ref=APPROVAL_REF
+        )
+
+    assert digest_path.read_bytes() == before
+
+
+def test_head_drift_before_write_blocks_refresh_without_writing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    digest_path, _first_head, second_head = prepare_head_drift_repo(tmp_path)
+    before = digest_path.read_bytes()
+    original_builder = generate_corpus_digest.build_refreshed_digest
+
+    def build_then_advance(*args, **kwargs):
+        refreshed = original_builder(*args, **kwargs)
+        run_git(tmp_path, "reset", "--hard", second_head)
+        return refreshed
+
+    monkeypatch.setattr(
+        generate_corpus_digest, "build_refreshed_digest", build_then_advance
+    )
+
+    with pytest.raises(ValueError, match="HEAD changed during pre-write validation"):
+        generate_corpus_digest.write_refreshed_digest(
+            tmp_path, digest_path, approval_ref=APPROVAL_REF
+        )
+
+    assert digest_path.read_bytes() == before
+
+
+def test_head_drift_after_write_is_coherent_but_cli_fails(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    digest_path, first_head, second_head = prepare_head_drift_repo(tmp_path)
+    original_write_digest = generate_corpus_digest.write_digest
+
+    def write_then_advance(digest, output_path):
+        original_write_digest(digest, output_path)
+        move_head_ref_only(tmp_path, second_head, first_head)
+
+    monkeypatch.setattr(generate_corpus_digest, "write_digest", write_then_advance)
+
+    with pytest.raises(SystemExit) as exc_info:
+        generate_corpus_digest.main(
+            [
+                "--repo-root",
+                str(tmp_path),
+                "--write",
+                "--approval-ref",
+                APPROVAL_REF,
+            ]
+        )
+
+    refreshed = json.loads(digest_path.read_text(encoding="utf-8"))
+    assert exc_info.value.code == 2
+    assert "HEAD changed during post-write validation" in capsys.readouterr().err
+    assert refreshed["git_sha"] == first_head
+    assert refreshed["sources"][0]["git_sha"] == first_head
+    assert refreshed["sources"][0]["content_hash"] == digest_hash(
+        "# Source at A\n"
+    )
+
+
+def test_post_write_refresh_required_is_failure(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    digest_path, _first_head, _second_head = prepare_head_drift_repo(tmp_path)
+    original_check_sources = generate_corpus_digest.check_sources
+    call_count = 0
+
+    def stale_after_write(*args, **kwargs):
+        nonlocal call_count
+        call_count += 1
+        checks = original_check_sources(*args, **kwargs)
+        if call_count == 2:
+            check = checks[0]
+            return [
+                generate_corpus_digest.SourceCheck(
+                    check.source_path,
+                    "stale",
+                    "synthetic post-write drift",
+                    check.recorded_hash,
+                    check.current_hash,
+                )
+            ]
+        return checks
+
+    monkeypatch.setattr(generate_corpus_digest, "check_sources", stale_after_write)
+
+    with pytest.raises(ValueError, match="post-write validation requires refresh"):
+        generate_corpus_digest.write_refreshed_digest(
+            tmp_path, digest_path, approval_ref=APPROVAL_REF
         )
 
 
@@ -756,3 +890,41 @@ def test_rebaseline_git_sha_override_cannot_weaken_source_basis_guard(tmp_path: 
             approval_ref=APPROVAL_REF,
             git_sha="not-the-head-commit",
         )
+
+
+def test_rebaseline_head_drift_after_candidate_check_blocks_write(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    write(tmp_path / "docs" / "A.md", "# Source at A\n")
+    digest_path = write_digest(
+        tmp_path,
+        [digest_entry("docs/OLD.md", source_text="# Old\n")],
+        initialize_git=False,
+    )
+    spec_path = write_source_set_spec(
+        tmp_path, [source_set_entry("docs/A.md")]
+    )
+    init_git_repo(tmp_path)
+    first_head = commit_all(tmp_path, "rebaseline source A")
+    write(tmp_path / "docs" / "A.md", "# Source at B\n")
+    second_head = commit_all(tmp_path, "rebaseline source B")
+    run_git(tmp_path, "reset", "--hard", first_head)
+    before = digest_path.read_bytes()
+    original_check_sources = generate_corpus_digest.check_sources
+
+    def check_then_advance(*args, **kwargs):
+        checks = original_check_sources(*args, **kwargs)
+        run_git(tmp_path, "reset", "--hard", second_head)
+        return checks
+
+    monkeypatch.setattr(generate_corpus_digest, "check_sources", check_then_advance)
+
+    with pytest.raises(ValueError, match="HEAD changed during source-basis validation"):
+        generate_corpus_digest.write_rebaselined_digest(
+            tmp_path,
+            digest_path,
+            spec_path,
+            approval_ref=APPROVAL_REF,
+        )
+
+    assert digest_path.read_bytes() == before
