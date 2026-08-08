@@ -202,6 +202,26 @@ def test_git_test_environment_is_isolated() -> None:
     assert os.environ["GIT_CONFIG_VALUE_3"] == str(Path.cwd().resolve())
 
 
+def test_git_test_environment_rejects_config_parameters_override(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    policy = sys.modules["conftest"]
+    monkeypatch.setenv("GIT_CONFIG_PARAMETERS", "'commit.gpgSign=true'")
+
+    policy._apply_git_environment(monkeypatch, tmp_path / "disabled-hooks")
+
+    assert "GIT_CONFIG_PARAMETERS" not in os.environ
+    result = subprocess.run(
+        ["git", "config", "--get", "commit.gpgSign"],
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == "false"
+
+
 def test_unreviewed_skip_is_rejected_by_session_policy() -> None:
     policy = sys.modules["conftest"]
     report = SimpleNamespace(
@@ -213,6 +233,61 @@ def test_unreviewed_skip_is_rejected_by_session_policy() -> None:
         "tests/test_synthetic.py::test_unreviewed_skip: "
         "expected=None observed='synthetic reason'"
     ]
+
+
+def test_unreviewed_skip_fails_without_terminal_reporter(monkeypatch) -> None:
+    policy = sys.modules["conftest"]
+    report = SimpleNamespace(
+        nodeid="tests/test_synthetic.py::test_unreviewed_skip",
+        longrepr=("synthetic.py", 1, "Skipped: synthetic reason"),
+        skipped=True,
+    )
+    session = SimpleNamespace(
+        config=SimpleNamespace(
+            pluginmanager=SimpleNamespace(get_plugin=lambda _name: None)
+        ),
+        exitstatus=pytest.ExitCode.OK,
+    )
+    monkeypatch.setattr(policy, "_SKIPPED_REPORTS", [report])
+
+    policy.pytest_sessionfinish(session, int(pytest.ExitCode.OK))
+
+    assert session.exitstatus == pytest.ExitCode.TESTS_FAILED
+
+
+def test_unreviewed_skip_fails_in_subprocess_without_terminal_reporter(
+    tmp_path: Path,
+) -> None:
+    synthetic_test = tmp_path / "test_unreviewed_skip.py"
+    synthetic_test.write_text(
+        "import pytest\n\n"
+        "def test_unreviewed_skip():\n"
+        "    pytest.skip('synthetic unexpected skip')\n",
+        encoding="utf-8",
+    )
+    environment = dict(os.environ)
+    environment["PYTEST_DISABLE_PLUGIN_AUTOLOAD"] = "1"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pytest",
+            "-p",
+            "no:terminal",
+            "-p",
+            "conftest",
+            str(synthetic_test),
+        ],
+        cwd=Path.cwd(),
+        env=environment,
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+
+    assert result.returncode == int(pytest.ExitCode.TESTS_FAILED), result.stderr
 
 
 def release_selector_text() -> str:
@@ -364,6 +439,69 @@ def test_release_selector_stops_before_follow_on_steps_when_all_invalid(
     assert not follow_on.exists()
 
 
+@pytest.mark.skipif(
+    shutil.which("powershell") is None,
+    reason="PowerShell is unavailable",
+)
+def test_release_selector_uses_python_312_launcher(tmp_path: Path) -> None:
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    argument_log = tmp_path / "launcher-args.txt"
+    launcher = fake_bin / "py.cmd"
+    launcher.write_text(
+        "\n".join(
+            [
+                "@echo off",
+                f'echo %* > "{argument_log}"',
+                'if "%1"=="-3.12" exit /b 0',
+                "exit /b 1",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    harness = tmp_path / "selector.ps1"
+    harness.write_text(
+        "\n".join(
+            [
+                '$ErrorActionPreference = "Stop"',
+                "$RepoRoot = Get-Location",
+                "function Test-Path { param([string]$LiteralPath) return $false }",
+                release_selector_text(),
+                "$selected = Find-Python",
+                "Write-Output $selected",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    environment = dict(os.environ)
+    environment.pop("PYTHON", None)
+    environment["PATH"] = str(fake_bin)
+    result = subprocess.run(
+        [
+            shutil.which("powershell") or "powershell",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(harness),
+        ],
+        cwd=Path.cwd(),
+        env=environment,
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == "py"
+    assert argument_log.read_text(encoding="utf-8").strip().startswith(
+        "-3.12 scripts/verify_dev_environment.py"
+    )
+
+
 def test_release_wrapper_reuses_one_fully_validated_python() -> None:
     text = Path("scripts/run_release_verify.ps1").read_text(encoding="utf-8")
     full_environment_command = (
@@ -389,3 +527,13 @@ def test_release_wrapper_reuses_one_fully_validated_python() -> None:
     assert text.count(select) == 1
     assert text.index(select) < text.index(propagate) < text.index(local_verify)
     assert text.index(local_verify) < text.index(generator)
+
+
+def test_python_launcher_fallback_is_minor_version_scoped() -> None:
+    for script in [
+        Path("scripts/run_local_verify.ps1"),
+        Path("scripts/run_release_verify.ps1"),
+    ]:
+        text = script.read_text(encoding="utf-8")
+        assert text.count("& py -3.12") == 2
+        assert "& py -3 " not in text

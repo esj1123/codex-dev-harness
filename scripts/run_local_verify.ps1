@@ -39,7 +39,7 @@ function Find-Python {
     foreach ($candidate in $candidates) {
         try {
             if ($candidate -eq "py") {
-                & py -3 scripts/verify_dev_environment.py --expected-version-file .python-version --lock requirements-dev.lock --json *> $null
+                & py -3.12 scripts/verify_dev_environment.py --expected-version-file .python-version --lock requirements-dev.lock --json *> $null
             } else {
                 & $candidate scripts/verify_dev_environment.py --expected-version-file .python-version --lock requirements-dev.lock --json *> $null
             }
@@ -64,7 +64,7 @@ function Invoke-PythonStep {
 
     Write-Host "==> $Label"
     if ($PythonCommand -eq "py") {
-        & py -3 @PythonArgs
+        & py -3.12 @PythonArgs
     } else {
         & $PythonCommand @PythonArgs
     }

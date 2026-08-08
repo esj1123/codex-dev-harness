@@ -29,12 +29,15 @@ _AMBIENT_GIT_KEYS = (
     "GIT_ALTERNATE_OBJECT_DIRECTORIES",
     "GIT_COMMON_DIR",
     "GIT_CONFIG",
+    "GIT_CONFIG_PARAMETERS",
     "GIT_CONFIG_SYSTEM",
     "GIT_DIR",
     "GIT_INDEX_FILE",
     "GIT_OBJECT_DIRECTORY",
     "GIT_WORK_TREE",
 )
+
+_SKIPPED_REPORTS: list[pytest.TestReport] = []
 
 
 def _skip_reason(report: pytest.TestReport) -> str:
@@ -60,14 +63,13 @@ def _unexpected_skips(reports: list[pytest.TestReport]) -> list[str]:
     return findings
 
 
-@pytest.fixture(scope="session", autouse=True)
-def isolate_git_process_environment(tmp_path_factory: pytest.TempPathFactory):
-    monkeypatch = pytest.MonkeyPatch()
+def _apply_git_environment(
+    monkeypatch: pytest.MonkeyPatch, disabled_hooks: Path
+) -> None:
     for name in _AMBIENT_GIT_KEYS:
         monkeypatch.delenv(name, raising=False)
 
-    disabled_hooks = tmp_path_factory.getbasetemp() / "disabled-git-hooks"
-    disabled_hooks.mkdir(exist_ok=True)
+    disabled_hooks.mkdir(parents=True, exist_ok=True)
     monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "1")
     monkeypatch.setenv("GIT_CONFIG_GLOBAL", os.devnull)
     monkeypatch.setenv("GIT_TERMINAL_PROMPT", "0")
@@ -81,14 +83,29 @@ def isolate_git_process_environment(tmp_path_factory: pytest.TempPathFactory):
     monkeypatch.setenv("GIT_CONFIG_VALUE_2", str(Path(disabled_hooks)))
     monkeypatch.setenv("GIT_CONFIG_KEY_3", "safe.directory")
     monkeypatch.setenv("GIT_CONFIG_VALUE_3", str(Path.cwd().resolve()))
+
+
+@pytest.fixture(scope="session", autouse=True)
+def isolate_git_process_environment(tmp_path_factory: pytest.TempPathFactory):
+    monkeypatch = pytest.MonkeyPatch()
+    disabled_hooks = tmp_path_factory.getbasetemp() / "disabled-git-hooks"
+    _apply_git_environment(monkeypatch, disabled_hooks)
     yield
     monkeypatch.undo()
 
 
+def pytest_sessionstart(session: pytest.Session) -> None:
+    _SKIPPED_REPORTS.clear()
+
+
+def pytest_runtest_logreport(report: pytest.TestReport) -> None:
+    if report.skipped:
+        _SKIPPED_REPORTS.append(report)
+
+
 def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     reporter = session.config.pluginmanager.get_plugin("terminalreporter")
-    reports = [] if reporter is None else list(reporter.stats.get("skipped", []))
-    findings = _unexpected_skips(reports)
+    findings = _unexpected_skips(list(_SKIPPED_REPORTS))
     if not findings:
         return
     if reporter is not None:
