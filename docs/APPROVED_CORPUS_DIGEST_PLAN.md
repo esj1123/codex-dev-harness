@@ -641,8 +641,11 @@ Default mode is read-only check:
 
 `python scripts/generate_corpus_digest.py --check --json`
 
-Check mode reviews the existing digest and digest-listed source files. It must
-not modify `artifacts/corpus-digest.json`.
+Check mode pins an exact current HEAD first, then reviews the existing digest
+against digest-listed regular Git blobs from that commit. One `ls-tree` and one
+`cat-file --batch` read the approved set; working-tree links and private target
+content are never resolved or read. Check mode must not modify
+`artifacts/corpus-digest.json`.
 
 Write mode is present as a guarded tool capability, but it is not standing
 approval to refresh the artifact. Write mode may target only the exact
@@ -661,7 +664,7 @@ Write mode requires:
 - SHA-256 over UTF-8 text with CRLF/CR normalized to LF;
 - missing, unsafe, symlink, or invalid UTF-8 sources to block write;
 - the current HEAD commit to be available;
-- every digest-listed source to be tracked in HEAD;
+- every digest-listed source to be a regular blob in the pinned exact HEAD;
 - no staged or unstaged changes in any digest-listed source path.
 
 The source-basis rule is:

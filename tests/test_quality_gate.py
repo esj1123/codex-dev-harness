@@ -635,6 +635,28 @@ def test_secret_scan_gate_ignores_root_local_environments(
     assert secret_scan_gate.run(tmp_path).passed is True
 
 
+@pytest.mark.parametrize(
+    "relative_path",
+    ["local/secret", ".venv/credential", "extensionless"],
+)
+def test_secret_scan_gate_checks_force_tracked_ignored_and_extensionless_files(
+    tmp_path: Path, relative_path: str
+) -> None:
+    write(tmp_path / relative_path, "api_key=" + "a" * 24 + "\n")
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "add", "-f", "--", relative_path],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+    )
+
+    result = secret_scan_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert any(relative_path in message for message in result.messages)
+
+
 def test_repo_hygiene_gate_ignores_local_workspace(tmp_path: Path) -> None:
     write(tmp_path / "local" / "scratch.pyc", "")
 

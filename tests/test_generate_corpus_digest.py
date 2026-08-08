@@ -63,7 +63,12 @@ def source_set_entry(
     }
 
 
-def write_digest(root: Path, sources: list[dict[str, object]]) -> Path:
+def write_digest(
+    root: Path,
+    sources: list[dict[str, object]],
+    *,
+    initialize_git: bool = True,
+) -> Path:
     digest_path = root / "artifacts" / "corpus-digest.json"
     digest_path.parent.mkdir(parents=True, exist_ok=True)
     payload = {
@@ -90,6 +95,9 @@ def write_digest(root: Path, sources: list[dict[str, object]]) -> Path:
         "closeout": {"status_label": "PASS WITH NOTES"},
     }
     digest_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    if initialize_git and not (root / ".git").exists():
+        init_git_repo(root)
+        commit_all(root)
     return digest_path
 
 
@@ -249,7 +257,7 @@ def test_invalid_utf8_blocks_write(tmp_path: Path) -> None:
 def test_modified_digest_listed_tracked_source_blocks_write(tmp_path: Path) -> None:
     text = "# Clean\n"
     write(tmp_path / "docs" / "A.md", text)
-    digest_path = write_digest(tmp_path, [digest_entry("docs/A.md", content_hash=digest_hash("old\n"))])
+    digest_path = write_digest(tmp_path, [digest_entry("docs/A.md", content_hash=digest_hash("old\n"))], initialize_git=False)
     init_git_repo(tmp_path)
     commit_all(tmp_path)
     write(tmp_path / "docs" / "A.md", "# Modified\n")
@@ -261,7 +269,7 @@ def test_modified_digest_listed_tracked_source_blocks_write(tmp_path: Path) -> N
 def test_staged_digest_listed_source_blocks_write(tmp_path: Path) -> None:
     text = "# Clean\n"
     write(tmp_path / "docs" / "A.md", text)
-    digest_path = write_digest(tmp_path, [digest_entry("docs/A.md", content_hash=digest_hash("old\n"))])
+    digest_path = write_digest(tmp_path, [digest_entry("docs/A.md", content_hash=digest_hash("old\n"))], initialize_git=False)
     init_git_repo(tmp_path)
     commit_all(tmp_path)
     write(tmp_path / "docs" / "A.md", "# Staged\n")
@@ -274,7 +282,7 @@ def test_staged_digest_listed_source_blocks_write(tmp_path: Path) -> None:
 def test_clean_committed_digest_listed_source_permits_refresh_write(tmp_path: Path) -> None:
     text = "# Current source\n"
     write(tmp_path / "docs" / "A.md", text)
-    digest_path = write_digest(tmp_path, [digest_entry("docs/A.md", content_hash=digest_hash("old\n"))])
+    digest_path = write_digest(tmp_path, [digest_entry("docs/A.md", content_hash=digest_hash("old\n"))], initialize_git=False)
     init_git_repo(tmp_path)
     head = commit_all(tmp_path)
 
@@ -295,7 +303,7 @@ def test_clean_committed_digest_listed_source_permits_refresh_write(tmp_path: Pa
 def test_git_sha_override_cannot_weaken_source_basis_guard(tmp_path: Path) -> None:
     text = "# Current source\n"
     write(tmp_path / "docs" / "A.md", text)
-    digest_path = write_digest(tmp_path, [digest_entry("docs/A.md", source_text=text)])
+    digest_path = write_digest(tmp_path, [digest_entry("docs/A.md", source_text=text)], initialize_git=False)
     init_git_repo(tmp_path)
     commit_all(tmp_path)
 
@@ -431,6 +439,59 @@ def test_report_does_not_copy_source_body(tmp_path: Path) -> None:
 
     assert "UNIQUE_SYNTHETIC_SOURCE_BODY_SHOULD_NOT_APPEAR" not in json.dumps(report)
     assert "UNIQUE_SYNTHETIC_SOURCE_BODY_SHOULD_NOT_APPEAR" not in json.dumps(refreshed)
+
+
+def test_check_reads_exact_head_blob_not_working_tree_content(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    committed = "# Approved\n"
+    write(tmp_path / "docs" / "A.md", committed)
+    digest_path = write_digest(
+        tmp_path, [digest_entry("docs/A.md", source_text=committed)]
+    )
+    write(tmp_path / "docs" / "A.md", "api_key=" + "p" * 24 + "\n")
+
+    monkeypatch.setattr(
+        generate_corpus_digest,
+        "read_normalized_text",
+        lambda _path: (_ for _ in ()).throw(AssertionError("working tree read")),
+    )
+    report = generate_corpus_digest.check_digest(tmp_path, digest_path)
+
+    assert report["valid"] == 1
+    assert report["stale"] == 0
+    assert "api_key" not in json.dumps(report)
+
+
+def test_exact_head_symlink_entry_is_not_read_as_corpus_source(tmp_path: Path) -> None:
+    init_git_repo(tmp_path)
+    digest_path = write_digest(
+        tmp_path,
+        [digest_entry("docs/LINK.md", source_text="../private.txt\n")],
+        initialize_git=False,
+    )
+    blob = subprocess.run(
+        ["git", "hash-object", "-w", "--stdin"],
+        cwd=tmp_path,
+        input="../private.txt\n",
+        text=True,
+        check=True,
+        capture_output=True,
+    ).stdout.strip()
+    run_git(
+        tmp_path,
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        f"120000,{blob},docs/LINK.md",
+    )
+    run_git(tmp_path, "add", "artifacts/corpus-digest.json")
+    run_git(tmp_path, "commit", "-m", "synthetic symlink source")
+
+    report = generate_corpus_digest.check_digest(tmp_path, digest_path)
+
+    assert report["missing"] == 1
+    assert report["sources"][0]["note"] == "source is not a regular blob at exact HEAD"
 
 
 def test_phase_6h_source_set_spec_matches_exact_contract() -> None:

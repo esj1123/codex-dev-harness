@@ -162,6 +162,10 @@ Implemented machine-readable fields:
 
 ## Implemented Files
 
+Rendered-readiness case names are untrusted path components. The runner rejects
+absolute/drive paths, separators, and `..` before joining a name to its private
+temporary root.
+
 These files are present in the minimal standalone implementation:
 
 - `evals/cases/render_structure_base_docs.yml`

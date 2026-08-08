@@ -150,6 +150,18 @@ def run_rendered_readiness(repo_root: Path, case: dict[str, Any]) -> EvalResult:
 
     for render_case in case.get("renders", []):
         render_name = str(render_case.get("name", f"render_{checked + 1}"))
+        raw_render_path = Path(render_name)
+        if (
+            not render_name
+            or raw_render_path.is_absolute()
+            or bool(raw_render_path.drive)
+            or bool(raw_render_path.anchor)
+            or "/" in render_name
+            or "\\" in render_name
+            or ".." in render_name
+        ):
+            findings.append(f"unsafe render name rejected: {render_name!r}")
+            continue
         config_relative = str(render_case["config"])
         config_path = repo_root / config_relative
         min_score = int(render_case.get("min_score", 13))

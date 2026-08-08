@@ -262,6 +262,24 @@ def test_forbidden_artifacts_ignores_tool_root(
     assert result.passed is True
 
 
+@pytest.mark.parametrize(
+    "render_name",
+    ["../escape", "nested/escape", r"nested\escape", r"C:\escape", "/escape", ".."],
+)
+def test_rendered_readiness_rejects_unsafe_render_name(
+    tmp_path: Path, render_name: str
+) -> None:
+    case = {
+        "name": "unsafe_render_name",
+        "renders": [{"name": render_name, "config": "missing.yml"}],
+    }
+
+    result = run_eval.run_rendered_readiness(tmp_path, case)
+
+    assert result.passed is False
+    assert result.messages == [f"unsafe render name rejected: {render_name!r}"]
+
+
 def test_resolve_report_path_accepts_repo_relative_path(tmp_path: Path) -> None:
     result = run_eval.resolve_report_path(tmp_path, "artifacts/eval-report.json")
 

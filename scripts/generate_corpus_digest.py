@@ -18,6 +18,7 @@ from typing import Any
 DEFAULT_DIGEST_PATH = "artifacts/corpus-digest.json"
 DEFAULT_APPROVAL_REF = "owner_approved_phase_6g_digest_refresh_task"
 SHA256_HEX_RE = re.compile(r"^[0-9a-fA-F]{64}$")
+SHA1_HEX_RE = re.compile(r"^[0-9a-f]{40}$")
 WINDOWS_ABSOLUTE_RE = re.compile(r"^[A-Za-z]:[\\/]")
 
 APPROVED_CONTENT_CLASSES = {
@@ -103,7 +104,7 @@ def utc_now() -> str:
 def current_git_sha(repo_root: Path) -> str:
     try:
         result = subprocess.run(
-            ["git", "rev-parse", "HEAD"],
+            ["git", "rev-parse", "--verify", "HEAD^{commit}"],
             cwd=repo_root,
             check=True,
             capture_output=True,
@@ -111,7 +112,76 @@ def current_git_sha(repo_root: Path) -> str:
         )
     except (OSError, subprocess.CalledProcessError):
         return "UNKNOWN"
-    return result.stdout.strip() or "UNKNOWN"
+    value = result.stdout.strip()
+    return value if SHA1_HEX_RE.fullmatch(value) else "UNKNOWN"
+
+
+def git_blob_sources(
+    repo_root: Path, source_paths: list[str], head_sha: str
+) -> dict[str, bytes]:
+    if SHA1_HEX_RE.fullmatch(head_sha) is None:
+        raise ValueError("cannot inspect corpus sources without an exact HEAD commit")
+    unique_paths = list(dict.fromkeys(source_paths))
+    try:
+        tree = subprocess.run(
+            ["git", "ls-tree", "-rz", "--full-tree", head_sha, "--", *unique_paths],
+            cwd=repo_root,
+            check=True,
+            capture_output=True,
+        ).stdout
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise ValueError("cannot inspect corpus source tree") from exc
+
+    object_ids: dict[str, str] = {}
+    for entry in tree.split(b"\0"):
+        if not entry:
+            continue
+        try:
+            header, raw_path = entry.split(b"\t", 1)
+            mode, object_type, object_id = header.decode("ascii").split(" ")
+            path = raw_path.decode("utf-8")
+        except (UnicodeDecodeError, ValueError) as exc:
+            raise ValueError("corpus source tree entry is malformed") from exc
+        if path in unique_paths and object_type == "blob" and mode in {"100644", "100755"}:
+            object_ids[path] = object_id
+
+    ordered = [(path, object_ids[path]) for path in unique_paths if path in object_ids]
+    if not ordered:
+        return {}
+    request = "".join(f"{object_id}\n" for _, object_id in ordered).encode("ascii")
+    try:
+        output = subprocess.run(
+            ["git", "cat-file", "--batch"],
+            cwd=repo_root,
+            input=request,
+            check=True,
+            capture_output=True,
+        ).stdout
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise ValueError("cannot read corpus source blobs") from exc
+
+    blobs: dict[str, bytes] = {}
+    offset = 0
+    for path, object_id in ordered:
+        line_end = output.find(b"\n", offset)
+        if line_end < 0:
+            raise ValueError("corpus blob batch output is truncated")
+        try:
+            header = output[offset:line_end].decode("ascii").split(" ")
+            size = int(header[2])
+        except (UnicodeDecodeError, ValueError, IndexError) as exc:
+            raise ValueError("corpus blob batch output is malformed") from exc
+        if len(header) != 3 or header[0] != object_id or header[1] != "blob":
+            raise ValueError("corpus blob batch output is malformed")
+        start = line_end + 1
+        end = start + size
+        if end >= len(output) or output[end : end + 1] != b"\n":
+            raise ValueError("corpus blob batch output has an invalid length")
+        blobs[path] = output[start:end]
+        offset = end + 1
+    if offset != len(output):
+        raise ValueError("corpus blob batch output contains trailing data")
+    return blobs
 
 
 def git_stdout(repo_root: Path, args: list[str]) -> str:
@@ -204,6 +274,8 @@ def validate_repo_relative_source_path(value: Any) -> tuple[str | None, str | No
         return None, "source path is missing"
     raw = value.strip()
     normalized = raw.replace("\\", "/")
+    if any(ord(character) < 32 or ord(character) == 127 for character in raw):
+        return None, "source path contains control characters"
     if is_absolute_path_text(raw) or is_absolute_path_text(normalized):
         return None, "source path is absolute"
     if normalized != raw:
@@ -304,7 +376,9 @@ def load_source_set_spec(spec_path: Path) -> dict[str, Any]:
         return validate_source_set_spec(json.load(handle))
 
 
-def check_source(repo_root: Path, item: Any, digest_algorithm: str) -> SourceCheck:
+def check_source(
+    item: Any, digest_algorithm: str, source_blobs: dict[str, bytes]
+) -> SourceCheck:
     if not isinstance(item, dict):
         return SourceCheck("<invalid>", "unsafe", "source entry is not an object")
 
@@ -316,24 +390,13 @@ def check_source(repo_root: Path, item: Any, digest_algorithm: str) -> SourceChe
     if metadata_reason is not None:
         return SourceCheck(normalized, "unsafe", metadata_reason)
 
-    full_path = (repo_root / normalized).resolve(strict=False)
+    blob = source_blobs.get(normalized)
+    if blob is None:
+        return SourceCheck(normalized, "missing", "source is not a regular blob at exact HEAD")
     try:
-        full_path.relative_to(repo_root.resolve())
-    except ValueError:
-        return SourceCheck(normalized, "unsafe", "resolved path escapes repository")
-    if not full_path.exists():
-        return SourceCheck(normalized, "missing", "source file is missing")
-    if full_path.is_symlink():
-        return SourceCheck(normalized, "unsafe", "source file is a symlink")
-    if not full_path.is_file():
-        return SourceCheck(normalized, "unsafe", "source path is not a regular file")
-
-    try:
-        text = read_normalized_text(full_path)
+        text = normalize_text(blob.decode("utf-8"))
     except UnicodeDecodeError:
         return SourceCheck(normalized, "invalid_utf8", "source file is not UTF-8 text")
-    except OSError:
-        return SourceCheck(normalized, "unsafe", "source file cannot be read")
 
     current_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
     recorded_hash = item.get("content_hash")
@@ -344,9 +407,21 @@ def check_source(repo_root: Path, item: Any, digest_algorithm: str) -> SourceChe
     return SourceCheck(normalized, "valid", "source content_hash matches", recorded_hash.lower(), current_hash)
 
 
-def check_sources(repo_root: Path, digest: dict[str, Any]) -> list[SourceCheck]:
+def check_sources(
+    repo_root: Path, digest: dict[str, Any], head_sha: str | None = None
+) -> list[SourceCheck]:
+    exact_head = head_sha or current_git_sha(repo_root)
+    if exact_head == "UNKNOWN":
+        raise ValueError("cannot inspect corpus sources: current HEAD is unavailable")
+    valid_paths: list[str] = []
+    for item in digest["sources"]:
+        if isinstance(item, dict):
+            normalized, reason = validate_repo_relative_source_path(item.get("source_path"))
+            if reason is None and normalized is not None:
+                valid_paths.append(normalized)
+    source_blobs = git_blob_sources(repo_root, valid_paths, exact_head)
     digest_algorithm = str(digest.get("digest_algorithm") or "")
-    return [check_source(repo_root, item, digest_algorithm) for item in digest["sources"]]
+    return [check_source(item, digest_algorithm, source_blobs) for item in digest["sources"]]
 
 
 def digest_source_paths(digest: dict[str, Any]) -> list[str]:
@@ -378,12 +453,8 @@ def require_clean_digest_source_basis(repo_root: Path, digest: dict[str, Any]) -
         raise ValueError("cannot write digest: current HEAD is unavailable")
 
     source_paths = unique_preserving_order(digest_source_paths(digest))
-    missing_from_head: list[str] = []
-    for source_path in source_paths:
-        try:
-            git_stdout(repo_root, ["cat-file", "-e", f"{head}:{source_path}"])
-        except (OSError, subprocess.CalledProcessError):
-            missing_from_head.append(source_path)
+    blobs = git_blob_sources(repo_root, source_paths, head)
+    missing_from_head = [path for path in source_paths if path not in blobs]
     if missing_from_head:
         raise ValueError(
             "cannot write digest: digest-listed source is not present in HEAD: "
@@ -514,17 +585,15 @@ def build_refreshed_digest(
     return refreshed
 
 
-def source_content_hash_or_placeholder(repo_root: Path, source_path: str) -> str:
-    full_path = (repo_root / source_path).resolve(strict=False)
-    try:
-        full_path.relative_to(repo_root.resolve())
-    except ValueError:
-        return "0" * 64
-    if full_path.is_symlink() or not full_path.is_file():
+def source_content_hash_or_placeholder(
+    source_path: str, source_blobs: dict[str, bytes]
+) -> str:
+    blob = source_blobs.get(source_path)
+    if blob is None:
         return "0" * 64
     try:
-        return normalized_sha256(read_normalized_text(full_path))
-    except (OSError, UnicodeDecodeError):
+        return normalized_sha256(blob.decode("utf-8"))
+    except UnicodeDecodeError:
         return "0" * 64
 
 
@@ -558,6 +627,9 @@ def build_rebaselined_digest(
         "boundary_phrase_match_count_status": "not_run_by_rebaseline_tool",
     }
 
+    source_blobs = git_blob_sources(
+        repo_root, source_set_paths(source_set_spec), git_sha
+    )
     sources: list[dict[str, Any]] = []
     for source in source_set_spec["ordered_sources"]:
         source_path = source["source_path"]
@@ -573,7 +645,7 @@ def build_rebaselined_digest(
                 "redaction_status": "metadata_hash_only_no_source_text",
                 "encoding_status": "utf8_readable",
                 "digest_algorithm": "sha256",
-                "content_hash": source_content_hash_or_placeholder(repo_root, source_path),
+                "content_hash": source_content_hash_or_placeholder(source_path, source_blobs),
                 "verified_at": generated_at,
                 "reviewer_or_approval_ref": approval_ref,
                 "notes": "Metadata and hash only; source body omitted.",
