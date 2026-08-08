@@ -1,6 +1,8 @@
 import json
+import os
 from pathlib import Path
 import subprocess
+from types import SimpleNamespace
 
 import pytest
 
@@ -49,7 +51,34 @@ def write(path: Path, content: str = REQUIRED_DOC_CONTENT) -> None:
     path.write_text(content, encoding="utf-8")
 
 
+def init_git_repo(root: Path) -> None:
+    subprocess.run(
+        ["git", "init", "-q", str(root)], check=True, capture_output=True
+    )
+
+
+def create_directory_link(link: Path, target: Path) -> None:
+    if os.name == "nt":
+        result = subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(link), str(target)],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0, result.stderr or result.stdout
+    else:
+        link.symlink_to(target, target_is_directory=True)
+
+
+def remove_directory_link(link: Path) -> None:
+    if os.name == "nt":
+        link.rmdir()
+    else:
+        link.unlink()
+
+
 def minimal_repo(root: Path) -> None:
+    init_git_repo(root)
     for relative in docs_gate.REQUIRED_DOCS:
         write(root / relative)
     write(
@@ -581,6 +610,7 @@ def test_template_schema_gate_rejects_unknown_render_tier(tmp_path: Path) -> Non
 
 
 def test_secret_scan_gate_detects_private_key(tmp_path: Path) -> None:
+    init_git_repo(tmp_path)
     write(tmp_path / "README.md", "-----BEGIN " + "PRIVATE KEY-----\n")
 
     result = secret_scan_gate.run(tmp_path)
@@ -590,6 +620,7 @@ def test_secret_scan_gate_detects_private_key(tmp_path: Path) -> None:
 
 
 def test_secret_scan_gate_ignores_local_workspace(tmp_path: Path) -> None:
+    init_git_repo(tmp_path)
     write(tmp_path / "local" / "scratch.md", "-----BEGIN " + "PRIVATE KEY-----\n")
 
     result = secret_scan_gate.run(tmp_path)
@@ -598,6 +629,7 @@ def test_secret_scan_gate_ignores_local_workspace(tmp_path: Path) -> None:
 
 
 def test_secret_scan_gate_checks_nested_local_named_folders(tmp_path: Path) -> None:
+    init_git_repo(tmp_path)
     write(tmp_path / "docs" / "local" / "scratch.md", "-----BEGIN " + "PRIVATE KEY-----\n")
 
     result = secret_scan_gate.run(tmp_path)
@@ -624,6 +656,7 @@ def test_secret_scan_gate_checks_nested_local_named_folders(tmp_path: Path) -> N
 def test_secret_scan_gate_checks_expanded_text_surface(
     tmp_path: Path, relative_path: str
 ) -> None:
+    init_git_repo(tmp_path)
     write(tmp_path / relative_path, "api_key=" + "a" * 24 + "\n")
 
     result = secret_scan_gate.run(tmp_path)
@@ -636,6 +669,7 @@ def test_secret_scan_gate_checks_expanded_text_surface(
 def test_secret_scan_gate_ignores_root_local_environments(
     tmp_path: Path, root_name: str
 ) -> None:
+    init_git_repo(tmp_path)
     write(
         tmp_path / root_name / "nested" / "config.json",
         "api_key=" + "a" * 24 + "\n",
@@ -652,7 +686,7 @@ def test_secret_scan_gate_checks_force_tracked_ignored_and_extensionless_files(
     tmp_path: Path, relative_path: str
 ) -> None:
     write(tmp_path / relative_path, "api_key=" + "a" * 24 + "\n")
-    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
+    init_git_repo(tmp_path)
     subprocess.run(
         ["git", "add", "-f", "--", relative_path],
         cwd=tmp_path,
@@ -664,6 +698,242 @@ def test_secret_scan_gate_checks_force_tracked_ignored_and_extensionless_files(
 
     assert result.passed is False
     assert any(relative_path in message for message in result.messages)
+
+
+def test_secret_scan_gate_fails_closed_when_git_inventory_errors(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def fail_inventory(*_args, **_kwargs):
+        raise OSError("synthetic git failure")
+
+    monkeypatch.setattr(secret_scan_gate.subprocess, "run", fail_inventory)
+
+    result = secret_scan_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert result.messages == ["tracked file inventory failed"]
+
+
+def test_secret_scan_gate_fails_closed_when_git_inventory_times_out(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def timeout_inventory(*args, **_kwargs):
+        raise subprocess.TimeoutExpired(args[0], 30)
+
+    monkeypatch.setattr(secret_scan_gate.subprocess, "run", timeout_inventory)
+
+    result = secret_scan_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert result.messages == ["tracked file inventory failed"]
+
+
+@pytest.mark.parametrize(
+    ("result", "expected"),
+    [
+        (
+            SimpleNamespace(returncode=128, stdout=b"", stderr=b"synthetic"),
+            "tracked file inventory failed",
+        ),
+        (
+            SimpleNamespace(
+                returncode=0,
+                stdout=b"a" * (secret_scan_gate.MAX_GIT_OUTPUT_BYTES + 1),
+                stderr=b"",
+            ),
+            "tracked file inventory exceeded output limit",
+        ),
+        (
+            SimpleNamespace(returncode=0, stdout=b"\xff\0", stderr=b""),
+            "tracked file inventory is not valid UTF-8",
+        ),
+        (
+            SimpleNamespace(returncode=0, stdout=b"../outside\0", stderr=b""),
+            "tracked file inventory contains an unsafe path",
+        ),
+    ],
+)
+def test_secret_scan_gate_rejects_invalid_git_inventory(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    result: SimpleNamespace,
+    expected: str,
+) -> None:
+    monkeypatch.setattr(
+        secret_scan_gate.subprocess, "run", lambda *_args, **_kwargs: result
+    )
+
+    gate_result = secret_scan_gate.run(tmp_path)
+
+    assert gate_result.passed is False
+    assert gate_result.messages == [expected]
+
+
+def test_secret_scan_gate_rejects_tracked_hardlink(tmp_path: Path) -> None:
+    init_git_repo(tmp_path)
+    tracked = tmp_path / "tracked.txt"
+    write(tracked, "benign\n")
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "add", "tracked.txt"], check=True
+    )
+    alias = tmp_path / "local" / "alias.txt"
+    alias.parent.mkdir()
+    os.link(tracked, alias)
+
+    result = secret_scan_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert result.messages == ["tracked.txt is a multiply-linked file"]
+
+
+def test_secret_scan_gate_rejects_tracked_parent_junction_or_symlink(
+    tmp_path: Path,
+) -> None:
+    init_git_repo(tmp_path)
+    tracked_parent = tmp_path / "linked"
+    write(tracked_parent / "secret.txt", "benign\n")
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "add", "linked/secret.txt"], check=True
+    )
+    (tracked_parent / "secret.txt").unlink()
+    tracked_parent.rmdir()
+    target = tmp_path / "local" / "outside"
+    write(target / "secret.txt", "api_key=" + "a" * 24 + "\n")
+    create_directory_link(tracked_parent, target)
+    try:
+        result = secret_scan_gate.run(tmp_path)
+    finally:
+        remove_directory_link(tracked_parent)
+
+    assert result.passed is False
+    assert result.messages == [
+        "linked/secret.txt uses a symlink or reparse point"
+    ]
+
+
+def test_secret_scan_gate_rejects_tracked_leaf_reparse_or_symlink(
+    tmp_path: Path,
+) -> None:
+    init_git_repo(tmp_path)
+    tracked = tmp_path / "tracked.txt"
+    write(tracked, "benign\n")
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "add", "tracked.txt"], check=True
+    )
+    tracked.unlink()
+    if os.name == "nt":
+        target = tmp_path / "local" / "outside-directory"
+        target.mkdir(parents=True)
+        create_directory_link(tracked, target)
+    else:
+        target = tmp_path / "local" / "outside.txt"
+        write(target, "api_key=" + "a" * 24 + "\n")
+        tracked.symlink_to(target)
+    try:
+        result = secret_scan_gate.run(tmp_path)
+    finally:
+        if os.name == "nt":
+            remove_directory_link(tracked)
+        else:
+            tracked.unlink()
+
+    assert result.passed is False
+    assert result.messages == ["tracked.txt uses a symlink or reparse point"]
+
+
+def test_secret_scan_gate_rejects_tracked_identity_drift(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    init_git_repo(tmp_path)
+    tracked = tmp_path / "tracked.txt"
+    write(tracked, "benign\n")
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "add", "tracked.txt"], check=True
+    )
+    original_identity = secret_scan_gate._path_identity
+    identity_calls = 0
+
+    def drifting_identity(path: Path) -> tuple[int, ...]:
+        nonlocal identity_calls
+        identity_calls += 1
+        identity = original_identity(path)
+        if identity_calls == 2:
+            return (*identity[:-1], identity[-1] + 1)
+        return identity
+
+    monkeypatch.setattr(secret_scan_gate, "_path_identity", drifting_identity)
+
+    result = secret_scan_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert result.messages == ["tracked.txt identity changed while scanning"]
+
+
+def test_secret_scan_gate_rejects_missing_tracked_file(tmp_path: Path) -> None:
+    init_git_repo(tmp_path)
+    tracked = tmp_path / "tracked.txt"
+    write(tracked, "benign\n")
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "add", "tracked.txt"], check=True
+    )
+    tracked.unlink()
+
+    result = secret_scan_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert result.messages == ["tracked.txt could not be scanned"]
+
+
+def test_secret_scan_gate_rejects_unreadable_tracked_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    init_git_repo(tmp_path)
+    tracked = tmp_path / "tracked.txt"
+    write(tracked, "benign\n")
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "add", "tracked.txt"], check=True
+    )
+    original_read_bytes = Path.read_bytes
+
+    def fail_tracked_read(path: Path) -> bytes:
+        if path == tracked:
+            raise PermissionError("synthetic unreadable file")
+        return original_read_bytes(path)
+
+    monkeypatch.setattr(Path, "read_bytes", fail_tracked_read)
+
+    result = secret_scan_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert result.messages == ["tracked.txt could not be scanned"]
+
+
+def test_secret_scan_gate_rejects_oversize_tracked_file(tmp_path: Path) -> None:
+    init_git_repo(tmp_path)
+    tracked = tmp_path / "tracked.txt"
+    write(tracked, "a" * (secret_scan_gate.MAX_TRACKED_TEXT_BYTES + 1))
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "add", "tracked.txt"], check=True
+    )
+
+    result = secret_scan_gate.run(tmp_path)
+
+    assert result.passed is False
+    assert result.messages == ["tracked.txt exceeds tracked text scan limit"]
+
+
+def test_secret_scan_gate_prunes_untracked_reparse_directory(tmp_path: Path) -> None:
+    init_git_repo(tmp_path)
+    target = tmp_path / "local" / "outside"
+    write(target / "secret.txt", "api_key=" + "a" * 24 + "\n")
+    link = tmp_path / "linked"
+    create_directory_link(link, target)
+    try:
+        result = secret_scan_gate.run(tmp_path)
+    finally:
+        remove_directory_link(link)
+
+    assert result.passed is True
 
 
 def test_repo_hygiene_gate_ignores_local_workspace(tmp_path: Path) -> None:
