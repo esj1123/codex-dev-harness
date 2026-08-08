@@ -56,17 +56,19 @@ SBOM and provenance artifacts build on that baseline:
   - SHA-256 digest when available from `release-manifest.json`
   - relationship to the repository package
 - Python dev dependency metadata:
-  - package names from `requirements-dev.txt`
-  - version constraints when present
+  - exact package names and versions from `requirements-dev.lock`
+  - only entries accepted by the shared exact-pin/SHA-256 lock parser
   - package download or registry metadata only if available locally or approved
 - license fields:
   - known repository license value if the repository records one
   - `UNKNOWN` for unknown dependency licenses
 
-The local generator recognizes the repository's MIT license only from the
-repo-root `LICENSE` file and its expected MIT and copyright markers. Missing,
-unreadable, or unrecognized license text remains `UNKNOWN`. No registry,
-network, or external license lookup is performed.
+The local generator recognizes the repository's MIT license only when the
+repo-root `LICENSE` bytes match the exact manifest source record and contain
+the expected MIT and copyright markers. The hash-locked dependency file is
+subject to the same manifest-basis byte check. Missing or mismatched source
+records fail closed; unrecognized but matching license text remains `UNKNOWN`.
+No registry, network, or external license lookup is performed.
 
 Committed SBOM artifacts retain their recorded source-basis semantics. Adding
 or detecting the repository license does not by itself authorize regeneration
@@ -110,7 +112,7 @@ evidence using a minimal in-toto-style statement:
   - SBOM/provenance generation commands if implemented later
 - materials/input digests:
   - repository files from `release-manifest.json`
-  - `requirements-dev.txt`
+  - `requirements-dev.lock`
   - generator scripts
 - products/output digests:
   - `artifacts/release-manifest.json`
@@ -144,6 +146,13 @@ The local SBOM generator rejects output paths that would overwrite the input
 manifest, checksum artifacts, the other SBOM output, or the provenance artifact.
 The local provenance generator rejects output paths that would overwrite the
 manifest, checksum artifacts, or SBOM artifacts.
+
+All four release generators share the physical boundary implemented in
+`generate_checksums.py`: existing raw components are inspected with `lstat`,
+link/reparse and hardlink aliases are rejected, temporary outputs are created
+exclusively beside their final target, and parent/target identity is checked
+again before replacement. This is a bounded local defense and not a claim of
+complete hostile Windows TOCTOU prevention.
 
 ## Current Implementation Files
 

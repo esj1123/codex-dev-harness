@@ -1,5 +1,9 @@
 import hashlib
+import os
 from pathlib import Path
+import subprocess
+
+import pytest
 
 from scripts import generate_checksums
 
@@ -234,3 +238,101 @@ def test_checksums_reject_absolute_paths(tmp_path: Path) -> None:
     ]:
         path_arg = str(tmp_path / "artifacts" / filename)
         assert_path_rejected(tmp_path, path_arg, flag_name, "relative path")
+
+
+def test_physical_boundary_rejects_synthetic_symlink_component(
+    tmp_path: Path, monkeypatch
+) -> None:
+    bundle = write_release_bundle(tmp_path)
+    original = generate_checksums.stat.S_ISLNK
+
+    def synthetic_symlink(mode: int) -> bool:
+        return original(mode) or mode == bundle["manifest"].lstat().st_mode
+
+    monkeypatch.setattr(generate_checksums.stat, "S_ISLNK", synthetic_symlink)
+
+    with pytest.raises(ValueError, match="symlink or reparse point"):
+        generate_checksums.read_regular_file(
+            tmp_path, bundle["manifest"], "--manifest"
+        )
+
+
+@pytest.mark.parametrize("leaf", [False, True])
+def test_release_paths_reject_junction_parent_and_leaf(
+    tmp_path: Path, leaf: bool
+) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    artifacts = repo / "artifacts"
+    if leaf:
+        artifacts.mkdir()
+        junction = artifacts / "release-manifest.json"
+        path_arg = "artifacts/release-manifest.json"
+    else:
+        junction = artifacts
+        path_arg = "artifacts/release-manifest.json"
+    if os.name == "nt":
+        created = subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(junction), str(outside)],
+            check=False,
+            capture_output=True,
+        )
+        assert created.returncode == 0, created.stderr.decode(errors="replace")
+    else:
+        junction.symlink_to(outside, target_is_directory=True)
+    try:
+        with pytest.raises(ValueError, match="symlink or reparse point"):
+            generate_checksums.resolve_repo_path(repo, path_arg, "--manifest")
+    finally:
+        junction.rmdir()
+
+
+def test_release_input_rejects_multiply_linked_file(tmp_path: Path) -> None:
+    bundle = write_release_bundle(tmp_path)
+    os.link(bundle["manifest"], tmp_path / "manifest-alias.json")
+
+    with pytest.raises(ValueError, match="multiply-linked"):
+        generate_checksums.build_checksum_lines(
+            tmp_path,
+            bundle["manifest"],
+            tmp_path / "artifacts" / "checksums.sha256",
+        )
+
+
+def test_writer_rejects_non_regular_existing_output(tmp_path: Path) -> None:
+    output = tmp_path / "artifacts" / "checksums.sha256"
+    output.mkdir(parents=True)
+
+    with pytest.raises(ValueError, match="regular file"):
+        generate_checksums.write_checksums(
+            ["abc  artifacts/release-manifest.json"], output
+        )
+
+
+def test_atomic_replace_rejects_target_identity_drift(tmp_path: Path) -> None:
+    artifacts = tmp_path / "artifacts"
+    artifacts.mkdir()
+    output = artifacts / "checksums.sha256"
+    output.write_bytes(b"original\n")
+    temporary = artifacts / ".checksums.test.tmp"
+    temporary.write_bytes(b"candidate\n")
+    parent_identity = generate_checksums._path_identity(artifacts)
+    target_identity = generate_checksums._path_identity(
+        output, include_content_state=True
+    )
+    replacement = artifacts / "replacement"
+    replacement.write_bytes(b"drifted\n")
+    os.replace(replacement, output)
+
+    with pytest.raises(ValueError, match="target identity changed"):
+        generate_checksums._replace_validated_temp(
+            tmp_path,
+            temporary,
+            output,
+            parent_identity,
+            target_identity,
+        )
+    assert output.read_bytes() == b"drifted\n"
+    assert temporary.read_bytes() == b"candidate\n"

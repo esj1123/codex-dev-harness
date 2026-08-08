@@ -1,4 +1,5 @@
 import json
+import hashlib
 from pathlib import Path
 
 import pytest
@@ -8,6 +9,12 @@ from scripts import generate_sbom
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 MIT_LICENSE_TEXT = (REPO_ROOT / "LICENSE").read_text(encoding="utf-8")
+LOCK_TEXT = "pytest==9.0.3 \\\n    --hash=sha256:" + "a" * 64 + "\n"
+
+
+def source_record(path: str, content: str) -> dict:
+    data = content.encode("utf-8")
+    return {"path": path, "size_bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
 
 
 def write(path: Path, content: str) -> None:
@@ -24,11 +31,15 @@ def sample_manifest() -> dict:
         "files": [
             {"path": "README.md", "size_bytes": 10, "sha256": "a" * 64},
             {"path": "docs/RELEASE_BUNDLE_POLICY.md", "size_bytes": 20, "sha256": "b" * 64},
+            source_record("LICENSE", MIT_LICENSE_TEXT),
+            source_record("requirements-dev.lock", LOCK_TEXT),
         ],
     }
 
 
 def write_manifest(repo_root: Path) -> Path:
+    (repo_root / "LICENSE").write_bytes(MIT_LICENSE_TEXT.encode("utf-8"))
+    (repo_root / "requirements-dev.lock").write_bytes(LOCK_TEXT.encode("utf-8"))
     manifest_path = repo_root / "artifacts" / "release-manifest.json"
     write(manifest_path, json.dumps(sample_manifest()) + "\n")
     return manifest_path
@@ -60,8 +71,6 @@ def assert_sbom_paths_rejected(
 
 def test_spdx_uses_manifest_files_and_repository_license(tmp_path: Path) -> None:
     manifest_path = write_manifest(tmp_path)
-    write(tmp_path / "LICENSE", MIT_LICENSE_TEXT)
-    write(tmp_path / "requirements-dev.txt", "pytest>=9\n")
     spdx = generate_sbom.build_spdx(sample_manifest(), manifest_path, tmp_path, "2026-01-01T00:00:00Z")
 
     assert spdx["spdxVersion"] == "SPDX-2.3"
@@ -76,9 +85,6 @@ def test_spdx_uses_manifest_files_and_repository_license(tmp_path: Path) -> None
 
 def test_cyclonedx_uses_manifest_files_and_dev_dependencies(tmp_path: Path) -> None:
     manifest_path = write_manifest(tmp_path)
-    write(tmp_path / "LICENSE", MIT_LICENSE_TEXT)
-    write(tmp_path / "requirements-dev.txt", "pytest==9.0.3\n")
-
     cdx = generate_sbom.build_cyclonedx(sample_manifest(), manifest_path, tmp_path, "2026-01-01T00:00:00Z")
 
     assert cdx["bomFormat"] == "CycloneDX"
@@ -187,4 +193,17 @@ def test_sbom_rejects_overlapping_artifact_paths(tmp_path: Path) -> None:
             reserved,
             cyclonedx_path,
             "manifest" if reserved == manifest_path else "reserved release artifact",
+        )
+
+
+@pytest.mark.parametrize("relative_path", ["LICENSE", "requirements-dev.lock"])
+def test_sbom_rejects_source_bytes_outside_manifest_basis(
+    tmp_path: Path, relative_path: str
+) -> None:
+    manifest_path = write_manifest(tmp_path)
+    (tmp_path / relative_path).write_bytes(b"tampered\n")
+
+    with pytest.raises(ValueError, match="manifest source basis"):
+        generate_sbom.build_spdx(
+            sample_manifest(), manifest_path, tmp_path, "2026-01-01T00:00:00Z"
         )

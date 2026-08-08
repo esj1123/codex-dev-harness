@@ -141,6 +141,14 @@ artifact paths:
 
 Generators must reject absolute paths, parent traversal, and repo-internal
 non-artifact paths such as `STATUS.md`, `docs/foo.md`, or `scripts/foo.py`.
+Each existing raw path component is inspected without following links. Symlink,
+junction/reparse, non-regular leaf, and multiply-linked file aliases are
+rejected. Writes use an exclusively created same-directory temporary file and
+revalidate parent and target identity immediately before replacement.
+
+These controls reduce Windows path-swap exposure but do not claim complete
+elimination of adversarial filesystem TOCTOU races. Generation still requires
+a trusted local host and separately approved artifact-writing run.
 
 ## Determinism
 

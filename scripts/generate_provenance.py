@@ -46,24 +46,7 @@ def utc_now() -> str:
 
 
 def resolve_artifact_path(repo_root: Path, path_arg: str, flag_name: str) -> Path:
-    raw_path = Path(path_arg)
-    if raw_path.is_absolute() or raw_path.drive or raw_path.anchor:
-        raise ValueError(f"{flag_name} must be a repo-internal relative path")
-    if not raw_path.parts:
-        raise ValueError(f"{flag_name} must name a file")
-    if any(part == ".." for part in raw_path.parts):
-        raise ValueError(f"{flag_name} must not contain parent traversal")
-    if raw_path.parts[0] != ARTIFACTS_ROOT or len(raw_path.parts) < 2:
-        raise ValueError(f"{flag_name} must be under artifacts/")
-    resolved_root = repo_root.resolve()
-    resolved_path = (resolved_root / raw_path).resolve()
-    try:
-        resolved_path.relative_to(resolved_root)
-    except ValueError as exc:
-        raise ValueError(f"{flag_name} must resolve inside the repository") from exc
-    if resolved_path == resolved_root:
-        raise ValueError(f"{flag_name} must name a file")
-    return resolved_path
+    return release_artifacts.resolve_repo_path(repo_root, path_arg, flag_name)
 
 
 def validate_provenance_paths(repo_root: Path, manifest_path: Path, output_path: Path) -> None:
@@ -77,24 +60,33 @@ def validate_provenance_paths(repo_root: Path, manifest_path: Path, output_path:
     )
 
 
-def sha256_file(path: Path) -> str:
+def sha256_file(path: Path, repo_root: Path | None = None) -> str:
     import hashlib
 
-    text = path.read_bytes().decode("utf-8")
+    root = repo_root or release_artifacts.infer_repo_root(path)
+    text = release_artifacts.read_regular_file(root, path).decode("utf-8")
     canonical = text.replace("\r\n", "\n").replace("\r", "\n").encode("utf-8")
     return hashlib.sha256(canonical).hexdigest()
 
 
-def load_manifest(manifest_path: Path) -> dict[str, Any]:
-    return json.loads(manifest_path.read_text(encoding="utf-8"))
+def load_manifest(manifest_path: Path, repo_root: Path | None = None) -> dict[str, Any]:
+    root = repo_root or release_artifacts.infer_repo_root(manifest_path)
+    return json.loads(
+        release_artifacts.read_regular_file(root, manifest_path, "--manifest").decode(
+            "utf-8"
+        )
+    )
 
 
 def digest_record(path: Path, repo_root: Path) -> dict[str, Any] | None:
-    if not path.is_file():
+    if not path.exists():
         return None
+    release_artifacts.validate_physical_path(
+        repo_root, path, "provenance product", require_file=True
+    )
     return {
         "name": relpath(path, repo_root),
-        "digest": {"sha256": sha256_file(path)},
+        "digest": {"sha256": sha256_file(path, repo_root)},
     }
 
 
@@ -113,7 +105,7 @@ def manifest_materials(manifest: dict[str, Any]) -> list[dict[str, Any]]:
 def existing_products(repo_root: Path, output_path: Path) -> list[dict[str, Any]]:
     products = []
     for relative in DEFAULT_PRODUCTS:
-        path = (repo_root / relative).resolve()
+        path = release_artifacts.release_artifact_path(repo_root, relative)
         if path == output_path.resolve():
             continue
         record = digest_record(path, repo_root)
@@ -177,8 +169,9 @@ def build_statement(
 
 
 def write_jsonl(statement: dict[str, Any], output_path: Path) -> None:
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(statement, sort_keys=True) + "\n", encoding="utf-8")
+    release_artifacts.write_artifact_bytes(
+        output_path, (json.dumps(statement, sort_keys=True) + "\n").encode("utf-8")
+    )
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -200,7 +193,7 @@ def main(argv: list[str] | None = None) -> int:
     except ValueError as exc:
         parser.error(str(exc))
 
-    manifest = load_manifest(manifest_path)
+    manifest = load_manifest(manifest_path, repo_root)
     statement = build_statement(manifest, manifest_path, output_path, repo_root)
     write_jsonl(statement, output_path)
     print(f"Wrote provenance: {relpath(output_path, repo_root)}")

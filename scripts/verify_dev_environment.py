@@ -70,11 +70,8 @@ def read_expected_version(path: Path) -> str:
     return value
 
 
-def parse_lock(path: Path) -> dict[str, LockedRequirement]:
-    try:
-        lines = path.read_text(encoding="utf-8").splitlines()
-    except (OSError, UnicodeDecodeError) as exc:
-        raise EnvironmentContractError(("LOCK_FILE_INVALID",)) from exc
+def parse_lock_text(value: str) -> dict[str, LockedRequirement]:
+    lines = value.splitlines()
     logical_lines: list[str] = []
     current = ""
     for raw in lines:
@@ -117,6 +114,14 @@ def parse_lock(path: Path) -> dict[str, LockedRequirement]:
     if not packages:
         raise EnvironmentContractError(("LOCK_EMPTY",))
     return packages
+
+
+def parse_lock(path: Path) -> dict[str, LockedRequirement]:
+    try:
+        value = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        raise EnvironmentContractError(("LOCK_FILE_INVALID",)) from exc
+    return parse_lock_text(value)
 
 
 def read_lock(path: Path) -> dict[str, str]:

@@ -16,7 +16,7 @@ remain available in Git history and `ACCEPTANCE_TRACE.md`.
 |---|---|---|
 | Core template harness | `READY` | Core docs, templates, examples, tests, and local verification are supported. |
 | Renderer apply | `READY` | No-flag and `--dry-run` are previews; writes require explicit `--apply`. |
-| Release generator code | `REPAIRED` | Clean-HEAD Git-blob lineage and non-circular provenance/checksum generation are implemented. |
+| Release generator code | `HARDENED` | Clean-HEAD Git-blob lineage, hash-locked SBOM inputs, non-circular provenance/checksums, and physical output-path controls are implemented. |
 | Tracked release bundle | `HISTORICAL_INVALID / REFRESH_NOT_RUN` | Existing tracked artifacts are historical and are not release-ready until separately regenerated. |
 | Agent Quality/provider | `FROZEN / NOT_ADOPTED` | Optional controls remain available for review, but provider execution and role adoption are held. |
 | Role calibration v7 | `NOT RUN` | No calibration trial or review batch is authorized by core readiness. |

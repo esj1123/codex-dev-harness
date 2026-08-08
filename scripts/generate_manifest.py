@@ -390,23 +390,10 @@ def build_manifest(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
 
 
 def resolve_output_path(repo_root: Path, output_arg: str) -> Path:
-    raw_path = Path(output_arg)
-    if raw_path.is_absolute() or raw_path.drive or raw_path.anchor:
-        raise ValueError("--output must be a repo-internal relative path")
-    if not raw_path.parts:
-        raise ValueError("--output must name a file")
-    if any(part == ".." for part in raw_path.parts):
-        raise ValueError("--output must not contain parent traversal")
-    if raw_path.parts[0] != ARTIFACTS_ROOT or len(raw_path.parts) < 2:
-        raise ValueError("--output must be under artifacts/")
     resolved_root = repo_root.resolve()
-    output_path = (resolved_root / raw_path).resolve()
-    try:
-        output_path.relative_to(resolved_root)
-    except ValueError as exc:
-        raise ValueError("--output must resolve inside the repository") from exc
-    if output_path == resolved_root:
-        raise ValueError("--output must name a file")
+    output_path = release_artifacts.resolve_repo_path(
+        resolved_root, output_arg, "--output"
+    )
     release_artifacts.validate_release_output_path(
         resolved_root,
         output_path,
@@ -417,8 +404,9 @@ def resolve_output_path(repo_root: Path, output_arg: str) -> Path:
 
 
 def write_manifest(manifest: dict[str, Any], output_path: Path) -> None:
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    release_artifacts.write_artifact_bytes(
+        output_path, (json.dumps(manifest, indent=2) + "\n").encode("utf-8")
+    )
 
 
 def build_parser() -> argparse.ArgumentParser:

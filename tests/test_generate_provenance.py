@@ -1,7 +1,18 @@
 import json
+import hashlib
 from pathlib import Path
 
 from scripts import generate_checksums, generate_provenance, generate_sbom
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+MIT_LICENSE_TEXT = (REPO_ROOT / "LICENSE").read_text(encoding="utf-8")
+LOCK_TEXT = "pytest==9.0.3 \\\n    --hash=sha256:" + "a" * 64 + "\n"
+
+
+def source_record(path: str, content: str) -> dict:
+    data = content.encode("utf-8")
+    return {"path": path, "size_bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
 
 
 def write(path: Path, content: str) -> None:
@@ -18,11 +29,15 @@ def sample_manifest() -> dict:
         "files": [
             {"path": "README.md", "size_bytes": 10, "sha256": "a" * 64},
             {"path": "scripts/generate_manifest.py", "size_bytes": 20, "sha256": "b" * 64},
+            source_record("LICENSE", MIT_LICENSE_TEXT),
+            source_record("requirements-dev.lock", LOCK_TEXT),
         ],
     }
 
 
 def write_release_artifacts(repo_root: Path) -> Path:
+    (repo_root / "LICENSE").write_bytes(MIT_LICENSE_TEXT.encode("utf-8"))
+    (repo_root / "requirements-dev.lock").write_bytes(LOCK_TEXT.encode("utf-8"))
     manifest_path = repo_root / "artifacts" / "release-manifest.json"
     write(manifest_path, json.dumps(sample_manifest()) + "\n")
     write(repo_root / "artifacts" / "sbom.spdx.json", "{}\n")
