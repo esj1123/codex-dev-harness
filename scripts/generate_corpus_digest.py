@@ -12,6 +12,7 @@ import json
 import os
 from pathlib import Path, PurePosixPath
 import re
+import stat
 import subprocess
 import tempfile
 from typing import Any
@@ -21,6 +22,7 @@ DEFAULT_DIGEST_PATH = "artifacts/corpus-digest.json"
 DEFAULT_APPROVAL_REF = "owner_approved_phase_6g_digest_refresh_task"
 SHA256_HEX_RE = re.compile(r"^[0-9a-fA-F]{64}$")
 SHA1_HEX_RE = re.compile(r"^[0-9a-f]{40}$")
+UTC_TIMESTAMP_RE = re.compile(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$")
 WINDOWS_ABSOLUTE_RE = re.compile(r"^[A-Za-z]:[\\/]")
 
 APPROVED_CONTENT_CLASSES = {
@@ -93,6 +95,17 @@ class SourceCheck:
     note: str
     recorded_hash: str | None = None
     current_hash: str | None = None
+
+
+@dataclass(frozen=True)
+class FileIdentity:
+    device: int
+    inode: int
+    mode: int
+    attributes: int
+    link_count: int
+    size: int
+    modified_ns: int
 
 
 def repo_root_from_script() -> Path:
@@ -209,6 +222,89 @@ def read_normalized_text(path: Path) -> str:
     return normalize_text(path.read_bytes().decode("utf-8"))
 
 
+def _file_identity(path: Path) -> FileIdentity:
+    metadata = path.lstat()
+    return FileIdentity(
+        device=metadata.st_dev,
+        inode=metadata.st_ino,
+        mode=metadata.st_mode,
+        attributes=int(getattr(metadata, "st_file_attributes", 0)),
+        link_count=metadata.st_nlink,
+        size=metadata.st_size,
+        modified_ns=metadata.st_mtime_ns,
+    )
+
+
+def _is_reparse(identity: FileIdentity) -> bool:
+    reparse_flag = int(getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400))
+    return bool(identity.attributes & reparse_flag)
+
+
+def _same_physical_object(first: FileIdentity, second: FileIdentity) -> bool:
+    return (
+        first.device,
+        first.inode,
+        first.mode,
+        first.attributes,
+        first.link_count,
+    ) == (
+        second.device,
+        second.inode,
+        second.mode,
+        second.attributes,
+        second.link_count,
+    )
+
+
+def _validate_physical_file(
+    repo_root: Path, path: Path, *, label: str
+) -> FileIdentity:
+    root = repo_root.resolve()
+    try:
+        relative = path.relative_to(root)
+    except ValueError as exc:
+        raise ValueError(f"{label} is outside the repository") from exc
+    if not relative.parts:
+        raise ValueError(f"{label} must name a file")
+
+    current = root
+    for index, component in enumerate(relative.parts):
+        current = current / component
+        try:
+            identity = _file_identity(current)
+        except FileNotFoundError as exc:
+            raise ValueError(f"{label} is missing") from exc
+        if stat.S_ISLNK(identity.mode) or _is_reparse(identity):
+            raise ValueError(f"{label} crosses a symlink or reparse point")
+        is_leaf = index == len(relative.parts) - 1
+        if not is_leaf and not stat.S_ISDIR(identity.mode):
+            raise ValueError(f"{label} has a non-directory parent")
+        if is_leaf:
+            if not stat.S_ISREG(identity.mode):
+                raise ValueError(f"{label} is not a regular file")
+            if identity.link_count != 1:
+                raise ValueError(f"{label} must have exactly one hard link")
+            return identity
+    raise ValueError(f"{label} boundary validation failed")
+
+
+def _read_physical_bytes_with_identity(
+    repo_root: Path, path: Path, *, label: str
+) -> tuple[bytes, FileIdentity]:
+    before = _validate_physical_file(repo_root, path, label=label)
+    payload = path.read_bytes()
+    after = _validate_physical_file(repo_root, path, label=label)
+    if before != after or len(payload) != after.size:
+        raise ValueError(f"{label} identity changed while reading")
+    return payload, after
+
+
+def _read_physical_bytes(repo_root: Path, path: Path, *, label: str) -> bytes:
+    return _read_physical_bytes_with_identity(
+        repo_root, path, label=label
+    )[0]
+
+
 def load_digest(digest_path: Path) -> dict[str, Any]:
     with digest_path.open("r", encoding="utf-8") as handle:
         payload = json.load(handle)
@@ -220,28 +316,118 @@ def load_digest(digest_path: Path) -> dict[str, Any]:
     return payload
 
 
-def write_digest(digest: dict[str, Any], digest_path: Path) -> None:
-    payload = json.dumps(digest, indent=2, ensure_ascii=False) + "\n"
+def load_physical_digest(repo_root: Path, digest_path: Path) -> dict[str, Any]:
+    payload, _identity = load_physical_digest_with_identity(repo_root, digest_path)
+    return payload
+
+
+def load_physical_digest_with_identity(
+    repo_root: Path, digest_path: Path
+) -> tuple[dict[str, Any], FileIdentity]:
+    raw_payload, identity = _read_physical_bytes_with_identity(
+        repo_root, digest_path, label="canonical corpus digest"
+    )
+    payload = json.loads(raw_payload.decode("utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError("digest JSON must be an object")
+    if not isinstance(payload.get("sources"), list):
+        raise ValueError("digest JSON must contain a sources array")
+    return payload, identity
+
+
+def load_physical_source_set_spec(repo_root: Path, spec_path: Path) -> dict[str, Any]:
+    payload = json.loads(
+        _read_physical_bytes(
+            repo_root, spec_path, label="corpus source-set spec"
+        ).decode("utf-8")
+    )
+    return validate_source_set_spec(payload)
+
+
+def write_digest(
+    digest: dict[str, Any],
+    digest_path: Path,
+    *,
+    expected_target_identity: FileIdentity | None = None,
+) -> None:
+    repo_root = digest_path.parent.parent.resolve()
+    target_before = _validate_physical_file(
+        repo_root, digest_path, label="canonical corpus digest"
+    )
+    if (
+        expected_target_identity is not None
+        and target_before != expected_target_identity
+    ):
+        raise ValueError("canonical corpus digest changed since it was read")
+    parent_before = _file_identity(digest_path.parent)
+    if not stat.S_ISDIR(parent_before.mode) or _is_reparse(parent_before):
+        raise ValueError("canonical corpus digest parent is unsafe")
+
+    payload = (json.dumps(digest, indent=2, ensure_ascii=False) + "\n").encode(
+        "utf-8"
+    )
     temporary_path: Path | None = None
+    temporary_identity: FileIdentity | None = None
     try:
-        with tempfile.NamedTemporaryFile(
-            mode="w",
-            encoding="utf-8",
-            newline="\n",
+        descriptor, raw_temporary_path = tempfile.mkstemp(
             dir=digest_path.parent,
             prefix=f".{digest_path.name}.",
             suffix=".tmp",
-            delete=False,
-        ) as handle:
-            temporary_path = Path(handle.name)
+        )
+        temporary_path = Path(raw_temporary_path)
+        temporary_identity = _validate_physical_file(
+            repo_root, temporary_path, label="corpus digest temporary file"
+        )
+        with os.fdopen(descriptor, "wb") as handle:
             handle.write(payload)
             handle.flush()
             os.fsync(handle.fileno())
+        temporary_identity = _validate_physical_file(
+            repo_root, temporary_path, label="corpus digest temporary file"
+        )
+
+        if not _same_physical_object(
+            _file_identity(digest_path.parent), parent_before
+        ):
+            raise ValueError("canonical corpus digest parent identity changed")
+        if (
+            _validate_physical_file(
+                repo_root, digest_path, label="canonical corpus digest"
+            )
+            != target_before
+        ):
+            raise ValueError("canonical corpus digest identity changed")
+        if (
+            _validate_physical_file(
+                repo_root, temporary_path, label="corpus digest temporary file"
+            )
+            != temporary_identity
+        ):
+            raise ValueError("corpus digest temporary file identity changed")
+
         os.replace(temporary_path, digest_path)
         temporary_path = None
+        target_after = _validate_physical_file(
+            repo_root, digest_path, label="written corpus digest"
+        )
+        if target_after != temporary_identity:
+            raise ValueError("written corpus digest identity is unexpected")
+        if _read_physical_bytes(
+            repo_root, digest_path, label="written corpus digest"
+        ) != payload:
+            raise ValueError("written corpus digest bytes do not match")
     finally:
         if temporary_path is not None:
-            temporary_path.unlink(missing_ok=True)
+            try:
+                observed = _file_identity(temporary_path)
+            except FileNotFoundError:
+                observed = None
+            if observed is not None:
+                if temporary_identity is None or observed != temporary_identity:
+                    raise ValueError(
+                        "temporary path identity changed; refusing cleanup"
+                    )
+                temporary_path.unlink()
 
 
 def is_absolute_path_text(path_text: str) -> bool:
@@ -263,12 +449,7 @@ def validate_cli_digest_path(repo_root: Path, value: Any, *, write: bool) -> Pat
         raise ValueError(f"write mode only permits {DEFAULT_DIGEST_PATH}")
 
     root = repo_root.resolve()
-    resolved = (root / raw).resolve(strict=False)
-    try:
-        resolved.relative_to(root)
-    except ValueError as exc:
-        raise ValueError("digest path resolves outside the repository") from exc
-    return resolved
+    return root.joinpath(*parts)
 
 
 def validate_cli_spec_path(repo_root: Path, value: Any) -> Path:
@@ -283,12 +464,7 @@ def validate_cli_spec_path(repo_root: Path, value: Any) -> Path:
     if not parts or any(part in {"", ".", ".."} for part in parts):
         raise ValueError("source-set spec path uses parent traversal or an empty/dot path part")
     root = repo_root.resolve()
-    resolved = (root / raw).resolve(strict=False)
-    try:
-        resolved.relative_to(root)
-    except ValueError as exc:
-        raise ValueError("source-set spec path resolves outside the repository") from exc
-    return resolved
+    return root.joinpath(*parts)
 
 
 def validate_repo_relative_source_path(value: Any) -> tuple[str | None, str | None]:
@@ -453,11 +629,121 @@ def digest_source_paths(digest: dict[str, Any]) -> list[str]:
             raise ValueError("cannot verify source basis: source entry is not an object")
         normalized, path_reason = validate_repo_relative_source_path(item.get("source_path"))
         if path_reason is not None or normalized is None:
-            raise ValueError(f"cannot verify source basis: {path_reason}")
+            raise ValueError(f"cannot verify unsafe source basis: {path_reason}")
         paths.append(normalized)
     if not paths:
         raise ValueError("cannot verify source basis: digest source list is empty")
     return paths
+
+
+def _validate_timestamp(value: Any, *, field: str) -> str:
+    if not isinstance(value, str) or UTC_TIMESTAMP_RE.fullmatch(value) is None:
+        raise ValueError(f"digest {field} must be a UTC second timestamp")
+    try:
+        datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
+    except ValueError as exc:
+        raise ValueError(f"digest {field} is not a valid UTC timestamp") from exc
+    return value
+
+
+def _validate_reference(value: Any, *, field: str) -> str:
+    if not isinstance(value, str) or not value or len(value) > 256:
+        raise ValueError(f"digest {field} must be 1 to 256 characters")
+    if any(ord(character) < 32 or ord(character) == 127 for character in value):
+        raise ValueError(f"digest {field} contains control characters")
+    return value
+
+
+def _require_recorded_basis(
+    repo_root: Path, recorded_sha: Any, current_head: str
+) -> str:
+    if not isinstance(recorded_sha, str) or SHA1_HEX_RE.fullmatch(recorded_sha) is None:
+        raise ValueError("digest git_sha must be a lowercase 40-character commit SHA")
+    try:
+        resolved = git_stdout(
+            repo_root, ["rev-parse", "--verify", f"{recorded_sha}^{{commit}}"]
+        ).strip()
+        subprocess.run(
+            ["git", "merge-base", "--is-ancestor", recorded_sha, current_head],
+            cwd=repo_root,
+            check=True,
+            capture_output=True,
+        )
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise ValueError(
+            "digest git_sha is missing or is not an ancestor of current HEAD"
+        ) from exc
+    if resolved != recorded_sha:
+        raise ValueError("digest git_sha does not resolve to the recorded commit")
+    return recorded_sha
+
+
+def validate_digest_provenance(
+    repo_root: Path, digest: dict[str, Any], current_head: str
+) -> str:
+    if SHA1_HEX_RE.fullmatch(current_head) is None:
+        raise ValueError("cannot validate digest provenance without an exact HEAD")
+    if digest.get("artifact_path") != DEFAULT_DIGEST_PATH:
+        raise ValueError("digest artifact_path is not canonical")
+
+    recorded_sha = _require_recorded_basis(
+        repo_root, digest.get("git_sha"), current_head
+    )
+    generated_at = _validate_timestamp(
+        digest.get("generated_at"), field="generated_at"
+    )
+    approval_ref = _validate_reference(
+        digest.get("generation_approval_ref"), field="generation_approval_ref"
+    )
+    _validate_reference(
+        digest.get("source_allow_list_ref"), field="source_allow_list_ref"
+    )
+
+    paths = digest_source_paths(digest)
+    if len(paths) != len(set(paths)):
+        raise ValueError("digest contains duplicate source paths")
+    casefolded = [path.casefold() for path in paths]
+    if len(casefolded) != len(set(casefolded)):
+        raise ValueError("digest contains casefold-duplicate source paths")
+
+    source_count = len(paths)
+    precheck = digest.get("precheck_summary")
+    closeout = digest.get("closeout")
+    if not isinstance(precheck, dict) or precheck.get("source_count") != source_count:
+        raise ValueError("digest precheck_summary.source_count is inconsistent")
+    if not isinstance(closeout, dict) or closeout.get("source_count") != source_count:
+        raise ValueError("digest closeout.source_count is inconsistent")
+
+    recorded_blobs = git_blob_sources(repo_root, paths, recorded_sha)
+    if set(recorded_blobs) != set(paths):
+        raise ValueError("digest recorded basis is missing a source blob")
+    for item, path in zip(digest["sources"], paths, strict=True):
+        if item.get("git_sha") != recorded_sha:
+            raise ValueError(f"digest source {path} git_sha is inconsistent")
+        if item.get("verified_at") != generated_at:
+            raise ValueError(f"digest source {path} verified_at is inconsistent")
+        if item.get("reviewer_or_approval_ref") != approval_ref:
+            raise ValueError(
+                f"digest source {path} reviewer_or_approval_ref is inconsistent"
+            )
+        recorded_hash = item.get("content_hash")
+        if (
+            not isinstance(recorded_hash, str)
+            or SHA256_HEX_RE.fullmatch(recorded_hash) is None
+            or recorded_hash != recorded_hash.lower()
+        ):
+            raise ValueError(f"digest source {path} content_hash is malformed")
+        try:
+            expected_hash = normalized_sha256(recorded_blobs[path].decode("utf-8"))
+        except UnicodeDecodeError as exc:
+            raise ValueError(
+                f"digest recorded basis source {path} has invalid UTF-8"
+            ) from exc
+        if recorded_hash != expected_hash:
+            raise ValueError(
+                f"digest source {path} hash does not match recorded basis"
+            )
+    return recorded_sha
 
 
 def unique_preserving_order(values: list[str]) -> list[str]:
@@ -550,8 +836,14 @@ def build_report(digest: dict[str, Any], checks: list[SourceCheck], *, mode: str
 
 
 def check_digest(repo_root: Path, digest_path: Path) -> dict[str, Any]:
-    digest = load_digest(digest_path)
-    return build_report(digest, check_sources(repo_root, digest), mode="check")
+    exact_head = current_git_sha(repo_root)
+    if exact_head == "UNKNOWN":
+        raise ValueError("cannot inspect corpus sources: current HEAD is unavailable")
+    digest = load_physical_digest(repo_root, digest_path)
+    validate_digest_provenance(repo_root, digest, exact_head)
+    return build_report(
+        digest, check_sources(repo_root, digest, exact_head), mode="check"
+    )
 
 
 def build_refreshed_digest(
@@ -741,13 +1033,17 @@ def add_source_set_diff_fields(report: dict[str, Any], digest: dict[str, Any], s
 
 
 def check_rebaseline_spec(repo_root: Path, digest_path: Path, source_set_spec_path: Path) -> dict[str, Any]:
-    digest = load_digest(digest_path)
-    source_set_spec = load_source_set_spec(source_set_spec_path)
+    exact_head = current_git_sha(repo_root)
+    if exact_head == "UNKNOWN":
+        raise ValueError("cannot inspect corpus sources: current HEAD is unavailable")
+    digest = load_physical_digest(repo_root, digest_path)
+    validate_digest_provenance(repo_root, digest, exact_head)
+    source_set_spec = load_physical_source_set_spec(repo_root, source_set_spec_path)
     candidate = build_rebaselined_digest(
         digest,
         source_set_spec,
         repo_root=repo_root,
-        git_sha=current_git_sha(repo_root),
+        git_sha=exact_head,
         generated_at=utc_now(),
         approval_ref="read_only_rebaseline_check",
     )
@@ -772,7 +1068,10 @@ def write_refreshed_digest(
     if git_sha is not None and git_sha != source_basis_sha:
         raise ValueError("--git-sha cannot override the current clean source-basis commit")
     generated_at_value = generated_at or utc_now()
-    digest = load_digest(digest_path)
+    digest, digest_identity = load_physical_digest_with_identity(
+        repo_root, digest_path
+    )
+    validate_digest_provenance(repo_root, digest, source_basis_sha)
     checks = check_sources(repo_root, digest, source_basis_sha)
     blocking = [check for check in checks if check.status in {"missing", "invalid_utf8", "unsafe"}]
     if blocking:
@@ -785,8 +1084,14 @@ def write_refreshed_digest(
         generated_at=generated_at_value,
         approval_ref=approval_ref,
     )
+    validate_digest_provenance(repo_root, refreshed, source_basis_sha)
     require_current_head(repo_root, source_basis_sha, "pre-write validation")
-    write_digest(refreshed, digest_path)
+    write_digest(
+        refreshed,
+        digest_path,
+        expected_target_identity=digest_identity,
+    )
+    validate_digest_provenance(repo_root, refreshed, source_basis_sha)
     report = build_report(
         refreshed,
         check_sources(repo_root, refreshed, source_basis_sha),
@@ -815,8 +1120,11 @@ def write_rebaselined_digest(
     if git_sha is not None and git_sha != source_basis_sha:
         raise ValueError("--git-sha cannot override the current clean source-basis commit")
     generated_at_value = generated_at or utc_now()
-    digest = load_digest(digest_path)
-    source_set_spec = load_source_set_spec(source_set_spec_path)
+    digest, digest_identity = load_physical_digest_with_identity(
+        repo_root, digest_path
+    )
+    validate_digest_provenance(repo_root, digest, source_basis_sha)
+    source_set_spec = load_physical_source_set_spec(repo_root, source_set_spec_path)
     rebaselined = build_rebaselined_digest(
         digest,
         source_set_spec,
@@ -830,8 +1138,14 @@ def write_rebaselined_digest(
     if blocking:
         raise ValueError("cannot write digest while rebaseline sources are missing, unsafe, invalid UTF-8, or malformed")
     require_clean_digest_source_basis(repo_root, rebaselined, source_basis_sha)
+    validate_digest_provenance(repo_root, rebaselined, source_basis_sha)
     require_current_head(repo_root, source_basis_sha, "pre-write validation")
-    write_digest(rebaselined, digest_path)
+    write_digest(
+        rebaselined,
+        digest_path,
+        expected_target_identity=digest_identity,
+    )
+    validate_digest_provenance(repo_root, rebaselined, source_basis_sha)
     report = build_report(
         rebaselined,
         check_sources(repo_root, rebaselined, source_basis_sha),

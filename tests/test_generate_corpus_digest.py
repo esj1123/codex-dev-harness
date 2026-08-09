@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 import subprocess
 
@@ -27,6 +28,7 @@ def digest_hash(content: str) -> str:
 
 def digest_entry(source_path: str, *, source_text: str = "", content_hash: str | None = None) -> dict[str, object]:
     return {
+        "__source_text": source_text,
         "source_path": source_path,
         "git_sha": "old-basis",
         "section_title": source_path,
@@ -69,6 +71,16 @@ def write_digest(
     *,
     initialize_git: bool = True,
 ) -> Path:
+    materialized_sources: list[dict[str, object]] = []
+    for source in sources:
+        materialized = dict(source)
+        source_text = materialized.pop("__source_text", "")
+        source_path = str(materialized["source_path"])
+        candidate = root.joinpath(*source_path.split("/"))
+        if source_text and not candidate.exists():
+            write(candidate, str(source_text))
+        materialized_sources.append(materialized)
+    sources = materialized_sources
     digest_path = root / "artifacts" / "corpus-digest.json"
     digest_path.parent.mkdir(parents=True, exist_ok=True)
     payload = {
@@ -142,6 +154,36 @@ def init_git_repo(root: Path) -> None:
 def commit_all(root: Path, message: str = "synthetic commit") -> str:
     run_git(root, "add", ".")
     run_git(root, "commit", "-m", message)
+    source_basis = run_git(root, "rev-parse", "HEAD")
+    digest_path = root / "artifacts" / "corpus-digest.json"
+    if digest_path.exists():
+        payload = json.loads(digest_path.read_text(encoding="utf-8"))
+        if payload.get("git_sha") == "old-basis":
+            generated_at = payload["generated_at"]
+            approval_ref = payload["generation_approval_ref"]
+            payload["git_sha"] = source_basis
+            payload.setdefault("closeout", {})["source_count"] = len(
+                payload["sources"]
+            )
+            for source in payload["sources"]:
+                source["git_sha"] = source_basis
+                source["verified_at"] = generated_at
+                source["reviewer_or_approval_ref"] = approval_ref
+                try:
+                    blob = subprocess.run(
+                        ["git", "show", f"{source_basis}:{source['source_path']}"],
+                        cwd=root,
+                        check=True,
+                        capture_output=True,
+                    ).stdout
+                    source["content_hash"] = digest_hash(blob.decode("utf-8"))
+                except (subprocess.CalledProcessError, UnicodeDecodeError):
+                    pass
+            digest_path.write_text(
+                json.dumps(payload, indent=2) + "\n", encoding="utf-8"
+            )
+            run_git(root, "add", "artifacts/corpus-digest.json")
+            run_git(root, "commit", "-m", "synthetic digest evidence")
     return run_git(root, "rev-parse", "HEAD")
 
 
@@ -166,6 +208,32 @@ def move_head_ref_only(root: Path, new_head: str, expected_head: str) -> None:
     run_git(root, "update-ref", f"refs/heads/{branch}", new_head, expected_head)
 
 
+def prepare_valid_digest(root: Path) -> Path:
+    source_text = "# Recorded source\n"
+    write(root / "docs" / "A.md", source_text)
+    return write_digest(
+        root, [digest_entry("docs/A.md", source_text=source_text)]
+    )
+
+
+def mutate_digest(digest_path: Path, mutation) -> bytes:
+    before = digest_path.read_bytes()
+    payload = json.loads(before.decode("utf-8"))
+    mutation(payload)
+    digest_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    return before
+
+
+def make_junction(link: Path, target: Path) -> None:
+    result = subprocess.run(
+        ["cmd.exe", "/d", "/c", "mklink", "/J", str(link), str(target)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr or result.stdout
+
+
 def refreshed_from(root: Path, digest_path: Path) -> dict[str, object]:
     digest = generate_corpus_digest.load_digest(digest_path)
     checks = generate_corpus_digest.check_sources(root, digest)
@@ -184,6 +252,8 @@ def test_default_check_mode_is_read_only(tmp_path: Path, capsys: pytest.CaptureF
         tmp_path,
         [digest_entry("docs/A.md", content_hash=digest_hash("old content\n"))],
     )
+    write(tmp_path / "docs" / "A.md", "changed after recorded basis\n")
+    commit_all(tmp_path, "current source differs")
     before = digest_path.read_bytes()
 
     exit_code = generate_corpus_digest.main(["--repo-root", str(tmp_path), "--json"])
@@ -202,6 +272,8 @@ def test_check_mode_does_not_write_digest(tmp_path: Path) -> None:
         tmp_path,
         [digest_entry("docs/A.md", content_hash=digest_hash("old content\n"))],
     )
+    write(tmp_path / "docs" / "A.md", "changed after recorded basis\n")
+    commit_all(tmp_path, "current source differs")
     before = digest_path.read_bytes()
 
     report = generate_corpus_digest.check_digest(tmp_path, digest_path)
@@ -391,8 +463,8 @@ def test_head_drift_after_write_is_coherent_but_cli_fails(
     digest_path, first_head, second_head = prepare_head_drift_repo(tmp_path)
     original_write_digest = generate_corpus_digest.write_digest
 
-    def write_then_advance(digest, output_path):
-        original_write_digest(digest, output_path)
+    def write_then_advance(digest, output_path, **kwargs):
+        original_write_digest(digest, output_path, **kwargs)
         move_head_ref_only(tmp_path, second_head, first_head)
 
     monkeypatch.setattr(generate_corpus_digest, "write_digest", write_then_advance)
@@ -480,6 +552,8 @@ def test_valid_and_stale_hash_counts(tmp_path: Path) -> None:
             digest_entry("docs/STALE.md", content_hash=digest_hash("old stale\n")),
         ],
     )
+    write(tmp_path / "docs" / "STALE.md", "# Changed after recorded basis\n")
+    commit_all(tmp_path, "make one source stale")
 
     report = generate_corpus_digest.check_digest(tmp_path, digest_path)
 
@@ -619,13 +693,10 @@ def test_exact_head_symlink_entry_is_not_read_as_corpus_source(tmp_path: Path) -
         "--cacheinfo",
         f"120000,{blob},docs/LINK.md",
     )
-    run_git(tmp_path, "add", "artifacts/corpus-digest.json")
-    run_git(tmp_path, "commit", "-m", "synthetic symlink source")
+    commit_all(tmp_path, "synthetic symlink source")
 
-    report = generate_corpus_digest.check_digest(tmp_path, digest_path)
-
-    assert report["missing"] == 1
-    assert report["sources"][0]["note"] == "source is not a regular blob at exact HEAD"
+    with pytest.raises(ValueError, match="recorded basis is missing"):
+        generate_corpus_digest.check_digest(tmp_path, digest_path)
 
 
 def test_phase_6h_source_set_spec_matches_exact_contract() -> None:
@@ -928,3 +999,340 @@ def test_rebaseline_head_drift_after_candidate_check_blocks_write(
         )
 
     assert digest_path.read_bytes() == before
+
+
+def test_write_requires_existing_canonical_digest(tmp_path: Path) -> None:
+    digest_path = tmp_path / "artifacts" / "corpus-digest.json"
+    digest_path.parent.mkdir()
+
+    with pytest.raises(ValueError, match="canonical corpus digest is missing"):
+        generate_corpus_digest.write_digest({"sources": []}, digest_path)
+
+
+def test_parent_junction_is_rejected_without_changing_target(tmp_path: Path) -> None:
+    digest_path = prepare_valid_digest(tmp_path)
+    before = digest_path.read_bytes()
+    real_artifacts = tmp_path / "real-artifacts"
+    digest_path.parent.rename(real_artifacts)
+    make_junction(tmp_path / "artifacts", real_artifacts)
+
+    with pytest.raises(ValueError, match="reparse point"):
+        generate_corpus_digest.check_digest(tmp_path, tmp_path / "artifacts" / digest_path.name)
+
+    assert (real_artifacts / digest_path.name).read_bytes() == before
+
+
+def test_leaf_reparse_is_rejected_without_changing_previous_bytes(
+    tmp_path: Path,
+) -> None:
+    digest_path = prepare_valid_digest(tmp_path)
+    before = digest_path.read_bytes()
+    previous = digest_path.with_name("previous-corpus-digest.json")
+    digest_path.rename(previous)
+    target_directory = tmp_path / "junction-target"
+    target_directory.mkdir()
+    make_junction(digest_path, target_directory)
+
+    with pytest.raises(ValueError, match="reparse point"):
+        generate_corpus_digest.check_digest(tmp_path, digest_path)
+
+    assert previous.read_bytes() == before
+
+
+def test_digest_hardlink_is_rejected_without_changing_bytes(tmp_path: Path) -> None:
+    digest_path = prepare_valid_digest(tmp_path)
+    before = digest_path.read_bytes()
+    os.link(digest_path, digest_path.with_name("digest-alias.json"))
+
+    with pytest.raises(ValueError, match="exactly one hard link"):
+        generate_corpus_digest.write_refreshed_digest(
+            tmp_path, digest_path, approval_ref=APPROVAL_REF
+        )
+
+    assert digest_path.read_bytes() == before
+
+
+def test_rebaseline_spec_hardlink_is_rejected_without_digest_write(
+    tmp_path: Path,
+) -> None:
+    digest_path = prepare_valid_digest(tmp_path)
+    write(tmp_path / "docs" / "B.md", "# B\n")
+    spec_path = write_source_set_spec(
+        tmp_path, [source_set_entry("docs/B.md")]
+    )
+    commit_all(tmp_path, "add source set")
+    before = digest_path.read_bytes()
+    os.link(spec_path, spec_path.with_name("source-set-alias.json"))
+
+    with pytest.raises(ValueError, match="exactly one hard link"):
+        generate_corpus_digest.write_rebaselined_digest(
+            tmp_path,
+            digest_path,
+            spec_path,
+            approval_ref=APPROVAL_REF,
+        )
+
+    assert digest_path.read_bytes() == before
+
+
+def test_directory_leaf_and_non_directory_parent_are_rejected(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "artifacts").mkdir()
+    directory_leaf = tmp_path / "artifacts" / "corpus-digest.json"
+    directory_leaf.mkdir()
+    with pytest.raises(ValueError, match="not a regular file"):
+        generate_corpus_digest._validate_physical_file(
+            tmp_path, directory_leaf, label="canonical corpus digest"
+        )
+
+    other = tmp_path / "other"
+    other.write_text("not a directory", encoding="utf-8")
+    with pytest.raises(ValueError, match="non-directory parent"):
+        generate_corpus_digest._validate_physical_file(
+            tmp_path, other / "corpus-digest.json", label="canonical corpus digest"
+        )
+
+
+def test_pre_replace_target_identity_drift_preserves_existing_bytes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    digest_path = prepare_valid_digest(tmp_path)
+    before = digest_path.read_bytes()
+    payload = json.loads(before.decode("utf-8"))
+    original = generate_corpus_digest._validate_physical_file
+    target_checks = 0
+
+    def drift_on_recheck(repo_root, path, *, label):
+        nonlocal target_checks
+        identity = original(repo_root, path, label=label)
+        if label == "canonical corpus digest":
+            target_checks += 1
+            if target_checks == 2:
+                return generate_corpus_digest.FileIdentity(
+                    identity.device,
+                    identity.inode + 1,
+                    identity.mode,
+                    identity.attributes,
+                    identity.link_count,
+                    identity.size,
+                    identity.modified_ns,
+                )
+        return identity
+
+    monkeypatch.setattr(
+        generate_corpus_digest, "_validate_physical_file", drift_on_recheck
+    )
+
+    with pytest.raises(ValueError, match="identity changed"):
+        generate_corpus_digest.write_digest(payload, digest_path)
+
+    assert digest_path.read_bytes() == before
+
+
+def test_target_replacement_after_read_is_rejected_before_write(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    digest_path = prepare_valid_digest(tmp_path)
+    before = digest_path.read_bytes()
+    original_builder = generate_corpus_digest.build_refreshed_digest
+
+    def replace_target_after_read(*args, **kwargs):
+        candidate = original_builder(*args, **kwargs)
+        replacement = digest_path.with_name("replacement-digest.json")
+        replacement.write_bytes(before)
+        os.replace(replacement, digest_path)
+        return candidate
+
+    monkeypatch.setattr(
+        generate_corpus_digest,
+        "build_refreshed_digest",
+        replace_target_after_read,
+    )
+
+    with pytest.raises(ValueError, match="changed since it was read"):
+        generate_corpus_digest.write_refreshed_digest(
+            tmp_path,
+            digest_path,
+            approval_ref=APPROVAL_REF,
+        )
+
+    assert digest_path.read_bytes() == before
+
+
+def test_pre_replace_parent_identity_drift_preserves_existing_bytes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    digest_path = prepare_valid_digest(tmp_path)
+    before = digest_path.read_bytes()
+    payload = json.loads(before.decode("utf-8"))
+    monkeypatch.setattr(
+        generate_corpus_digest, "_same_physical_object", lambda *_args: False
+    )
+
+    with pytest.raises(ValueError, match="parent identity changed"):
+        generate_corpus_digest.write_digest(payload, digest_path)
+
+    assert digest_path.read_bytes() == before
+
+
+def test_pre_replace_temporary_identity_drift_preserves_existing_bytes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    digest_path = prepare_valid_digest(tmp_path)
+    before = digest_path.read_bytes()
+    payload = json.loads(before.decode("utf-8"))
+    original = generate_corpus_digest._validate_physical_file
+    temporary_checks = 0
+
+    def drift_on_final_temp_check(repo_root, path, *, label):
+        nonlocal temporary_checks
+        identity = original(repo_root, path, label=label)
+        if label == "corpus digest temporary file":
+            temporary_checks += 1
+            if temporary_checks == 3:
+                return generate_corpus_digest.FileIdentity(
+                    identity.device,
+                    identity.inode + 1,
+                    identity.mode,
+                    identity.attributes,
+                    identity.link_count,
+                    identity.size,
+                    identity.modified_ns,
+                )
+        return identity
+
+    monkeypatch.setattr(
+        generate_corpus_digest,
+        "_validate_physical_file",
+        drift_on_final_temp_check,
+    )
+
+    with pytest.raises(ValueError, match="temporary file identity changed"):
+        generate_corpus_digest.write_digest(payload, digest_path)
+
+    assert digest_path.read_bytes() == before
+
+
+@pytest.mark.parametrize(
+    "bad_sha",
+    ["A" * 40, "a" * 39, "f" * 40],
+)
+def test_malformed_or_missing_recorded_sha_fails_closed(
+    tmp_path: Path, bad_sha: str
+) -> None:
+    digest_path = prepare_valid_digest(tmp_path)
+    before = mutate_digest(
+        digest_path, lambda payload: payload.__setitem__("git_sha", bad_sha)
+    )
+
+    with pytest.raises(ValueError, match="git_sha"):
+        generate_corpus_digest.check_digest(tmp_path, digest_path)
+
+    assert digest_path.read_bytes() != before
+
+
+def test_invalid_provenance_uses_existing_cli_exit_two(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    digest_path = prepare_valid_digest(tmp_path)
+    mutate_digest(
+        digest_path, lambda payload: payload.__setitem__("git_sha", "A" * 40)
+    )
+
+    with pytest.raises(SystemExit) as exc_info:
+        generate_corpus_digest.main(["--repo-root", str(tmp_path), "--json"])
+
+    assert exc_info.value.code == 2
+    assert "git_sha" in capsys.readouterr().err
+
+
+def test_non_ancestor_recorded_sha_fails_closed(tmp_path: Path) -> None:
+    digest_path = prepare_valid_digest(tmp_path)
+    unrelated = tmp_path.parent / f"{tmp_path.name}-unrelated"
+    unrelated.mkdir()
+    write(unrelated / "unrelated.txt", "unrelated\n")
+    init_git_repo(unrelated)
+    unrelated_sha = commit_all(unrelated, "unrelated")
+    mutate_digest(
+        digest_path, lambda payload: payload.__setitem__("git_sha", unrelated_sha)
+    )
+
+    with pytest.raises(ValueError, match="missing or is not an ancestor"):
+        generate_corpus_digest.check_digest(tmp_path, digest_path)
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("generated_at", "2026-02-30T00:00:00Z", "generated_at"),
+        ("generation_approval_ref", "bad\nref", "control characters"),
+        ("source_allow_list_ref", "x" * 257, "1 to 256"),
+        ("artifact_path", "artifacts/other.json", "artifact_path"),
+    ],
+)
+def test_top_level_provenance_metadata_fails_closed(
+    tmp_path: Path, field: str, value: str, message: str
+) -> None:
+    digest_path = prepare_valid_digest(tmp_path)
+    mutate_digest(digest_path, lambda payload: payload.__setitem__(field, value))
+
+    with pytest.raises(ValueError, match=message):
+        generate_corpus_digest.check_digest(tmp_path, digest_path)
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("git_sha", "0" * 40, "git_sha is inconsistent"),
+        ("verified_at", "2026-01-02T00:00:00Z", "verified_at is inconsistent"),
+        ("reviewer_or_approval_ref", "other", "reviewer_or_approval_ref is inconsistent"),
+        ("content_hash", "0" * 64, "hash does not match recorded basis"),
+    ],
+)
+def test_per_source_provenance_mismatch_fails_closed(
+    tmp_path: Path, field: str, value: str, message: str
+) -> None:
+    digest_path = prepare_valid_digest(tmp_path)
+    mutate_digest(
+        digest_path,
+        lambda payload: payload["sources"][0].__setitem__(field, value),
+    )
+
+    with pytest.raises(ValueError, match=message):
+        generate_corpus_digest.check_digest(tmp_path, digest_path)
+
+
+@pytest.mark.parametrize("casefold_only", [False, True])
+def test_duplicate_source_paths_fail_closed(
+    tmp_path: Path, casefold_only: bool
+) -> None:
+    digest_path = prepare_valid_digest(tmp_path)
+
+    def duplicate(payload):
+        item = dict(payload["sources"][0])
+        if casefold_only:
+            item["source_path"] = "DOCS/A.md"
+        payload["sources"].append(item)
+        payload["precheck_summary"]["source_count"] = 2
+        payload["closeout"]["source_count"] = 2
+
+    mutate_digest(digest_path, duplicate)
+    expected = "casefold-duplicate" if casefold_only else "duplicate source paths"
+
+    with pytest.raises(ValueError, match=expected):
+        generate_corpus_digest.check_digest(tmp_path, digest_path)
+
+
+@pytest.mark.parametrize("container", ["precheck_summary", "closeout"])
+def test_source_count_mismatch_fails_closed(
+    tmp_path: Path, container: str
+) -> None:
+    digest_path = prepare_valid_digest(tmp_path)
+    mutate_digest(
+        digest_path,
+        lambda payload: payload[container].__setitem__("source_count", 99),
+    )
+
+    with pytest.raises(ValueError, match="source_count is inconsistent"):
+        generate_corpus_digest.check_digest(tmp_path, digest_path)
