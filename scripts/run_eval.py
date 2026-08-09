@@ -14,8 +14,10 @@ import fnmatch
 import hashlib
 import io
 import json
+import os
 from pathlib import Path
 import re
+import stat
 import sys
 import tempfile
 from typing import Any
@@ -212,14 +214,47 @@ def run_policy_phrases(repo_root: Path, case: dict[str, Any]) -> EvalResult:
     return EvalResult(name, True, [f"validated phrase targets: {len(case.get('checks', []))}"])
 
 
+def _is_traversable_directory(path: Path) -> bool:
+    try:
+        path_stat = path.lstat()
+    except OSError:
+        return False
+    reparse_flag = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+    return (
+        stat.S_ISDIR(path_stat.st_mode)
+        and not stat.S_ISLNK(path_stat.st_mode)
+        and not (getattr(path_stat, "st_file_attributes", 0) & reparse_flag)
+    )
+
+
 def iter_repo_files(repo_root: Path, ignored_root_parts: set[str]) -> list[Path]:
-    files: list[Path] = []
-    for path in repo_root.rglob("*"):
-        relative_parts = path.relative_to(repo_root).parts
-        if relative_parts and relative_parts[0] in ignored_root_parts:
-            continue
-        if path.is_file():
-            files.append(path)
+    files_by_directory: dict[Path, list[Path]] = {}
+    walk_order: list[tuple[Path, tuple[str, ...]]] = []
+
+    for raw_directory, directory_names, file_names in os.walk(
+        repo_root, topdown=True, followlinks=False
+    ):
+        directory = Path(raw_directory)
+        is_root = directory == repo_root
+        directory_names[:] = [
+            name
+            for name in directory_names
+            if not (is_root and name in ignored_root_parts)
+            and _is_traversable_directory(directory / name)
+        ]
+        walk_order.append((directory, tuple(directory_names)))
+        files_by_directory[directory] = [
+            directory / name
+            for name in file_names
+            if not (is_root and name in ignored_root_parts)
+            and (directory / name).is_file()
+        ]
+
+    # Preserve the file order exposed by the former Path.rglob("*") walk.
+    files = list(files_by_directory.get(repo_root, []))
+    for directory, directory_names in walk_order:
+        for name in directory_names:
+            files.extend(files_by_directory.get(directory / name, []))
     return files
 
 

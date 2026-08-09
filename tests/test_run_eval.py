@@ -1,6 +1,8 @@
 import hashlib
 import json
+import os
 from pathlib import Path
+import subprocess
 
 import pytest
 
@@ -10,6 +12,26 @@ from scripts import run_eval
 def write(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
+
+
+def create_directory_link(link: Path, target: Path) -> None:
+    if os.name == "nt":
+        result = subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(link), str(target)],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0, result.stderr or result.stdout
+    else:
+        link.symlink_to(target, target_is_directory=True)
+
+
+def remove_directory_link(link: Path) -> None:
+    if os.name == "nt":
+        link.rmdir()
+    else:
+        link.unlink()
 
 
 FULL_BASE_OUTPUTS = (
@@ -260,6 +282,75 @@ def test_forbidden_artifacts_ignores_tool_root(
     result = run_eval.run_forbidden_artifacts(tmp_path, case)
 
     assert result.passed is True
+
+
+def test_iter_repo_files_preserves_rglob_path_order(tmp_path: Path) -> None:
+    write(tmp_path / "root.txt", "root\n")
+    write(tmp_path / "alpha" / "alpha.txt", "alpha\n")
+    write(tmp_path / "alpha" / "deep" / "deep.txt", "deep\n")
+    write(tmp_path / "beta" / "beta.txt", "beta\n")
+    write(tmp_path / "docs" / "local" / "nested.txt", "nested\n")
+    write(tmp_path / "local" / "ignored.txt", "ignored\n")
+    ignored_root_parts = {"local"}
+    expected = []
+    for path in tmp_path.rglob("*"):
+        relative_parts = path.relative_to(tmp_path).parts
+        if relative_parts and relative_parts[0] in ignored_root_parts:
+            continue
+        if path.is_file():
+            expected.append(path)
+
+    actual = run_eval.iter_repo_files(tmp_path, ignored_root_parts)
+
+    assert [path.relative_to(tmp_path) for path in actual] == [
+        path.relative_to(tmp_path) for path in expected
+    ]
+
+
+def test_iter_repo_files_prunes_ignored_roots_before_visit(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    write(tmp_path / "local" / "deep" / "ignored.txt", "ignored\n")
+    write(tmp_path / ".venv" / "deep" / "ignored.txt", "ignored\n")
+    write(tmp_path / "kept" / "visible.txt", "visible\n")
+    original_walk = run_eval.os.walk
+    visited: list[Path] = []
+
+    def recording_walk(*args, **kwargs):
+        for item in original_walk(*args, **kwargs):
+            visited.append(Path(item[0]))
+            yield item
+
+    monkeypatch.setattr(run_eval.os, "walk", recording_walk)
+
+    files = run_eval.iter_repo_files(tmp_path, {".venv", "local"})
+
+    assert [path.relative_to(tmp_path).as_posix() for path in files] == [
+        "kept/visible.txt"
+    ]
+    assert all(
+        not relative.parts or relative.parts[0] not in {".venv", "local"}
+        for relative in (path.relative_to(tmp_path) for path in visited)
+    )
+
+
+def test_iter_repo_files_prunes_directory_link_and_keeps_sibling(
+    tmp_path: Path,
+) -> None:
+    target = tmp_path / "local" / "outside"
+    write(target / "linked.csproj", "<Project />\n")
+    link = tmp_path / "linked"
+    create_directory_link(link, target)
+    sibling = tmp_path / "examples" / "demo" / "App.csproj"
+    write(sibling, "<Project />\n")
+    try:
+        files = run_eval.iter_repo_files(tmp_path, {"local"})
+    finally:
+        remove_directory_link(link)
+
+    relative = [path.relative_to(tmp_path) for path in files]
+    assert Path("examples/demo/App.csproj") in relative
+    assert all(not path.parts or path.parts[0] != "linked" for path in relative)
 
 
 @pytest.mark.parametrize(

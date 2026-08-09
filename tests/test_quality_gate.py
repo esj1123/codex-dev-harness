@@ -1470,6 +1470,92 @@ def test_repo_hygiene_gate_checks_nested_local_named_folders(tmp_path: Path) -> 
     assert any("docs" in message and "local" in message for message in result.messages)
 
 
+def test_repo_hygiene_iter_preserves_rglob_path_order(tmp_path: Path) -> None:
+    write(tmp_path / "root.txt", "root\n")
+    write(tmp_path / "alpha" / "alpha.txt", "alpha\n")
+    write(tmp_path / "alpha" / "deep" / "deep.txt", "deep\n")
+    write(tmp_path / "beta" / "beta.txt", "beta\n")
+    write(tmp_path / "docs" / "local" / "nested.pyc", "")
+    write(tmp_path / "docs" / "__pycache__" / "ignored.pyc", "")
+    write(tmp_path / "local" / "ignored.pyc", "")
+    expected = []
+    for path in tmp_path.rglob("*"):
+        relative_parts = path.relative_to(tmp_path).parts
+        if relative_parts and relative_parts[0] in repo_hygiene_gate.ROOT_IGNORED_PATH_PARTS:
+            continue
+        if any(
+            part in repo_hygiene_gate.IGNORED_PATH_PARTS
+            for part in relative_parts
+        ):
+            continue
+        if path.is_file():
+            expected.append(path)
+
+    actual = repo_hygiene_gate.iter_repo_files(tmp_path)
+
+    assert [path.relative_to(tmp_path) for path in actual] == [
+        path.relative_to(tmp_path) for path in expected
+    ]
+
+
+def test_repo_hygiene_iter_prunes_ignored_directories_before_visit(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    for relative in [
+        ".git/deep/ignored.pyc",
+        ".pytest_cache/deep/ignored.pyc",
+        ".venv/deep/ignored.pyc",
+        "local/deep/ignored.pyc",
+        "docs/__pycache__/deep/ignored.pyc",
+    ]:
+        write(tmp_path / relative, "")
+    write(tmp_path / "docs" / "visible.txt", "visible\n")
+    original_walk = repo_hygiene_gate.os.walk
+    visited: list[Path] = []
+
+    def recording_walk(*args, **kwargs):
+        for item in original_walk(*args, **kwargs):
+            visited.append(Path(item[0]))
+            yield item
+
+    monkeypatch.setattr(repo_hygiene_gate.os, "walk", recording_walk)
+
+    files = repo_hygiene_gate.iter_repo_files(tmp_path)
+
+    assert [path.relative_to(tmp_path).as_posix() for path in files] == [
+        "docs/visible.txt"
+    ]
+    for path in visited:
+        relative = path.relative_to(tmp_path)
+        assert not any(
+            part in repo_hygiene_gate.IGNORED_PATH_PARTS
+            for part in relative.parts
+        )
+        assert not (
+            relative.parts
+            and relative.parts[0] in repo_hygiene_gate.ROOT_IGNORED_PATH_PARTS
+        )
+
+
+def test_repo_hygiene_gate_prunes_directory_link_and_keeps_sibling(
+    tmp_path: Path,
+) -> None:
+    target = tmp_path / "local" / "outside"
+    write(target / "linked.pyc", "")
+    link = tmp_path / "linked"
+    create_directory_link(link, target)
+    write(tmp_path / "docs" / "sibling.pyc", "")
+    try:
+        result = repo_hygiene_gate.run(tmp_path)
+    finally:
+        remove_directory_link(link)
+
+    assert result.passed is False
+    assert result.messages == [
+        f"prohibited file suffix: {Path('docs/sibling.pyc')}"
+    ]
+
+
 def test_example_gate_requires_profile_phrases(tmp_path: Path) -> None:
     minimal_repo(tmp_path)
     example_dir = tmp_path / "examples" / "python_cli_minimal"
