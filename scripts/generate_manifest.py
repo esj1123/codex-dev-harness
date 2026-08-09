@@ -159,11 +159,13 @@ def run_git_bytes(
     args: list[str],
     *,
     required: bool = True,
+    input_bytes: bytes | None = None,
 ) -> bytes | None:
     try:
         completed = subprocess.run(
             ["git", "-C", str(repo_root), *args],
             check=False,
+            input=input_bytes,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             timeout=GIT_TIMEOUT_SECONDS,
@@ -207,6 +209,40 @@ def _validate_git_path(path: str) -> None:
         raise ValueError("Git tree contains an unsafe path")
 
 
+def _parse_cat_file_batch(raw: bytes, requested_object_ids: list[str]) -> list[bytes]:
+    blobs: list[bytes] = []
+    offset = 0
+    for expected_object_id in requested_object_ids:
+        header_end = raw.find(b"\n", offset)
+        if header_end < 0:
+            raise ValueError("Git cat-file batch output is malformed")
+        header = raw[offset:header_end]
+        offset = header_end + 1
+        try:
+            object_id, object_type, raw_size = header.decode("ascii").split(" ")
+        except (UnicodeDecodeError, ValueError) as exc:
+            raise ValueError("Git cat-file batch output is malformed") from exc
+        if (
+            object_id != expected_object_id
+            or object_type != "blob"
+            or not raw_size
+            or not raw_size.isdecimal()
+        ):
+            raise ValueError("Git cat-file batch output is malformed")
+        size = int(raw_size)
+        body_end = offset + size
+        if body_end > len(raw):
+            raise ValueError("Git cat-file batch output is malformed")
+        blob = raw[offset:body_end]
+        if raw[body_end : body_end + 1] != b"\n":
+            raise ValueError("Git cat-file batch output is malformed")
+        blobs.append(blob)
+        offset = body_end + 1
+    if offset != len(raw):
+        raise ValueError("Git cat-file batch output is malformed")
+    return blobs
+
+
 def git_tree_file_records(
     repo_root: Path,
     head_sha: str,
@@ -218,7 +254,8 @@ def git_tree_file_records(
         ["ls-tree", "-rz", "--full-tree", head_sha, "--", *roots],
     )
     assert raw is not None
-    records: dict[str, dict[str, Any]] = {}
+    requests: list[tuple[str, str]] = []
+    paths: set[str] = set()
     casefold_paths: dict[str, str] = {}
     for entry in raw.split(b"\0"):
         if not entry:
@@ -235,17 +272,37 @@ def git_tree_file_records(
             continue
         if object_type != "blob" or mode not in REGULAR_BLOB_MODES:
             raise ValueError(f"Git tree entry is not a regular blob: {path}")
+        if SHA1_PATTERN.fullmatch(object_id) is None:
+            raise ValueError("Git tree entry is malformed")
         folded = path.casefold()
-        if path in records or (folded in casefold_paths and casefold_paths[folded] != path):
+        if path in paths or (folded in casefold_paths and casefold_paths[folded] != path):
             raise ValueError("Git tree contains duplicate manifest paths")
-        blob = run_git_bytes(repo_root, ["cat-file", "blob", object_id])
-        assert blob is not None
+        requests.append((path, object_id))
+        paths.add(path)
+        casefold_paths[folded] = path
+
+    blobs: list[bytes] = []
+    if requests:
+        batch_input = b"".join(
+            object_id.encode("ascii") + b"\n" for _, object_id in requests
+        )
+        raw_batch = run_git_bytes(
+            repo_root,
+            ["cat-file", "--batch"],
+            input_bytes=batch_input,
+        )
+        assert raw_batch is not None
+        blobs = _parse_cat_file_batch(
+            raw_batch, [object_id for _, object_id in requests]
+        )
+
+    records: dict[str, dict[str, Any]] = {}
+    for (path, _), blob in zip(requests, blobs, strict=True):
         records[path] = {
             "path": path,
             "size_bytes": len(blob),
             "sha256": hashlib.sha256(blob).hexdigest(),
         }
-        casefold_paths[folded] = path
     return [records[path] for path in sorted(records)]
 
 

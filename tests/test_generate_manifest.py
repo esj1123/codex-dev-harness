@@ -8,6 +8,10 @@ import pytest
 from scripts import generate_manifest
 
 
+OID_A = "a" * 40
+OID_B = "b" * 40
+
+
 def write(path: Path, content: str = "content\n") -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
@@ -26,6 +30,22 @@ def git(
     )
     assert result.returncode == 0, result.stderr.decode("utf-8", errors="replace")
     return result
+
+
+def batch_frame(
+    object_id: str,
+    body: bytes,
+    *,
+    object_type: str = "blob",
+    size: str | None = None,
+    delimiter: bytes = b"\n",
+) -> bytes:
+    raw_size = str(len(body)) if size is None else size
+    return (
+        f"{object_id} {object_type} {raw_size}\n".encode("ascii")
+        + body
+        + delimiter
+    )
 
 
 def commit_repo(repo_root: Path) -> str:
@@ -205,6 +225,136 @@ def test_git_tree_inventory_ignores_untracked_files(tmp_path: Path) -> None:
     records = generate_manifest.git_tree_file_records(tmp_path, head)
 
     assert [record["path"] for record in records] == ["README.md"]
+
+
+def test_git_tree_inventory_uses_one_ls_tree_and_one_batch_process(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    write(tmp_path / "README.md", "same\n")
+    write(tmp_path / "docs" / "same.md", "same\n")
+    write(tmp_path / "docs" / "empty.txt", "")
+    binary = b"\x00binary\nbytes\xff"
+    (tmp_path / "docs" / "binary.bin").write_bytes(binary)
+    head = commit_repo(tmp_path)
+    original_run_git_bytes = generate_manifest.run_git_bytes
+    calls: list[tuple[tuple[str, ...], bytes | None]] = []
+
+    def recording_run_git_bytes(
+        repo_root: Path,
+        args: list[str],
+        *,
+        required: bool = True,
+        input_bytes: bytes | None = None,
+    ) -> bytes | None:
+        calls.append((tuple(args), input_bytes))
+        return original_run_git_bytes(
+            repo_root,
+            args,
+            required=required,
+            input_bytes=input_bytes,
+        )
+
+    monkeypatch.setattr(generate_manifest, "run_git_bytes", recording_run_git_bytes)
+
+    records = generate_manifest.git_tree_file_records(tmp_path, head)
+
+    assert len(records) == 4
+    assert [call[0][0] for call in calls] == ["ls-tree", "cat-file"]
+    assert calls[1][0] == ("cat-file", "--batch")
+    requested = calls[1][1]
+    assert requested is not None
+    requested_ids = requested.decode("ascii").splitlines()
+    assert len(requested_ids) == len(records)
+    assert len(set(requested_ids)) == 3
+    by_path = {record["path"]: record for record in records}
+    assert by_path["docs/empty.txt"]["size_bytes"] == 0
+    assert by_path["docs/binary.bin"]["sha256"] == hashlib.sha256(binary).hexdigest()
+
+
+def test_cat_file_batch_parser_supports_repeated_empty_and_binary_blobs() -> None:
+    binary = b"\x00binary\nbytes\xff"
+    raw = batch_frame(OID_A, b"") + batch_frame(OID_A, binary)
+
+    blobs = generate_manifest._parse_cat_file_batch(raw, [OID_A, OID_A])
+
+    assert blobs == [b"", binary]
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        b"",
+        f"{OID_A} missing\n".encode("ascii"),
+        batch_frame(OID_B, b""),
+        batch_frame(OID_A, b"", object_type="tree"),
+        batch_frame(OID_A, b"", size="-1"),
+        batch_frame(OID_A, b"", size="1x"),
+        f"{OID_A} blob 4\nabc".encode("ascii"),
+        batch_frame(OID_A, b"abc", delimiter=b"X"),
+        batch_frame(OID_A, b"abc") + b"trailing",
+        b"\xff\n",
+    ],
+)
+def test_cat_file_batch_parser_rejects_malformed_output(raw: bytes) -> None:
+    with pytest.raises(ValueError, match="batch output is malformed"):
+        generate_manifest._parse_cat_file_batch(raw, [OID_A])
+
+
+@pytest.mark.parametrize("failure", ["oserror", "timeout", "nonzero"])
+def test_run_git_bytes_fails_closed_on_process_failure(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    failure: str,
+) -> None:
+    def fail_run(*args, **kwargs):
+        if failure == "oserror":
+            raise OSError("synthetic process failure")
+        if failure == "timeout":
+            raise subprocess.TimeoutExpired(args[0], generate_manifest.GIT_TIMEOUT_SECONDS)
+        return subprocess.CompletedProcess(args[0], 1, stdout=b"", stderr=b"synthetic")
+
+    monkeypatch.setattr(generate_manifest.subprocess, "run", fail_run)
+
+    with pytest.raises(ValueError, match="Git repository inspection failed"):
+        generate_manifest.run_git_bytes(
+            tmp_path,
+            ["cat-file", "--batch"],
+            input_bytes=(OID_A + "\n").encode("ascii"),
+        )
+
+
+@pytest.mark.parametrize("second_path", ["docs/A.md", "docs/a.md"])
+def test_git_tree_inventory_rejects_exact_or_casefold_duplicate_paths(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    second_path: str,
+) -> None:
+    raw = (
+        f"100644 blob {OID_A}\tdocs/A.md\0"
+        f"100644 blob {OID_A}\t{second_path}\0"
+    ).encode("ascii")
+    monkeypatch.setattr(
+        generate_manifest,
+        "run_git_bytes",
+        lambda *_args, **_kwargs: raw,
+    )
+
+    with pytest.raises(ValueError, match="duplicate manifest paths"):
+        generate_manifest.git_tree_file_records(tmp_path, OID_B)
+
+
+def test_git_tree_inventory_rejects_malformed_object_id(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    raw = b"100644 blob not-a-sha\tREADME.md\0"
+    monkeypatch.setattr(
+        generate_manifest,
+        "run_git_bytes",
+        lambda *_args, **_kwargs: raw,
+    )
+
+    with pytest.raises(ValueError, match="tree entry is malformed"):
+        generate_manifest.git_tree_file_records(tmp_path, OID_B)
 
 
 @pytest.mark.parametrize("mode", ["120000", "160000"])
