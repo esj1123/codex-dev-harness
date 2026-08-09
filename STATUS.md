@@ -152,12 +152,12 @@ not authenticate approval.
 
 ## Next Recommended Step
 
-Review the verified verification-lane branch tip and decide whether to promote
-it to local `main`. Promotion, upstream configuration, push, and remote
-verification remain separate owner decisions. Before regenerating the
-historical release bundle,
-decide whether it should include an eval report and separately approve the
-artifact-writing refresh from the promoted exact source basis. Keep Agent
-Quality/provider, role calibration v7, Hermes, MCP, publication, and other
-remote work frozen unless a separate value decision and approval explicitly
-reopens them.
+The cumulative harness implementation has passed the required local
+verification. Local-main ref updates, fresh remote observation, non-force push,
+and exact-SHA remote verification are separate owner-approved operations and
+must be confirmed from the current Git state rather than inferred from this
+document. Before regenerating the historical release bundle, decide whether it
+should include an eval report and separately approve the artifact-writing
+refresh from its exact source basis. Keep Agent Quality/provider, role
+calibration v7, Hermes, MCP, publication, and other remote work frozen unless a
+separate value decision and approval explicitly reopens them.

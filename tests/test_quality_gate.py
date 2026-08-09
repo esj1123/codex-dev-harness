@@ -296,9 +296,26 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     normalized_checklist = " ".join(checklist.split())
 
     assert "`CORE_HARNESS_READY`" in normalized_status
-    assert "Review the verified verification-lane branch tip" in normalized_status
-    assert "decide whether to promote it to local `main`" in normalized_status
+    assert (
+        "The cumulative harness implementation has passed the required local "
+        "verification"
+        in normalized_status
+    )
+    assert (
+        "Local-main ref updates, fresh remote observation, non-force push, and "
+        "exact-SHA remote verification are separate owner-approved operations"
+        in normalized_status
+    )
+    assert (
+        "must be confirmed from the current Git state rather than inferred from "
+        "this document"
+        in normalized_status
+    )
+    assert "`HISTORICAL_INVALID / REFRESH_NOT_RUN`" in normalized_status
     assert "decide whether it should include an eval report" in normalized_status
+    assert "Review the verified verification-lane branch tip" not in normalized_status
+    assert "decide whether to promote it to local `main`" not in normalized_status
+    assert "have been promoted to local `main`" not in normalized_status
     assert "Complete the core-only integration checks" not in normalized_status
 
     assert "manual read-only `.github/workflows/local-verify.yml`" in usage
