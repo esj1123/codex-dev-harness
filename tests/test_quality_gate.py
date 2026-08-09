@@ -294,25 +294,40 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     runtime = Path("docs/PYTHON_RUNTIME_POLICY.md").read_text(encoding="utf-8")
     normalized_status = " ".join(status.split())
     normalized_checklist = " ".join(checklist.split())
+    held_marker = "\n## Held Or Not Authorized\n"
+    next_step_marker = "\n## Next Recommended Step\n"
+    assert status.count(held_marker) == 1
+    assert status.count(next_step_marker) == 1
+    normalized_held = " ".join(
+        status.split(held_marker, 1)[1].split("\n## ", 1)[0].split()
+    )
+    normalized_next_step = " ".join(
+        status.split(next_step_marker, 1)[1].split("\n## ", 1)[0].split()
+    )
+    expected_next_step = (
+        "The cumulative harness implementation has passed the required local "
+        "verification. Local-main ref updates, fresh remote observation, non-force "
+        "push, and exact-SHA remote verification are separate owner-approved "
+        "operations and must be confirmed from the current Git state rather than "
+        "inferred from this document. Before regenerating the historical release "
+        "bundle, decide whether it should include an eval report and separately "
+        "approve the artifact-writing refresh from its exact source basis. Keep Agent "
+        "Quality/provider, role calibration v7, Hermes, MCP, publication, and other "
+        "remote work frozen unless a separate value decision and approval explicitly "
+        "reopens them."
+    )
 
     assert "`CORE_HARNESS_READY`" in normalized_status
     assert (
-        "The cumulative harness implementation has passed the required local "
-        "verification"
-        in normalized_status
+        "Tracked release evidence regeneration until the eval-report inclusion policy "
+        "and exact source basis are separately approved."
+        in normalized_held
     )
-    assert (
-        "Local-main ref updates, fresh remote observation, non-force push, and "
-        "exact-SHA remote verification are separate owner-approved operations"
-        in normalized_status
-    )
-    assert (
-        "must be confirmed from the current Git state rather than inferred from "
-        "this document"
-        in normalized_status
-    )
+    assert "Tag, release, signing, upload, or publication." in normalized_held
+    assert "Automatic digest writes or release automation." in normalized_held
+    assert normalized_next_step == expected_next_step
     assert "`HISTORICAL_INVALID / REFRESH_NOT_RUN`" in normalized_status
-    assert "decide whether it should include an eval report" in normalized_status
+    assert "decide whether it should include an eval report" in normalized_next_step
     assert "Review the verified verification-lane branch tip" not in normalized_status
     assert "decide whether to promote it to local `main`" not in normalized_status
     assert "have been promoted to local `main`" not in normalized_status
