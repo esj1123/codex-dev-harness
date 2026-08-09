@@ -15,8 +15,9 @@ import platform
 import re
 import subprocess
 import sys
+import tempfile
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, BinaryIO
 from urllib.parse import urlsplit
 
 try:
@@ -33,6 +34,8 @@ ARTIFACTS_ROOT = "artifacts"
 GIT_TIMEOUT_SECONDS = 15
 SHA1_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 REGULAR_BLOB_MODES = {"100644", "100755"}
+_BATCH_HEADER_LIMIT_BYTES = 128
+_BATCH_READ_CHUNK_BYTES = 1024 * 1024
 
 INCLUDED_ROOTS = [
     ".python-version",
@@ -209,17 +212,17 @@ def _validate_git_path(path: str) -> None:
         raise ValueError("Git tree contains an unsafe path")
 
 
-def _parse_cat_file_batch(raw: bytes, requested_object_ids: list[str]) -> list[bytes]:
-    blobs: list[bytes] = []
-    offset = 0
+def _parse_cat_file_batch(
+    stream: BinaryIO,
+    requested_object_ids: list[str],
+) -> list[tuple[int, str]]:
+    metadata: list[tuple[int, str]] = []
     for expected_object_id in requested_object_ids:
-        header_end = raw.find(b"\n", offset)
-        if header_end < 0:
+        header = stream.readline(_BATCH_HEADER_LIMIT_BYTES)
+        if not header or not header.endswith(b"\n"):
             raise ValueError("Git cat-file batch output is malformed")
-        header = raw[offset:header_end]
-        offset = header_end + 1
         try:
-            object_id, object_type, raw_size = header.decode("ascii").split(" ")
+            object_id, object_type, raw_size = header[:-1].decode("ascii").split(" ")
         except (UnicodeDecodeError, ValueError) as exc:
             raise ValueError("Git cat-file batch output is malformed") from exc
         if (
@@ -230,17 +233,54 @@ def _parse_cat_file_batch(raw: bytes, requested_object_ids: list[str]) -> list[b
         ):
             raise ValueError("Git cat-file batch output is malformed")
         size = int(raw_size)
-        body_end = offset + size
-        if body_end > len(raw):
+        remaining = size
+        digest = hashlib.sha256()
+        while remaining:
+            read_size = min(_BATCH_READ_CHUNK_BYTES, remaining)
+            chunk = stream.read(read_size)
+            if not chunk or len(chunk) > read_size:
+                raise ValueError("Git cat-file batch output is malformed")
+            digest.update(chunk)
+            remaining -= len(chunk)
+        if stream.read(1) != b"\n":
             raise ValueError("Git cat-file batch output is malformed")
-        blob = raw[offset:body_end]
-        if raw[body_end : body_end + 1] != b"\n":
-            raise ValueError("Git cat-file batch output is malformed")
-        blobs.append(blob)
-        offset = body_end + 1
-    if offset != len(raw):
+        metadata.append((size, digest.hexdigest()))
+    if stream.read(1) != b"":
         raise ValueError("Git cat-file batch output is malformed")
-    return blobs
+    return metadata
+
+
+def _run_git_cat_file_batch(
+    repo_root: Path,
+    requested_object_ids: list[str],
+) -> list[tuple[int, str]]:
+    batch_input = b"".join(
+        object_id.encode("ascii") + b"\n" for object_id in requested_object_ids
+    )
+    try:
+        batch_output = tempfile.TemporaryFile(mode="w+b")
+    except OSError as exc:
+        raise ValueError("Git repository inspection failed") from exc
+
+    with batch_output:
+        try:
+            completed = subprocess.run(
+                ["git", "-C", str(repo_root), "cat-file", "--batch"],
+                check=False,
+                input=batch_input,
+                stdout=batch_output,
+                stderr=subprocess.DEVNULL,
+                timeout=GIT_TIMEOUT_SECONDS,
+            )
+        except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
+            raise ValueError("Git repository inspection failed") from exc
+        if completed.returncode != 0:
+            raise ValueError("Git repository inspection failed")
+        try:
+            batch_output.seek(0)
+            return _parse_cat_file_batch(batch_output, requested_object_ids)
+        except OSError as exc:
+            raise ValueError("Git repository inspection failed") from exc
 
 
 def git_tree_file_records(
@@ -281,27 +321,20 @@ def git_tree_file_records(
         paths.add(path)
         casefold_paths[folded] = path
 
-    blobs: list[bytes] = []
+    blob_metadata: list[tuple[int, str]] = []
     if requests:
-        batch_input = b"".join(
-            object_id.encode("ascii") + b"\n" for _, object_id in requests
-        )
-        raw_batch = run_git_bytes(
-            repo_root,
-            ["cat-file", "--batch"],
-            input_bytes=batch_input,
-        )
-        assert raw_batch is not None
-        blobs = _parse_cat_file_batch(
-            raw_batch, [object_id for _, object_id in requests]
+        blob_metadata = _run_git_cat_file_batch(
+            repo_root, [object_id for _, object_id in requests]
         )
 
     records: dict[str, dict[str, Any]] = {}
-    for (path, _), blob in zip(requests, blobs, strict=True):
+    for (path, _), (size, digest) in zip(
+        requests, blob_metadata, strict=True
+    ):
         records[path] = {
             "path": path,
-            "size_bytes": len(blob),
-            "sha256": hashlib.sha256(blob).hexdigest(),
+            "size_bytes": size,
+            "sha256": digest,
         }
     return [records[path] for path in sorted(records)]
 

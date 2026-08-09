@@ -1,4 +1,5 @@
 import hashlib
+import io
 import json
 from pathlib import Path
 import subprocess
@@ -236,32 +237,36 @@ def test_git_tree_inventory_uses_one_ls_tree_and_one_batch_process(
     binary = b"\x00binary\nbytes\xff"
     (tmp_path / "docs" / "binary.bin").write_bytes(binary)
     head = commit_repo(tmp_path)
-    original_run_git_bytes = generate_manifest.run_git_bytes
-    calls: list[tuple[tuple[str, ...], bytes | None]] = []
+    original_run = generate_manifest.subprocess.run
+    calls: list[
+        tuple[tuple[str, ...], object, bytes | None, object, object]
+    ] = []
 
-    def recording_run_git_bytes(
-        repo_root: Path,
-        args: list[str],
-        *,
-        required: bool = True,
-        input_bytes: bytes | None = None,
-    ) -> bytes | None:
-        calls.append((tuple(args), input_bytes))
-        return original_run_git_bytes(
-            repo_root,
-            args,
-            required=required,
-            input_bytes=input_bytes,
+    def recording_run(*args, **kwargs):
+        calls.append(
+            (
+                tuple(args[0]),
+                kwargs.get("stdout"),
+                kwargs.get("input"),
+                kwargs.get("timeout"),
+                kwargs.get("stderr"),
+            )
         )
+        return original_run(*args, **kwargs)
 
-    monkeypatch.setattr(generate_manifest, "run_git_bytes", recording_run_git_bytes)
+    monkeypatch.setattr(generate_manifest.subprocess, "run", recording_run)
 
     records = generate_manifest.git_tree_file_records(tmp_path, head)
 
     assert len(records) == 4
-    assert [call[0][0] for call in calls] == ["ls-tree", "cat-file"]
-    assert calls[1][0] == ("cat-file", "--batch")
-    requested = calls[1][1]
+    assert [call[0][3] for call in calls] == ["ls-tree", "cat-file"]
+    assert calls[1][0][3:] == ("cat-file", "--batch")
+    assert calls[1][1] is not subprocess.PIPE
+    assert hasattr(calls[1][1], "write")
+    assert getattr(calls[1][1], "closed", False) is True
+    assert calls[1][3] == generate_manifest.GIT_TIMEOUT_SECONDS
+    assert calls[1][4] is subprocess.DEVNULL
+    requested = calls[1][2]
     assert requested is not None
     requested_ids = requested.decode("ascii").splitlines()
     assert len(requested_ids) == len(records)
@@ -275,9 +280,41 @@ def test_cat_file_batch_parser_supports_repeated_empty_and_binary_blobs() -> Non
     binary = b"\x00binary\nbytes\xff"
     raw = batch_frame(OID_A, b"") + batch_frame(OID_A, binary)
 
-    blobs = generate_manifest._parse_cat_file_batch(raw, [OID_A, OID_A])
+    metadata = generate_manifest._parse_cat_file_batch(
+        io.BytesIO(raw), [OID_A, OID_A]
+    )
 
-    assert blobs == [b"", binary]
+    assert metadata == [
+        (0, hashlib.sha256(b"").hexdigest()),
+        (len(binary), hashlib.sha256(binary).hexdigest()),
+    ]
+
+
+class BoundedReadBytesIO(io.BytesIO):
+    def __init__(self, value: bytes) -> None:
+        super().__init__(value)
+        self.body_read_sizes: list[int] = []
+
+    def read(self, size: int = -1) -> bytes:
+        assert 0 <= size <= generate_manifest._BATCH_READ_CHUNK_BYTES
+        self.body_read_sizes.append(size)
+        return super().read(size)
+
+    def readline(self, size: int = -1) -> bytes:
+        assert 0 <= size <= generate_manifest._BATCH_HEADER_LIMIT_BYTES
+        return super().readline(size)
+
+
+def test_cat_file_batch_parser_hashes_large_blob_with_bounded_reads() -> None:
+    body = b"x" * (generate_manifest._BATCH_READ_CHUNK_BYTES * 2 + 17)
+    stream = BoundedReadBytesIO(batch_frame(OID_A, body))
+
+    metadata = generate_manifest._parse_cat_file_batch(stream, [OID_A])
+
+    assert metadata == [(len(body), hashlib.sha256(body).hexdigest())]
+    assert stream.body_read_sizes.count(
+        generate_manifest._BATCH_READ_CHUNK_BYTES
+    ) == 2
 
 
 @pytest.mark.parametrize(
@@ -290,14 +327,79 @@ def test_cat_file_batch_parser_supports_repeated_empty_and_binary_blobs() -> Non
         batch_frame(OID_A, b"", size="-1"),
         batch_frame(OID_A, b"", size="1x"),
         f"{OID_A} blob 4\nabc".encode("ascii"),
+        f"{OID_A} blob {10**30}\nabc".encode("ascii"),
         batch_frame(OID_A, b"abc", delimiter=b"X"),
         batch_frame(OID_A, b"abc") + b"trailing",
         b"\xff\n",
+        b"x" * 256,
     ],
 )
 def test_cat_file_batch_parser_rejects_malformed_output(raw: bytes) -> None:
     with pytest.raises(ValueError, match="batch output is malformed"):
-        generate_manifest._parse_cat_file_batch(raw, [OID_A])
+        generate_manifest._parse_cat_file_batch(io.BytesIO(raw), [OID_A])
+
+
+def test_cat_file_batch_parser_rejects_missing_expected_frame() -> None:
+    with pytest.raises(ValueError, match="batch output is malformed"):
+        generate_manifest._parse_cat_file_batch(
+            io.BytesIO(batch_frame(OID_A, b"first")),
+            [OID_A, OID_A],
+        )
+
+
+@pytest.mark.parametrize("failure", ["oserror", "timeout", "nonzero"])
+def test_run_git_cat_file_batch_fails_closed_on_process_failure(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    failure: str,
+) -> None:
+    def fail_run(*args, **kwargs):
+        if failure == "oserror":
+            raise OSError("synthetic process failure")
+        if failure == "timeout":
+            raise subprocess.TimeoutExpired(
+                args[0], generate_manifest.GIT_TIMEOUT_SECONDS
+            )
+        return subprocess.CompletedProcess(
+            args[0], 1, stdout=None, stderr=b"synthetic"
+        )
+
+    monkeypatch.setattr(generate_manifest.subprocess, "run", fail_run)
+
+    with pytest.raises(ValueError, match="Git repository inspection failed"):
+        generate_manifest._run_git_cat_file_batch(tmp_path, [OID_A])
+
+
+def test_run_git_cat_file_batch_fails_closed_on_tempfile_error(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def fail_temporary_file(*args, **kwargs):
+        raise OSError("synthetic temporary file failure")
+
+    monkeypatch.setattr(
+        generate_manifest.tempfile, "TemporaryFile", fail_temporary_file
+    )
+
+    with pytest.raises(ValueError, match="Git repository inspection failed"):
+        generate_manifest._run_git_cat_file_batch(tmp_path, [OID_A])
+
+
+def test_run_git_cat_file_batch_fails_closed_on_tempfile_read_error(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def successful_run(*args, **kwargs):
+        return subprocess.CompletedProcess(args[0], 0, stdout=None, stderr=None)
+
+    def fail_parse(*args, **kwargs):
+        raise OSError("synthetic temporary file read failure")
+
+    monkeypatch.setattr(generate_manifest.subprocess, "run", successful_run)
+    monkeypatch.setattr(generate_manifest, "_parse_cat_file_batch", fail_parse)
+
+    with pytest.raises(ValueError, match="Git repository inspection failed"):
+        generate_manifest._run_git_cat_file_batch(tmp_path, [OID_A])
 
 
 @pytest.mark.parametrize("failure", ["oserror", "timeout", "nonzero"])
