@@ -8,6 +8,8 @@ from pathlib import Path, PurePosixPath
 import re
 import stat
 import subprocess
+import tempfile
+import uuid
 
 
 TEXT_SUFFIXES = {
@@ -48,6 +50,22 @@ MAX_TRACKED_TEXT_BYTES = 1024 * 1024
 MAX_GIT_OUTPUT_BYTES = 4 * 1024 * 1024
 GIT_TIMEOUT_SECONDS = 30
 
+_AMBIENT_GIT_KEYS = {
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_COMMON_DIR",
+    "GIT_CONFIG",
+    "GIT_CONFIG_PARAMETERS",
+    "GIT_CONFIG_SYSTEM",
+    "GIT_DIR",
+    "GIT_EXEC_PATH",
+    "GIT_INDEX_FILE",
+    "GIT_NAMESPACE",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_SHALLOW_FILE",
+    "GIT_TEMPLATE_DIR",
+    "GIT_WORK_TREE",
+}
+
 SECRET_PATTERNS = [
     re.compile(r"-----BEGIN (?:RSA |OPENSSH |EC |DSA )?PRIVATE KEY-----"),
     re.compile(r"(?i)\b(?:api[_-]?key|secret|token|password)\s*[:=]\s*['\"]?[A-Za-z0-9_./+=-]{16,}"),
@@ -67,6 +85,45 @@ class GateResult:
 
 class SecretScanError(RuntimeError):
     pass
+
+
+def _git_environment(repo_root: Path) -> dict[str, str]:
+    environment = os.environ.copy()
+    for name in list(environment):
+        if name in _AMBIENT_GIT_KEYS or re.fullmatch(
+            r"GIT_CONFIG_(?:COUNT|KEY_[0-9]+|VALUE_[0-9]+)", name
+        ):
+            environment.pop(name, None)
+
+    disabled_hooks = Path(tempfile.gettempdir()) / (
+        f"codex-harness-disabled-hooks-{uuid.uuid4().hex}"
+    )
+    if disabled_hooks.exists():
+        raise SecretScanError("unable to isolate Git hooks")
+
+    fixed_config = [
+        ("commit.gpgSign", "false"),
+        ("tag.gpgSign", "false"),
+        ("core.hooksPath", str(disabled_hooks)),
+        ("core.fsmonitor", "false"),
+        ("submodule.recurse", "false"),
+        ("safe.directory", str(repo_root.resolve())),
+    ]
+    environment.update(
+        {
+            "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_CONFIG_GLOBAL": os.devnull,
+            "GIT_TERMINAL_PROMPT": "0",
+            "GCM_INTERACTIVE": "Never",
+            "GIT_NO_REPLACE_OBJECTS": "1",
+            "GIT_OPTIONAL_LOCKS": "0",
+            "GIT_CONFIG_COUNT": str(len(fixed_config)),
+        }
+    )
+    for index, (key, value) in enumerate(fixed_config):
+        environment[f"GIT_CONFIG_KEY_{index}"] = key
+        environment[f"GIT_CONFIG_VALUE_{index}"] = value
+    return environment
 
 
 def is_text_candidate(path: Path) -> bool:
@@ -124,6 +181,7 @@ def tracked_repo_files(repo_root: Path) -> set[str]:
             check=False,
             capture_output=True,
             timeout=GIT_TIMEOUT_SECONDS,
+            env=_git_environment(repo_root),
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise SecretScanError("tracked file inventory failed") from exc

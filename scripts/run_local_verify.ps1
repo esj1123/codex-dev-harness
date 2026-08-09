@@ -10,18 +10,80 @@ $ErrorActionPreference = "Stop"
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location -LiteralPath $RepoRoot
 
-function Clear-AmbientVerificationEnvironment {
-    foreach ($name in @("PYTEST_ADDOPTS", "PYTEST_PLUGINS", "PYTHONPATH")) {
+function Set-HermeticVerificationEnvironment {
+    $ambientNames = @(
+        "PYTEST_ADDOPTS",
+        "PYTEST_PLUGINS",
+        "PYTHONPATH",
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+        "GIT_COMMON_DIR",
+        "GIT_CONFIG",
+        "GIT_CONFIG_PARAMETERS",
+        "GIT_CONFIG_SYSTEM",
+        "GIT_DIR",
+        "GIT_EXEC_PATH",
+        "GIT_INDEX_FILE",
+        "GIT_NAMESPACE",
+        "GIT_OBJECT_DIRECTORY",
+        "GIT_SHALLOW_FILE",
+        "GIT_TEMPLATE_DIR",
+        "GIT_WORK_TREE",
+        "GIT_CONFIG_COUNT"
+    )
+    $dynamicConfigNames = @(
+        [Environment]::GetEnvironmentVariables(
+            [EnvironmentVariableTarget]::Process
+        ).Keys | Where-Object {
+            ([string]$_) -match '^GIT_CONFIG_(?:KEY|VALUE)_[0-9]+$'
+        }
+    )
+    foreach ($name in @($ambientNames + $dynamicConfigNames)) {
         [Environment]::SetEnvironmentVariable(
-            $name,
+            [string]$name,
             $null,
             [EnvironmentVariableTarget]::Process
         )
     }
+
+    $disabledHooksPath = Join-Path (
+        [System.IO.Path]::GetTempPath()
+    ) ("codex-harness-disabled-hooks-{0}" -f [Guid]::NewGuid().ToString("N"))
+    if (Test-Path -LiteralPath $disabledHooksPath) {
+        throw "Unable to allocate a non-existent Git hooks path."
+    }
+
     $env:PYTEST_DISABLE_PLUGIN_AUTOLOAD = "1"
+    $env:GIT_CONFIG_NOSYSTEM = "1"
+    $env:GIT_CONFIG_GLOBAL = "NUL"
+    $env:GIT_TERMINAL_PROMPT = "0"
+    $env:GCM_INTERACTIVE = "Never"
+    $env:GIT_NO_REPLACE_OBJECTS = "1"
+    $env:GIT_OPTIONAL_LOCKS = "0"
+
+    $fixedGitConfig = @(
+        @("commit.gpgSign", "false"),
+        @("tag.gpgSign", "false"),
+        @("core.hooksPath", $disabledHooksPath),
+        @("core.fsmonitor", "false"),
+        @("submodule.recurse", "false"),
+        @("safe.directory", [System.IO.Path]::GetFullPath($RepoRoot))
+    )
+    $env:GIT_CONFIG_COUNT = [string]$fixedGitConfig.Count
+    for ($index = 0; $index -lt $fixedGitConfig.Count; $index++) {
+        [Environment]::SetEnvironmentVariable(
+            "GIT_CONFIG_KEY_$index",
+            [string]$fixedGitConfig[$index][0],
+            [EnvironmentVariableTarget]::Process
+        )
+        [Environment]::SetEnvironmentVariable(
+            "GIT_CONFIG_VALUE_$index",
+            [string]$fixedGitConfig[$index][1],
+            [EnvironmentVariableTarget]::Process
+        )
+    }
 }
 
-Clear-AmbientVerificationEnvironment
+Set-HermeticVerificationEnvironment
 
 function Find-Python {
     $candidates = @()

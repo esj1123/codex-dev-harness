@@ -258,7 +258,7 @@ def test_local_wrapper_gates_candidates_and_environment_before_pytest() -> None:
 
 def test_local_wrapper_clears_ambient_test_controls_before_python_selection() -> None:
     text = Path("scripts/run_local_verify.ps1").read_text(encoding="utf-8")
-    clear_call = "\nClear-AmbientVerificationEnvironment\n"
+    clear_call = "\nSet-HermeticVerificationEnvironment\n"
     select_call = "\n$PythonCommand = Find-Python\n"
 
     for name in [
@@ -279,8 +279,12 @@ def test_git_test_environment_is_isolated() -> None:
     assert os.environ["GIT_CONFIG_KEY_0"] == "commit.gpgSign"
     assert os.environ["GIT_CONFIG_VALUE_0"] == "false"
     assert os.environ["GIT_CONFIG_KEY_2"] == "core.hooksPath"
-    assert os.environ["GIT_CONFIG_KEY_3"] == "safe.directory"
-    assert os.environ["GIT_CONFIG_VALUE_3"] == str(Path.cwd().resolve())
+    assert os.environ["GIT_CONFIG_KEY_3"] == "core.fsmonitor"
+    assert os.environ["GIT_CONFIG_VALUE_3"] == "false"
+    assert os.environ["GIT_CONFIG_KEY_4"] == "submodule.recurse"
+    assert os.environ["GIT_CONFIG_VALUE_4"] == "false"
+    assert os.environ["GIT_CONFIG_KEY_5"] == "safe.directory"
+    assert os.environ["GIT_CONFIG_VALUE_5"] == str(Path.cwd().resolve())
 
 
 def test_git_test_environment_rejects_config_parameters_override(

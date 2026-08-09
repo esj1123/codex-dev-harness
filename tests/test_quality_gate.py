@@ -46,6 +46,31 @@ PROFILE_TEMPLATE_NAMES = [
     "VERIFICATION.profile.md",
 ]
 
+AMBIENT_GIT_ROUTING_KEYS = {
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_COMMON_DIR",
+    "GIT_CONFIG",
+    "GIT_CONFIG_PARAMETERS",
+    "GIT_CONFIG_SYSTEM",
+    "GIT_DIR",
+    "GIT_EXEC_PATH",
+    "GIT_INDEX_FILE",
+    "GIT_NAMESPACE",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_SHALLOW_FILE",
+    "GIT_TEMPLATE_DIR",
+    "GIT_WORK_TREE",
+}
+
+FIXED_GIT_CONFIG = [
+    ("commit.gpgSign", "false"),
+    ("tag.gpgSign", "false"),
+    ("core.hooksPath", None),
+    ("core.fsmonitor", "false"),
+    ("submodule.recurse", "false"),
+    ("safe.directory", None),
+]
+
 
 def write(path: Path, content: str = REQUIRED_DOC_CONTENT) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -598,6 +623,219 @@ def _wrapper_pytest_args(
     return pytest_invocation.split()[2:]
 
 
+def _parse_environment_probe(path: Path) -> list[dict[str, str]]:
+    records: list[dict[str, str]] = []
+    current: dict[str, str] | None = None
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if line == "BEGIN":
+            current = {}
+            continue
+        if line == "END":
+            assert current is not None
+            records.append(current)
+            current = None
+            continue
+        assert current is not None
+        key, separator, value = line.partition("=")
+        assert separator
+        current[key] = value
+    assert current is None
+    return records
+
+
+def _environment_probe_batch(log_variable: str, *, exit_code: int = 0) -> str:
+    keys = [
+        "ARGS",
+        *sorted(AMBIENT_GIT_ROUTING_KEYS),
+        "GIT_CONFIG_COUNT",
+        "GIT_CONFIG_NOSYSTEM",
+        "GIT_CONFIG_GLOBAL",
+        "GIT_TERMINAL_PROMPT",
+        "GCM_INTERACTIVE",
+        "GIT_NO_REPLACE_OBJECTS",
+        "GIT_OPTIONAL_LOCKS",
+        *[
+            name
+            for index in range(7)
+            for name in (f"GIT_CONFIG_KEY_{index}", f"GIT_CONFIG_VALUE_{index}")
+        ],
+        "PYTEST_ADDOPTS",
+        "PYTEST_PLUGINS",
+        "PYTHONPATH",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD",
+    ]
+    lines = ["@echo off", f'>>"%{log_variable}%" echo BEGIN']
+    for key in keys:
+        value = "%*" if key == "ARGS" else f"%{key}%"
+        lines.append(f'>>"%{log_variable}%" echo {key}={value}')
+    lines.extend([f'>>"%{log_variable}%" echo END', f"exit /b {exit_code}"])
+    return "\r\n".join(lines) + "\r\n"
+
+
+def _assert_hermetic_git_probe(
+    record: dict[str, str], repo_root: Path
+) -> None:
+    for name in AMBIENT_GIT_ROUTING_KEYS:
+        assert record[name] == ""
+    assert record["GIT_CONFIG_COUNT"] == str(len(FIXED_GIT_CONFIG))
+    assert record["GIT_CONFIG_NOSYSTEM"] == "1"
+    assert record["GIT_CONFIG_GLOBAL"].casefold() in {"nul", os.devnull.casefold()}
+    assert record["GIT_TERMINAL_PROMPT"] == "0"
+    assert record["GCM_INTERACTIVE"] == "Never"
+    assert record["GIT_NO_REPLACE_OBJECTS"] == "1"
+    assert record["GIT_OPTIONAL_LOCKS"] == "0"
+    for index, (expected_key, expected_value) in enumerate(FIXED_GIT_CONFIG):
+        assert record[f"GIT_CONFIG_KEY_{index}"] == expected_key
+        observed_value = record[f"GIT_CONFIG_VALUE_{index}"]
+        if index == 2:
+            hooks_path = Path(observed_value)
+            assert hooks_path.is_absolute()
+            assert not hooks_path.exists()
+        elif index == 5:
+            assert Path(observed_value) == repo_root.resolve()
+        else:
+            assert observed_value == expected_value
+    assert record["GIT_CONFIG_KEY_6"] == ""
+    assert record["GIT_CONFIG_VALUE_6"] == ""
+
+
+def test_pytest_session_uses_hermetic_git_environment() -> None:
+    for name in AMBIENT_GIT_ROUTING_KEYS:
+        assert name not in os.environ
+    assert os.environ["GIT_CONFIG_COUNT"] == str(len(FIXED_GIT_CONFIG))
+    assert os.environ["GIT_NO_REPLACE_OBJECTS"] == "1"
+    assert os.environ["GIT_OPTIONAL_LOCKS"] == "0"
+    for index, (expected_key, expected_value) in enumerate(FIXED_GIT_CONFIG):
+        assert os.environ[f"GIT_CONFIG_KEY_{index}"] == expected_key
+        if expected_value is not None:
+            assert os.environ[f"GIT_CONFIG_VALUE_{index}"] == expected_value
+
+
+def test_local_wrapper_sanitizes_git_environment_for_every_child(
+    tmp_path: Path,
+) -> None:
+    environment_log = tmp_path / "local-wrapper-environment.log"
+    python_shim = tmp_path / "python-environment-probe.cmd"
+    python_shim.write_text(
+        _environment_probe_batch("CODEX_TEST_ENVIRONMENT_LOG"), encoding="utf-8"
+    )
+    environment = os.environ.copy()
+    environment.update(
+        {
+            "PYTHON": str(python_shim),
+            "CODEX_TEST_ENVIRONMENT_LOG": str(environment_log),
+            "GIT_DIR": str(tmp_path / "hostile.git"),
+            "GIT_INDEX_FILE": str(tmp_path / "hostile.index"),
+            "GIT_WORK_TREE": str(tmp_path / "hostile-worktree"),
+            "GIT_CONFIG_PARAMETERS": "hostile",
+            "GIT_CONFIG_COUNT": "9",
+            "GIT_CONFIG_KEY_8": "core.hooksPath",
+            "GIT_CONFIG_VALUE_8": str(tmp_path / "hostile-hooks"),
+            "GIT_EXEC_PATH": str(tmp_path / "hostile-exec"),
+            "GIT_NAMESPACE": "hostile",
+            "PYTEST_ADDOPTS": "-k nonexistent",
+            "PYTEST_PLUGINS": "hostile_plugin",
+            "PYTHONPATH": str(tmp_path / "hostile-pythonpath"),
+        }
+    )
+    result = subprocess.run(
+        [
+            "powershell.exe",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            "scripts/run_local_verify.ps1",
+        ],
+        cwd=Path.cwd(),
+        env=environment,
+        capture_output=True,
+        text=True,
+        timeout=60,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    records = _parse_environment_probe(environment_log)
+    assert len(records) == 8
+    assert len({record["GIT_CONFIG_VALUE_2"] for record in records}) == 1
+    for record in records:
+        _assert_hermetic_git_probe(record, Path.cwd())
+        assert record["PYTEST_ADDOPTS"] == ""
+        assert record["PYTEST_PLUGINS"] == ""
+        assert record["PYTHONPATH"] == ""
+        assert record["PYTEST_DISABLE_PLUGIN_AUTOLOAD"] == "1"
+    pytest_record = next(record for record in records if record["ARGS"].startswith("-m pytest "))
+    assert pytest_record["ARGS"].split() == ["-m", "pytest", "tests", "--durations=50", "-rs"]
+
+
+def test_release_wrapper_sanitizes_environment_before_first_git_command(
+    tmp_path: Path,
+) -> None:
+    scripts = tmp_path / "scripts"
+    write(
+        scripts / "run_release_verify.ps1",
+        Path("scripts/run_release_verify.ps1").read_text(encoding="utf-8"),
+    )
+    write(
+        scripts / "run_local_verify.ps1",
+        Path("scripts/run_local_verify.ps1").read_text(encoding="utf-8"),
+    )
+    shim_dir = tmp_path / "shim"
+    git_log = tmp_path / "release-git-environment.log"
+    python_log = tmp_path / "release-python.log"
+    write(
+        shim_dir / "git.cmd",
+        _environment_probe_batch("CODEX_TEST_GIT_LOG", exit_code=97),
+    )
+    write(
+        shim_dir / "python.cmd",
+        '@echo off\r\n>>"%CODEX_TEST_PYTHON_LOG%" echo %*\r\nexit /b 0\r\n',
+    )
+    environment = os.environ.copy()
+    environment.update(
+        {
+            "PATH": str(shim_dir) + os.pathsep + environment["PATH"],
+            "PYTHON": str(shim_dir / "python.cmd"),
+            "CODEX_TEST_GIT_LOG": str(git_log),
+            "CODEX_TEST_PYTHON_LOG": str(python_log),
+            "GIT_DIR": str(tmp_path / "hostile.git"),
+            "GIT_INDEX_FILE": str(tmp_path / "hostile.index"),
+            "GIT_WORK_TREE": str(tmp_path / "hostile-worktree"),
+            "GIT_CONFIG_PARAMETERS": "hostile",
+            "GIT_CONFIG_COUNT": "8",
+            "GIT_CONFIG_KEY_7": "core.hooksPath",
+            "GIT_CONFIG_VALUE_7": str(tmp_path / "hostile-hooks"),
+        }
+    )
+    result = subprocess.run(
+        [
+            "powershell.exe",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(scripts / "run_release_verify.ps1"),
+        ],
+        cwd=tmp_path,
+        env=environment,
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+
+    assert result.returncode == 97
+    records = _parse_environment_probe(git_log)
+    assert len(records) == 1
+    assert records[0]["ARGS"] == "status --porcelain=v1 --untracked-files=all"
+    _assert_hermetic_git_probe(records[0], tmp_path)
+    python_invocations = python_log.read_text(encoding="utf-8").splitlines()
+    assert len(python_invocations) == 1
+    assert "scripts/verify_dev_environment.py" in python_invocations[0]
+    assert not (tmp_path / "artifacts").exists()
+
+
 def _collected_nodes(pytest_args: list[str]) -> set[str]:
     environment = os.environ.copy()
     for name in ["PYTEST_ADDOPTS", "PYTEST_PLUGINS", "PYTHONPATH"]:
@@ -910,6 +1148,49 @@ def test_secret_scan_gate_checks_force_tracked_ignored_and_extensionless_files(
 
     assert result.passed is False
     assert any(relative_path in message for message in result.messages)
+
+
+@pytest.mark.parametrize("routing_key", ["GIT_DIR", "GIT_INDEX_FILE"])
+def test_git_inventory_gates_ignore_ambient_repository_routing(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    routing_key: str,
+) -> None:
+    target = tmp_path / "target"
+    alternate = tmp_path / "alternate"
+    target.mkdir()
+    alternate.mkdir()
+    init_git_repo(target)
+    init_git_repo(alternate)
+    write(target / ".venv" / "pyvenv.cfg", "home = synthetic\n")
+    write(target / "extensionless", "api_key=" + "a" * 24 + "\n")
+    subprocess.run(
+        ["git", "-C", str(target), "add", "-f", ".venv/pyvenv.cfg", "extensionless"],
+        check=True,
+        capture_output=True,
+    )
+    write(alternate / "benign.txt", "benign\n")
+    subprocess.run(
+        ["git", "-C", str(alternate), "add", "benign.txt"],
+        check=True,
+        capture_output=True,
+    )
+    hostile_value = (
+        alternate / ".git"
+        if routing_key == "GIT_DIR"
+        else alternate / ".git" / "index"
+    )
+    monkeypatch.setenv(routing_key, str(hostile_value))
+
+    secret_result = secret_scan_gate.run(target)
+    hygiene_result = repo_hygiene_gate.run(target)
+
+    assert secret_result.passed is False
+    assert any("extensionless matched" in message for message in secret_result.messages)
+    assert hygiene_result.passed is False
+    assert hygiene_result.messages == [
+        f"prohibited tracked root: {Path('.venv/pyvenv.cfg')}"
+    ]
 
 
 def test_secret_scan_gate_fails_closed_when_git_inventory_errors(

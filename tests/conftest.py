@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+import re
 import sys
 
 import pytest
@@ -32,8 +33,12 @@ _AMBIENT_GIT_KEYS = (
     "GIT_CONFIG_PARAMETERS",
     "GIT_CONFIG_SYSTEM",
     "GIT_DIR",
+    "GIT_EXEC_PATH",
     "GIT_INDEX_FILE",
+    "GIT_NAMESPACE",
     "GIT_OBJECT_DIRECTORY",
+    "GIT_SHALLOW_FILE",
+    "GIT_TEMPLATE_DIR",
     "GIT_WORK_TREE",
 )
 
@@ -68,21 +73,31 @@ def _apply_git_environment(
 ) -> None:
     for name in _AMBIENT_GIT_KEYS:
         monkeypatch.delenv(name, raising=False)
+    for name in list(os.environ):
+        if re.fullmatch(r"GIT_CONFIG_(?:KEY|VALUE)_[0-9]+", name):
+            monkeypatch.delenv(name, raising=False)
+    monkeypatch.delenv("GIT_CONFIG_COUNT", raising=False)
 
     disabled_hooks.mkdir(parents=True, exist_ok=True)
     monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "1")
     monkeypatch.setenv("GIT_CONFIG_GLOBAL", os.devnull)
     monkeypatch.setenv("GIT_TERMINAL_PROMPT", "0")
     monkeypatch.setenv("GCM_INTERACTIVE", "Never")
-    monkeypatch.setenv("GIT_CONFIG_COUNT", "4")
+    monkeypatch.setenv("GIT_NO_REPLACE_OBJECTS", "1")
+    monkeypatch.setenv("GIT_OPTIONAL_LOCKS", "0")
+    monkeypatch.setenv("GIT_CONFIG_COUNT", "6")
     monkeypatch.setenv("GIT_CONFIG_KEY_0", "commit.gpgSign")
     monkeypatch.setenv("GIT_CONFIG_VALUE_0", "false")
     monkeypatch.setenv("GIT_CONFIG_KEY_1", "tag.gpgSign")
     monkeypatch.setenv("GIT_CONFIG_VALUE_1", "false")
     monkeypatch.setenv("GIT_CONFIG_KEY_2", "core.hooksPath")
     monkeypatch.setenv("GIT_CONFIG_VALUE_2", str(Path(disabled_hooks)))
-    monkeypatch.setenv("GIT_CONFIG_KEY_3", "safe.directory")
-    monkeypatch.setenv("GIT_CONFIG_VALUE_3", str(Path.cwd().resolve()))
+    monkeypatch.setenv("GIT_CONFIG_VALUE_3", "false")
+    monkeypatch.setenv("GIT_CONFIG_KEY_3", "core.fsmonitor")
+    monkeypatch.setenv("GIT_CONFIG_KEY_4", "submodule.recurse")
+    monkeypatch.setenv("GIT_CONFIG_VALUE_4", "false")
+    monkeypatch.setenv("GIT_CONFIG_KEY_5", "safe.directory")
+    monkeypatch.setenv("GIT_CONFIG_VALUE_5", str(Path.cwd().resolve()))
 
 
 @pytest.fixture(scope="session", autouse=True)
