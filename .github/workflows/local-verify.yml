@@ -64,7 +64,8 @@ jobs:
         run: .\.venv\Scripts\python.exe --version
 
       - name: Install development requirements
-        run: .\.venv\Scripts\python.exe -m pip install --require-hashes --only-binary=:all: -r requirements-dev.lock
+        run: |
+          .\.venv\Scripts\python.exe -m pip install --require-hashes --only-binary=:all: -r requirements-dev.lock
 
       - name: Verify exact development environment
         run: .\.venv\Scripts\python.exe scripts/verify_dev_environment.py --expected-version-file .python-version --lock requirements-dev.lock --json

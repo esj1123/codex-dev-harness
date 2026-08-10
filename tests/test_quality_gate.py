@@ -481,7 +481,14 @@ def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
     assert "check-latest: false" in text
     assert "run: python -m venv .venv" in text
     install = f"{verify_python} -m pip install --require-hashes --only-binary=:all: -r requirements-dev.lock"
-    assert install in text
+    install_step = (
+        "      - name: Install development requirements\n"
+        "        run: |\n"
+        f"          {install}\n"
+    )
+    assert install_step in text
+    assert f"run: {install}" not in text
+    assert text.count(install) == 1
     verifier = (
         f"{verify_python} scripts/verify_dev_environment.py "
         "--expected-version-file .python-version --lock requirements-dev.lock --json"
