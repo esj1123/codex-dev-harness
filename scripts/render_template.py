@@ -218,11 +218,11 @@ def render_text(text: str, config: TemplateConfig) -> str:
     return text
 
 
-def iter_templates(
+def _planned_templates(
     base_dir: Path,
     profile_dir: Path | None,
     tier: str = "full",
-) -> Iterable[tuple[Path, Path]]:
+) -> list[tuple[Path, Path]]:
     validate_render_tier(tier)
     planned = [
         (base_dir / f"{name}.template", base_dir)
@@ -233,12 +233,22 @@ def iter_templates(
             (profile_dir / f"{name}.template", profile_dir)
             for name in PROFILE_OUTPUTS_BY_TIER[tier]
         )
+    return sorted(planned, key=lambda item: item[0].name)
 
+
+def iter_templates(
+    base_dir: Path,
+    profile_dir: Path | None,
+    tier: str = "full",
+) -> Iterable[tuple[Path, Path]]:
+    planned = _planned_templates(base_dir, profile_dir, tier)
     missing = [path.name for path, _ in planned if not path.is_file()]
     if missing:
-        raise FileNotFoundError(f"missing selected tier template(s): {', '.join(sorted(missing))}")
+        raise FileNotFoundError(
+            f"missing selected tier template(s): {', '.join(sorted(missing))}"
+        )
 
-    yield from sorted(planned, key=lambda item: item[0].name)
+    yield from planned
 
 
 def validate_target(target: Path, repo_root: Path) -> None:
@@ -256,19 +266,26 @@ def _absolute_lexical(path: Path) -> Path:
     return Path(os.path.abspath(path))
 
 
+def _is_unsafe_source_link(path: Path, metadata: os.stat_result) -> bool:
+    try:
+        is_junction = getattr(path, "is_junction", lambda: False)()
+    except OSError as exc:
+        raise ValueError(f"unsafe render source path: {path}") from exc
+    return (
+        stat.S_ISLNK(metadata.st_mode)
+        or is_junction
+        or bool(getattr(metadata, "st_file_attributes", 0) & REPARSE_POINT_FLAG)
+    )
+
+
 def _lstat_source_safe(path: Path, *, allow_directory: bool) -> os.stat_result:
     try:
         metadata = path.lstat()
-        is_junction = getattr(path, "is_junction", lambda: False)()
     except FileNotFoundError as exc:
         raise FileNotFoundError(f"missing render source: {path.name}") from exc
     except OSError as exc:
         raise ValueError(f"unsafe render source path: {path}") from exc
-    if (
-        path.is_symlink()
-        or is_junction
-        or bool(getattr(metadata, "st_file_attributes", 0) & REPARSE_POINT_FLAG)
-    ):
+    if _is_unsafe_source_link(path, metadata):
         raise ValueError(f"unsafe render source link: {path}")
     if allow_directory:
         if not stat.S_ISDIR(metadata.st_mode):
@@ -310,6 +327,66 @@ def _validate_source_directory(
     return lexical_path
 
 
+def _select_profile_from_inventory(
+    profile: str,
+    profile_directories: Iterable[Path],
+) -> Path:
+    directories = list(profile_directories)
+    _validate_profile_inventory_names(directories)
+    exact: dict[str, Path] = {}
+    casefold_names: dict[str, str] = {}
+    for directory in directories:
+        name = directory.name
+        folded = name.casefold()
+        if name in exact or (
+            folded in casefold_names and casefold_names[folded] != name
+        ):
+            raise ValueError("profiles/ inventory contains a casefold collision")
+        exact[name] = directory
+        casefold_names[folded] = name
+    if profile not in exact:
+        if profile.casefold() in casefold_names:
+            raise ValueError(
+                "selected profile spelling must exactly match profiles/ inventory"
+            )
+        raise FileNotFoundError(f"unknown render profile: {profile}")
+    return exact[profile]
+
+
+def _validate_profile_inventory_names(entries: Iterable[Path]) -> None:
+    casefold_names: dict[str, str] = {}
+    for entry in entries:
+        name = entry.name
+        folded = name.casefold()
+        if folded in casefold_names and casefold_names[folded] != name:
+            raise ValueError("profiles/ inventory contains a casefold collision")
+        casefold_names[folded] = name
+
+
+def _select_profile_directory(repo_root: Path, profile: str) -> Path:
+    profiles_root = _validate_source_directory(
+        repo_root / "profiles", repo_root=repo_root
+    )
+    try:
+        children = sorted(profiles_root.iterdir(), key=lambda path: path.name)
+    except OSError as exc:
+        raise ValueError("unable to inventory profiles/") from exc
+    _validate_profile_inventory_names(children)
+    directories: list[Path] = []
+    for child in children:
+        try:
+            metadata = child.lstat()
+        except OSError as exc:
+            raise ValueError(f"unsafe profiles/ inventory entry: {child}") from exc
+        if _is_unsafe_source_link(child, metadata):
+            raise ValueError(f"unsafe render source link: {child}")
+        if stat.S_ISDIR(metadata.st_mode):
+            directories.append(_absolute_lexical(child))
+        elif not stat.S_ISREG(metadata.st_mode):
+            raise ValueError(f"unsafe profiles/ inventory entry: {child}")
+    return _select_profile_from_inventory(profile, directories)
+
+
 def _preflight_template_sources(
     *,
     base_dir: Path,
@@ -328,7 +405,9 @@ def _preflight_template_sources(
 
     entries: list[tuple[Path, Path, os.stat_result]] = []
     source_keys: set[str] = set()
-    for source, source_root in iter_templates(lexical_base, lexical_profile, tier):
+    for source, source_root in _planned_templates(
+        lexical_base, lexical_profile, tier
+    ):
         lexical_source = _absolute_lexical(source)
         lexical_root = _absolute_lexical(source_root)
         try:
@@ -345,7 +424,18 @@ def _preflight_template_sources(
     return entries
 
 
-def _safe_source_text(path: Path, expected: os.stat_result) -> str:
+def _source_content_identity(metadata: os.stat_result) -> tuple[int, ...]:
+    return (
+        metadata.st_dev,
+        metadata.st_ino,
+        getattr(metadata, "st_file_attributes", 0),
+        metadata.st_size,
+        metadata.st_mtime_ns,
+        metadata.st_ctime_ns,
+    )
+
+
+def _safe_source_bytes(path: Path, expected: os.stat_result) -> bytes:
     flags = os.O_RDONLY | getattr(os, "O_BINARY", 0)
     if hasattr(os, "O_NOFOLLOW"):
         flags |= os.O_NOFOLLOW
@@ -354,19 +444,41 @@ def _safe_source_text(path: Path, expected: os.stat_result) -> str:
     except OSError as exc:
         raise ValueError(f"unsafe render source file: {path}") from exc
     try:
-        observed = os.fstat(descriptor)
+        before = os.fstat(descriptor)
         if (
-            _path_identity(observed) != _path_identity(expected)
-            or not stat.S_ISREG(observed.st_mode)
-            or observed.st_nlink != 1
+            _source_content_identity(before) != _source_content_identity(expected)
+            or not stat.S_ISREG(before.st_mode)
+            or before.st_nlink != 1
         ):
             raise ValueError(f"unsafe render source identity drift: {path}")
-        with os.fdopen(descriptor, "r", encoding="utf-8") as stream:
-            descriptor = -1
-            return stream.read()
+        stream = os.fdopen(descriptor, "rb")
+        descriptor = -1
+        with stream:
+            data = stream.read()
+            after = os.fstat(stream.fileno())
+        if (
+            _source_content_identity(after) != _source_content_identity(before)
+            or not stat.S_ISREG(after.st_mode)
+            or after.st_nlink != 1
+            or len(data) != after.st_size
+        ):
+            raise ValueError(f"unsafe render source identity drift: {path}")
+        return data
     finally:
         if descriptor >= 0:
             os.close(descriptor)
+
+
+def _decode_source_bytes(path: Path, data: bytes) -> str:
+    try:
+        text = data.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise ValueError(f"render source is not UTF-8: {path}") from exc
+    return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
+def _safe_source_text(path: Path, expected: os.stat_result) -> str:
+    return _decode_source_bytes(path, _safe_source_bytes(path, expected))
 
 
 def _path_identity(metadata: os.stat_result) -> tuple[int, int, int]:
@@ -819,13 +931,21 @@ def _build_render_plan(
             )
         planned.append((source, source_root, metadata, lexical_destination))
 
-    plan: list[RenderPlanItem] = []
+    captured: list[tuple[Path, Path, bytes]] = []
     for source, _, metadata, lexical_destination in planned:
+        captured.append(
+            (source, lexical_destination, _safe_source_bytes(source, metadata))
+        )
+
+    plan: list[RenderPlanItem] = []
+    for source, lexical_destination, source_bytes in captured:
         plan.append(
             RenderPlanItem(
                 source=source,
                 destination=lexical_destination,
-                rendered_text=render_text(_safe_source_text(source, metadata), config),
+                rendered_text=render_text(
+                    _decode_source_bytes(source, source_bytes), config
+                ),
             )
         )
     return plan
@@ -859,7 +979,11 @@ def render_templates(
 
     validate_profile_name(config.profile)
     base_dir = repo_root / "templates" / "base"
-    profile_dir = repo_root / "profiles" / config.profile if config.profile else None
+    profile_dir = (
+        _select_profile_directory(repo_root, config.profile)
+        if config.profile
+        else None
+    )
 
     plan = _build_render_plan(
         base_dir=base_dir,

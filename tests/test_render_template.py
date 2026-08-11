@@ -4,6 +4,7 @@ from pathlib import Path
 import shutil
 import stat
 import subprocess
+from types import SimpleNamespace
 
 import pytest
 
@@ -184,6 +185,37 @@ def test_load_config_rejects_path_like_or_invalid_profile_name(
 
     with pytest.raises(ValueError, match="profile name must match"):
         load_config(config)
+
+
+@pytest.mark.parametrize("profile", ["Python_Cli", "PYTHON_CLI"])
+def test_render_rejects_wrong_case_profile_alias_on_every_os(
+    tmp_path: Path, profile: str
+) -> None:
+    repo = tmp_path / "repo"
+    populate_template_repo(repo, "python_cli")
+    config = tmp_path / "template.config.yml"
+    write_config(config, tier="minimal", profile=profile)
+    target = tmp_path / "target"
+
+    with pytest.raises(ValueError, match="exactly match profiles/ inventory"):
+        render_templates(
+            config_path=config,
+            target=target,
+            repo_root=repo,
+            dry_run=False,
+        )
+
+    assert target.exists() is False
+
+
+def test_profile_inventory_rejects_casefold_collision_on_every_os() -> None:
+    directories = [
+        Path("profiles") / "python_cli",
+        Path("profiles") / "PYTHON_CLI",
+    ]
+
+    with pytest.raises(ValueError, match="casefold collision"):
+        renderer._select_profile_from_inventory("python_cli", directories)
 
 
 @pytest.mark.parametrize("tier", VALID_RENDER_TIERS)
@@ -1507,13 +1539,13 @@ def test_render_rejects_hard_link_source_before_reading_any_template(
     source.unlink()
     os.link(outside, source)
     reads: list[Path] = []
-    original = renderer._safe_source_text
+    original = renderer._safe_source_bytes
 
-    def observe(path: Path, expected: os.stat_result) -> str:
+    def observe(path: Path, expected: os.stat_result) -> bytes:
         reads.append(path)
         return original(path, expected)
 
-    monkeypatch.setattr(renderer, "_safe_source_text", observe)
+    monkeypatch.setattr(renderer, "_safe_source_bytes", observe)
     target = tmp_path / "target"
 
     with pytest.raises(ValueError, match="unsafe render source file"):
@@ -1521,6 +1553,71 @@ def test_render_rejects_hard_link_source_before_reading_any_template(
 
     assert reads == []
     assert target.exists() is False
+
+
+def test_render_rejects_same_inode_same_size_source_mutation_before_read(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "source.template"
+    source.write_bytes(b"before\n")
+    expected = source.lstat()
+    source.write_bytes(b"after!\n")
+    os.utime(
+        source,
+        ns=(expected.st_atime_ns, expected.st_mtime_ns + 1_000_000),
+    )
+    observed = source.lstat()
+
+    assert observed.st_dev == expected.st_dev
+    assert observed.st_ino == expected.st_ino
+    assert observed.st_size == expected.st_size
+    with pytest.raises(ValueError, match="source identity drift"):
+        renderer._safe_source_text(source, expected)
+
+
+def test_render_rejects_metadata_drift_during_descriptor_read(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    source = tmp_path / "source.template"
+    source.write_bytes(b"stable\n")
+    expected = source.lstat()
+    original_fstat = renderer.os.fstat
+    calls = 0
+
+    def drifting_fstat(descriptor: int):
+        nonlocal calls
+        calls += 1
+        observed = original_fstat(descriptor)
+        if calls == 1:
+            return observed
+        return SimpleNamespace(
+            st_dev=observed.st_dev,
+            st_ino=observed.st_ino,
+            st_file_attributes=getattr(observed, "st_file_attributes", 0),
+            st_size=observed.st_size,
+            st_mtime_ns=observed.st_mtime_ns + 1,
+            st_ctime_ns=observed.st_ctime_ns,
+            st_mode=observed.st_mode,
+            st_nlink=observed.st_nlink,
+        )
+
+    monkeypatch.setattr(renderer.os, "fstat", drifting_fstat)
+
+    with pytest.raises(ValueError, match="source identity drift"):
+        renderer._safe_source_text(source, expected)
+
+    assert calls == 2
+
+
+def test_render_source_capture_preserves_universal_newline_behavior(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "source.template"
+    source.write_bytes(b"first\r\nsecond\rthird\n")
+
+    captured = renderer._safe_source_text(source, source.lstat())
+
+    assert captured == "first\nsecond\nthird\n"
 
 
 def test_render_rejects_profile_directory_symlink_outside_repo(
@@ -1614,6 +1711,59 @@ def test_unselected_extra_template_is_not_rendered(tmp_path: Path) -> None:
 
     assert {path.name for path in rendered} == set(EXPECTED_BASE_OUTPUTS["minimal"])
     assert target / "EXTRA.md" not in rendered
+
+
+@pytest.mark.parametrize("profile", PROFILES)
+def test_profile_render_captures_each_source_once_and_preserves_content(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    profile: str,
+) -> None:
+    repo = tmp_path / "repo"
+    populate_template_repo(repo, profile)
+    config_path = tmp_path / "template.config.yml"
+    write_config(config_path, tier="full", profile=profile)
+    config = load_config(config_path)
+    target = tmp_path / "target"
+    source_opens: dict[Path, int] = {}
+    original_open = renderer.os.open
+
+    def observe_open(path, flags, mode=0o777):
+        candidate = Path(path)
+        if candidate.suffix == ".template" and repo in candidate.parents:
+            source_opens[candidate] = source_opens.get(candidate, 0) + 1
+        return original_open(path, flags, mode)
+
+    monkeypatch.setattr(renderer.os, "open", observe_open)
+
+    rendered = render_templates(
+        config_path=config_path,
+        target=target,
+        repo_root=repo,
+        dry_run=False,
+    )
+
+    assert {path.name for path in rendered} == expected_output_names("full", profile)
+    expected_sources = {
+        repo / "templates" / "base" / f"{name}.template"
+        for name in EXPECTED_BASE_OUTPUTS["full"]
+    } | {
+        repo / "profiles" / profile / f"{name}.template"
+        for name in EXPECTED_PROFILE_OUTPUTS["full"]
+    }
+    assert set(source_opens) == expected_sources
+    assert set(source_opens.values()) == {1}
+    for destination in rendered:
+        source_root = (
+            repo / "profiles" / profile
+            if destination.name in EXPECTED_PROFILE_OUTPUTS["full"]
+            else repo / "templates" / "base"
+        )
+        source = source_root / f"{destination.name}.template"
+        expected_text = renderer.render_text(
+            source.read_text(encoding="utf-8"), config
+        )
+        assert destination.read_text(encoding="utf-8") == expected_text
 
 
 @pytest.mark.parametrize(
