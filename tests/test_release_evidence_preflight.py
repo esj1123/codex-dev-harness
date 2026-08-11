@@ -174,13 +174,25 @@ def regenerate_checksums(root: Path) -> None:
     generate_checksums.write_checksums(lines, checksums_path)
 
 
+def assert_readiness(
+    result: dict[str, object],
+    *,
+    refresh: str,
+    release: str,
+) -> None:
+    assert result["schema_version"] == "2"
+    assert result["refresh_readiness"] == refresh
+    assert result["release_readiness"] == release
+    assert result["readiness"] == refresh
+
+
 def test_clean_evidence_passes_and_keeps_states_separate(tmp_path: Path) -> None:
     repo = make_repo(tmp_path)
 
     result = preflight.inspect_preflight(repo.root)
 
     assert result["status"] == "PASS"
-    assert result["readiness"] == "READY"
+    assert_readiness(result, refresh="READY", release="READY")
     assert result["reason_codes"] == []
     assert result["repository_state"]["head_commit"] == repo.artifact_commit
     assert result["repository_state"]["pushed_commit"] == repo.artifact_commit
@@ -204,7 +216,7 @@ def test_new_clean_source_commit_returns_pass_with_notes(tmp_path: Path) -> None
     result = preflight.inspect_preflight(repo.root)
 
     assert result["status"] == "PASS WITH NOTES"
-    assert result["readiness"] == "READY"
+    assert_readiness(result, refresh="READY", release="BLOCKED")
     assert result["reason_codes"] == ["EVIDENCE_REFRESH_RECOMMENDED"]
     assert result["repository_state"]["head_commit"] == head
     assert result["evidence_state"]["artifact_containing_commit"] == repo.artifact_commit
@@ -221,6 +233,7 @@ def test_missing_dry_run_is_not_run_and_does_not_inspect(monkeypatch, capsys) ->
 
     assert exit_code == 2
     assert payload["status"] == "NOT RUN"
+    assert_readiness(payload, refresh="NOT RUN", release="NOT RUN")
     assert payload["reason_codes"] == ["DRY_RUN_REQUIRED"]
     assert payload["performed_actions"] == []
 
@@ -274,7 +287,21 @@ def test_head_upstream_mismatch_is_blocked(tmp_path: Path) -> None:
     result = preflight.inspect_preflight(repo.root)
 
     assert result["status"] == "BLOCKED"
+    assert_readiness(result, refresh="BLOCKED", release="BLOCKED")
     assert "HEAD_UPSTREAM_MISMATCH" in result["reason_codes"]
+
+
+def test_current_evidence_ahead_of_upstream_keeps_release_ready(tmp_path: Path) -> None:
+    repo = make_repo(tmp_path)
+    sync_upstream(repo.root, repo.source_commit)
+
+    result = preflight.inspect_preflight(repo.root)
+
+    assert result["status"] == "BLOCKED"
+    assert result["reason_codes"] == ["HEAD_UPSTREAM_MISMATCH"]
+    assert result["repository_state"]["head_commit"] == repo.artifact_commit
+    assert result["evidence_state"]["artifact_containing_commit"] == repo.artifact_commit
+    assert_readiness(result, refresh="BLOCKED", release="READY")
 
 
 def test_missing_release_evidence_is_blocked(tmp_path: Path) -> None:
@@ -314,6 +341,7 @@ def test_checksum_mismatch_fails(tmp_path: Path) -> None:
     result = preflight.inspect_preflight(repo.root)
 
     assert result["status"] == "FAIL"
+    assert_readiness(result, refresh="BLOCKED", release="BLOCKED")
     assert "CHECKSUM_MISMATCH" in result["reason_codes"]
     assert result["evidence_state"]["checksum_status"] == "FAIL"
 
@@ -365,7 +393,7 @@ def test_git_unavailable_or_timeout_is_environment_blocked(tmp_path: Path, monke
     result = preflight.inspect_preflight(tmp_path)
 
     assert result["status"] == "ENVIRONMENT BLOCKED"
-    assert result["readiness"] == "BLOCKED"
+    assert_readiness(result, refresh="BLOCKED", release="BLOCKED")
     assert result["reason_codes"] == ["GIT_UNAVAILABLE"]
 
 
@@ -404,7 +432,9 @@ def test_json_cli_output_is_deterministic_bounded_and_non_persistent(tmp_path: P
     assert first.endswith("\n")
     assert len(first.encode("utf-8")) <= preflight.MAX_OUTPUT_BYTES
     assert list(json.loads(first)) == sorted(json.loads(first))
-    assert json.loads(first)["performed_actions"] == []
+    payload = json.loads(first)
+    assert_readiness(payload, refresh="READY", release="READY")
+    assert payload["performed_actions"] == []
     assert str(repo.root) not in first
     assert run_git(repo.root, "status", "--porcelain=v1", "--untracked-files=normal") == before
 
@@ -419,6 +449,31 @@ def test_plain_summary_and_local_tag_are_bounded(tmp_path: Path, capsys) -> None
 
     assert exit_code == 0
     assert summary.startswith("PASS local_release_evidence_preflight_dry_run")
+    assert " readiness=READY " in summary
+    assert " refresh_readiness=READY " in summary
+    assert " release_readiness=READY " in summary
     assert len(summary.encode("utf-8")) < 512
     assert result["external_state"]["tag_target"] == "synthetic-v1"
     assert result["external_state"]["release_target"]["status"] == "NOT RUN"
+
+
+def test_output_limit_fallback_blocks_both_readiness_fields(monkeypatch, capsys) -> None:
+    original = preflight.json_bytes
+    calls = 0
+
+    def fail_once(result: dict[str, object]) -> bytes:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            raise ValueError("synthetic output limit")
+        return original(result)
+
+    monkeypatch.setattr(preflight, "json_bytes", fail_once)
+
+    exit_code = preflight.main(["--repo-root", "unused", "--json"])
+    payload = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 1
+    assert payload["status"] == "FAIL"
+    assert payload["reason_codes"] == ["OUTPUT_LIMIT_EXCEEDED"]
+    assert_readiness(payload, refresh="BLOCKED", release="BLOCKED")

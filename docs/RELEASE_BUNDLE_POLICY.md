@@ -123,6 +123,34 @@ Future release bundles must exclude:
 - local temporary adoption targets
 - generated release archives unless explicitly selected as distribution outputs
 
+## Release Evidence Preflight Readiness
+
+`scripts/release_evidence_preflight.py` schema version `2` reports two distinct
+readiness fields:
+
+- `refresh_readiness` states whether the inspected checkout satisfies the
+  preconditions for a separately approved local evidence refresh.
+- `release_readiness` states whether the tracked evidence bundle is internally
+  valid and current for the inspected `HEAD`.
+
+The legacy `readiness` field is deprecated for schema version `2` and remains
+an exact compatibility alias of `refresh_readiness` for one schema version. It
+must not be interpreted as release readiness.
+
+Current evidence with no blockers reports both fields as `READY`. Valid
+ancestor evidence reports `PASS WITH NOTES`, reason
+`EVIDENCE_REFRESH_RECOMMENDED`, `refresh_readiness=READY`, and
+`release_readiness=BLOCKED`. If current evidence is valid but the local branch
+is ahead of its tracking ref, the overall result remains `BLOCKED` with
+`HEAD_UPSTREAM_MISMATCH`; refresh readiness is blocked while release readiness
+for the inspected local `HEAD` remains ready. Checksum, manifest, lineage,
+environment, or other safety failures block release readiness.
+
+Neither readiness field authenticates approval or authorizes generation,
+commit, push, tag, signing, upload, publication, or deployment. Historical
+schema-version-1 records that contain only `readiness` retain their original
+refresh-precondition meaning and are not rewritten as release-ready evidence.
+
 ## Verification Evidence
 
 Future release bundles should summarize local verification without embedding

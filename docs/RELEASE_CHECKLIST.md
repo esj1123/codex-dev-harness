@@ -14,6 +14,10 @@ Define the release readiness checks for a reusable codex-dev-harness baseline.
   release evidence bundle. This confirms bundle integrity only; a historical
   bundle remains `HISTORICAL_INVALID / REFRESH_NOT_RUN` until it is separately
   regenerated from the exact clean release HEAD.
+- `python scripts/release_evidence_preflight.py --repo-root . --dry-run --json`
+  reports schema version `2`. Treat deprecated `readiness` only as an alias of
+  `refresh_readiness`; release claims require `release_readiness=READY` and no
+  disallowed overall blocker.
 - Dry-run render succeeds for:
   - `examples/python_cli_minimal`
   - `examples/csharp_desktop_minimal`

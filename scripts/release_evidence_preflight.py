@@ -17,7 +17,7 @@ except ModuleNotFoundError:  # Direct script execution places scripts/ on sys.pa
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-SCHEMA_VERSION = "1"
+SCHEMA_VERSION = "2"
 CANDIDATE_ID = "local_release_evidence_preflight_dry_run"
 MAX_INPUT_BYTES = 1024 * 1024
 MAX_OUTPUT_BYTES = 8 * 1024
@@ -67,6 +67,8 @@ def base_result(*, dry_run: bool) -> dict[str, Any]:
         "dry_run": dry_run,
         "status": "NOT RUN",
         "readiness": "NOT RUN",
+        "refresh_readiness": "NOT RUN",
+        "release_readiness": "NOT RUN",
         "reason_codes": [],
         "repository_state": {
             "branch": None,
@@ -94,6 +96,53 @@ def base_result(*, dry_run: bool) -> dict[str, Any]:
         },
         "performed_actions": [],
     }
+
+
+def finalize_readiness(result: dict[str, Any]) -> None:
+    status = result.get("status")
+    reason_codes = set(result.get("reason_codes", []))
+    repository_state = result.get("repository_state", {})
+    evidence_state = result.get("evidence_state", {})
+    head_commit = repository_state.get("head_commit") if isinstance(repository_state, dict) else None
+    artifact_commit = (
+        evidence_state.get("artifact_containing_commit")
+        if isinstance(evidence_state, dict)
+        else None
+    )
+    evidence_is_current = (
+        isinstance(head_commit, str)
+        and isinstance(artifact_commit, str)
+        and head_commit == artifact_commit
+    )
+
+    if status == "NOT RUN":
+        refresh_readiness = "NOT RUN"
+        release_readiness = "NOT RUN"
+    elif status == "PASS":
+        refresh_readiness = "READY"
+        release_readiness = "READY"
+    elif status == "PASS WITH NOTES":
+        refresh_readiness = "READY"
+        release_readiness = (
+            "BLOCKED"
+            if "EVIDENCE_REFRESH_RECOMMENDED" in reason_codes
+            else "READY"
+        )
+    elif (
+        status == "BLOCKED"
+        and reason_codes == {"HEAD_UPSTREAM_MISMATCH"}
+        and evidence_is_current
+    ):
+        refresh_readiness = "BLOCKED"
+        release_readiness = "READY"
+    else:
+        refresh_readiness = "BLOCKED"
+        release_readiness = "BLOCKED"
+
+    result["refresh_readiness"] = refresh_readiness
+    result["release_readiness"] = release_readiness
+    # Deprecated schema-v1 compatibility alias. Remove only in a future major schema.
+    result["readiness"] = refresh_readiness
 
 
 def run_git(repo_root: Path, args: list[str], *, allow_failure: bool = False) -> subprocess.CompletedProcess[str]:
@@ -397,25 +446,21 @@ def inspect_preflight(repo_root: Path) -> dict[str, Any]:
 
         if fail_reasons:
             result["status"] = "FAIL"
-            result["readiness"] = "BLOCKED"
             result["reason_codes"] = sorted(set(fail_reasons + blocked_reasons + note_reasons))
         elif blocked_reasons:
             result["status"] = "BLOCKED"
-            result["readiness"] = "BLOCKED"
             result["reason_codes"] = sorted(set(blocked_reasons + note_reasons))
         elif note_reasons:
             result["status"] = "PASS WITH NOTES"
-            result["readiness"] = "READY"
             result["reason_codes"] = sorted(set(note_reasons))
         else:
             result["status"] = "PASS"
-            result["readiness"] = "READY"
             result["reason_codes"] = []
     except GitInspectionError as exc:
         result["status"] = "ENVIRONMENT BLOCKED"
-        result["readiness"] = "BLOCKED"
         result["reason_codes"] = [str(exc)]
 
+    finalize_readiness(result)
     return result
 
 
@@ -431,6 +476,8 @@ def text_summary(result: dict[str, Any]) -> str:
     head = result["repository_state"]["head_commit"] or "UNKNOWN"
     return (
         f"{result['status']} {CANDIDATE_ID} readiness={result['readiness']} "
+        f"refresh_readiness={result['refresh_readiness']} "
+        f"release_readiness={result['release_readiness']} "
         f"head={head} reasons={reasons}"
     )
 
@@ -457,8 +504,8 @@ def main(argv: list[str] | None = None) -> int:
         except ValueError:
             fallback = base_result(dry_run=bool(args.dry_run))
             fallback["status"] = "FAIL"
-            fallback["readiness"] = "BLOCKED"
             fallback["reason_codes"] = ["OUTPUT_LIMIT_EXCEEDED"]
+            finalize_readiness(fallback)
             sys.stdout.buffer.write(json_bytes(fallback))
             return 1
     else:
