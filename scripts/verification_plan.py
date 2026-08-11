@@ -24,6 +24,7 @@ except ImportError:  # pragma: no cover - direct script execution
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 MAP_PATH = "docs/VERIFICATION_IMPACT_MAP.json"
+CORPUS_SOURCE_SET_PATH = "docs/APPROVED_CORPUS_SOURCE_SET.v2.json"
 SCHEMA_VERSION = "1"
 PLANNER_ID = "verification_plan"
 MAX_MAP_BYTES = 64 * 1024
@@ -35,6 +36,7 @@ SHA_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 SAFE_ID_PATTERN = re.compile(r"^[a-z][a-z0-9_]{0,63}$")
 TIERS = ("V0", "V1", "V2")
 TIER_RANK = {tier: index for index, tier in enumerate(TIERS)}
+MATCH_SPECIFICITY = {"prefix": 0, "exact": 1, "corpus_sources": 1}
 RULE_KEYS = {
     "rule_id",
     "match_kind",
@@ -269,7 +271,10 @@ def validate_map(payload: dict[str, Any]) -> dict[str, Any]:
         path_validator = safe_prefix if rule["match_kind"] == "prefix" else safe_repo_path
         if any(not path_validator(pattern) for pattern in patterns):
             raise MapValidationError("RULE_PATTERN_INVALID")
-        if rule["match_kind"] == "corpus_sources" and len(patterns) != 1:
+        if (
+            rule["match_kind"] == "corpus_sources"
+            and patterns != [CORPUS_SOURCE_SET_PATH]
+        ):
             raise MapValidationError("CORPUS_SOURCE_RULE_INVALID")
         if rule["minimum_tier"] not in TIERS:
             raise MapValidationError("RULE_TIER_INVALID")
@@ -301,13 +306,23 @@ def load_impact_map(repo_root: Path) -> dict[str, Any]:
 
 
 def corpus_source_paths(repo_root: Path, relative_path: str) -> set[str]:
+    if relative_path != CORPUS_SOURCE_SET_PATH:
+        raise MapValidationError("CORPUS_SOURCE_RULE_INVALID")
     payload = read_json_object(
         repo_root / relative_path,
         max_bytes=MAX_MAP_BYTES,
-        error_code="CORPUS_DIGEST_INVALID",
+        error_code="CORPUS_SOURCE_SET_INVALID",
     )
-    sources = payload.get("sources")
-    if not isinstance(sources, list) or len(sources) > 128:
+    expected_count = payload.get("expected_source_count")
+    sources = payload.get("ordered_sources")
+    if (
+        payload.get("schema_version") != "2.0"
+        or isinstance(expected_count, bool)
+        or not isinstance(expected_count, int)
+        or not 1 <= expected_count <= 128
+        or not isinstance(sources, list)
+        or len(sources) != expected_count
+    ):
         raise MapValidationError("CORPUS_SOURCE_SET_INVALID")
     paths: set[str] = set()
     for source in sources:
@@ -348,11 +363,25 @@ def build_plan(repo_root: Path, changed_paths: list[str], impact_map: dict[str, 
     matched_paths: set[str] = set()
     additional_commands: set[str] = set()
 
+    rule_matches: list[tuple[dict[str, Any], set[str]]] = []
+    best_specificity: dict[str, int] = {}
     for rule in impact_map["rules"]:
         matches = matching_paths(changed_paths, rule, repo_root=repo_root)
         if not matches:
             continue
-        matched_paths.update(matches)
+        rule_matches.append((rule, matches))
+        specificity = MATCH_SPECIFICITY[rule["match_kind"]]
+        for path in matches:
+            best_specificity[path] = max(best_specificity.get(path, -1), specificity)
+
+    for rule, matches in rule_matches:
+        specificity = MATCH_SPECIFICITY[rule["match_kind"]]
+        selected_matches = {
+            path for path in matches if best_specificity[path] == specificity
+        }
+        if not selected_matches:
+            continue
+        matched_paths.update(selected_matches)
         matched_rule_ids.add(rule["rule_id"])
         if TIER_RANK[rule["minimum_tier"]] > TIER_RANK[minimum_tier]:
             minimum_tier = rule["minimum_tier"]

@@ -46,9 +46,23 @@ def init_repo(tmp_path: Path) -> tuple[Path, str]:
     write_text(repo, "docs/VERIFICATION_IMPACT_MAP.json", MAP_PATH.read_text(encoding="utf-8"))
     write_text(
         repo,
+        verification_plan.CORPUS_SOURCE_SET_PATH,
+        json.dumps(
+            {
+                "schema_version": "2.0",
+                "expected_source_count": 1,
+                "ordered_sources": [{"source_path": "docs/corpus-policy.md"}],
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+    )
+    write_text(
+        repo,
         "artifacts/corpus-digest.json",
         json.dumps(
-            {"sources": [{"source_path": "docs/corpus-policy.md"}]},
+            {"sources": [{"source_path": "docs/generated-only.md"}]},
             indent=2,
             sort_keys=True,
         )
@@ -122,7 +136,7 @@ def test_renderer_change_escalates_to_v2_and_render_checks(tmp_path: Path) -> No
     assert result["minimum_tier"] == "V2"
     assert result["render_check_required"] is True
     assert "render_dry_runs" in result["required_command_ids"]
-    assert {"render_surface_exact", "scripts_and_tests"} <= set(result["matched_rule_ids"])
+    assert result["matched_rule_ids"] == ["render_surface_exact"]
 
 
 def test_authority_change_requires_integration_owner(tmp_path: Path) -> None:
@@ -210,6 +224,122 @@ def test_corpus_source_change_requires_digest_check(tmp_path: Path) -> None:
     assert result["digest_check_required"] is True
     assert "approved_corpus_sources" in result["matched_rule_ids"]
     assert "corpus_digest_check" in result["required_command_ids"]
+
+
+def test_generated_digest_membership_does_not_define_corpus_sources(
+    tmp_path: Path,
+) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    commit_file(repo, "docs/generated-only.md", "# Generated-only member\n")
+
+    result = inspect(repo, base_sha)
+
+    assert result["minimum_tier"] == "V1"
+    assert result["digest_check_required"] is False
+    assert result["matched_rule_ids"] == ["documentation"]
+    assert "corpus_digest_check" not in result["required_command_ids"]
+
+
+def test_corpus_digest_exact_rule_overrides_artifact_prefix(tmp_path: Path) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    commit_file(repo, "artifacts/corpus-digest.json", '{"changed": true}\n')
+
+    result = inspect(repo, base_sha)
+
+    assert result["minimum_tier"] == "V1"
+    assert result["digest_check_required"] is True
+    assert result["integration_owner_required"] is False
+    assert result["matched_rule_ids"] == ["corpus_control_surface"]
+    assert "corpus_digest_check" in result["required_command_ids"]
+
+
+@pytest.mark.parametrize(
+    "relative_path",
+    [
+        "artifacts/release-manifest.json",
+        "artifacts/checksums.sha256",
+        "artifacts/sbom.spdx.json",
+        "artifacts/sbom.cdx.json",
+        "artifacts/provenance.intoto.jsonl",
+        "artifacts/eval-report.json",
+    ],
+)
+def test_known_release_artifact_requires_v2_integration_owner(
+    tmp_path: Path,
+    relative_path: str,
+) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    commit_file(repo, relative_path, "synthetic\n")
+
+    result = inspect(repo, base_sha)
+
+    assert result["minimum_tier"] == "V2"
+    assert result["checksum_check_required"] is True
+    assert result["integration_owner_required"] is True
+    assert result["matched_rule_ids"] == ["release_artifact_control_surface"]
+    assert "checksum_verify" in result["required_command_ids"]
+
+
+def test_checksum_gate_keeps_v2_integration_owner_routing(tmp_path: Path) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    commit_file(repo, "scripts/gates/checksum_verify_gate.py", "value = 1\n")
+
+    result = inspect(repo, base_sha)
+
+    assert result["minimum_tier"] == "V2"
+    assert result["checksum_check_required"] is True
+    assert result["integration_owner_required"] is True
+    assert result["matched_rule_ids"] == ["release_artifact_control_surface"]
+
+
+def test_unknown_artifact_fails_closed_to_v2_integration_owner(tmp_path: Path) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    commit_file(repo, "artifacts/unexpected.json", "{}\n")
+
+    result = inspect(repo, base_sha)
+
+    assert result["minimum_tier"] == "V2"
+    assert result["integration_owner_required"] is True
+    assert result["matched_rule_ids"] == ["central_integration_prefix"]
+
+
+def test_multiple_paths_preserve_flags_and_select_highest_tier(tmp_path: Path) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    commit_file(repo, "artifacts/corpus-digest.json", '{"changed": true}\n')
+    commit_file(repo, "artifacts/unexpected.json", "{}\n")
+
+    result = inspect(repo, base_sha)
+
+    assert result["minimum_tier"] == "V2"
+    assert result["digest_check_required"] is True
+    assert result["integration_owner_required"] is True
+    assert result["matched_rule_ids"] == [
+        "central_integration_prefix",
+        "corpus_control_surface",
+    ]
+    assert "corpus_digest_check" in result["required_command_ids"]
+    assert "full_pytest" in result["required_command_ids"]
+
+
+def test_invalid_approved_source_set_fails_closed(tmp_path: Path) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    commit_file(
+        repo,
+        verification_plan.CORPUS_SOURCE_SET_PATH,
+        json.dumps(
+            {
+                "schema_version": "2.0",
+                "expected_source_count": 1,
+                "ordered_sources": [{"source_path": "../outside.md"}],
+            }
+        )
+        + "\n",
+    )
+
+    result = inspect(repo, base_sha)
+
+    assert result["status"] == "FAIL"
+    assert result["reason_codes"] == ["CORPUS_SOURCE_SET_INVALID"]
 
 
 @pytest.mark.parametrize(
@@ -329,7 +459,9 @@ def test_json_cli_is_deterministic_bounded_and_action_free(tmp_path: Path, capsy
     assert first.endswith("\n")
     assert len(first.encode("utf-8")) <= verification_plan.MAX_OUTPUT_BYTES
     assert str(tmp_path) not in first
-    assert json.loads(first)["performed_actions"] == []
+    parsed = json.loads(first)
+    assert set(parsed) == set(verification_plan.base_result())
+    assert parsed["performed_actions"] == []
 
 
 def test_map_and_runtime_are_bounded_read_only_contracts() -> None:

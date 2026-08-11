@@ -300,7 +300,7 @@
       "match_kind": "corpus_sources",
       "minimum_tier": "V1",
       "patterns": [
-        "artifacts/corpus-digest.json"
+        "docs/APPROVED_CORPUS_SOURCE_SET.v2.json"
       ],
       "render_check_required": false,
       "rule_id": "approved_corpus_sources"
@@ -329,9 +329,9 @@
         "checksum_verify"
       ],
       "digest_check_required": false,
-      "integration_owner_required": false,
+      "integration_owner_required": true,
       "match_kind": "exact",
-      "minimum_tier": "V1",
+      "minimum_tier": "V2",
       "patterns": [
         "artifacts/release-manifest.json",
         "artifacts/checksums.sha256",
@@ -339,6 +339,21 @@
         "artifacts/sbom.cdx.json",
         "artifacts/provenance.intoto.jsonl",
         "artifacts/eval-report.json",
+        "scripts/gates/checksum_verify_gate.py"
+      ],
+      "render_check_required": false,
+      "rule_id": "release_artifact_control_surface"
+    },
+    {
+      "checksum_check_required": true,
+      "command_ids": [
+        "checksum_verify"
+      ],
+      "digest_check_required": false,
+      "integration_owner_required": false,
+      "match_kind": "exact",
+      "minimum_tier": "V1",
+      "patterns": [
         "scripts/generate_manifest.py",
         "scripts/generate_checksums.py",
         "scripts/generate_sbom.py",
@@ -350,7 +365,6 @@
         "tests/test_generate_sbom.py",
         "tests/test_generate_provenance.py",
         "tests/test_run_eval.py",
-        "scripts/gates/checksum_verify_gate.py",
         "tests/test_checksum_verify_gate.py"
       ],
       "render_check_required": false,
