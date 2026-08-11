@@ -1,8 +1,8 @@
 {
   "schema_version": "1",
-  "generated_at_utc": "2026-05-26T23:51:23Z",
-  "total_cases": 14,
-  "passed_cases": 14,
+  "generated_at_utc": "2026-08-11T23:10:16Z",
+  "total_cases": 15,
+  "passed_cases": 15,
   "failed_cases": 0,
   "passed": true,
   "cases": [
@@ -95,6 +95,13 @@
       "passed": true,
       "messages": [
         "validated render path lists: 48"
+      ]
+    },
+    {
+      "name": "rendered_python_cli_readiness",
+      "passed": true,
+      "messages": [
+        "validated rendered readiness scans: 1"
       ]
     },
     {

@@ -17,7 +17,7 @@ remain available in Git history and `ACCEPTANCE_TRACE.md`.
 | Core template harness | `READY` | Core docs, templates, examples, tests, and local verification are supported. |
 | Renderer apply | `READY` | No-flag and `--dry-run` are previews; writes require explicit `--apply`. |
 | Release generator code | `HARDENED` | Clean-HEAD Git-blob lineage, hash-locked SBOM inputs, non-circular provenance/checksums, and physical output-path controls are implemented. |
-| Tracked release bundle | `HISTORICAL_INVALID / REFRESH_NOT_RUN` | Existing tracked artifacts are historical and are not release-ready until separately regenerated. |
+| Tracked release bundle | `CURRENT / LOCAL_ONLY` | The tracked manifest, eval report, SBOMs, provenance, and checksums are current for their recorded source basis; no tag, upload, publication, or remote release was performed. |
 | Agent Quality/provider | `FROZEN / NOT_ADOPTED` | Optional controls remain available for review, but provider execution and role adoption are held. |
 | Role calibration v7 | `NOT RUN` | No calibration trial or review batch is authorized by core readiness. |
 | Hermes/MCP | `HELD` | Runtime activation requires a selected repository use case and separate approval. |
@@ -136,8 +136,6 @@ not authenticate approval.
 
 ## Held Or Not Authorized
 
-- Tracked release evidence regeneration until the eval-report inclusion policy
-  and exact source basis are separately approved.
 - Tag, release, signing, upload, or publication.
 - Automatic digest writes or release automation.
 - MCP execution, Hermes execution bridges, AgentOps, or durable audit logging.
@@ -152,12 +150,11 @@ not authenticate approval.
 
 ## Next Recommended Step
 
-The cumulative harness implementation has passed the required local
-verification. Local-main ref updates, fresh remote observation, non-force push,
-and exact-SHA remote verification are separate owner-approved operations and
-must be confirmed from the current Git state rather than inferred from this
-document. Before regenerating the historical release bundle, decide whether it
-should include an eval report and separately approve the artifact-writing
-refresh from its exact source basis. Keep Agent Quality/provider, role
-calibration v7, Hermes, MCP, publication, and other remote work frozen unless a
-separate value decision and approval explicitly reopens them.
+The tracked release bundle is current for its recorded local source basis and
+remains `LOCAL_ONLY`; this does not create a tag, release, signing, upload, or
+publication. Preserve the separately recorded source-basis and
+artifact-containing commits, and re-check a clean exact Git snapshot before
+any local-main fast-forward or future remote operation. Keep Agent
+Quality/provider, role calibration v7, Hermes, MCP, publication, and other
+remote work frozen unless a separate value decision and approval explicitly
+reopens them.
