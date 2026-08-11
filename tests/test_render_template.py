@@ -1609,6 +1609,36 @@ def test_render_rejects_metadata_drift_during_descriptor_read(
     assert calls == 2
 
 
+def test_render_accepts_stable_cross_api_timestamp_representation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    source = tmp_path / "source.template"
+    source.write_bytes(b"stable\n")
+    expected = source.lstat()
+    original_fstat = renderer.os.fstat
+    calls = 0
+
+    def stable_fstat(descriptor: int):
+        nonlocal calls
+        calls += 1
+        observed = original_fstat(descriptor)
+        return SimpleNamespace(
+            st_dev=observed.st_dev,
+            st_ino=observed.st_ino,
+            st_file_attributes=getattr(observed, "st_file_attributes", 0),
+            st_size=observed.st_size,
+            st_mtime_ns=observed.st_mtime_ns + 1,
+            st_ctime_ns=observed.st_ctime_ns + 1,
+            st_mode=observed.st_mode,
+            st_nlink=observed.st_nlink,
+        )
+
+    monkeypatch.setattr(renderer.os, "fstat", stable_fstat)
+
+    assert renderer._safe_source_text(source, expected) == "stable\n"
+    assert calls == 2
+
+
 def test_render_source_capture_preserves_universal_newline_behavior(
     tmp_path: Path,
 ) -> None:

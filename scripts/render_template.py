@@ -435,6 +435,19 @@ def _source_content_identity(metadata: os.stat_result) -> tuple[int, ...]:
     )
 
 
+def _revalidated_source_lstat(
+    path: Path,
+    expected: os.stat_result,
+) -> os.stat_result:
+    try:
+        observed = _lstat_source_safe(path, allow_directory=False)
+    except (FileNotFoundError, ValueError) as exc:
+        raise ValueError(f"unsafe render source identity drift: {path}") from exc
+    if _source_content_identity(observed) != _source_content_identity(expected):
+        raise ValueError(f"unsafe render source identity drift: {path}")
+    return observed
+
+
 def _safe_source_bytes(path: Path, expected: os.stat_result) -> bytes:
     flags = os.O_RDONLY | getattr(os, "O_BINARY", 0)
     if hasattr(os, "O_NOFOLLOW"):
@@ -445,8 +458,9 @@ def _safe_source_bytes(path: Path, expected: os.stat_result) -> bytes:
         raise ValueError(f"unsafe render source file: {path}") from exc
     try:
         before = os.fstat(descriptor)
+        path_before = _revalidated_source_lstat(path, expected)
         if (
-            _source_content_identity(before) != _source_content_identity(expected)
+            _path_identity(before) != _path_identity(path_before)
             or not stat.S_ISREG(before.st_mode)
             or before.st_nlink != 1
         ):
@@ -456,8 +470,10 @@ def _safe_source_bytes(path: Path, expected: os.stat_result) -> bytes:
         with stream:
             data = stream.read()
             after = os.fstat(stream.fileno())
+        path_after = _revalidated_source_lstat(path, path_before)
         if (
             _source_content_identity(after) != _source_content_identity(before)
+            or _path_identity(after) != _path_identity(path_after)
             or not stat.S_ISREG(after.st_mode)
             or after.st_nlink != 1
             or len(data) != after.st_size
