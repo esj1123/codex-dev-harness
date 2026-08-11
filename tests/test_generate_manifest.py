@@ -58,6 +58,19 @@ def commit_repo(repo_root: Path) -> str:
     return git(repo_root, "rev-parse", "HEAD").stdout.decode("ascii").strip()
 
 
+def write_snapshot_manifest(
+    repo_root: Path, *, crlf: bool = False
+) -> tuple[Path, dict, bytes]:
+    manifest = generate_manifest.build_manifest(repo_root)
+    data = (json.dumps(manifest, indent=2) + "\n").encode("utf-8")
+    if crlf:
+        data = data.replace(b"\n", b"\r\n")
+    manifest_path = repo_root / "artifacts" / "release-manifest.json"
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.write_bytes(data)
+    return manifest_path, manifest, data
+
+
 def assert_output_rejected(repo_root: Path, output_arg: str, expected: str) -> None:
     try:
         generate_manifest.resolve_output_path(repo_root, output_arg)
@@ -189,6 +202,191 @@ def test_manifest_output_json_is_stable_shape(tmp_path: Path) -> None:
 
     assert loaded["files"][0]["path"] == "README.md"
     assert output.read_text(encoding="utf-8").endswith("\n")
+
+
+def test_validated_manifest_snapshot_reads_once_and_is_deeply_immutable(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    write(tmp_path / "README.md", "hello\n")
+    commit_repo(tmp_path)
+    manifest_path, _, data = write_snapshot_manifest(tmp_path, crlf=True)
+    original_read = generate_manifest.release_artifacts.read_regular_file
+    reads: list[Path] = []
+
+    def recording_read(repo_root: Path, path: Path, flag_name: str = "input") -> bytes:
+        reads.append(path)
+        return original_read(repo_root, path, flag_name)
+
+    monkeypatch.setattr(
+        generate_manifest.release_artifacts, "read_regular_file", recording_read
+    )
+
+    snapshot = generate_manifest.load_validated_manifest_snapshot(
+        tmp_path, manifest_path
+    )
+
+    assert reads == [manifest_path]
+    assert snapshot.manifest_path == manifest_path
+    assert snapshot.canonical_sha256 == hashlib.sha256(
+        generate_manifest.release_artifacts.canonical_text_bytes(data)
+    ).hexdigest()
+    assert isinstance(snapshot.manifest["files"], tuple)
+    with pytest.raises(TypeError):
+        snapshot.manifest["repository"] = "changed"
+    with pytest.raises(TypeError):
+        snapshot.manifest["files"][0]["path"] = "changed"
+
+
+@pytest.mark.parametrize("git_commit", [None, "A" * 40, "abc123"])
+def test_validated_manifest_rejects_missing_or_invalid_sha(
+    tmp_path: Path, git_commit: str | None
+) -> None:
+    write(tmp_path / "README.md", "hello\n")
+    commit_repo(tmp_path)
+    manifest_path, manifest, _ = write_snapshot_manifest(tmp_path)
+    if git_commit is None:
+        manifest.pop("git_commit")
+    else:
+        manifest["git_commit"] = git_commit
+    manifest_path.write_text(json.dumps(manifest) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="lowercase 40-character SHA"):
+        generate_manifest.load_validated_manifest_snapshot(tmp_path, manifest_path)
+
+
+def test_validated_manifest_rejects_non_head_sha(tmp_path: Path) -> None:
+    write(tmp_path / "README.md", "hello\n")
+    commit_repo(tmp_path)
+    manifest_path, manifest, _ = write_snapshot_manifest(tmp_path)
+    manifest["git_commit"] = "0" * 40
+    manifest_path.write_text(json.dumps(manifest) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="match current HEAD"):
+        generate_manifest.load_validated_manifest_snapshot(tmp_path, manifest_path)
+
+
+def test_validated_manifest_rejects_head_drift_during_inventory(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    write(tmp_path / "README.md", "hello\n")
+    head = commit_repo(tmp_path)
+    manifest_path, _, _ = write_snapshot_manifest(tmp_path)
+    original_run = generate_manifest.run_git_text
+    head_reads = iter([head, "0" * 40])
+
+    def drifting_head(repo_root: Path, args: list[str], *, required: bool = True):
+        if args == ["rev-parse", "--verify", "HEAD"]:
+            return next(head_reads)
+        return original_run(repo_root, args, required=required)
+
+    monkeypatch.setattr(generate_manifest, "run_git_text", drifting_head)
+
+    with pytest.raises(ValueError, match="HEAD changed while validating"):
+        generate_manifest.load_validated_manifest_snapshot(tmp_path, manifest_path)
+
+
+@pytest.mark.parametrize(
+    ("mutation", "expected"),
+    [
+        ("missing", "file inventory"),
+        ("extra", "file inventory"),
+        ("size", "file metadata"),
+        ("hash", "file metadata"),
+    ],
+)
+def test_validated_manifest_rejects_commit_tree_mismatch(
+    tmp_path: Path, mutation: str, expected: str
+) -> None:
+    write(tmp_path / "README.md", "hello\n")
+    commit_repo(tmp_path)
+    manifest_path, manifest, _ = write_snapshot_manifest(tmp_path)
+    if mutation == "missing":
+        manifest["files"].pop()
+    elif mutation == "extra":
+        manifest["files"].append(
+            {"path": "docs/extra.md", "size_bytes": 1, "sha256": "a" * 64}
+        )
+        manifest["files"].sort(key=lambda item: item["path"])
+    elif mutation == "size":
+        manifest["files"][0]["size_bytes"] += 1
+    else:
+        manifest["files"][0]["sha256"] = "a" * 64
+    manifest_path.write_text(json.dumps(manifest) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match=expected):
+        generate_manifest.load_validated_manifest_snapshot(tmp_path, manifest_path)
+
+
+@pytest.mark.parametrize("duplicate_path", ["README.md", "readme.md"])
+def test_validated_manifest_rejects_exact_or_casefold_duplicate_paths(
+    tmp_path: Path, duplicate_path: str
+) -> None:
+    write(tmp_path / "README.md", "hello\n")
+    commit_repo(tmp_path)
+    manifest_path, manifest, _ = write_snapshot_manifest(tmp_path)
+    duplicate = dict(manifest["files"][0])
+    duplicate["path"] = duplicate_path
+    manifest["files"].append(duplicate)
+    manifest["files"].sort(key=lambda item: item["path"])
+    manifest_path.write_text(json.dumps(manifest) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="duplicate file paths"):
+        generate_manifest.load_validated_manifest_snapshot(tmp_path, manifest_path)
+
+
+def test_validated_manifest_rejects_included_root_drift(tmp_path: Path) -> None:
+    write(tmp_path / "README.md", "hello\n")
+    commit_repo(tmp_path)
+    manifest_path, manifest, _ = write_snapshot_manifest(tmp_path)
+    manifest["included_roots"] = manifest["included_roots"][:-1]
+    manifest_path.write_text(json.dumps(manifest) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="included_roots"):
+        generate_manifest.load_validated_manifest_snapshot(tmp_path, manifest_path)
+
+
+@pytest.mark.parametrize(
+    ("content", "expected"),
+    [
+        (b"\xff", "strict UTF-8"),
+        (b"{", "valid JSON"),
+        (b"[]", "JSON object"),
+    ],
+)
+def test_validated_manifest_rejects_invalid_utf8_or_json(
+    tmp_path: Path, content: bytes, expected: str
+) -> None:
+    manifest_path = tmp_path / "artifacts" / "release-manifest.json"
+    manifest_path.parent.mkdir(parents=True)
+    manifest_path.write_bytes(content)
+
+    with pytest.raises(ValueError, match=expected):
+        generate_manifest.load_validated_manifest_snapshot(tmp_path, manifest_path)
+
+
+def test_validated_manifest_rejects_duplicate_json_keys(tmp_path: Path) -> None:
+    write(tmp_path / "README.md", "hello\n")
+    head = commit_repo(tmp_path)
+    manifest_path, manifest, _ = write_snapshot_manifest(tmp_path)
+    encoded = json.dumps(manifest)
+    manifest_path.write_text(
+        f'{{"git_commit":"{head}",' + encoded[1:] + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="duplicate JSON key"):
+        generate_manifest.load_validated_manifest_snapshot(tmp_path, manifest_path)
+
+
+def test_validated_manifest_rejects_non_finite_json_number(tmp_path: Path) -> None:
+    write(tmp_path / "README.md", "hello\n")
+    commit_repo(tmp_path)
+    manifest_path, manifest, _ = write_snapshot_manifest(tmp_path)
+    manifest["non_finite"] = float("nan")
+    manifest_path.write_text(json.dumps(manifest) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="non-finite JSON number"):
+        generate_manifest.load_validated_manifest_snapshot(tmp_path, manifest_path)
 
 
 @pytest.mark.parametrize("dirty_kind", ["tracked", "untracked"])

@@ -8,6 +8,8 @@ services.
 from __future__ import annotations
 
 import argparse
+from collections.abc import Mapping
+from dataclasses import dataclass
 import hashlib
 import json
 from pathlib import Path, PurePosixPath
@@ -17,6 +19,7 @@ import subprocess
 import sys
 import tempfile
 from datetime import datetime, timezone
+from types import MappingProxyType
 from typing import Any, BinaryIO
 from urllib.parse import urlsplit
 
@@ -33,6 +36,7 @@ SCHEMA_VERSION = "1"
 ARTIFACTS_ROOT = "artifacts"
 GIT_TIMEOUT_SECONDS = 15
 SHA1_PATTERN = re.compile(r"^[0-9a-f]{40}$")
+SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 REGULAR_BLOB_MODES = {"100644", "100755"}
 _BATCH_HEADER_LIMIT_BYTES = 128
 _BATCH_READ_CHUNK_BYTES = 1024 * 1024
@@ -130,6 +134,28 @@ EXAMPLE_RENDER_DRY_RUNS = [
         "command": "python scripts/render_template.py --config examples/plc_tool_minimal/template.config.yml --target examples/plc_tool_minimal --dry-run",
     },
 ]
+
+
+def _freeze_json_value(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return MappingProxyType(
+            {str(key): _freeze_json_value(item) for key, item in value.items()}
+        )
+    if isinstance(value, (list, tuple)):
+        return tuple(_freeze_json_value(item) for item in value)
+    return value
+
+
+@dataclass(frozen=True)
+class ValidatedManifestSnapshot:
+    manifest_path: Path
+    manifest: Mapping[str, Any]
+    canonical_sha256: str
+
+    def __post_init__(self) -> None:
+        if SHA256_PATTERN.fullmatch(self.canonical_sha256) is None:
+            raise ValueError("manifest snapshot digest must be lowercase SHA-256")
+        object.__setattr__(self, "manifest", _freeze_json_value(self.manifest))
 
 
 def relpath(path: Path, repo_root: Path) -> str:
@@ -337,6 +363,137 @@ def git_tree_file_records(
             "sha256": digest,
         }
     return [records[path] for path in sorted(records)]
+
+
+def _reject_duplicate_json_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"release manifest contains duplicate JSON key: {key}")
+        result[key] = value
+    return result
+
+
+def _reject_non_finite_json(value: str) -> None:
+    raise ValueError(f"release manifest contains non-finite JSON number: {value}")
+
+
+def _parse_manifest_bytes(data: bytes) -> dict[str, Any]:
+    try:
+        text = data.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise ValueError("release manifest is not strict UTF-8") from exc
+    try:
+        manifest = json.loads(
+            text,
+            object_pairs_hook=_reject_duplicate_json_keys,
+            parse_constant=_reject_non_finite_json,
+        )
+    except json.JSONDecodeError as exc:
+        raise ValueError("release manifest is not valid JSON") from exc
+    if not isinstance(manifest, dict):
+        raise ValueError("release manifest must be a JSON object")
+    return manifest
+
+
+def _validated_manifest_file_records(
+    files: Any,
+) -> list[dict[str, Any]]:
+    if not isinstance(files, list):
+        raise ValueError("release manifest files must be an array")
+    records: list[dict[str, Any]] = []
+    paths: set[str] = set()
+    casefold_paths: dict[str, str] = {}
+    for entry in files:
+        if not isinstance(entry, dict) or set(entry) != {
+            "path",
+            "size_bytes",
+            "sha256",
+        }:
+            raise ValueError(
+                "release manifest file records must contain only path, size_bytes, and sha256"
+            )
+        path = entry["path"]
+        size = entry["size_bytes"]
+        digest = entry["sha256"]
+        if not isinstance(path, str):
+            raise ValueError("release manifest file path must be a string")
+        _validate_git_path(path)
+        folded = path.casefold()
+        if path in paths or (
+            folded in casefold_paths and casefold_paths[folded] != path
+        ):
+            raise ValueError("release manifest contains duplicate file paths")
+        if type(size) is not int or size < 0:
+            raise ValueError("release manifest file size must be a non-negative integer")
+        if not isinstance(digest, str) or SHA256_PATTERN.fullmatch(digest) is None:
+            raise ValueError("release manifest file digest must be lowercase SHA-256")
+        records.append({"path": path, "size_bytes": size, "sha256": digest})
+        paths.add(path)
+        casefold_paths[folded] = path
+    if records != sorted(records, key=lambda item: item["path"]):
+        raise ValueError("release manifest file records must be sorted by path")
+    return records
+
+
+def load_validated_manifest_snapshot(
+    repo_root: Path,
+    manifest_path: Path,
+) -> ValidatedManifestSnapshot:
+    root = repo_root.resolve()
+    path = manifest_path.absolute()
+    data = release_artifacts.read_regular_file(root, path, "--manifest")
+    manifest = _parse_manifest_bytes(data)
+
+    commit = manifest.get("git_commit")
+    if not isinstance(commit, str) or SHA1_PATTERN.fullmatch(commit) is None:
+        raise ValueError(
+            "release manifest git_commit must be a lowercase 40-character SHA"
+        )
+    top_level = run_git_text(root, ["rev-parse", "--show-toplevel"])
+    if top_level is None or Path(top_level).resolve() != root:
+        raise ValueError("--repo-root must be the exact Git repository root")
+    head = run_git_text(root, ["rev-parse", "--verify", "HEAD"])
+    if head is None or SHA1_PATTERN.fullmatch(head) is None:
+        raise ValueError("Git HEAD must be an exact 40-character commit")
+    if commit != head:
+        raise ValueError("release manifest git_commit must match current HEAD")
+
+    if manifest.get("included_roots") != INCLUDED_ROOTS:
+        raise ValueError("release manifest included_roots do not match policy")
+    records = _validated_manifest_file_records(manifest.get("files"))
+    expected = git_tree_file_records(root, commit, list(INCLUDED_ROOTS))
+    actual_paths = {record["path"] for record in records}
+    expected_paths = {record["path"] for record in expected}
+    if actual_paths != expected_paths:
+        missing = sorted(expected_paths - actual_paths)
+        extra = sorted(actual_paths - expected_paths)
+        details = []
+        if missing:
+            details.append("missing=" + ",".join(missing))
+        if extra:
+            details.append("extra=" + ",".join(extra))
+        raise ValueError(
+            "release manifest file inventory does not match commit tree: "
+            + "; ".join(details)
+        )
+    if records != expected:
+        mismatched = next(
+            actual["path"]
+            for actual, committed in zip(records, expected, strict=True)
+            if actual != committed
+        )
+        raise ValueError(
+            f"release manifest file metadata does not match commit tree: {mismatched}"
+        )
+    final_head = run_git_text(root, ["rev-parse", "--verify", "HEAD"])
+    if final_head != head:
+        raise ValueError("Git HEAD changed while validating release manifest")
+
+    canonical_sha256 = hashlib.sha256(
+        release_artifacts.canonical_text_bytes(data)
+    ).hexdigest()
+    return ValidatedManifestSnapshot(path, manifest, canonical_sha256)
 
 
 def _remote_host_path(remote_url: str) -> tuple[str, str] | None:

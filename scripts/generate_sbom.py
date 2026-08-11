@@ -8,13 +8,16 @@ from datetime import datetime, timezone
 from pathlib import Path
 import re
 import sys
+from collections.abc import Mapping
 from typing import Any
 
 try:
     from scripts import generate_checksums as release_artifacts
+    from scripts import generate_manifest
     from scripts import verify_dev_environment
 except ImportError:  # Direct script execution from scripts/.
     import generate_checksums as release_artifacts
+    import generate_manifest
     import verify_dev_environment
 
 
@@ -74,22 +77,8 @@ def validate_sbom_paths(repo_root: Path, manifest_path: Path, spdx_path: Path, c
         raise ValueError("--spdx must not overlap --cyclonedx")
 
 
-def sha256_file(path: Path) -> str:
-    return sha256_bytes(
-        release_artifacts.read_regular_file(
-            release_artifacts.infer_repo_root(path), path
-        )
-    )
-
-
-def load_manifest(manifest_path: Path, repo_root: Path | None = None) -> dict[str, Any]:
-    root = repo_root or release_artifacts.infer_repo_root(manifest_path)
-    data = release_artifacts.read_regular_file(root, manifest_path, "--manifest")
-    return json.loads(data.decode("utf-8"))
-
-
 def manifest_source_bytes(
-    manifest: dict[str, Any], repo_root: Path, relative_path: str
+    manifest: Mapping[str, Any], repo_root: Path, relative_path: str
 ) -> bytes:
     matches = [
         entry for entry in manifest.get("files", []) if entry.get("path") == relative_path
@@ -111,7 +100,7 @@ def sha256_bytes(data: bytes) -> str:
 
 
 def read_dev_dependencies(
-    repo_root: Path, manifest: dict[str, Any]
+    repo_root: Path, manifest: Mapping[str, Any]
 ) -> list[dict[str, str]]:
     try:
         lock_text = manifest_source_bytes(
@@ -131,18 +120,18 @@ def read_dev_dependencies(
     ]
 
 
-def manifest_files(manifest: dict[str, Any]) -> list[dict[str, Any]]:
+def manifest_files(manifest: Mapping[str, Any]) -> list[Mapping[str, Any]]:
     files = manifest.get("files", [])
     return sorted(files, key=lambda item: item.get("path", ""))
 
 
-def repository_name(manifest: dict[str, Any]) -> str:
+def repository_name(manifest: Mapping[str, Any]) -> str:
     repository = manifest.get("repository") or "UNKNOWN"
     return str(repository)
 
 
 def detect_repository_license(
-    repo_root: Path, manifest: dict[str, Any] | None = None
+    repo_root: Path, manifest: Mapping[str, Any] | None = None
 ) -> tuple[str, str]:
     if manifest is not None:
         license_text = (
@@ -167,11 +156,12 @@ def detect_repository_license(
 
 
 def build_spdx(
-    manifest: dict[str, Any],
-    manifest_path: Path,
+    snapshot: generate_manifest.ValidatedManifestSnapshot,
     repo_root: Path,
     created_at: str | None = None,
 ) -> dict[str, Any]:
+    manifest = snapshot.manifest
+    manifest_path = snapshot.manifest_path
     created = created_at or utc_now()
     repo_name = repository_name(manifest)
     repo_spdx_id = "SPDXRef-Package-codex-dev-harness"
@@ -222,7 +212,7 @@ def build_spdx(
         )
         relationships.append({"spdxElementId": repo_spdx_id, "relationshipType": "CONTAINS", "relatedSpdxElement": file_id})
 
-    manifest_digest = sha256_file(manifest_path)
+    manifest_digest = snapshot.canonical_sha256
     return {
         "spdxVersion": "SPDX-2.3",
         "dataLicense": "CC0-1.0",
@@ -250,11 +240,12 @@ def build_spdx(
 
 
 def build_cyclonedx(
-    manifest: dict[str, Any],
-    manifest_path: Path,
+    snapshot: generate_manifest.ValidatedManifestSnapshot,
     repo_root: Path,
     created_at: str | None = None,
 ) -> dict[str, Any]:
+    manifest = snapshot.manifest
+    manifest_path = snapshot.manifest_path
     created = created_at or utc_now()
     repo_name = repository_name(manifest)
     repo_license, _ = detect_repository_license(repo_root, manifest)
@@ -281,7 +272,7 @@ def build_cyclonedx(
             component["version"] = dependency["version"]
         components.append(component)
 
-    manifest_digest = sha256_file(manifest_path)
+    manifest_digest = snapshot.canonical_sha256
     repository_component: dict[str, Any] = {
         "type": "application",
         "name": repo_name,
@@ -343,13 +334,18 @@ def main(argv: list[str] | None = None) -> int:
     except ValueError as exc:
         parser.error(str(exc))
 
-    manifest = load_manifest(manifest_path, repo_root)
+    try:
+        snapshot = generate_manifest.load_validated_manifest_snapshot(
+            repo_root, manifest_path
+        )
+    except (ValueError, FileNotFoundError) as exc:
+        parser.error(str(exc))
     created = utc_now()
-    write_json(build_spdx(manifest, manifest_path, repo_root, created), spdx_path)
-    write_json(build_cyclonedx(manifest, manifest_path, repo_root, created), cyclonedx_path)
+    write_json(build_spdx(snapshot, repo_root, created), spdx_path)
+    write_json(build_cyclonedx(snapshot, repo_root, created), cyclonedx_path)
     print(f"Wrote SPDX SBOM: {relpath(spdx_path, repo_root)}")
     print(f"Wrote CycloneDX SBOM: {relpath(cyclonedx_path, repo_root)}")
-    print(f"Manifest files represented: {len(manifest_files(manifest))}")
+    print(f"Manifest files represented: {len(manifest_files(snapshot.manifest))}")
     return 0
 
 

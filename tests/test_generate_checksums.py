@@ -5,12 +5,59 @@ import subprocess
 
 import pytest
 
-from scripts import generate_checksums
+from scripts import (
+    generate_checksums,
+    generate_manifest,
+    generate_provenance,
+    generate_sbom,
+)
+
+
+WRITER_OUTPUTS = {
+    "manifest": "release-manifest.json",
+    "checksums": "checksums.sha256",
+    "sbom": "sbom.spdx.json",
+    "provenance": "provenance.intoto.jsonl",
+}
 
 
 def write(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
+
+
+def invoke_release_writer(writer_name: str, output_path: Path) -> None:
+    if writer_name == "manifest":
+        generate_manifest.write_manifest({"schema_version": "1"}, output_path)
+    elif writer_name == "checksums":
+        generate_checksums.write_checksums(
+            ["abc  artifacts/release-manifest.json"], output_path
+        )
+    elif writer_name == "sbom":
+        generate_sbom.write_json({"name": "test"}, output_path)
+    else:
+        generate_provenance.write_jsonl({"name": "test"}, output_path)
+
+
+def create_directory_redirect(link: Path, target: Path) -> None:
+    if os.name == "nt":
+        created = subprocess.run(
+            ["cmd", "/d", "/c", "mklink", "/J", str(link), str(target)],
+            check=False,
+            capture_output=True,
+        )
+        assert created.returncode == 0, (
+            created.stdout + created.stderr
+        ).decode(errors="replace")
+    else:
+        link.symlink_to(target, target_is_directory=True)
+
+
+def remove_directory_redirect(link: Path) -> None:
+    if os.name == "nt":
+        link.rmdir()
+    else:
+        link.unlink()
 
 
 def assert_path_rejected(repo_root: Path, path_arg: str, flag_name: str, expected: str) -> None:
@@ -286,7 +333,7 @@ def test_release_paths_reject_junction_parent_and_leaf(
         with pytest.raises(ValueError, match="symlink or reparse point"):
             generate_checksums.resolve_repo_path(repo, path_arg, "--manifest")
     finally:
-        junction.rmdir()
+        remove_directory_redirect(junction)
 
 
 def test_release_input_rejects_multiply_linked_file(tmp_path: Path) -> None:
@@ -336,3 +383,87 @@ def test_atomic_replace_rejects_target_identity_drift(tmp_path: Path) -> None:
         )
     assert output.read_bytes() == b"drifted\n"
     assert temporary.read_bytes() == b"candidate\n"
+
+
+@pytest.mark.parametrize("writer_name", sorted(WRITER_OUTPUTS))
+@pytest.mark.parametrize(
+    "fault",
+    ["junction_parent", "reparse_leaf", "hardlink_leaf", "target_identity_drift"],
+)
+def test_release_writer_adapter_rejects_physical_fault(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    writer_name: str,
+    fault: str,
+) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    outside_sentinel = outside / "sentinel.txt"
+    outside_sentinel.write_bytes(b"outside\n")
+    artifacts = repo / "artifacts"
+    output = artifacts / WRITER_OUTPUTS[writer_name]
+    redirect: Path | None = None
+    original = b"original\n"
+    drifted = b"drifted!\n"
+
+    if fault == "junction_parent":
+        redirect = artifacts
+        create_directory_redirect(redirect, outside)
+        expected = "symlink or reparse point"
+    elif fault == "reparse_leaf":
+        artifacts.mkdir()
+        redirect = output
+        create_directory_redirect(redirect, outside)
+        expected = "symlink or reparse point"
+    elif fault == "hardlink_leaf":
+        artifacts.mkdir()
+        output.write_bytes(original)
+        os.link(output, tmp_path / f"{writer_name}-alias")
+        expected = "multiply-linked"
+    else:
+        artifacts.mkdir()
+        output.write_bytes(original)
+        original_replace = generate_checksums._replace_validated_temp
+
+        def replace_after_drift(
+            repo_root: Path,
+            temp_path: Path,
+            output_path: Path,
+            parent_identity: tuple[int, ...],
+            target_identity: tuple[int, ...] | None,
+        ) -> None:
+            replacement = output_path.with_name(f".{output_path.name}.drift")
+            replacement.write_bytes(drifted)
+            os.replace(replacement, output_path)
+            original_replace(
+                repo_root,
+                temp_path,
+                output_path,
+                parent_identity,
+                target_identity,
+            )
+
+        monkeypatch.setattr(
+            generate_checksums, "_replace_validated_temp", replace_after_drift
+        )
+        expected = "target identity changed"
+
+    try:
+        with pytest.raises(ValueError, match=expected):
+            invoke_release_writer(writer_name, output)
+    finally:
+        if redirect is not None:
+            remove_directory_redirect(redirect)
+
+    assert outside_sentinel.read_bytes() == b"outside\n"
+    assert not (outside / WRITER_OUTPUTS[writer_name]).is_file()
+    if fault == "hardlink_leaf":
+        assert output.read_bytes() == original
+        assert (tmp_path / f"{writer_name}-alias").read_bytes() == original
+    elif fault == "target_identity_drift":
+        assert output.read_bytes() == drifted
+    if artifacts.is_dir():
+        assert list(artifacts.glob(f".{output.name}.*.tmp")) == []
+    assert list(outside.glob(f".{output.name}.*.tmp")) == []

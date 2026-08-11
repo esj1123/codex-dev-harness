@@ -12,8 +12,10 @@ from typing import Any
 
 try:
     from scripts import generate_checksums as release_artifacts
+    from scripts import generate_manifest
 except ImportError:  # Direct script execution from scripts/.
     import generate_checksums as release_artifacts
+    import generate_manifest
 
 
 sys.dont_write_bytecode = True
@@ -60,24 +62,6 @@ def validate_provenance_paths(repo_root: Path, manifest_path: Path, output_path:
     )
 
 
-def sha256_file(path: Path, repo_root: Path | None = None) -> str:
-    import hashlib
-
-    root = repo_root or release_artifacts.infer_repo_root(path)
-    text = release_artifacts.read_regular_file(root, path).decode("utf-8")
-    canonical = text.replace("\r\n", "\n").replace("\r", "\n").encode("utf-8")
-    return hashlib.sha256(canonical).hexdigest()
-
-
-def load_manifest(manifest_path: Path, repo_root: Path | None = None) -> dict[str, Any]:
-    root = repo_root or release_artifacts.infer_repo_root(manifest_path)
-    return json.loads(
-        release_artifacts.read_regular_file(root, manifest_path, "--manifest").decode(
-            "utf-8"
-        )
-    )
-
-
 def digest_record(path: Path, repo_root: Path) -> dict[str, Any] | None:
     if not path.exists():
         return None
@@ -86,7 +70,7 @@ def digest_record(path: Path, repo_root: Path) -> dict[str, Any] | None:
     )
     return {
         "name": relpath(path, repo_root),
-        "digest": {"sha256": sha256_file(path, repo_root)},
+        "digest": {"sha256": release_artifacts.sha256_file(path)},
     }
 
 
@@ -102,9 +86,18 @@ def manifest_materials(manifest: dict[str, Any]) -> list[dict[str, Any]]:
     return materials
 
 
-def existing_products(repo_root: Path, output_path: Path) -> list[dict[str, Any]]:
-    products = []
-    for relative in DEFAULT_PRODUCTS:
+def existing_products(
+    snapshot: generate_manifest.ValidatedManifestSnapshot,
+    repo_root: Path,
+    output_path: Path,
+) -> list[dict[str, Any]]:
+    products = [
+        {
+            "name": relpath(snapshot.manifest_path, repo_root),
+            "digest": {"sha256": snapshot.canonical_sha256},
+        }
+    ]
+    for relative in DEFAULT_PRODUCTS[1:]:
         path = release_artifacts.release_artifact_path(repo_root, relative)
         if path == output_path.resolve():
             continue
@@ -115,15 +108,16 @@ def existing_products(repo_root: Path, output_path: Path) -> list[dict[str, Any]
 
 
 def build_statement(
-    manifest: dict[str, Any],
-    manifest_path: Path,
+    snapshot: generate_manifest.ValidatedManifestSnapshot,
     output_path: Path,
     repo_root: Path,
     created_at: str | None = None,
 ) -> dict[str, Any]:
+    manifest = snapshot.manifest
+    manifest_path = snapshot.manifest_path
     created = created_at or utc_now()
-    manifest_digest = sha256_file(manifest_path)
-    products = existing_products(repo_root, output_path)
+    manifest_digest = snapshot.canonical_sha256
+    products = existing_products(snapshot, repo_root, output_path)
     checksum_entries = [
         {
             "path": str(product["name"]),
@@ -193,8 +187,13 @@ def main(argv: list[str] | None = None) -> int:
     except ValueError as exc:
         parser.error(str(exc))
 
-    manifest = load_manifest(manifest_path, repo_root)
-    statement = build_statement(manifest, manifest_path, output_path, repo_root)
+    try:
+        snapshot = generate_manifest.load_validated_manifest_snapshot(
+            repo_root, manifest_path
+        )
+    except (ValueError, FileNotFoundError) as exc:
+        parser.error(str(exc))
+    statement = build_statement(snapshot, output_path, repo_root)
     write_jsonl(statement, output_path)
     print(f"Wrote provenance: {relpath(output_path, repo_root)}")
     print(f"Provenance subjects: {len(statement['subject'])}")

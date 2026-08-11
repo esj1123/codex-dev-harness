@@ -2,7 +2,12 @@ import json
 import hashlib
 from pathlib import Path
 
-from scripts import generate_checksums, generate_provenance, generate_sbom
+from scripts import (
+    generate_checksums,
+    generate_manifest,
+    generate_provenance,
+    generate_sbom,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -45,6 +50,17 @@ def write_release_artifacts(repo_root: Path) -> Path:
     return manifest_path
 
 
+def sample_snapshot(
+    manifest_path: Path,
+) -> generate_manifest.ValidatedManifestSnapshot:
+    digest = hashlib.sha256(
+        generate_checksums.canonical_text_bytes(manifest_path.read_bytes())
+    ).hexdigest()
+    return generate_manifest.ValidatedManifestSnapshot(
+        manifest_path, sample_manifest(), digest
+    )
+
+
 def assert_path_rejected(repo_root: Path, path_arg: str, flag_name: str, expected: str) -> None:
     try:
         generate_provenance.resolve_artifact_path(repo_root, path_arg, flag_name)
@@ -67,7 +83,12 @@ def test_provenance_records_repo_commands_python_and_digests(tmp_path: Path) -> 
     manifest_path = write_release_artifacts(tmp_path)
     output_path = tmp_path / "artifacts" / "provenance.intoto.jsonl"
 
-    statement = generate_provenance.build_statement(sample_manifest(), manifest_path, output_path, tmp_path, "2026-01-01T00:00:00Z")
+    statement = generate_provenance.build_statement(
+        sample_snapshot(manifest_path),
+        output_path,
+        tmp_path,
+        "2026-01-01T00:00:00Z",
+    )
 
     assert statement["_type"] == "https://in-toto.io/Statement/v1"
     assert statement["predicate"]["repo"]["git_ref"] == "main"
@@ -94,20 +115,20 @@ def test_release_evidence_pipeline_final_checksum_and_product_digests_match(
     manifest_path.write_bytes(
         (json.dumps(sample_manifest()) + "\r\n").encode("utf-8")
     )
+    snapshot = sample_snapshot(manifest_path)
     created = "2026-01-01T00:00:00Z"
     generate_sbom.write_json(
-        generate_sbom.build_spdx(sample_manifest(), manifest_path, tmp_path, created),
+        generate_sbom.build_spdx(snapshot, tmp_path, created),
         tmp_path / "artifacts" / "sbom.spdx.json",
     )
     generate_sbom.write_json(
-        generate_sbom.build_cyclonedx(sample_manifest(), manifest_path, tmp_path, created),
+        generate_sbom.build_cyclonedx(snapshot, tmp_path, created),
         tmp_path / "artifacts" / "sbom.cdx.json",
     )
     output_path = tmp_path / "artifacts" / "provenance.intoto.jsonl"
     checksums_path = tmp_path / "artifacts" / "checksums.sha256"
     statement = generate_provenance.build_statement(
-        sample_manifest(),
-        manifest_path,
+        snapshot,
         output_path,
         tmp_path,
         created,
@@ -137,6 +158,37 @@ def test_release_evidence_pipeline_final_checksum_and_product_digests_match(
         assert product["digest"]["sha256"] == generate_checksums.sha256_file(
             product_path
         )
+
+
+def test_provenance_uses_captured_manifest_without_rereading_path(
+    tmp_path: Path, monkeypatch
+) -> None:
+    manifest_path = write_release_artifacts(tmp_path)
+    snapshot = sample_snapshot(manifest_path)
+    manifest_path.write_bytes(b"tampered after snapshot\n")
+    original_read = generate_checksums.read_regular_file
+
+    def reject_manifest_reread(repo_root: Path, path: Path, flag_name: str = "input") -> bytes:
+        if path == manifest_path:
+            raise AssertionError("manifest path was reopened")
+        return original_read(repo_root, path, flag_name)
+
+    monkeypatch.setattr(generate_checksums, "read_regular_file", reject_manifest_reread)
+
+    statement = generate_provenance.build_statement(
+        snapshot,
+        tmp_path / "artifacts" / "provenance.intoto.jsonl",
+        tmp_path,
+        "2026-01-01T00:00:00Z",
+    )
+
+    assert statement["predicate"]["input_manifest"]["digest"]["sha256"] == snapshot.canonical_sha256
+    manifest_product = next(
+        item
+        for item in statement["subject"]
+        if item["name"] == "artifacts/release-manifest.json"
+    )
+    assert manifest_product["digest"]["sha256"] == snapshot.canonical_sha256
 
 
 def test_provenance_jsonl_writer_uses_single_final_newline(tmp_path: Path) -> None:

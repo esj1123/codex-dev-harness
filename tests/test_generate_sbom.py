@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from scripts import generate_sbom
+from scripts import generate_checksums, generate_manifest, generate_sbom
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -45,6 +45,17 @@ def write_manifest(repo_root: Path) -> Path:
     return manifest_path
 
 
+def sample_snapshot(
+    manifest_path: Path,
+) -> generate_manifest.ValidatedManifestSnapshot:
+    digest = hashlib.sha256(
+        generate_checksums.canonical_text_bytes(manifest_path.read_bytes())
+    ).hexdigest()
+    return generate_manifest.ValidatedManifestSnapshot(
+        manifest_path, sample_manifest(), digest
+    )
+
+
 def assert_path_rejected(repo_root: Path, path_arg: str, flag_name: str, expected: str) -> None:
     try:
         generate_sbom.resolve_artifact_path(repo_root, path_arg, flag_name)
@@ -71,7 +82,9 @@ def assert_sbom_paths_rejected(
 
 def test_spdx_uses_manifest_files_and_repository_license(tmp_path: Path) -> None:
     manifest_path = write_manifest(tmp_path)
-    spdx = generate_sbom.build_spdx(sample_manifest(), manifest_path, tmp_path, "2026-01-01T00:00:00Z")
+    spdx = generate_sbom.build_spdx(
+        sample_snapshot(manifest_path), tmp_path, "2026-01-01T00:00:00Z"
+    )
 
     assert spdx["spdxVersion"] == "SPDX-2.3"
     assert any(file_entry["fileName"] == "README.md" for file_entry in spdx["files"])
@@ -85,7 +98,9 @@ def test_spdx_uses_manifest_files_and_repository_license(tmp_path: Path) -> None
 
 def test_cyclonedx_uses_manifest_files_and_dev_dependencies(tmp_path: Path) -> None:
     manifest_path = write_manifest(tmp_path)
-    cdx = generate_sbom.build_cyclonedx(sample_manifest(), manifest_path, tmp_path, "2026-01-01T00:00:00Z")
+    cdx = generate_sbom.build_cyclonedx(
+        sample_snapshot(manifest_path), tmp_path, "2026-01-01T00:00:00Z"
+    )
 
     assert cdx["bomFormat"] == "CycloneDX"
     assert cdx["metadata"]["component"]["name"] == "esj1123/codex-dev-harness"
@@ -100,12 +115,13 @@ def test_cyclonedx_uses_manifest_files_and_dev_dependencies(tmp_path: Path) -> N
 
 def test_sbom_bytes_do_not_depend_on_checksum_file_state(tmp_path: Path) -> None:
     manifest_path = write_manifest(tmp_path)
+    snapshot = sample_snapshot(manifest_path)
     checksum_path = tmp_path / "artifacts" / "checksums.sha256"
     created = "2026-01-01T00:00:00Z"
 
     def rendered() -> tuple[bytes, bytes]:
-        spdx = generate_sbom.build_spdx(sample_manifest(), manifest_path, tmp_path, created)
-        cdx = generate_sbom.build_cyclonedx(sample_manifest(), manifest_path, tmp_path, created)
+        spdx = generate_sbom.build_spdx(snapshot, tmp_path, created)
+        cdx = generate_sbom.build_cyclonedx(snapshot, tmp_path, created)
         return (
             (json.dumps(spdx, indent=2) + "\n").encode("utf-8"),
             (json.dumps(cdx, indent=2) + "\n").encode("utf-8"),
@@ -201,9 +217,36 @@ def test_sbom_rejects_source_bytes_outside_manifest_basis(
     tmp_path: Path, relative_path: str
 ) -> None:
     manifest_path = write_manifest(tmp_path)
+    snapshot = sample_snapshot(manifest_path)
     (tmp_path / relative_path).write_bytes(b"tampered\n")
 
     with pytest.raises(ValueError, match="manifest source basis"):
         generate_sbom.build_spdx(
-            sample_manifest(), manifest_path, tmp_path, "2026-01-01T00:00:00Z"
+            snapshot, tmp_path, "2026-01-01T00:00:00Z"
         )
+
+
+def test_sbom_builders_use_captured_manifest_without_rereading_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    manifest_path = write_manifest(tmp_path)
+    snapshot = sample_snapshot(manifest_path)
+    manifest_path.write_bytes(b"tampered after snapshot\n")
+    original_read = generate_checksums.read_regular_file
+
+    def reject_manifest_reread(repo_root: Path, path: Path, flag_name: str = "input") -> bytes:
+        if path == manifest_path:
+            raise AssertionError("manifest path was reopened")
+        return original_read(repo_root, path, flag_name)
+
+    monkeypatch.setattr(generate_checksums, "read_regular_file", reject_manifest_reread)
+
+    spdx = generate_sbom.build_spdx(snapshot, tmp_path, "2026-01-01T00:00:00Z")
+    cdx = generate_sbom.build_cyclonedx(snapshot, tmp_path, "2026-01-01T00:00:00Z")
+
+    assert snapshot.canonical_sha256 in spdx["annotations"][0]["comment"]
+    properties = {
+        item["name"]: item["value"]
+        for item in cdx["metadata"]["component"]["properties"]
+    }
+    assert properties["manifest_sha256"] == snapshot.canonical_sha256
