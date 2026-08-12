@@ -305,13 +305,11 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
         status.split(next_step_marker, 1)[1].split("\n## ", 1)[0].split()
     )
     expected_next_step = (
-        "The cumulative harness implementation has passed the required local "
-        "verification. Local-main ref updates, fresh remote observation, non-force "
-        "push, and exact-SHA remote verification are separate owner-approved "
-        "operations and must be confirmed from the current Git state rather than "
-        "inferred from this document. Before regenerating the historical release "
-        "bundle, decide whether it should include an eval report and separately "
-        "approve the artifact-writing refresh from its exact source basis. Keep Agent "
+        "The tracked release bundle is current for its recorded local source basis and "
+        "remains `LOCAL_ONLY`; this does not create a tag, release, signing, upload, "
+        "or publication. Preserve the separately recorded source-basis and "
+        "artifact-containing commits, and re-check a clean exact Git snapshot before "
+        "any local-main fast-forward or future remote operation. Keep Agent "
         "Quality/provider, role calibration v7, Hermes, MCP, publication, and other "
         "remote work frozen unless a separate value decision and approval explicitly "
         "reopens them."
@@ -321,13 +319,14 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     assert (
         "Tracked release evidence regeneration until the eval-report inclusion policy "
         "and exact source basis are separately approved."
-        in normalized_held
+        not in normalized_held
     )
     assert "Tag, release, signing, upload, or publication." in normalized_held
     assert "Automatic digest writes or release automation." in normalized_held
     assert normalized_next_step == expected_next_step
-    assert "`HISTORICAL_INVALID / REFRESH_NOT_RUN`" in normalized_status
-    assert "decide whether it should include an eval report" in normalized_next_step
+    assert "`CURRENT / LOCAL_ONLY`" in normalized_status
+    assert "`HISTORICAL_INVALID / REFRESH_NOT_RUN`" not in normalized_status
+    assert "decide whether it should include an eval report" not in normalized_next_step
     assert "Review the verified verification-lane branch tip" not in normalized_status
     assert "decide whether to promote it to local `main`" not in normalized_status
     assert "have been promoted to local `main`" not in normalized_status
