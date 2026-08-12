@@ -2,10 +2,10 @@
   "spdxVersion": "SPDX-2.3",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "name": "external-repository/8851566ba6e30e47 local release SBOM",
-  "documentNamespace": "https://example.invalid/codex-dev-harness/spdx/9647f94203eb01acd9310fc81765fd2fd6ef81dcde86429cea18587707040700",
+  "name": "esj1123/codex-dev-harness local release SBOM",
+  "documentNamespace": "https://example.invalid/codex-dev-harness/spdx/bebc69e222e62780a564d0b619c6113c7848bfd344cf63f1f336d0b9442d4a90",
   "creationInfo": {
-    "created": "2026-08-12T02:07:56Z",
+    "created": "2026-08-12T05:41:29Z",
     "creators": [
       "Tool: codex-dev-harness generate_sbom.py"
     ]
@@ -13,14 +13,14 @@
   "documentComment": "Local-only SBOM generated from release-manifest.json; unknown licenses are recorded as UNKNOWN.",
   "packages": [
     {
-      "name": "external-repository/8851566ba6e30e47",
+      "name": "esj1123/codex-dev-harness",
       "SPDXID": "SPDXRef-Package-codex-dev-harness",
       "downloadLocation": "NOASSERTION",
       "filesAnalyzed": true,
       "licenseConcluded": "MIT",
       "licenseDeclared": "MIT",
       "copyrightText": "Copyright (c) 2026 esj1123",
-      "versionInfo": "9dc5ed79af2ddeff0dfb77c577e7f6f3a128c62e"
+      "versionInfo": "28e49ebb15dccfe7cf845a597dc768c93510fdf4"
     },
     {
       "name": "colorama",
@@ -168,7 +168,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "08b8829e54d73a5be7c9e656213a02486cc34236e19b8ffce0648048665711f0"
+          "checksumValue": "2f8e2e3d38c540488efb8e21d8c8c4dcf12167a486c3f3b1a28b84ac85738fc3"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -300,7 +300,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "9b8b6b0d89c881ebeb77211cb97ec5d9a018b28d12e918a23c7b5bb85f15deaa"
+          "checksumValue": "eeaabdfa52745c1dd6c8e9d02985e4770adac419e21007a13315b7348daaf1a2"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -444,7 +444,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "4aebe64eab373a54de7e834f605d42a46cb6fb1ef94f8ea61c6cf1badc1a9bf5"
+          "checksumValue": "6656a3125a5d45d4da7c68a84a3b2fe2a513903cc7eff1f848fa2aea732b56b9"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -1116,7 +1116,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "e6b7548999a33e05eb7326f0c10a9efe2bbd4cd22f465c4b3da4398ad2113a3e"
+          "checksumValue": "7722368a22a356417fe75aadad1603861aed784d0bb6cb7e96822b0b9db457ac"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -3624,7 +3624,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "8271867f00dc0cab74a6fd0277264acef4dee36b4fa094dc1b88ff66b9c72909"
+          "checksumValue": "efe78a5fc5b97daf535aab86f8848d1702ce4e3d7ef33ca230f887c4f5227ef4"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -4596,7 +4596,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "818018a9d81e997c5f57f5686cc50a35738582df737b27a2dd55952b4145fbc9"
+          "checksumValue": "251cf4a3f87da4ab7ef3bfec0db12f1f2bfec86f883d4ddf008ef85ef646346f"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -4632,7 +4632,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "71f856a91ec51cefd9e7b25cf8f2708c954cd4df740df61ac5693fd602c2a944"
+          "checksumValue": "f4ffcfd134093f5fc599bc9e98bbdca3d26614e5d851607d035b8e59926fbccd"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -6680,10 +6680,10 @@
   "externalDocumentRefs": [],
   "annotations": [
     {
-      "annotationDate": "2026-08-12T02:07:56Z",
+      "annotationDate": "2026-08-12T05:41:29Z",
       "annotationType": "OTHER",
       "annotator": "Tool: codex-dev-harness generate_sbom.py",
-      "comment": "manifest=artifacts/release-manifest.json sha256=9647f94203eb01acd9310fc81765fd2fd6ef81dcde86429cea18587707040700"
+      "comment": "manifest=artifacts/release-manifest.json sha256=bebc69e222e62780a564d0b619c6113c7848bfd344cf63f1f336d0b9442d4a90"
     }
   ]
 }

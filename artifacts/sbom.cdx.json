@@ -3,7 +3,7 @@
   "specVersion": "1.5",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-08-12T02:07:56Z",
+    "timestamp": "2026-08-12T05:41:29Z",
     "tools": {
       "components": [
         {
@@ -15,12 +15,12 @@
     },
     "component": {
       "type": "application",
-      "name": "external-repository/8851566ba6e30e47",
-      "version": "9dc5ed79af2ddeff0dfb77c577e7f6f3a128c62e",
+      "name": "esj1123/codex-dev-harness",
+      "version": "28e49ebb15dccfe7cf845a597dc768c93510fdf4",
       "properties": [
         {
           "name": "git_ref",
-          "value": "UNKNOWN"
+          "value": "codex/local-release-authority-lineage-closeout"
         },
         {
           "name": "manifest_path",
@@ -28,7 +28,7 @@
         },
         {
           "name": "manifest_sha256",
-          "value": "9647f94203eb01acd9310fc81765fd2fd6ef81dcde86429cea18587707040700"
+          "value": "bebc69e222e62780a564d0b619c6113c7848bfd344cf63f1f336d0b9442d4a90"
         }
       ],
       "licenses": [
@@ -143,13 +143,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "08b8829e54d73a5be7c9e656213a02486cc34236e19b8ffce0648048665711f0"
+          "content": "2f8e2e3d38c540488efb8e21d8c8c4dcf12167a486c3f3b1a28b84ac85738fc3"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "7681"
+          "value": "7798"
         }
       ]
     },
@@ -319,13 +319,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "9b8b6b0d89c881ebeb77211cb97ec5d9a018b28d12e918a23c7b5bb85f15deaa"
+          "content": "eeaabdfa52745c1dd6c8e9d02985e4770adac419e21007a13315b7348daaf1a2"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "2253"
+          "value": "2347"
         }
       ]
     },
@@ -511,13 +511,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "4aebe64eab373a54de7e834f605d42a46cb6fb1ef94f8ea61c6cf1badc1a9bf5"
+          "content": "6656a3125a5d45d4da7c68a84a3b2fe2a513903cc7eff1f848fa2aea732b56b9"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "5697"
+          "value": "5790"
         }
       ]
     },
@@ -1407,13 +1407,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "e6b7548999a33e05eb7326f0c10a9efe2bbd4cd22f465c4b3da4398ad2113a3e"
+          "content": "7722368a22a356417fe75aadad1603861aed784d0bb6cb7e96822b0b9db457ac"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "2876"
+          "value": "2978"
         }
       ]
     },
@@ -4751,13 +4751,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "8271867f00dc0cab74a6fd0277264acef4dee36b4fa094dc1b88ff66b9c72909"
+          "content": "efe78a5fc5b97daf535aab86f8848d1702ce4e3d7ef33ca230f887c4f5227ef4"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "20528"
+          "value": "26075"
         }
       ]
     },
@@ -6047,13 +6047,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "818018a9d81e997c5f57f5686cc50a35738582df737b27a2dd55952b4145fbc9"
+          "content": "251cf4a3f87da4ab7ef3bfec0db12f1f2bfec86f883d4ddf008ef85ef646346f"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "62973"
+          "value": "64337"
         }
       ]
     },
@@ -6095,13 +6095,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "71f856a91ec51cefd9e7b25cf8f2708c954cd4df740df61ac5693fd602c2a944"
+          "content": "f4ffcfd134093f5fc599bc9e98bbdca3d26614e5d851607d035b8e59926fbccd"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "16383"
+          "value": "25081"
         }
       ]
     },
