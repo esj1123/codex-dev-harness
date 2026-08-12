@@ -1,9 +1,9 @@
 {
   "schema_version": "1",
-  "generated_at_utc": "2026-08-12T05:41:24Z",
+  "generated_at_utc": "2026-08-12T06:15:09Z",
   "repository": "esj1123/codex-dev-harness",
   "git_ref": "codex/local-release-authority-lineage-closeout",
-  "git_commit": "28e49ebb15dccfe7cf845a597dc768c93510fdf4",
+  "git_commit": "bb00363acc87aaaa8f041edd265fdc21d112b8ea",
   "git_tag": null,
   "python_version": "3.12.10",
   "included_roots": [
@@ -1606,8 +1606,8 @@
     },
     {
       "path": "scripts/release_evidence_preflight.py",
-      "size_bytes": 26075,
-      "sha256": "efe78a5fc5b97daf535aab86f8848d1702ce4e3d7ef33ca230f887c4f5227ef4"
+      "size_bytes": 26163,
+      "sha256": "ce13ae80ebef0239832d5ef0c67118e9677f3509d742eda30e8eeffa44d02642"
     },
     {
       "path": "scripts/render_template.py",
@@ -2026,8 +2026,8 @@
     },
     {
       "path": "tests/test_release_evidence_preflight.py",
-      "size_bytes": 25081,
-      "sha256": "f4ffcfd134093f5fc599bc9e98bbdca3d26614e5d851607d035b8e59926fbccd"
+      "size_bytes": 25847,
+      "sha256": "c498a08e44cf4caa2446d9b82f53d76a37d78aec2f60cd8025a9f2b2dfe4b73b"
     },
     {
       "path": "tests/test_release_evidence_refresh_decision.py",

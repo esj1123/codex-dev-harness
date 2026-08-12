@@ -3,7 +3,7 @@
   "specVersion": "1.5",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-08-12T05:41:29Z",
+    "timestamp": "2026-08-12T06:15:32Z",
     "tools": {
       "components": [
         {
@@ -16,7 +16,7 @@
     "component": {
       "type": "application",
       "name": "esj1123/codex-dev-harness",
-      "version": "28e49ebb15dccfe7cf845a597dc768c93510fdf4",
+      "version": "bb00363acc87aaaa8f041edd265fdc21d112b8ea",
       "properties": [
         {
           "name": "git_ref",
@@ -28,7 +28,7 @@
         },
         {
           "name": "manifest_sha256",
-          "value": "bebc69e222e62780a564d0b619c6113c7848bfd344cf63f1f336d0b9442d4a90"
+          "value": "b88b04c913ba9c76243090276a0184f052a34e15808438efbbf00111f279d382"
         }
       ],
       "licenses": [
@@ -4751,13 +4751,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "efe78a5fc5b97daf535aab86f8848d1702ce4e3d7ef33ca230f887c4f5227ef4"
+          "content": "ce13ae80ebef0239832d5ef0c67118e9677f3509d742eda30e8eeffa44d02642"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "26075"
+          "value": "26163"
         }
       ]
     },
@@ -6095,13 +6095,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "f4ffcfd134093f5fc599bc9e98bbdca3d26614e5d851607d035b8e59926fbccd"
+          "content": "c498a08e44cf4caa2446d9b82f53d76a37d78aec2f60cd8025a9f2b2dfe4b73b"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "25081"
+          "value": "25847"
         }
       ]
     },

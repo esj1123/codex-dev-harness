@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "esj1123/codex-dev-harness local release SBOM",
-  "documentNamespace": "https://example.invalid/codex-dev-harness/spdx/bebc69e222e62780a564d0b619c6113c7848bfd344cf63f1f336d0b9442d4a90",
+  "documentNamespace": "https://example.invalid/codex-dev-harness/spdx/b88b04c913ba9c76243090276a0184f052a34e15808438efbbf00111f279d382",
   "creationInfo": {
-    "created": "2026-08-12T05:41:29Z",
+    "created": "2026-08-12T06:15:32Z",
     "creators": [
       "Tool: codex-dev-harness generate_sbom.py"
     ]
@@ -20,7 +20,7 @@
       "licenseConcluded": "MIT",
       "licenseDeclared": "MIT",
       "copyrightText": "Copyright (c) 2026 esj1123",
-      "versionInfo": "28e49ebb15dccfe7cf845a597dc768c93510fdf4"
+      "versionInfo": "bb00363acc87aaaa8f041edd265fdc21d112b8ea"
     },
     {
       "name": "colorama",
@@ -3624,7 +3624,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "efe78a5fc5b97daf535aab86f8848d1702ce4e3d7ef33ca230f887c4f5227ef4"
+          "checksumValue": "ce13ae80ebef0239832d5ef0c67118e9677f3509d742eda30e8eeffa44d02642"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -4632,7 +4632,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "f4ffcfd134093f5fc599bc9e98bbdca3d26614e5d851607d035b8e59926fbccd"
+          "checksumValue": "c498a08e44cf4caa2446d9b82f53d76a37d78aec2f60cd8025a9f2b2dfe4b73b"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -6680,10 +6680,10 @@
   "externalDocumentRefs": [],
   "annotations": [
     {
-      "annotationDate": "2026-08-12T05:41:29Z",
+      "annotationDate": "2026-08-12T06:15:32Z",
       "annotationType": "OTHER",
       "annotator": "Tool: codex-dev-harness generate_sbom.py",
-      "comment": "manifest=artifacts/release-manifest.json sha256=bebc69e222e62780a564d0b619c6113c7848bfd344cf63f1f336d0b9442d4a90"
+      "comment": "manifest=artifacts/release-manifest.json sha256=b88b04c913ba9c76243090276a0184f052a34e15808438efbbf00111f279d382"
     }
   ]
 }
