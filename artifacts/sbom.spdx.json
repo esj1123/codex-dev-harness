@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "external-repository/8851566ba6e30e47 local release SBOM",
-  "documentNamespace": "https://example.invalid/codex-dev-harness/spdx/fd76e0b6096a12f1c383a146c599b256b3e70a4fa8a2a4104e17bab075b71ed4",
+  "documentNamespace": "https://example.invalid/codex-dev-harness/spdx/9647f94203eb01acd9310fc81765fd2fd6ef81dcde86429cea18587707040700",
   "creationInfo": {
-    "created": "2026-08-11T23:10:34Z",
+    "created": "2026-08-12T02:07:56Z",
     "creators": [
       "Tool: codex-dev-harness generate_sbom.py"
     ]
@@ -20,7 +20,7 @@
       "licenseConcluded": "MIT",
       "licenseDeclared": "MIT",
       "copyrightText": "Copyright (c) 2026 esj1123",
-      "versionInfo": "5a97e21122b2be30427f8ca1a4570db2f7b695cf"
+      "versionInfo": "9dc5ed79af2ddeff0dfb77c577e7f6f3a128c62e"
     },
     {
       "name": "colorama",
@@ -204,7 +204,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "13b08614b22fc2098735f1cf788ef7a61d8f04dfd2872d73b4772a106492b886"
+          "checksumValue": "8803b836e48f9c5ce0736082a94208121dcca1ec4b1447c88798dbd1bfe15407"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -4596,7 +4596,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "7d85d5717f42ccd2c24799b43cbdd2d2a10edccbbbc9890cc25eb0e2b8070d66"
+          "checksumValue": "818018a9d81e997c5f57f5686cc50a35738582df737b27a2dd55952b4145fbc9"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -6680,10 +6680,10 @@
   "externalDocumentRefs": [],
   "annotations": [
     {
-      "annotationDate": "2026-08-11T23:10:34Z",
+      "annotationDate": "2026-08-12T02:07:56Z",
       "annotationType": "OTHER",
       "annotator": "Tool: codex-dev-harness generate_sbom.py",
-      "comment": "manifest=artifacts/release-manifest.json sha256=fd76e0b6096a12f1c383a146c599b256b3e70a4fa8a2a4104e17bab075b71ed4"
+      "comment": "manifest=artifacts/release-manifest.json sha256=9647f94203eb01acd9310fc81765fd2fd6ef81dcde86429cea18587707040700"
     }
   ]
 }
