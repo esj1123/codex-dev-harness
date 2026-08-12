@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
+import hashlib
 import json
 from pathlib import Path
 import subprocess
@@ -70,31 +72,57 @@ def write_policy_inputs(root: Path) -> None:
         write(root / relative_path, f"# {Path(relative_path).stem}\n")
 
 
+def canonical_manifest_digest(root: Path) -> str:
+    path = root / preflight.MANIFEST_PATH
+    data = generate_checksums.read_regular_file(root, path, "release manifest fixture")
+    return hashlib.sha256(generate_checksums.canonical_text_bytes(data)).hexdigest()
+
+
 def write_evidence(
     root: Path,
     source_commit: str,
     *,
     provenance_commit: str | None = None,
+    repository: str | None = "example/repository",
+    git_ref: str | None = "main",
 ) -> None:
-    repository = "example/repository"
     provenance_basis = provenance_commit or source_commit
+    manifest: dict[str, object] = {
+        "schema_version": "1",
+        "git_commit": source_commit,
+        "included_roots": ["LICENSE", "SECURITY.md"],
+        "files": [{"path": "LICENSE"}, {"path": "SECURITY.md"}],
+    }
+    if repository is not None:
+        manifest["repository"] = repository
+    if git_ref is not None:
+        manifest["git_ref"] = git_ref
     write_json(
-        root / "artifacts/release-manifest.json",
-        {
-            "schema_version": "1",
-            "repository": repository,
-            "git_commit": source_commit,
-            "included_roots": ["LICENSE", "SECURITY.md"],
-            "files": [{"path": "LICENSE"}, {"path": "SECURITY.md"}],
-        },
+        root / preflight.MANIFEST_PATH,
+        manifest,
     )
+    manifest_digest = canonical_manifest_digest(root)
+    bound_repository = repository if repository is not None else "UNKNOWN"
+    bound_git_ref = git_ref if git_ref is not None else "UNKNOWN"
     write_json(
         root / "artifacts/sbom.spdx.json",
         {
             "spdxVersion": "SPDX-2.3",
+            "documentNamespace": (
+                "https://example.invalid/codex-dev-harness/spdx/"
+                f"{manifest_digest}"
+            ),
+            "annotations": [
+                {
+                    "comment": (
+                        f"manifest={preflight.MANIFEST_PATH} "
+                        f"sha256={manifest_digest}"
+                    )
+                }
+            ],
             "packages": [
                 {
-                    "name": repository,
+                    "name": bound_repository,
                     "versionInfo": source_commit,
                     "licenseDeclared": "MIT",
                     "licenseConcluded": "MIT",
@@ -109,19 +137,43 @@ def write_evidence(
             "bomFormat": "CycloneDX",
             "metadata": {
                 "component": {
-                    "name": repository,
+                    "name": bound_repository,
                     "version": source_commit,
                     "licenses": [{"license": {"id": "MIT"}}],
+                    "properties": [
+                        {"name": "git_ref", "value": bound_git_ref},
+                        {"name": "manifest_path", "value": preflight.MANIFEST_PATH},
+                        {"name": "manifest_sha256", "value": manifest_digest},
+                    ],
                 }
             },
         },
     )
+    manifest_product = {
+        "name": preflight.MANIFEST_PATH,
+        "digest": {"sha256": manifest_digest},
+    }
     write(
         root / "artifacts/provenance.intoto.jsonl",
         json.dumps(
             {
                 "_type": "https://in-toto.io/Statement/v1",
-                "predicate": {"repo": {"git_commit": provenance_basis}},
+                "subject": [manifest_product],
+                "predicate": {
+                    "repo": {
+                        "repository": bound_repository,
+                        "git_ref": bound_git_ref,
+                        "git_commit": provenance_basis,
+                    },
+                    "input_manifest": {
+                        "path": preflight.MANIFEST_PATH,
+                        "digest": {"sha256": manifest_digest},
+                    },
+                    "products": [manifest_product],
+                    "checksum_entries": [
+                        {"path": preflight.MANIFEST_PATH, "sha256": manifest_digest}
+                    ],
+                },
             },
             sort_keys=True,
         )
@@ -151,13 +203,25 @@ def make_repo(
     *,
     provenance_commit: str | None = None,
     source_override: str | None = None,
+    evidence_mutator: Callable[[Path], None] | None = None,
+    repository: str | None = "example/repository",
+    git_ref: str | None = "main",
 ) -> SyntheticRepo:
     root = tmp_path / "repo"
     init_repo(root)
     write_policy_inputs(root)
     source_commit = commit_all(root, "source basis")
     evidence_source = source_override or source_commit
-    write_evidence(root, evidence_source, provenance_commit=provenance_commit)
+    write_evidence(
+        root,
+        evidence_source,
+        provenance_commit=provenance_commit,
+        repository=repository,
+        git_ref=git_ref,
+    )
+    if evidence_mutator is not None:
+        evidence_mutator(root)
+        regenerate_checksums(root)
     artifact_commit = commit_all(root, "release evidence")
     configure_upstream(root, artifact_commit)
     return SyntheticRepo(root, evidence_source, artifact_commit)
@@ -172,6 +236,79 @@ def regenerate_checksums(root: Path) -> None:
         allow_missing=False,
     )
     generate_checksums.write_checksums(lines, checksums_path)
+
+
+def mutate_evidence_binding(root: Path, mode: str) -> None:
+    bad_digest = "0" * 64
+    if mode == "manifest_bytes_changed":
+        path = root / preflight.MANIFEST_PATH
+        value = json.loads(path.read_text(encoding="utf-8"))
+        value["fixture_note"] = "manifest bytes changed after bindings were generated"
+        write_json(path, value)
+        return
+
+    if mode.startswith("spdx_"):
+        path = root / "artifacts/sbom.spdx.json"
+        value = json.loads(path.read_text(encoding="utf-8"))
+        if mode == "spdx_annotation_missing":
+            value.pop("annotations")
+        elif mode == "spdx_annotation_mismatch":
+            value["annotations"][0]["comment"] = (
+                f"manifest={preflight.MANIFEST_PATH} sha256={bad_digest}"
+            )
+        elif mode == "spdx_namespace_mismatch":
+            value["documentNamespace"] = (
+                "https://example.invalid/codex-dev-harness/spdx/" + bad_digest
+            )
+        else:  # pragma: no cover - protects the test helper contract.
+            raise AssertionError(f"unknown mutation mode: {mode}")
+        write_json(path, value)
+        return
+
+    if mode.startswith("cyclonedx_"):
+        path = root / "artifacts/sbom.cdx.json"
+        value = json.loads(path.read_text(encoding="utf-8"))
+        component = value["metadata"]["component"]
+        properties = component["properties"]
+        if mode == "cyclonedx_manifest_digest_missing":
+            component["properties"] = [
+                item for item in properties if item["name"] != "manifest_sha256"
+            ]
+        elif mode == "cyclonedx_manifest_digest_mismatch":
+            next(item for item in properties if item["name"] == "manifest_sha256")["value"] = bad_digest
+        elif mode == "cyclonedx_manifest_path_mismatch":
+            next(item for item in properties if item["name"] == "manifest_path")["value"] = "artifacts/other.json"
+        elif mode == "cyclonedx_repository_mismatch":
+            component["name"] = "other/repository"
+        elif mode == "cyclonedx_ref_mismatch":
+            next(item for item in properties if item["name"] == "git_ref")["value"] = "other"
+        else:  # pragma: no cover - protects the test helper contract.
+            raise AssertionError(f"unknown mutation mode: {mode}")
+        write_json(path, value)
+        return
+
+    path = root / "artifacts/provenance.intoto.jsonl"
+    value = json.loads(path.read_text(encoding="utf-8"))
+    predicate = value["predicate"]
+    if mode == "provenance_input_missing":
+        predicate.pop("input_manifest")
+    elif mode == "provenance_input_mismatch":
+        predicate["input_manifest"]["digest"]["sha256"] = bad_digest
+    elif mode == "provenance_input_path_mismatch":
+        predicate["input_manifest"]["path"] = "artifacts/other.json"
+    elif mode == "provenance_subject_mismatch":
+        value["subject"][0]["digest"]["sha256"] = bad_digest
+    elif mode == "provenance_products_mismatch":
+        predicate["products"][0]["digest"]["sha256"] = bad_digest
+    elif mode == "provenance_checksum_mismatch":
+        predicate["checksum_entries"][0]["sha256"] = bad_digest
+    elif mode == "provenance_repository_mismatch":
+        predicate["repo"]["repository"] = "other/repository"
+    elif mode == "provenance_ref_mismatch":
+        predicate["repo"]["git_ref"] = "other"
+    else:  # pragma: no cover - protects the test helper contract.
+        raise AssertionError(f"unknown mutation mode: {mode}")
+    write(path, json.dumps(value, sort_keys=True) + "\n")
 
 
 def assert_readiness(
@@ -205,6 +342,92 @@ def test_clean_evidence_passes_and_keeps_states_separate(tmp_path: Path) -> None
     assert result["performed_actions"] == []
     for key in ["release_target", "uploaded_artifact", "downstream_release"]:
         assert result["external_state"][key]["status"] == "NOT RUN"
+
+
+@pytest.mark.parametrize(
+    "binding",
+    [
+        "manifest_bytes_changed",
+        "spdx_annotation_missing",
+        "spdx_annotation_mismatch",
+        "spdx_namespace_mismatch",
+        "cyclonedx_manifest_digest_missing",
+        "cyclonedx_manifest_digest_mismatch",
+        "cyclonedx_manifest_path_mismatch",
+        "provenance_input_missing",
+        "provenance_input_mismatch",
+        "provenance_input_path_mismatch",
+        "provenance_subject_mismatch",
+        "provenance_products_mismatch",
+        "provenance_checksum_mismatch",
+    ],
+)
+def test_manifest_digest_bindings_fail_closed_with_valid_checksums(
+    tmp_path: Path,
+    binding: str,
+) -> None:
+    repo = make_repo(
+        tmp_path,
+        evidence_mutator=lambda root: mutate_evidence_binding(root, binding),
+    )
+
+    result = preflight.inspect_preflight(repo.root)
+
+    assert result["status"] == "FAIL"
+    assert_readiness(result, refresh="BLOCKED", release="BLOCKED")
+    assert result["reason_codes"] == [preflight.MANIFEST_DIGEST_MISMATCH]
+    assert result["evidence_state"]["checksum_status"] == "PASS"
+    assert result["evidence_state"]["artifact_containing_commit"] == repo.artifact_commit
+
+
+@pytest.mark.parametrize(
+    "binding",
+    [
+        "cyclonedx_repository_mismatch",
+        "cyclonedx_ref_mismatch",
+        "provenance_repository_mismatch",
+        "provenance_ref_mismatch",
+    ],
+)
+def test_generated_repository_and_ref_mismatch_fail_closed(
+    tmp_path: Path,
+    binding: str,
+) -> None:
+    repo = make_repo(
+        tmp_path,
+        evidence_mutator=lambda root: mutate_evidence_binding(root, binding),
+    )
+
+    result = preflight.inspect_preflight(repo.root)
+
+    assert result["status"] == "FAIL"
+    assert_readiness(result, refresh="BLOCKED", release="BLOCKED")
+    assert result["reason_codes"] == [preflight.REPOSITORY_METADATA_MISMATCH]
+    assert result["evidence_state"]["checksum_status"] == "PASS"
+    assert result["evidence_state"]["artifact_containing_commit"] == repo.artifact_commit
+
+
+@pytest.mark.parametrize(
+    ("repository", "git_ref"),
+    [
+        (None, "main"),
+        ("UNKNOWN", "main"),
+        ("example/repository", None),
+        ("example/repository", "UNKNOWN"),
+    ],
+)
+def test_manifest_requires_concrete_repository_and_ref(
+    tmp_path: Path,
+    repository: str | None,
+    git_ref: str | None,
+) -> None:
+    repo = make_repo(tmp_path, repository=repository, git_ref=git_ref)
+
+    result = preflight.inspect_preflight(repo.root)
+
+    assert result["status"] == "FAIL"
+    assert_readiness(result, refresh="BLOCKED", release="BLOCKED")
+    assert result["reason_codes"] == [preflight.REPOSITORY_METADATA_MISMATCH]
 
 
 def test_new_clean_source_commit_returns_pass_with_notes(tmp_path: Path) -> None:

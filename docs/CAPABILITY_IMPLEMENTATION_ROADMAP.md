@@ -34,8 +34,8 @@ This roadmap does not authorize implementation or side effects.
 | Tiered template rendering | Ready; explicit apply | Preview is the default; use `--apply` only after reviewing the complete plan. |
 | Read-only Local Verify | Implemented | Keep manual and exact-SHA unless owner selects a different CI policy. |
 | JSON evidence core | Ready | Core schema validation is in the default gate; optional bundles stay standalone. |
-| Release evidence generators | Repaired; refresh not run | Decide eval-report inclusion, then separately approve exact-basis regeneration. |
-| Tracked release bundle | Historical invalid | Do not cite as release-ready before approved regeneration and checksum verification. |
+| Release evidence generators | Hardened; local refresh completed | Re-run only after a new source basis and exact artifact-write approval are established. |
+| Tracked release bundle | `CURRENT / LOCAL_ONLY` | Keep the recorded source basis distinct from the artifact-containing commit; tag, signing, upload, publication, and remote release remain separate decisions. |
 | Approved corpus and local retrieval | Advisory, frozen | Change source membership or retrieval behavior only through separate review. |
 | Downstream contract validator | Implemented | Use only with target-specific authority and side-effect declarations. |
 | Agent Quality/provider | Frozen, not adopted | Reopen only after a separate value decision; role calibration v7 is not run. |

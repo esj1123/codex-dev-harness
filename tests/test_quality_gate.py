@@ -289,6 +289,11 @@ def test_readme_describes_installed_manual_local_verify_workflow() -> None:
 
 def test_operational_docs_match_current_core_and_release_state() -> None:
     status = Path("STATUS.md").read_text(encoding="utf-8")
+    readme = Path("README.md").read_text(encoding="utf-8")
+    handoff = Path("docs/AI_HANDOFF.md").read_text(encoding="utf-8")
+    roadmap = Path("docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md").read_text(
+        encoding="utf-8"
+    )
     usage = Path("docs/LOCAL_USAGE.md").read_text(encoding="utf-8")
     checklist = Path("docs/LOCAL_PACKAGE_CHECKLIST.md").read_text(encoding="utf-8")
     runtime = Path("docs/PYTHON_RUNTIME_POLICY.md").read_text(encoding="utf-8")
@@ -324,8 +329,17 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     assert "Tag, release, signing, upload, or publication." in normalized_held
     assert "Automatic digest writes or release automation." in normalized_held
     assert normalized_next_step == expected_next_step
-    assert "`CURRENT / LOCAL_ONLY`" in normalized_status
-    assert "`HISTORICAL_INVALID / REFRESH_NOT_RUN`" not in normalized_status
+    release_state_docs = {
+        "STATUS.md": status,
+        "README.md": readme,
+        "docs/AI_HANDOFF.md": handoff,
+        "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md": roadmap,
+        "docs/LOCAL_PACKAGE_CHECKLIST.md": checklist,
+    }
+    for path, text in release_state_docs.items():
+        normalized_text = " ".join(text.split())
+        assert "`CURRENT / LOCAL_ONLY`" in normalized_text, path
+        assert "`HISTORICAL_INVALID / REFRESH_NOT_RUN`" not in normalized_text, path
     assert "decide whether it should include an eval report" not in normalized_next_step
     assert "Review the verified verification-lane branch tip" not in normalized_status
     assert "decide whether to promote it to local `main`" not in normalized_status
@@ -345,12 +359,28 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     assert "python -m pip check" in usage
 
     assert "local release generators" in checklist
-    assert "`HISTORICAL_INVALID / REFRESH_NOT_RUN`" in checklist
     assert (
         "separate artifact-regeneration and package-inclusion approval"
         in normalized_checklist
     )
-    assert "This checklist does not run them" in checklist
+    assert "This checklist does not itself run them" in checklist
+    release_boundary_clauses = {
+        "README.md": "no tag, signing, upload, publication, or remote release was performed.",
+        "docs/AI_HANDOFF.md": (
+            "does not authorize another regeneration, tag, signing, upload, "
+            "publication, or remote release."
+        ),
+        "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md": (
+            "tag, signing, upload, publication, and remote release remain separate decisions."
+        ),
+        "docs/LOCAL_PACKAGE_CHECKLIST.md": (
+            "does not authorize regeneration, packaging, tag, signing, upload, "
+            "publication, or remote release."
+        ),
+    }
+    for path, clause in release_boundary_clauses.items():
+        normalized_text = " ".join(release_state_docs[path].split()).lower()
+        assert clause in normalized_text, path
 
     assert "focused development and narrow test commands" in runtime
     assert "exact V2 verification run" in runtime

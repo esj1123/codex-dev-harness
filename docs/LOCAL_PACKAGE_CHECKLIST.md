@@ -9,8 +9,9 @@ This checklist is documentation-only. It does not build a package or write a rel
 Machine-readable release bundle and manifest policy is documented in
 `docs/RELEASE_BUNDLE_POLICY.md` and `docs/RELEASE_MANIFEST_POLICY.md`. Those
 policies are implemented by the local release generators. The currently
-tracked release bundle is `HISTORICAL_INVALID / REFRESH_NOT_RUN`; generator
-availability does not make that historical bundle release-ready.
+tracked release bundle is `CURRENT / LOCAL_ONLY` for its recorded source basis.
+That state does not authorize regeneration, packaging, tag, signing, upload,
+publication, or remote release.
 
 ## Included Files
 
@@ -26,7 +27,7 @@ Include:
 - `.python-version`, `requirements-dev.txt`, and `requirements-dev.lock`.
 - `template.config.example.yml`.
 
-Fresh machine-readable release evidence may be included only after a separate
+Future machine-readable release evidence may be included only after a separate
 artifact-regeneration and package-inclusion approval. It must follow
 `docs/RELEASE_BUNDLE_POLICY.md` and bind the promoted exact source basis.
 
@@ -79,6 +80,7 @@ The local package should preserve the local-first baseline. It should not become
 
 Release generators for `release-manifest.json`, `checksums.sha256`,
 `sbom.spdx.json`, `sbom.cdx.json`, and `provenance.intoto.jsonl` are
-implemented. This checklist does not run them, refresh tracked artifacts, or
-approve inclusion of an optional eval report. The tracked bundle remains
-historical until a separately approved regeneration is completed.
+implemented. This checklist does not itself run them, refresh tracked
+artifacts, or approve future changes to eval-report inclusion. The current
+tracked bundle was separately generated with an eval report and is recorded as
+`CURRENT / LOCAL_ONLY` for its source basis.

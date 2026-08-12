@@ -46,8 +46,10 @@ and role calibration v7 are `NOT RUN`; neither is implied by
 - Structural PASS does not grant execution or side-effect permission.
 - A frozen contract change stops with `CONTRACT_CHANGE_REQUIRED`.
 - Agent-quality baseline creation remains separately approval-gated.
-- Existing tracked release evidence is `HISTORICAL_INVALID / REFRESH_NOT_RUN`;
-  repaired generator code is not evidence that the bundle was regenerated.
+- Existing tracked release evidence is `CURRENT / LOCAL_ONLY` for its recorded
+  source basis. This state records a completed local refresh only; it does not
+  authorize another regeneration, tag, signing, upload, publication, or remote
+  release.
 - Push, workflow dispatch, release, upload, downstream access, MCP/Hermes
   execution, and live/private data use require separate authority.
 - Tracked authority does not store workflow run IDs.

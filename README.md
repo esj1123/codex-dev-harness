@@ -120,8 +120,10 @@ workflow. It first calls the standing local verification wrapper and then
 generates approved release evidence under `artifacts/`. Run it only when the
 task explicitly authorizes those artifact writes. It does not publish a
 release, move tags, sign artifacts, create archives, or install workflows.
-The generator code is repaired, but the currently tracked release bundle is
-historical invalid evidence and has not been refreshed.
+The tracked release bundle is `CURRENT / LOCAL_ONLY` for its recorded source
+basis. It includes the eval report and was generated only after an explicit
+artifact-write approval; no tag, signing, upload, publication, or remote
+release was performed.
 
 Python runtime and dependency reproducibility are documented in
 `docs/PYTHON_RUNTIME_POLICY.md`. The local verification runtime is pinned in

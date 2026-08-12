@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -45,6 +46,9 @@ CHECKSUM_INPUT_PATHS = (
     "artifacts/sbom.cdx.json",
     "artifacts/sbom.spdx.json",
 )
+MANIFEST_PATH = "artifacts/release-manifest.json"
+MANIFEST_DIGEST_MISMATCH = "MANIFEST_DIGEST_MISMATCH"
+REPOSITORY_METADATA_MISMATCH = "REPOSITORY_METADATA_MISMATCH"
 READ_ONLY_INPUT_PATHS = POLICY_PATHS + RELEASE_ARTIFACT_PATHS + ("artifacts/eval-report.json",)
 SHA_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 SAFE_REF_PATTERN = re.compile(r"^[A-Za-z0-9._/-]{1,128}$")
@@ -220,6 +224,28 @@ def read_json_object(repo_root: Path, relative_path: str) -> dict[str, Any]:
     return value
 
 
+def read_manifest_snapshot(repo_root: Path) -> tuple[dict[str, Any], str]:
+    path = repo_input_path(repo_root, MANIFEST_PATH)
+    try:
+        data = generate_checksums.read_regular_file(repo_root, path, "release manifest")
+    except FileNotFoundError:
+        raise
+    except ValueError as exc:
+        raise EvidenceValidationError("MALFORMED_RELEASE_EVIDENCE") from exc
+    if len(data) > MAX_INPUT_BYTES:
+        raise EvidenceValidationError("INPUT_SIZE_LIMIT_EXCEEDED")
+    try:
+        canonical = generate_checksums.canonical_text_bytes(data)
+        value = json.loads(canonical.decode("utf-8"))
+    except UnicodeDecodeError as exc:
+        raise EvidenceValidationError("INVALID_UTF8_INPUT") from exc
+    except json.JSONDecodeError as exc:
+        raise EvidenceValidationError("MALFORMED_RELEASE_EVIDENCE") from exc
+    if not isinstance(value, dict):
+        raise EvidenceValidationError("MALFORMED_RELEASE_EVIDENCE")
+    return value, hashlib.sha256(canonical).hexdigest()
+
+
 def read_provenance(repo_root: Path) -> dict[str, Any]:
     lines = [line for line in read_text_input(repo_root, "artifacts/provenance.intoto.jsonl").splitlines() if line]
     if len(lines) != 1:
@@ -259,6 +285,50 @@ def find_spdx_package(spdx: dict[str, Any], repository: str) -> dict[str, Any] |
     return None
 
 
+def concrete_metadata(value: Any) -> str | None:
+    if not isinstance(value, str):
+        return None
+    candidate = value.strip()
+    if not candidate or candidate.upper() == "UNKNOWN":
+        return None
+    return candidate
+
+
+def component_property_values(component: Any, name: str) -> list[Any]:
+    if not isinstance(component, dict):
+        return []
+    properties = component.get("properties")
+    if not isinstance(properties, list):
+        return []
+    return [
+        item.get("value")
+        for item in properties
+        if isinstance(item, dict) and item.get("name") == name
+    ]
+
+
+def provenance_manifest_binding(
+    entries: Any,
+    *,
+    digest: str,
+    path_key: str,
+    nested_digest: bool,
+) -> bool:
+    if not isinstance(entries, list):
+        return False
+    manifest_entries = [
+        entry
+        for entry in entries
+        if isinstance(entry, dict) and entry.get(path_key) == MANIFEST_PATH
+    ]
+    if len(manifest_entries) != 1:
+        return False
+    observed = manifest_entries[0].get("digest") if nested_digest else manifest_entries[0].get("sha256")
+    if nested_digest:
+        observed = observed.get("sha256") if isinstance(observed, dict) else None
+    return observed == digest
+
+
 def validate_evidence(repo_root: Path, result: dict[str, Any]) -> tuple[list[str], list[str], list[str]]:
     fail_reasons: list[str] = []
     blocked_reasons: list[str] = []
@@ -275,23 +345,30 @@ def validate_evidence(repo_root: Path, result: dict[str, Any]) -> tuple[list[str
         return fail_reasons, blocked_reasons, note_reasons
 
     try:
-        manifest = read_json_object(repo_root, "artifacts/release-manifest.json")
+        manifest, manifest_digest = read_manifest_snapshot(repo_root)
         spdx = read_json_object(repo_root, "artifacts/sbom.spdx.json")
         cyclonedx = read_json_object(repo_root, "artifacts/sbom.cdx.json")
         provenance = read_provenance(repo_root)
+    except FileNotFoundError:
+        blocked_reasons.append("MISSING_RELEASE_EVIDENCE")
+        return fail_reasons, blocked_reasons, note_reasons
     except EvidenceValidationError as exc:
         fail_reasons.append(exc.reason_code)
         return fail_reasons, blocked_reasons, note_reasons
 
     source_basis = safe_sha(manifest.get("git_commit"))
-    repository = manifest.get("repository")
+    repository = concrete_metadata(manifest.get("repository"))
+    git_ref = concrete_metadata(manifest.get("git_ref"))
     manifest_files = manifest.get("files")
     included_roots = manifest.get("included_roots")
-    if source_basis is None or not isinstance(repository, str):
+    if source_basis is None:
         fail_reasons.append("MALFORMED_RELEASE_EVIDENCE")
         return fail_reasons, blocked_reasons, note_reasons
 
     result["evidence_state"]["source_basis_commit"] = source_basis
+    if repository is None or git_ref is None:
+        fail_reasons.append(REPOSITORY_METADATA_MISMATCH)
+        return fail_reasons, blocked_reasons, note_reasons
     file_paths = {
         entry.get("path")
         for entry in manifest_files
@@ -303,12 +380,82 @@ def validate_evidence(repo_root: Path, result: dict[str, Any]) -> tuple[list[str
 
     spdx_package = find_spdx_package(spdx, repository)
     cdx_component = cyclonedx.get("metadata", {}).get("component") if isinstance(cyclonedx.get("metadata"), dict) else None
-    provenance_repo = provenance.get("predicate", {}).get("repo") if isinstance(provenance.get("predicate"), dict) else None
+    provenance_predicate = provenance.get("predicate")
+    provenance_repo = provenance_predicate.get("repo") if isinstance(provenance_predicate, dict) else None
     provenance_basis = safe_sha(provenance_repo.get("git_commit")) if isinstance(provenance_repo, dict) else None
     spdx_basis = safe_sha(spdx_package.get("versionInfo")) if isinstance(spdx_package, dict) else None
     cdx_basis = safe_sha(cdx_component.get("version")) if isinstance(cdx_component, dict) else None
     if {source_basis, provenance_basis, spdx_basis, cdx_basis} != {source_basis}:
         fail_reasons.append("SOURCE_BASIS_MISMATCH")
+
+    repository_metadata_matches = bool(
+        isinstance(spdx_package, dict)
+        and isinstance(cdx_component, dict)
+        and cdx_component.get("name") == repository
+        and component_property_values(cdx_component, "git_ref") == [git_ref]
+        and isinstance(provenance_repo, dict)
+        and provenance_repo.get("repository") == repository
+        and provenance_repo.get("git_ref") == git_ref
+    )
+    if not repository_metadata_matches:
+        fail_reasons.append(REPOSITORY_METADATA_MISMATCH)
+
+    expected_spdx_namespace = (
+        f"https://example.invalid/codex-dev-harness/spdx/{manifest_digest}"
+    )
+    annotations = spdx.get("annotations")
+    expected_annotation = f"manifest={MANIFEST_PATH} sha256={manifest_digest}"
+    spdx_binding_matches = bool(
+        spdx.get("documentNamespace") == expected_spdx_namespace
+        and isinstance(annotations, list)
+        and len(annotations) == 1
+        and isinstance(annotations[0], dict)
+        and annotations[0].get("comment") == expected_annotation
+    )
+    input_manifest = (
+        provenance_predicate.get("input_manifest")
+        if isinstance(provenance_predicate, dict)
+        else None
+    )
+    input_manifest_digest = (
+        input_manifest.get("digest")
+        if isinstance(input_manifest, dict)
+        else None
+    )
+    provenance_input_matches = bool(
+        isinstance(input_manifest, dict)
+        and input_manifest.get("path") == MANIFEST_PATH
+        and isinstance(input_manifest_digest, dict)
+        and input_manifest_digest.get("sha256") == manifest_digest
+    )
+    manifest_digest_matches = all(
+        (
+            spdx_binding_matches,
+            component_property_values(cdx_component, "manifest_path") == [MANIFEST_PATH],
+            component_property_values(cdx_component, "manifest_sha256") == [manifest_digest],
+            provenance_input_matches,
+            provenance_manifest_binding(
+                provenance.get("subject"),
+                digest=manifest_digest,
+                path_key="name",
+                nested_digest=True,
+            ),
+            provenance_manifest_binding(
+                provenance_predicate.get("products") if isinstance(provenance_predicate, dict) else None,
+                digest=manifest_digest,
+                path_key="name",
+                nested_digest=True,
+            ),
+            provenance_manifest_binding(
+                provenance_predicate.get("checksum_entries") if isinstance(provenance_predicate, dict) else None,
+                digest=manifest_digest,
+                path_key="path",
+                nested_digest=False,
+            ),
+        )
+    )
+    if not manifest_digest_matches:
+        fail_reasons.append(MANIFEST_DIGEST_MISMATCH)
 
     spdx_mit = bool(
         isinstance(spdx_package, dict)
