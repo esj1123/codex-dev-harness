@@ -580,8 +580,12 @@ def inspect_preflight(repo_root: Path) -> dict[str, Any]:
         if upstream_ref is None or upstream_commit is None:
             blocked_reasons.append("UPSTREAM_MISSING")
         else:
-            upstream_branch = upstream_ref.rsplit("/", 1)[-1]
-            if upstream_branch != branch or upstream_commit != head_commit:
+            upstream_parts = upstream_ref.split("/", 1)
+            if (
+                len(upstream_parts) != 2
+                or upstream_parts[1] != branch
+                or upstream_commit != head_commit
+            ):
                 blocked_reasons.append("HEAD_UPSTREAM_MISMATCH")
 
         fail_reasons, evidence_blocked, note_reasons = validate_evidence(repo_root, result)

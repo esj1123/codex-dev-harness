@@ -344,6 +344,23 @@ def test_clean_evidence_passes_and_keeps_states_separate(tmp_path: Path) -> None
         assert result["external_state"][key]["status"] == "NOT RUN"
 
 
+def test_matching_slash_named_branch_and_upstream_pass(tmp_path: Path) -> None:
+    branch = "codex/release-lineage"
+    repo = make_repo(tmp_path, git_ref=branch)
+    run_git(repo.root, "branch", "-m", branch)
+    run_git(repo.root, "update-ref", f"refs/remotes/origin/{branch}", repo.artifact_commit)
+    run_git(repo.root, "branch", "--unset-upstream")
+    run_git(repo.root, "branch", f"--set-upstream-to=origin/{branch}", branch)
+
+    result = preflight.inspect_preflight(repo.root)
+
+    assert result["status"] == "PASS"
+    assert result["reason_codes"] == []
+    assert result["repository_state"]["branch"] == branch
+    assert result["repository_state"]["upstream_ref"] == f"origin/{branch}"
+    assert_readiness(result, refresh="READY", release="READY")
+
+
 @pytest.mark.parametrize(
     "binding",
     [
