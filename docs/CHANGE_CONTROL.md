@@ -96,6 +96,12 @@ successful result therefore includes `authorization_status` set to
 `NOT_AUTHENTICATED`; it is a structural plan result, not permission to execute
 commands or side effects.
 
+Every package declares `repository_access`. A non-empty verification command
+set also declares `execute`; tracked or generated writes declare `local_write`;
+and a contract or feature lane with a write set declares both `stage` and
+`commit`. The checker rejects an incomplete side-effect declaration instead of
+inferring permission from the lane or write set.
+
 Packages may run in parallel only when they share one base SHA, have disjoint
 write sets, and do not write another package's read set. A declared dependency
 requires serialization. Duplicate task IDs, dependency cycles, missing
@@ -120,7 +126,7 @@ checker for that task. Postflight observes Git without writing and verifies:
 - the package base is an ancestor of the current HEAD;
 - feature and contract lanes contain exactly one commit;
 - actual changed paths stay within `write_set`;
-- actual untracked paths stay within `generated_outputs`;
+- actual non-ignored untracked paths stay within `generated_outputs`;
 - tracked worktree state is clean;
 - rename and delete operations are absent;
 - `git diff --check` passes; and
@@ -176,6 +182,7 @@ Contract and feature lanes must not write integration-only surfaces:
 - `evals/agentic/`
 - `evals/golden/`
 - `docs/APPROVED_CORPUS_SOURCE_SET.v2.json`
+- `docs/VERIFICATION_IMPACT_MAP.json`
 
 The integration lane alone may merge feature work, update current authority,
 refresh approved artifacts after separate approval, run full verification,

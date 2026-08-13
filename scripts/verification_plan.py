@@ -48,6 +48,17 @@ RULE_KEYS = {
     "render_check_required",
     "integration_owner_required",
 }
+IMPACT_MAP_BOOTSTRAP_RULE = {
+    "rule_id": "verification_impact_map_bootstrap",
+    "match_kind": "exact",
+    "patterns": [MAP_PATH],
+    "minimum_tier": "V2",
+    "command_ids": [],
+    "digest_check_required": False,
+    "checksum_check_required": False,
+    "render_check_required": False,
+    "integration_owner_required": True,
+}
 
 
 class GitObservationError(RuntimeError):
@@ -181,6 +192,68 @@ def read_json_object(path: Path, *, max_bytes: int, error_code: str) -> dict[str
     return value
 
 
+def read_git_json_object(
+    repo_root: Path,
+    commit_sha: str,
+    relative_path: str,
+    *,
+    max_bytes: int,
+    error_code: str,
+) -> dict[str, Any]:
+    if SHA_PATTERN.fullmatch(commit_sha) is None or not safe_repo_path(relative_path):
+        raise MapValidationError(error_code)
+    listing = run_git(
+        repo_root,
+        "ls-tree",
+        "-z",
+        commit_sha,
+        "--",
+        relative_path,
+    ).stdout
+    entries = [entry for entry in listing.split("\x00") if entry]
+    if len(entries) != 1 or "\t" not in entries[0]:
+        raise MapValidationError(error_code)
+    metadata, observed_path = entries[0].split("\t", 1)
+    parts = metadata.split()
+    if (
+        observed_path != relative_path
+        or len(parts) != 3
+        or parts[0] not in {"100644", "100755"}
+        or parts[1] != "blob"
+        or SHA_PATTERN.fullmatch(parts[2]) is None
+    ):
+        raise MapValidationError(error_code)
+    size_text = run_git(repo_root, "cat-file", "-s", parts[2]).stdout.strip()
+    if not size_text.isdecimal():
+        raise MapValidationError(error_code)
+    blob_size = int(size_text)
+    if blob_size > max_bytes:
+        raise MapValidationError(f"{error_code}_TOO_LARGE")
+    try:
+        completed = subprocess.run(
+            ["git", "cat-file", "blob", parts[2]],
+            cwd=repo_root,
+            check=False,
+            capture_output=True,
+            shell=False,
+            timeout=GIT_TIMEOUT_SECONDS,
+        )
+    except (FileNotFoundError, OSError, subprocess.TimeoutExpired) as exc:
+        raise GitObservationError("GIT_UNAVAILABLE") from exc
+    raw = completed.stdout
+    if completed.returncode != 0:
+        raise MapValidationError(error_code)
+    if len(raw) != blob_size:
+        raise MapValidationError(error_code)
+    try:
+        value = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise MapValidationError(error_code) from exc
+    if not isinstance(value, dict):
+        raise MapValidationError(error_code)
+    return value
+
+
 def validate_map(payload: dict[str, Any]) -> dict[str, Any]:
     if set(payload) != {
         "schema_version",
@@ -295,21 +368,27 @@ def validate_map(payload: dict[str, Any]) -> dict[str, Any]:
     return payload
 
 
-def load_impact_map(repo_root: Path) -> dict[str, Any]:
+def load_impact_map(repo_root: Path, head_sha: str) -> dict[str, Any]:
     return validate_map(
-        read_json_object(
-            repo_root / MAP_PATH,
+        read_git_json_object(
+            repo_root,
+            head_sha,
+            MAP_PATH,
             max_bytes=MAX_MAP_BYTES,
             error_code="IMPACT_MAP_INVALID",
         )
     )
 
 
-def corpus_source_paths(repo_root: Path, relative_path: str) -> set[str]:
+def corpus_source_paths(
+    repo_root: Path, head_sha: str, relative_path: str
+) -> set[str]:
     if relative_path != CORPUS_SOURCE_SET_PATH:
         raise MapValidationError("CORPUS_SOURCE_RULE_INVALID")
-    payload = read_json_object(
-        repo_root / relative_path,
+    payload = read_git_json_object(
+        repo_root,
+        head_sha,
+        relative_path,
         max_bytes=MAX_MAP_BYTES,
         error_code="CORPUS_SOURCE_SET_INVALID",
     )
@@ -339,6 +418,7 @@ def matching_paths(
     rule: dict[str, Any],
     *,
     repo_root: Path,
+    head_sha: str,
 ) -> set[str]:
     kind = rule["match_kind"]
     patterns = rule["patterns"]
@@ -350,11 +430,16 @@ def matching_paths(
             for path in changed_paths
             if any(path.startswith(prefix) for prefix in patterns)
         }
-    approved_sources = corpus_source_paths(repo_root, patterns[0])
+    approved_sources = corpus_source_paths(repo_root, head_sha, patterns[0])
     return set(changed_paths).intersection(approved_sources)
 
 
-def build_plan(repo_root: Path, changed_paths: list[str], impact_map: dict[str, Any]) -> dict[str, Any]:
+def build_plan(
+    repo_root: Path,
+    head_sha: str,
+    changed_paths: list[str],
+    impact_map: dict[str, Any],
+) -> dict[str, Any]:
     result = base_result()
     result["status"] = "PASS"
     result["changed_paths"] = changed_paths
@@ -365,8 +450,10 @@ def build_plan(repo_root: Path, changed_paths: list[str], impact_map: dict[str, 
 
     rule_matches: list[tuple[dict[str, Any], set[str]]] = []
     best_specificity: dict[str, int] = {}
-    for rule in impact_map["rules"]:
-        matches = matching_paths(changed_paths, rule, repo_root=repo_root)
+    for rule in [IMPACT_MAP_BOOTSTRAP_RULE, *impact_map["rules"]]:
+        matches = matching_paths(
+            changed_paths, rule, repo_root=repo_root, head_sha=head_sha
+        )
         if not matches:
             continue
         rule_matches.append((rule, matches))
@@ -458,8 +545,8 @@ def inspect_plan(
             result["status"] = "BLOCKED"
             result["reason_codes"] = [ancestry_issue]
             return result
-        impact_map = load_impact_map(root)
-        return build_plan(root, changed_paths, impact_map)
+        impact_map = load_impact_map(root, resolved_head)
+        return build_plan(root, resolved_head, changed_paths, impact_map)
     except GitObservationError as exc:
         result["status"] = "ENVIRONMENT BLOCKED"
         result["reason_codes"] = [str(exc)]

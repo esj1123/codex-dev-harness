@@ -34,7 +34,7 @@ def expected_rendered_files(repo_root: Path, example_name: str) -> list[Path]:
     profile_dir = repo_root / "profiles" / config.profile if config.profile else None
     return [
         template_destination(source, source_root, example_dir)
-        for source, source_root in iter_templates(base_dir, profile_dir)
+        for source, source_root in iter_templates(base_dir, profile_dir, config.tier)
     ]
 
 

@@ -112,6 +112,7 @@
     "docs/APPROVED_CORPUS_SOURCE_SET.v2.json",
     "docs/AUTHORITY_MANIFEST.json",
     "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md",
+    "docs/VERIFICATION_IMPACT_MAP.json",
     "scripts/agent_quality.py",
     "scripts/quality_gate.py"
   ],

@@ -85,6 +85,7 @@ INTEGRATION_ONLY_EXACT = {
     "docs/AUTHORITY_MANIFEST.json",
     "docs/AI_HANDOFF.md",
     "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md",
+    "docs/VERIFICATION_IMPACT_MAP.json",
     "scripts/agent_quality.py",
     "scripts/quality_gate.py",
     "docs/APPROVED_CORPUS_SOURCE_SET.v2.json",
@@ -306,6 +307,19 @@ def package_issues(payload: Any) -> list[str]:
         issues.append("CONTRACT_CHANGE_REQUIRED")
     if any(item not in SIDE_EFFECT_CLASSES for item in payload["declared_side_effects"]):
         issues.append("SIDE_EFFECT_CLASS_INVALID")
+
+    declared_side_effects = set(payload["declared_side_effects"])
+    if "repository_access" not in declared_side_effects:
+        issues.append("REPOSITORY_ACCESS_SIDE_EFFECT_REQUIRED")
+    if payload["verification_contract"]["commands"] and "execute" not in declared_side_effects:
+        issues.append("EXECUTE_SIDE_EFFECT_REQUIRED")
+    if (payload["write_set"] or payload["generated_outputs"]) and "local_write" not in declared_side_effects:
+        issues.append("LOCAL_WRITE_SIDE_EFFECT_REQUIRED")
+    if payload["lane"] in {"contract", "feature"} and payload["write_set"]:
+        if "stage" not in declared_side_effects:
+            issues.append("STAGE_SIDE_EFFECT_REQUIRED")
+        if "commit" not in declared_side_effects:
+            issues.append("COMMIT_SIDE_EFFECT_REQUIRED")
 
     lane = payload["lane"]
     tier = payload["verification_tier"]

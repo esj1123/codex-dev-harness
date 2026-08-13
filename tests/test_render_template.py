@@ -13,10 +13,13 @@ from scripts import render_template as renderer
 from scripts.render_template import (
     CANONICAL_READ_ORDER,
     MAX_DIFF_PREVIEW_PATHS,
+    TemplateConfig,
     VALID_RENDER_TIERS,
     build_render_diff_preview,
     load_config,
     main,
+    parse_scalar_config,
+    render_text,
     render_templates,
 )
 
@@ -160,6 +163,52 @@ def test_load_config_rejects_non_seed_status(tmp_path: Path) -> None:
 
     with pytest.raises(ValueError, match="status: seed"):
         load_config(config)
+
+
+def test_scalar_config_preserves_hash_inside_quoted_value(tmp_path: Path) -> None:
+    config = tmp_path / "template.config.yml"
+    config.write_text('metadata:\n  description: "Minimal C# tool" # note\n', encoding="utf-8")
+
+    assert parse_scalar_config(config)["metadata.description"] == "Minimal C# tool"
+
+
+def test_load_config_rejects_duplicate_and_unsupported_keys(tmp_path: Path) -> None:
+    duplicate = tmp_path / "duplicate.yml"
+    duplicate.write_text(
+        "project:\n  name: demo\n  name: other\n  status: seed\n",
+        encoding="utf-8",
+    )
+    unsupported = tmp_path / "unsupported.yml"
+    unsupported.write_text(
+        "project:\n  name: demo\n  status: seed\npaths:\n  target: output\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="duplicate key: project.name"):
+        load_config(duplicate)
+    with pytest.raises(ValueError, match="unsupported key.*paths.target"):
+        load_config(unsupported)
+
+
+def test_load_config_rejects_template_marker_project_name(tmp_path: Path) -> None:
+    config = tmp_path / "template.config.yml"
+    config.write_text(
+        'project:\n  name: "{{ profile.name }}"\n  status: seed\n',
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="without template markers"):
+        load_config(config)
+
+
+def test_render_text_does_not_reinterpret_replacement_values() -> None:
+    config = TemplateConfig(
+        project_name="{{ profile.name }}",
+        project_status="seed",
+        profile="python_cli",
+    )
+
+    assert render_text("project={{ project.name }}", config) == "project={{ profile.name }}"
 
 
 @pytest.mark.parametrize(
@@ -1800,7 +1849,7 @@ def test_profile_render_captures_each_source_once_and_preserves_content(
     "example_name",
     ["python_cli_minimal", "csharp_desktop_minimal", "plc_tool_minimal"],
 )
-def test_existing_example_config_defaults_to_full(tmp_path: Path, example_name: str) -> None:
+def test_existing_example_config_selects_full_tier(tmp_path: Path, example_name: str) -> None:
     repo_root = Path(__file__).resolve().parents[1]
     config = repo_root / "examples" / example_name / "template.config.yml"
 

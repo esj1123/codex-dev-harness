@@ -27,6 +27,21 @@ MAX_DIFF_PREVIEW_PATHS = 50
 VALID_RENDER_TIERS = ("minimal", "standard", "full")
 REPARSE_POINT_FLAG = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)
 PROFILE_NAME_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
+MAX_PROJECT_NAME_BYTES = 128
+CONFIG_OPERATIVE_KEYS = frozenset(
+    {"project.name", "project.status", "profile.name", "render.tier"}
+)
+TEMPLATE_MARKER_PATTERN = re.compile(
+    "|".join(
+        re.escape(marker)
+        for marker in (
+            "{{ project.name }}",
+            "{{ project.status }}",
+            "{{ profile.name }}",
+            "{{ render.read_order }}",
+        )
+    )
+)
 
 BASE_OUTPUTS_BY_TIER = {
     "minimal": (
@@ -119,38 +134,108 @@ class RenderPlanItem:
     rendered_text: str
 
 
+def _strip_yaml_comment(raw_line: str) -> str:
+    quote: str | None = None
+    escaped = False
+    for index, character in enumerate(raw_line):
+        if escaped:
+            escaped = False
+            continue
+        if quote == '"' and character == "\\":
+            escaped = True
+            continue
+        if character in ("'", '"'):
+            if quote is None:
+                quote = character
+            elif quote == character:
+                quote = None
+            continue
+        if character == "#" and quote is None:
+            return raw_line[:index]
+    if quote is not None:
+        raise ValueError("template config contains an unterminated quoted scalar")
+    return raw_line
+
+
+def _parse_scalar_value(raw_value: str) -> str:
+    value = raw_value.strip()
+    if not value:
+        return ""
+    if value[0] == '"':
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError as exc:
+            raise ValueError("template config contains an invalid quoted scalar") from exc
+        if not isinstance(parsed, str):
+            raise ValueError("template config scalar must be text")
+        return parsed
+    if value[0] == "'":
+        if len(value) < 2 or value[-1] != "'":
+            raise ValueError("template config contains an invalid quoted scalar")
+        return value[1:-1].replace("''", "'")
+    if any(character in value for character in ('"', "'")):
+        raise ValueError("template config contains an invalid quoted scalar")
+    return value
+
+
 def parse_scalar_config(path: Path) -> dict[str, str]:
-    """Parse a small, scalar-only YAML subset used by template.config.yml."""
+    """Parse the strict scalar-only subset used by template.config.yml."""
     values: dict[str, str] = {}
+    seen_keys: set[str] = set()
     stack: list[tuple[int, str]] = []
 
-    for raw_line in path.read_text(encoding="utf-8").splitlines():
-        line = raw_line.split("#", 1)[0].rstrip()
+    for line_number, raw_line in enumerate(
+        path.read_text(encoding="utf-8").splitlines(), start=1
+    ):
+        if "\t" in raw_line:
+            raise ValueError(f"template config line {line_number} contains a tab")
+        line = _strip_yaml_comment(raw_line).rstrip()
         if not line.strip():
             continue
 
         indent = len(line) - len(line.lstrip(" "))
+        if indent % 2:
+            raise ValueError(
+                f"template config line {line_number} has invalid indentation"
+            )
         stripped = line.strip()
         if ":" not in stripped or stripped.startswith("-"):
-            continue
+            raise ValueError(f"template config line {line_number} is malformed")
 
         key, raw_value = stripped.split(":", 1)
         key = key.strip()
-        value = raw_value.strip().strip('"').strip("'")
+        if re.fullmatch(r"[a-z][a-z0-9_]*", key) is None:
+            raise ValueError(f"template config line {line_number} has an invalid key")
+        value = _parse_scalar_value(raw_value)
 
         while stack and stack[-1][0] >= indent:
             stack.pop()
 
+        if indent and (not stack or stack[-1][0] != indent - 2):
+            raise ValueError(
+                f"template config line {line_number} has no mapping parent"
+            )
+
         dotted = ".".join([part for _, part in stack] + [key])
-        values[dotted] = value
-        if not value:
+        if dotted in seen_keys:
+            raise ValueError(f"template config contains duplicate key: {dotted}")
+        seen_keys.add(dotted)
+        if not value and dotted not in CONFIG_OPERATIVE_KEYS:
             stack.append((indent, key))
+        else:
+            values[dotted] = value
 
     return values
 
 
 def load_config(path: Path) -> TemplateConfig:
     values = parse_scalar_config(path)
+    unknown_keys = sorted(set(values) - CONFIG_OPERATIVE_KEYS)
+    if unknown_keys:
+        raise ValueError(
+            "template config contains unsupported key(s): "
+            + ", ".join(unknown_keys)
+        )
     project_name = values.get("project.name", "").strip()
     project_status = values.get("project.status", "").strip()
     profile = values.get("profile.name", "").strip() or None
@@ -158,6 +243,14 @@ def load_config(path: Path) -> TemplateConfig:
 
     if not project_name:
         raise ValueError("template config requires project.name")
+    if (
+        len(project_name.encode("utf-8")) > MAX_PROJECT_NAME_BYTES
+        or TEMPLATE_MARKER_PATTERN.search(project_name) is not None
+        or any(ord(character) < 32 for character in project_name)
+    ):
+        raise ValueError(
+            "project name must be bounded text without template markers"
+        )
     if project_status != "seed":
         raise ValueError("template config requires project.status: seed")
     validate_profile_name(profile)
@@ -213,9 +306,9 @@ def render_text(text: str, config: TemplateConfig) -> str:
         "{{ profile.name }}": config.profile or "",
         "{{ render.read_order }}": render_read_order(config),
     }
-    for marker, value in replacements.items():
-        text = text.replace(marker, value)
-    return text
+    return TEMPLATE_MARKER_PATTERN.sub(
+        lambda match: replacements[match.group(0)], text
+    )
 
 
 def _planned_templates(

@@ -7,9 +7,9 @@ from pathlib import Path
 import re
 
 try:
-    from render_template import parse_scalar_config
+    from render_template import load_config
 except ModuleNotFoundError:
-    from scripts.render_template import parse_scalar_config
+    from scripts.render_template import load_config
 
 
 REQUIRED_EXAMPLES = {
@@ -84,20 +84,23 @@ def validate_example_config(example_dir: Path, example_name: str, profile: str) 
     if not config_path.is_file():
         return [f"missing examples/{example_name}/template.config.yml"]
 
-    values = parse_scalar_config(config_path)
+    try:
+        config = load_config(config_path)
+    except ValueError as exc:
+        return [f"examples/{example_name}/template.config.yml invalid: {exc}"]
     expected_values = {
-        "project.name": example_name,
-        "project.status": "seed",
-        "profile.name": profile,
-        "paths.target": f"examples/{example_name}",
+        "project.name": (config.project_name, example_name),
+        "project.status": (config.project_status, "seed"),
+        "profile.name": (config.profile, profile),
+        "render.tier": (config.tier, "full"),
     }
-    if example_name == "plc_tool_minimal":
-        expected_values["safety.live_device_write"] = "prohibited"
 
-    for key, expected in expected_values.items():
-        actual = values.get(key, "")
+    for key, (actual, expected) in expected_values.items():
         if actual != expected:
-            findings.append(f"examples/{example_name}/template.config.yml expected {key}={expected}, got {actual or 'missing'}")
+            findings.append(
+                f"examples/{example_name}/template.config.yml expected "
+                f"{key}={expected}, got {actual or 'missing'}"
+            )
 
     return findings
 

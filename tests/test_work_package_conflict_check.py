@@ -409,6 +409,26 @@ def test_unsafe_or_inconsistent_package_fields_are_rejected(
 
 
 @pytest.mark.parametrize(
+    ("side_effect", "reason_code"),
+    [
+        ("repository_access", "REPOSITORY_ACCESS_SIDE_EFFECT_REQUIRED"),
+        ("execute", "EXECUTE_SIDE_EFFECT_REQUIRED"),
+        ("local_write", "LOCAL_WRITE_SIDE_EFFECT_REQUIRED"),
+        ("stage", "STAGE_SIDE_EFFECT_REQUIRED"),
+        ("commit", "COMMIT_SIDE_EFFECT_REQUIRED"),
+    ],
+)
+def test_required_side_effect_classes_fail_closed(
+    side_effect: str,
+    reason_code: str,
+) -> None:
+    payload = package("feature-a")
+    payload["declared_side_effects"].remove(side_effect)
+
+    assert reason_code in checker.package_issues(payload)
+
+
+@pytest.mark.parametrize(
     ("mutation", "reason_code"),
     [
         (

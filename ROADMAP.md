@@ -8,7 +8,7 @@ current active operating plan.
 Current readers should use:
 
 - `STATUS.md`
-- `docs/POST_V0.1.0_ROADMAP.md`
+- `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`
 
 ## Historical Phase Status
 
@@ -90,4 +90,4 @@ Goal: tag a reusable baseline and document known limitations.
 Done:
 - Formal `v0.1.0` local-first baseline was tagged and documented.
 - Current release and post-v0.1.0 state are tracked in `STATUS.md` and
-  `docs/POST_V0.1.0_ROADMAP.md`.
+  `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`.

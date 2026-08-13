@@ -11,7 +11,8 @@
     "local_write",
     "execute",
     "stage",
-    "commit"
+    "commit",
+    "repository_access"
   ],
   "depends_on": [],
   "generated_outputs": [],

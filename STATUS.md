@@ -152,9 +152,8 @@ not authenticate approval.
 
 The tracked release bundle is current for its recorded local source basis and
 remains `LOCAL_ONLY`; this does not create a tag, release, signing, upload, or
-publication. Preserve the separately recorded source-basis and
-artifact-containing commits, and re-check a clean exact Git snapshot before
-any local-main fast-forward or future remote operation. Keep Agent
-Quality/provider, role calibration v7, Hermes, MCP, publication, and other
-remote work frozen unless a separate value decision and approval explicitly
-reopens them.
+publication. No new capability is selected automatically. Keep the implemented
+surfaces frozen unless an owner selects a concrete downstream target contract
+or separately reopens a held capability through its value decision and
+approval boundary. Keep Agent Quality/provider, role calibration v7, Hermes,
+MCP, publication, and other remote work frozen until then.

@@ -6,7 +6,8 @@ Record known limitations for the current codex-dev-harness baseline after the fo
 
 ## Current Limitations
 
-- YAML parsing supports only the scalar subset used by the current template config files.
+- Template config v1 is intentionally limited to four operative scalar keys;
+  it is not a general YAML or metadata format.
 - Secret scanning is a lightweight heuristic and can produce false positives or false negatives.
 - Example projects are skeletons only and intentionally contain no real application code.
 - Example validation checks required files, config values, and required safety phrases; it does not execute real project builds.

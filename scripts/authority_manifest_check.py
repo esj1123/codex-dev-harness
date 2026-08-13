@@ -76,6 +76,7 @@ EXPECTED_INTEGRATION_ONLY_EXACT = {
     MANIFEST_PATH,
     "docs/AI_HANDOFF.md",
     "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md",
+    "docs/VERIFICATION_IMPACT_MAP.json",
     "scripts/agent_quality.py",
     "scripts/quality_gate.py",
     "docs/APPROVED_CORPUS_SOURCE_SET.v2.json",

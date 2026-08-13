@@ -67,6 +67,12 @@ Run:
 5. Run render with explicit `--apply` only after confirming the target folder is correct.
 6. Review generated docs before committing them to the target project.
 
+The renderer config v1 accepts exactly `project.name`, `project.status`,
+`profile.name`, and optional `render.tier`. The required CLI `--target` is the
+only render-target authority. Safety and verification policy belongs in the
+rendered project documents; config keys do not enable, disable, or authorize
+those behaviors.
+
 ## Render Target Guard
 
 The renderer refuses to render into the template repository itself.

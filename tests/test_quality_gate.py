@@ -183,7 +183,6 @@ def write_valid_example(root: Path, example_name: str, profile: str) -> None:
     example_dir = root / "examples" / example_name
     for relative in example_gate.COMMON_REQUIRED_FILES:
         if relative == "template.config.yml":
-            extra_safety = "  live_device_write: prohibited\n" if example_name == "plc_tool_minimal" else ""
             write(
                 example_dir / relative,
                 "project:\n"
@@ -191,10 +190,8 @@ def write_valid_example(root: Path, example_name: str, profile: str) -> None:
                 "  status: seed\n"
                 "profile:\n"
                 f"  name: {profile}\n"
-                "paths:\n"
-                f"  target: examples/{example_name}\n"
-                "safety:\n"
-                f"{extra_safety}",
+                "render:\n"
+                "  tier: full\n",
             )
         else:
             write(example_dir / relative, "# example\n")
@@ -312,12 +309,11 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     expected_next_step = (
         "The tracked release bundle is current for its recorded local source basis and "
         "remains `LOCAL_ONLY`; this does not create a tag, release, signing, upload, "
-        "or publication. Preserve the separately recorded source-basis and "
-        "artifact-containing commits, and re-check a clean exact Git snapshot before "
-        "any local-main fast-forward or future remote operation. Keep Agent "
-        "Quality/provider, role calibration v7, Hermes, MCP, publication, and other "
-        "remote work frozen unless a separate value decision and approval explicitly "
-        "reopens them."
+        "or publication. No new capability is selected automatically. Keep the "
+        "implemented surfaces frozen unless an owner selects a concrete downstream "
+        "target contract or separately reopens a held capability through its value "
+        "decision and approval boundary. Keep Agent Quality/provider, role calibration "
+        "v7, Hermes, MCP, publication, and other remote work frozen until then."
     )
 
     assert "`CORE_HARNESS_READY`" in normalized_status
@@ -1631,7 +1627,7 @@ def test_example_gate_requires_profile_phrases(tmp_path: Path) -> None:
         if relative == "template.config.yml":
             write(
                 example_dir / relative,
-                "project:\n  name: python_cli_minimal\n  status: seed\nprofile:\n  name: python_cli\npaths:\n  target: examples/python_cli_minimal\n",
+                "project:\n  name: python_cli_minimal\n  status: seed\nprofile:\n  name: python_cli\nrender:\n  tier: full\n",
             )
         else:
             write(example_dir / relative, "# example\n")
@@ -1651,6 +1647,20 @@ def test_example_render_drift_gate_detects_missing_rendered_file(tmp_path: Path)
 
     assert result.passed is False
     assert any("SOURCE_INDEX.md" in message for message in result.messages)
+
+
+def test_example_render_drift_gate_respects_explicit_minimal_tier(tmp_path: Path) -> None:
+    minimal_repo(tmp_path)
+    write_valid_example(tmp_path, "python_cli_minimal", "python_cli")
+    config_path = tmp_path / "examples" / "python_cli_minimal" / "template.config.yml"
+    write(config_path, config_path.read_text(encoding="utf-8").replace("tier: full", "tier: minimal"))
+    (tmp_path / "examples" / "python_cli_minimal" / "SOURCE_INDEX.md").unlink()
+
+    expected = example_render_drift_gate.expected_rendered_files(
+        tmp_path, "python_cli_minimal"
+    )
+
+    assert all(path.name != "SOURCE_INDEX.md" for path in expected)
 
 
 def test_rendered_golden_content_gate_detects_content_drift(tmp_path: Path) -> None:
@@ -1707,7 +1717,7 @@ def test_example_gate_validates_config_values(tmp_path: Path) -> None:
     write_valid_example(tmp_path, "python_cli_minimal", "python_cli")
     write(
         tmp_path / "examples" / "python_cli_minimal" / "template.config.yml",
-        "project:\n  name: wrong_name\n  status: seed\nprofile:\n  name: python_cli\npaths:\n  target: examples/python_cli_minimal\n",
+        "project:\n  name: wrong_name\n  status: seed\nprofile:\n  name: python_cli\nrender:\n  tier: full\n",
     )
 
     result = example_gate.run(tmp_path)
@@ -1716,18 +1726,18 @@ def test_example_gate_validates_config_values(tmp_path: Path) -> None:
     assert any("project.name=python_cli_minimal" in message for message in result.messages)
 
 
-def test_example_gate_requires_plc_live_write_prohibited(tmp_path: Path) -> None:
+def test_example_gate_requires_plc_live_write_prohibited_in_policy(tmp_path: Path) -> None:
     minimal_repo(tmp_path)
     write_valid_example(tmp_path, "plc_tool_minimal", "plc_or_device_tool")
     write(
-        tmp_path / "examples" / "plc_tool_minimal" / "template.config.yml",
-        "project:\n  name: plc_tool_minimal\n  status: seed\nprofile:\n  name: plc_or_device_tool\npaths:\n  target: examples/plc_tool_minimal\nsafety:\n  live_device_write: allowed\n",
+        tmp_path / "examples" / "plc_tool_minimal" / "SAFETY_POLICY.profile.md",
+        "simulator/mock first\nequipment IP ports tag live parameters\nstart stop reset mode change\n",
     )
 
     result = example_gate.run(tmp_path)
 
     assert result.passed is False
-    assert any("safety.live_device_write=prohibited" in message for message in result.messages)
+    assert any("live device write prohibited" in message for message in result.messages)
 
 
 def test_quality_gate_passes_minimal_repo(tmp_path: Path) -> None:

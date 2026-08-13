@@ -101,6 +101,37 @@ def test_empty_diff_returns_v0_advisory_plan(tmp_path: Path) -> None:
     )
 
 
+def test_alternate_head_uses_control_blobs_from_that_commit(tmp_path: Path) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    selected_head = commit_file(repo, "docs/guide.md", "# Guide\n")
+    commit_file(repo, "docs/VERIFICATION_IMPACT_MAP.json", "{}\n")
+    write_text(repo, verification_plan.CORPUS_SOURCE_SET_PATH, "{}\n")
+
+    result = inspect(repo, base_sha, selected_head)
+
+    assert result["status"] == "PASS"
+    assert result["minimum_tier"] == "V1"
+    assert result["matched_rule_ids"] == ["documentation"]
+
+
+def test_impact_map_change_is_code_bootstrapped_to_v2(tmp_path: Path) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    payload = json.loads(MAP_PATH.read_text(encoding="utf-8"))
+    payload["rules"] = list(reversed(payload["rules"]))
+    head_sha = commit_file(
+        repo,
+        "docs/VERIFICATION_IMPACT_MAP.json",
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
+    )
+
+    result = inspect(repo, base_sha, head_sha)
+
+    assert result["status"] == "PASS"
+    assert result["minimum_tier"] == "V2"
+    assert result["integration_owner_required"] is True
+    assert "verification_impact_map_bootstrap" in result["matched_rule_ids"]
+
+
 def test_document_change_returns_v1(tmp_path: Path) -> None:
     repo, base_sha = init_repo(tmp_path)
     commit_file(repo, "docs/guide.md", "# Guide\n")
