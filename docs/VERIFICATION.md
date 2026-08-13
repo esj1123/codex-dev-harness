@@ -96,6 +96,15 @@ artifacts, upload artifacts, publish releases, sign artifacts, move tags,
 deploy, check out downstream repositories, run RAG/index tooling, run audit
 automation, run MCP/Hermes code, or perform live-write behavior.
 
+The owner has selected an explicit
+`release-evidence-export` mode for this existing workflow identity. Its contract
+keeps the commands above as the default `verify` job and the only V3 result. A
+future export job must use the same exact-SHA binding, run the approved release
+wrapper with a hosted evidence context, upload only the six approved files for
+one day, and return them for isolated local validation and commit. It is not a
+V3 result, publication, release, tag, signing, deployment, or `origin/main`
+mutation. `STATUS.md` records the mode's current implementation and run state.
+
 ## Local Release Verification Flow
 
 Recommended release evidence command:

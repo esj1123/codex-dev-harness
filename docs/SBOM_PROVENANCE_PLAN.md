@@ -140,6 +140,14 @@ The wrapper remains local-only. It must not call external services, publish
 artifacts, sign artifacts, create release archives, install CI workflows, or
 create or move tags.
 
+The owner selected a separate manual GitHub evidence-export context. Its
+provenance must use a
+distinct hosted predicate profile with `local_only=false` and a bounded hosted
+builder identifier. It must not record run IDs, host or account identifiers,
+tokens, absolute paths, attestation, signing, upload success, publication, or
+release claims.
+`STATUS.md` records the context's current implementation and run state.
+
 ## Output Path Safety
 
 The local SBOM generator rejects output paths that would overwrite the input

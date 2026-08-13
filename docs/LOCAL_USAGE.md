@@ -11,6 +11,11 @@ The repository includes a manual read-only `.github/workflows/local-verify.yml`
 workflow. It runs only through `workflow_dispatch` with an exact commit SHA; it
 is not automatic and is not a required check.
 
+The owner has selected a separate `manual_github_release_evidence_export` mode.
+It remains explicit and approval-gated, while the default Local Verify path
+remains read-only and performs no artifact upload. Read `STATUS.md` for the
+export mode's current implementation and run state.
+
 ## Clone And Prepare
 
 1. Clone the repository.

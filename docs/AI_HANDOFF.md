@@ -31,6 +31,8 @@ default operating context.
   `scripts/run_local_verify.ps1`
 - Manual exact-SHA remote verification:
   `.github/workflows/local-verify.yml`
+- Selected manual release-evidence export contract:
+  `manual_github_release_evidence_export` (implementation state in `STATUS.md`)
 
 Ignored package, trial, and checkpoint envelopes under `local/` remain local
 control-plane evidence. They do not authenticate approval and must not contain
@@ -46,10 +48,12 @@ and role calibration v7 are `NOT RUN`; neither is implied by
 - Structural PASS does not grant execution or side-effect permission.
 - A frozen contract change stops with `CONTRACT_CHANGE_REQUIRED`.
 - Agent-quality baseline creation remains separately approval-gated.
-- Existing tracked release evidence is `CURRENT / LOCAL_ONLY` for its recorded
-  source basis. This state records a completed local refresh only; it does not
-  authorize another regeneration, tag, signing, upload, publication, or remote
-  release.
+- Existing tracked release evidence is `VALID ANCESTOR / REFRESH REQUIRED` for
+  the current HEAD. It remains internally valid for its recorded ancestor source
+  basis but does not authorize a current release claim.
+- The selected manual GitHub export capability does not authorize automatic
+  triggers, durable distribution, tag, signing, publication, deployment,
+  `origin/main` mutation, or downstream access.
 - Push, workflow dispatch, release, upload, downstream access, MCP/Hermes
   execution, and live/private data use require separate authority.
 - Tracked authority does not store workflow run IDs.

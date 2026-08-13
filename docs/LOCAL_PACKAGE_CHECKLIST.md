@@ -82,5 +82,8 @@ Release generators for `release-manifest.json`, `checksums.sha256`,
 `sbom.spdx.json`, `sbom.cdx.json`, and `provenance.intoto.jsonl` are
 implemented. This checklist does not itself run them, refresh tracked
 artifacts, or approve future changes to eval-report inclusion. The current
-tracked bundle was separately generated with an eval report and is recorded as
-`CURRENT / LOCAL_ONLY` for its source basis.
+tracked bundle is `VALID ANCESTOR / REFRESH REQUIRED` for the current HEAD and
+remains internally valid for its recorded ancestor source basis. A manual
+exact-SHA GitHub evidence export is contract-selected; this checklist does not
+authorize its execution or package inclusion. Read `STATUS.md` for its current
+implementation state.

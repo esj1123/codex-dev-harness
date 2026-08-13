@@ -14,6 +14,12 @@ The local release verification wrapper at `scripts/run_release_verify.ps1` may
 run the manifest and checksum generators together with separately approved
 local SBOM/provenance generators when those scripts are present.
 
+The selected, not-yet-implemented manual GitHub evidence-export context does
+not change manifest inventory or source-basis semantics. Any future hosted run
+must still bind `git_commit` to the exact checked-out workflow SHA and must
+identify its hosted provenance context separately; transient upload does not
+change the manifest into a publication or archive record.
+
 ## Manifest Fields
 
 `release-manifest.json` includes:

@@ -93,8 +93,6 @@ EXPECTED_OPERATIONAL_INPUTS = [
     "docs/APPROVED_CORPUS_SOURCE_SET.v2.json",
     "docs/DOWNSTREAM_PRODUCT_INTEGRATION_BOUNDARY_REVIEW.md",
     "docs/JSON_EVIDENCE_POLICY.md",
-    "docs/RELEASE_AUTOMATION_CANDIDATE_CONTRACT.md",
-    "docs/RELEASE_AUTOMATION_PROVENANCE_BOUNDARY_REVIEW.md",
     "docs/VERIFICATION_IMPACT_MAP.json",
     "evals/agentic/agent-role-profiles.json",
     "evals/agentic/suites/agentic-regression-v2.json",

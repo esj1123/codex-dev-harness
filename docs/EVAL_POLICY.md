@@ -25,6 +25,12 @@ A minimal local-only eval harness is documented in
 `docs/MINIMAL_EVAL_HARNESS_DESIGN.md` and implemented as a standalone local
 runner.
 
+The selected manual GitHub evidence-export contract extends only the
+provenance-shape case to accept two exact profiles: historical
+local v1 evidence and GitHub manual-export v2 evidence. No other hosted or
+published provenance profile is selected, and the eval remains standalone.
+`STATUS.md` records whether that contract is implemented or has been run.
+
 The current implementation includes expanded named cases under `evals/cases/`,
 `evals/golden/`, `scripts/run_eval.py`, `scripts/gates/eval_gate.py`, and
 tests. It remains separate from `scripts/quality_gate.py`. The existing

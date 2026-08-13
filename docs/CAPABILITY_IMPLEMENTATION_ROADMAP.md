@@ -34,20 +34,24 @@ This roadmap does not authorize implementation or side effects.
 | Tiered template rendering | Ready; explicit apply | Preview is the default; use `--apply` only after reviewing the complete plan. |
 | Read-only Local Verify | Implemented | Keep manual and exact-SHA unless owner selects a different CI policy. |
 | JSON evidence core | Ready | Core schema validation is in the default gate; optional bundles stay standalone. |
-| Release evidence generators | Hardened; local refresh completed | Re-run only after a new source basis and exact artifact-write approval are established. |
-| Tracked release bundle | `CURRENT / LOCAL_ONLY` | Keep the recorded source basis distinct from the artifact-containing commit; tag, signing, upload, publication, and remote release remain separate decisions. |
+| Release evidence generators | Hardened; refresh required | Re-run only after a new source basis and exact artifact-write approval are established. |
+| Tracked release bundle | `VALID ANCESTOR / REFRESH REQUIRED` | Existing evidence remains valid for its recorded ancestor source basis; current release readiness requires a new exact-SHA refresh. |
+| Manual GitHub release-evidence export | Selected; contract frozen | Preserve default V3 verification, use one explicit exact-SHA export mode, one-day transient transport, and local evidence integration only. Read `STATUS.md` for implementation state. |
 | Approved corpus and local retrieval | Advisory, frozen | Change source membership or retrieval behavior only through separate review. |
 | Downstream contract validator | Implemented | Use only with target-specific authority and side-effect declarations. |
 | Agent Quality/provider | Frozen, not adopted | Reopen only after a separate value decision; role calibration v7 is not run. |
 | MCP boundary | Held | Reconsider only for a selected repository tool-integration use case. |
 | Hermes sidecar | Held | Reconsider only after an MCP-backed use case is justified. |
-| Release publication automation | Held | Requires an explicit publication target and owner approval. |
+| Release publication automation | Held | The selected transient evidence transport is not publication; publication still requires an explicit target and owner approval. |
 | Durable audit automation | Held | Requires a demonstrated need and retention/redaction contract. |
 
 ## Current Selection
 
-No new capability is selected automatically. Follow `STATUS.md` for the active
-sequencing decision.
+The owner selected `manual_github_release_evidence_export` as the next bounded
+capability because the current local host cannot provide a trustworthy Full
+release-wrapper execution. Follow `STATUS.md` and the serial work-package v3
+contract for its implementation state and sequencing; no other capability is
+selected automatically.
 
 For Agent Quality work:
 
@@ -84,8 +88,9 @@ The durable ordering constraints are:
 The following remain separate owner decisions:
 
 - automatic CI triggers or required checks;
-- baseline or release artifact creation;
-- tag, release, signing, upload, publish, or deploy;
+- baseline or release artifact creation outside the selected exact-SHA manual
+  export and local-integration contract;
+- tag, release, signing, durable upload, publish, or deploy;
 - MCP or Hermes execution;
 - automatic memory, RAG, audit, or failure promotion writes;
 - new downstream repository access or mutation;

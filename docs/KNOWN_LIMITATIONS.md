@@ -31,6 +31,10 @@ Record known limitations for the current codex-dev-harness baseline after the fo
   artifacts, or install CI workflows.
 - Generated manifest, checksum, eval report, SBOM, and provenance files are
   local evidence only; no release archive is generated.
+- The owner selected a manual exact-SHA GitHub release-evidence export because
+  the current local host cannot provide a trustworthy Full release-wrapper run.
+  The capability remains explicit, approval-gated, transient, and distinct from
+  release publication; `STATUS.md` records its implementation and run state.
 - SBOM and provenance generators and artifacts exist as minimal local evidence;
   external metadata lookup, certification, signing, publication, and CI
   attestation are not implemented.

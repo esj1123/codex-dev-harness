@@ -58,6 +58,15 @@ upload, release verification CI, signing, tag movement, deployment, downstream
 integration, or live behavior require a separate owner-approved implementation
 task.
 
+The owner has now selected one such task:
+`manual_github_release_evidence_export`. The selected contract preserves the
+existing commands as default `verify` V3
+and permits only a separate exact-SHA manual export, one-day Actions artifact
+transport, and subsequent local validation and commit. It does not select an
+automatic trigger, required check, durable artifact distribution, release,
+signing, publication, deployment, secret use, or `origin/main` mutation.
+`STATUS.md` records the capability's current implementation state.
+
 ## First CI Implementation Target
 
 The first CI implementation target is now implemented as

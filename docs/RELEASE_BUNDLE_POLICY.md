@@ -15,6 +15,13 @@ The repository also includes a local release verification wrapper at
 standalone evals, and available local release evidence generators. It does not
 publish, upload, sign, archive, tag, or install CI workflows.
 
+The owner selected a future bounded
+`manual_github_release_evidence_export` execution context because the current
+local host cannot provide a trustworthy Full release-wrapper run. Under its
+separate integration contract, transient CI transport must be distinguished from local
+generation, durable distribution, signing, attestation, publication, and
+release. `STATUS.md` records its current implementation and run state.
+
 ## Release Bundle Components
 
 A future release bundle may contain:
@@ -220,6 +227,11 @@ only for tasks that explicitly allow the matching generator scripts and artifact
 paths. Creating a broader release bundle, eval report, audit session entry,
 release archive, GitHub Release, tag, signature, workflow, or externally
 resolved metadata requires separate explicit owner approval.
+
+The selected manual GitHub export contract supplies that separate workflow and
+transient upload decision only after its verification gates pass. It does not
+grant publication, signing, tag, release, archive, external metadata, durable
+storage, or `origin/main` authority.
 
 Running `scripts/run_release_verify.ps1` is approved only as a local verification
 and evidence-generation action. It does not grant approval for release archive

@@ -227,8 +227,8 @@ def test_docs_gate_requires_current_post_v0_1_governance_docs() -> None:
     assert POST_V0_1_GOVERNANCE_DOCS <= required_docs
     assert docs_gate.MANIFEST_PATH in required_docs
     assert set(docs_gate.BASELINE_REQUIRED_DOCS) == required_docs - {docs_gate.MANIFEST_PATH}
-    assert len(docs_gate.BASELINE_REQUIRED_DOCS) == 76
-    assert len(docs_gate.REQUIRED_DOCS) == 77
+    assert len(docs_gate.BASELINE_REQUIRED_DOCS) == 78
+    assert len(docs_gate.REQUIRED_DOCS) == 79
     assert len(docs_gate.REQUIRED_DOCS) == len(required_docs)
 
 
@@ -280,7 +280,9 @@ def test_readme_describes_installed_manual_local_verify_workflow() -> None:
     assert "manual read-only `.github/workflows/local-verify.yml` workflow" in text
     assert "`workflow_dispatch` with a required exact commit SHA" in text
     assert "`contents: read`" in text
-    assert "installed manual read-only Local Verify workflow is the verification hygiene" in text
+    assert "installed manual read-only Local Verify workflow is the baseline verification" in text
+    assert "`manual_github_release_evidence_export`" in text
+    assert "See `STATUS.md` for its current implementation state" in text
     assert "next planned CI step is a read-only verification hygiene path" not in text
 
 
@@ -307,13 +309,14 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
         status.split(next_step_marker, 1)[1].split("\n## ", 1)[0].split()
     )
     expected_next_step = (
-        "The tracked release bundle is current for its recorded local source basis and "
-        "remains `LOCAL_ONLY`; this does not create a tag, release, signing, upload, "
-        "or publication. No new capability is selected automatically. Keep the "
-        "implemented surfaces frozen unless an owner selects a concrete downstream "
-        "target contract or separately reopens a held capability through its value "
-        "decision and approval boundary. Keep Agent Quality/provider, role calibration "
-        "v7, Hermes, MCP, publication, and other remote work frozen until then."
+        "Implement the selected `manual_github_release_evidence_export` capability only "
+        "through its serial work-package v3 contract. Preserve the existing Local Verify "
+        "commands as the default `verify` mode and keep export separate from V3. The "
+        "tracked release bundle remains `VALID ANCESTOR / REFRESH REQUIRED` until a new "
+        "exact-SHA source basis is verified, exported, downloaded, validated, committed "
+        "locally, and promoted to local `main`. Tag, release, signing, publication, "
+        "deployment, `origin/main`, Agent Quality/provider, Hermes, MCP, and downstream "
+        "mutation remain outside this selection."
     )
 
     assert "`CORE_HARNESS_READY`" in normalized_status
@@ -322,8 +325,8 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
         "and exact source basis are separately approved."
         not in normalized_held
     )
-    assert "Tag, release, signing, upload, or publication." in normalized_held
-    assert "Automatic digest writes or release automation." in normalized_held
+    assert "Tag, release, signing, publication, or durable remote distribution." in normalized_held
+    assert "outside the selected manual GitHub release-evidence export contract" in normalized_held
     assert normalized_next_step == expected_next_step
     release_state_docs = {
         "STATUS.md": status,
@@ -334,7 +337,7 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     }
     for path, text in release_state_docs.items():
         normalized_text = " ".join(text.split())
-        assert "`CURRENT / LOCAL_ONLY`" in normalized_text, path
+        assert "`VALID ANCESTOR / REFRESH REQUIRED`" in normalized_text, path
         assert "`HISTORICAL_INVALID / REFRESH_NOT_RUN`" not in normalized_text, path
     assert "decide whether it should include an eval report" not in normalized_next_step
     assert "Review the verified verification-lane branch tip" not in normalized_status
@@ -345,6 +348,8 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     assert "manual read-only `.github/workflows/local-verify.yml`" in usage
     assert "`workflow_dispatch` with an exact commit SHA" in usage
     assert "is not automatic and is not a required check" in usage
+    assert "`manual_github_release_evidence_export`" in usage
+    assert "default Local Verify path remains read-only" in " ".join(usage.split())
     assert usage.index("full `python -m pytest tests`") < usage.index(
         "standalone `python scripts/run_eval.py`"
     ) < usage.index("core `python scripts/quality_gate.py`") < usage.index(
@@ -361,18 +366,10 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     )
     assert "This checklist does not itself run them" in checklist
     release_boundary_clauses = {
-        "README.md": "no tag, signing, upload, publication, or remote release was performed.",
-        "docs/AI_HANDOFF.md": (
-            "does not authorize another regeneration, tag, signing, upload, "
-            "publication, or remote release."
-        ),
-        "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md": (
-            "tag, signing, upload, publication, and remote release remain separate decisions."
-        ),
-        "docs/LOCAL_PACKAGE_CHECKLIST.md": (
-            "does not authorize regeneration, packaging, tag, signing, upload, "
-            "publication, or remote release."
-        ),
+        "README.md": "does not authorize an automatic trigger, tag, github release, signing, publication, deployment, secret use, or `origin/main` mutation.",
+        "docs/AI_HANDOFF.md": "does not authorize automatic triggers, durable distribution, tag, signing, publication, deployment, `origin/main` mutation, or downstream access.",
+        "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md": "publication still requires an explicit target and owner approval.",
+        "docs/LOCAL_PACKAGE_CHECKLIST.md": "this checklist does not authorize its execution or package inclusion.",
     }
     for path, clause in release_boundary_clauses.items():
         normalized_text = " ".join(release_state_docs[path].split()).lower()
@@ -415,8 +412,6 @@ def test_current_authority_is_manifest_driven() -> None:
         "docs/APPROVED_CORPUS_SOURCE_SET.v2.json",
         "docs/DOWNSTREAM_PRODUCT_INTEGRATION_BOUNDARY_REVIEW.md",
         "docs/JSON_EVIDENCE_POLICY.md",
-        "docs/RELEASE_AUTOMATION_CANDIDATE_CONTRACT.md",
-        "docs/RELEASE_AUTOMATION_PROVENANCE_BOUNDARY_REVIEW.md",
         "docs/VERIFICATION_IMPACT_MAP.json",
         "evals/agentic/agent-role-profiles.json",
         "evals/agentic/suites/agentic-regression-v2.json",
@@ -454,7 +449,7 @@ def test_top_level_architecture_and_capability_docs_are_current_and_compact() ->
     assert len(roadmap.splitlines()) <= 200
     assert "## Capability Registry" in roadmap
     assert "### Phase " not in roadmap
-    assert "Follow `STATUS.md` for the active" in roadmap
+    assert "Follow `STATUS.md` and the serial work-package v3" in roadmap
     assert "## Read-Only Validation" in readme
     assert "## Artifact-Writing Release Verification" in readme
 

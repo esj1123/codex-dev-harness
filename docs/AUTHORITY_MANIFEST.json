@@ -92,6 +92,8 @@
     "docs/OPTIONAL_DESIGN_STAGE_PACK_REVIEW.md",
     "docs/OPTIONAL_DESIGN_STAGE_PACK_USAGE.md",
     "docs/OPTIONAL_EVAL_HARNESS_PLAN.md",
+    "docs/RELEASE_AUTOMATION_CANDIDATE_CONTRACT.md",
+    "docs/RELEASE_AUTOMATION_PROVENANCE_BOUNDARY_REVIEW.md",
     "docs/OPTIONAL_GITHUB_ACTIONS.md",
     "docs/P6_RELEASE_CLOSEOUT.md",
     "docs/POST_V0.1.0_ROADMAP.md",
@@ -129,8 +131,6 @@
     "docs/APPROVED_CORPUS_SOURCE_SET.v2.json",
     "docs/DOWNSTREAM_PRODUCT_INTEGRATION_BOUNDARY_REVIEW.md",
     "docs/JSON_EVIDENCE_POLICY.md",
-    "docs/RELEASE_AUTOMATION_CANDIDATE_CONTRACT.md",
-    "docs/RELEASE_AUTOMATION_PROVENANCE_BOUNDARY_REVIEW.md",
     "docs/VERIFICATION_IMPACT_MAP.json",
     "evals/agentic/agent-role-profiles.json",
     "evals/agentic/suites/agentic-regression-v2.json"

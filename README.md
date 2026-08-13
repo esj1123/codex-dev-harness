@@ -120,10 +120,9 @@ workflow. It first calls the standing local verification wrapper and then
 generates approved release evidence under `artifacts/`. Run it only when the
 task explicitly authorizes those artifact writes. It does not publish a
 release, move tags, sign artifacts, create archives, or install workflows.
-The tracked release bundle is `CURRENT / LOCAL_ONLY` for its recorded source
-basis. It includes the eval report and was generated only after an explicit
-artifact-write approval; no tag, signing, upload, publication, or remote
-release was performed.
+The tracked release bundle is `VALID ANCESTOR / REFRESH REQUIRED`: its existing
+files remain valid for their recorded ancestor source basis but do not establish
+release readiness for the current HEAD.
 
 Python runtime and dependency reproducibility are documented in
 `docs/PYTHON_RUNTIME_POLICY.md`. The local verification runtime is pinned in
@@ -136,6 +135,13 @@ CI policy is documented in `docs/CI_POLICY.md`. The repository includes the
 manual read-only `.github/workflows/local-verify.yml` workflow. It uses
 `workflow_dispatch` with a required exact commit SHA, `contents: read`, and no
 artifact upload.
+
+The owner has selected a bounded `manual_github_release_evidence_export`
+extension. Its contract preserves the
+existing verification path as the default V3 mode and allows only a separate,
+exact-SHA, manual, one-day evidence transport after explicit approval. It does
+not authorize an automatic trigger, tag, GitHub Release, signing, publication,
+deployment, secret use, or `origin/main` mutation.
 
 ## Local-First Usage
 
@@ -151,9 +157,11 @@ The intended baseline workflow is local-first:
 See `docs/LOCAL_USAGE.md` for the full local usage flow and `docs/LOCAL_RELEASE_PACKAGE.md` for local package boundaries.
 
 CI remains approval-gated and is not a baseline runtime requirement. The
-installed manual read-only Local Verify workflow is the verification hygiene
-path; broader triggers, required checks, artifact upload, release publication,
-and deployment remain separately approval-gated.
+installed manual read-only Local Verify workflow is the baseline verification
+hygiene path. The separately selected manual transient release-evidence export
+remains approval-gated; broader triggers, required checks, durable artifact
+distribution, release publication, and deployment remain separately
+approval-gated. See `STATUS.md` for its current implementation state.
 
 ## AI Readiness Scanner
 

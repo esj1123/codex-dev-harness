@@ -17,7 +17,8 @@ remain available in Git history and `ACCEPTANCE_TRACE.md`.
 | Core template harness | `READY` | Core docs, templates, examples, tests, and local verification are supported. |
 | Renderer apply | `READY` | No-flag and `--dry-run` are previews; writes require explicit `--apply`. |
 | Release generator code | `HARDENED` | Clean-HEAD Git-blob lineage, hash-locked SBOM inputs, non-circular provenance/checksums, and physical output-path controls are implemented. |
-| Tracked release bundle | `CURRENT / LOCAL_ONLY` | The tracked manifest, eval report, SBOMs, provenance, and checksums are current for their recorded source basis; no tag, upload, publication, or remote release was performed. |
+| Tracked release bundle | `VALID ANCESTOR / REFRESH REQUIRED` | The tracked manifest, eval report, SBOMs, provenance, and checksums remain internally valid for an ancestor source basis, but they do not establish release readiness for the current HEAD. |
+| Manual GitHub release-evidence export | `SELECTED / CONTRACT FROZEN / NOT IMPLEMENTED` | The owner selected one manual, exact-SHA, transient CI export capability because the local host cannot provide a trustworthy Full release-wrapper run. No workflow generation or upload behavior is active at this contract checkpoint. |
 | Agent Quality/provider | `FROZEN / NOT_ADOPTED` | Optional controls remain available for review, but provider execution and role adoption are held. |
 | Role calibration v7 | `NOT RUN` | No calibration trial or review batch is authorized by core readiness. |
 | Hermes/MCP | `HELD` | Runtime activation requires a selected repository use case and separate approval. |
@@ -136,8 +137,9 @@ not authenticate approval.
 
 ## Held Or Not Authorized
 
-- Tag, release, signing, upload, or publication.
-- Automatic digest writes or release automation.
+- Tag, release, signing, publication, or durable remote distribution.
+- Automatic digest writes, automatic release triggers, or release automation
+  outside the selected manual GitHub release-evidence export contract.
 - MCP execution, Hermes execution bridges, AgentOps, or durable audit logging.
 - Agent Quality/provider execution and role calibration v7.
 - New downstream access, render, write, commit, push, or workflow dispatch.
@@ -150,10 +152,11 @@ not authenticate approval.
 
 ## Next Recommended Step
 
-The tracked release bundle is current for its recorded local source basis and
-remains `LOCAL_ONLY`; this does not create a tag, release, signing, upload, or
-publication. No new capability is selected automatically. Keep the implemented
-surfaces frozen unless an owner selects a concrete downstream target contract
-or separately reopens a held capability through its value decision and
-approval boundary. Keep Agent Quality/provider, role calibration v7, Hermes,
-MCP, publication, and other remote work frozen until then.
+Implement the selected `manual_github_release_evidence_export` capability only
+through its serial work-package v3 contract. Preserve the existing Local Verify
+commands as the default `verify` mode and keep export separate from V3. The
+tracked release bundle remains `VALID ANCESTOR / REFRESH REQUIRED` until a new
+exact-SHA source basis is verified, exported, downloaded, validated, committed
+locally, and promoted to local `main`. Tag, release, signing, publication,
+deployment, `origin/main`, Agent Quality/provider, Hermes, MCP, and downstream
+mutation remain outside this selection.

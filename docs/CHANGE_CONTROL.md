@@ -188,6 +188,15 @@ The integration lane alone may merge feature work, update current authority,
 refresh approved artifacts after separate approval, run full verification,
 push a cumulative tip, or dispatch the existing Local Verify workflow.
 
+The selected `manual_github_release_evidence_export` capability is a bounded
+integration-only exception to the previous no-upload CI policy. It does not
+exist until its workflow implementation commit passes its own work-package v3
+postflight. When implemented, its exact branch push, manual dispatch, one
+transient artifact upload/download, and local artifact integration remain
+separate declared side effects. It does not authorize automatic triggers,
+required checks, tags, releases, signing, publication, deployment,
+`origin/main` mutation, or downstream access.
+
 ## Commit And Checkpoint Policy
 
 One approved local task may include edits within its exact write set, focused
