@@ -17,8 +17,8 @@ remain available in Git history and `ACCEPTANCE_TRACE.md`.
 | Core template harness | `READY` | Core docs, templates, examples, tests, and local verification are supported. |
 | Renderer apply | `READY` | No-flag and `--dry-run` are previews; writes require explicit `--apply`. |
 | Release generator code | `HARDENED` | Clean-HEAD Git-blob lineage, hash-locked SBOM inputs, non-circular provenance/checksums, and physical output-path controls are implemented. |
-| Tracked release bundle | `VALID ANCESTOR / REFRESH REQUIRED` | The tracked manifest, eval report, SBOMs, provenance, and checksums remain internally valid for an ancestor source basis, but they do not establish release readiness for the current HEAD. |
-| Manual GitHub release-evidence export | `IMPLEMENTED / APPROVAL-GATED / NOT RUN` | The explicit exact-SHA export mode, hosted provenance v2, exact six-file assertion, and one-day transient Actions transport are implemented. No export run or upload is claimed at this checkpoint. |
+| Tracked release bundle | `CURRENT / LOCAL RELEASE / GITHUB-VERIFIED / TRANSIENT CI EXPORT / NOT PUBLISHED` | The six tracked release artifacts were generated for exact source basis `438cc1def76666ee5431e1c5fcbf830f48bf0207`, exported through the approval-gated one-day Actions transport, independently validated, and committed for local release use. No remote release or publication is claimed. |
+| Manual GitHub release-evidence export | `IMPLEMENTED / APPROVAL-GATED / COMPLETED` | Exact-SHA export run `31678866653` completed with hosted provenance v2, exact six-file validation, and one-day transient Actions transport. The upload is transport evidence only, not publication. |
 | Agent Quality/provider | `FROZEN / NOT_ADOPTED` | Optional controls remain available for review, but provider execution and role adoption are held. |
 | Role calibration v7 | `NOT RUN` | No calibration trial or review batch is authorized by core readiness. |
 | Hermes/MCP | `HELD` | Runtime activation requires a selected repository use case and separate approval. |
@@ -152,11 +152,10 @@ not authenticate approval.
 
 ## Next Recommended Step
 
-Refresh only `artifacts/corpus-digest.json` under its separately approved serial
-work-package, then freeze that clean commit as release source basis `S`. Push
-`S` only to the existing feature branch and require an exact-SHA GitHub `verify`
-V3 before the separately approved export run. The tracked release bundle remains
-`VALID ANCESTOR / REFRESH REQUIRED` until the exported six-file bundle is
-downloaded, validated, committed locally, and promoted to local `main`. Tag,
-release, signing, publication, deployment, `origin/main`, Agent Quality/provider,
-Hermes, MCP, and downstream mutation remain outside this selection.
+Keep the current local release bundle frozen and review it through local Git.
+The bundle was generated from an exact-SHA GitHub manual export, downloaded,
+independently validated, committed locally, and promoted to local `main`; the
+transient Actions artifact is transport only and expires after one day. No
+remote publication was performed. Tag, GitHub Release, signing, publication,
+deployment, `origin/main`, Agent Quality/provider, Hermes, MCP, and downstream
+mutation remain `NOT RUN` or outside this release.
