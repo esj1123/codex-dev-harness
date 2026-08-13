@@ -56,11 +56,11 @@ def test_current_tree_manifest_passes_with_exact_required_doc_coverage() -> None
     assert result["status"] == "PASS"
     assert result["reason_codes"] == []
     assert result["current_state"] == "CORE_HARNESS_READY"
-    assert result["manifest_summary"]["required_doc_count"] == len(BASELINE_REQUIRED_DOCS) == 76
-    assert result["manifest_summary"]["classified_required_doc_count"] == 76
+    assert result["manifest_summary"]["required_doc_count"] == len(BASELINE_REQUIRED_DOCS) == 78
+    assert result["manifest_summary"]["classified_required_doc_count"] == 78
     assert result["manifest_summary"]["default_read_order_count"] == 6
     assert result["manifest_summary"]["conditional_read_order_count"] == 4
-    assert result["manifest_summary"]["operational_input_count"] == 8
+    assert result["manifest_summary"]["operational_input_count"] == 6
     assert result["performed_actions"] == []
 
 
