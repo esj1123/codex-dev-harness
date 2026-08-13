@@ -8,10 +8,9 @@ This checklist is documentation-only. It does not build a package or write a rel
 
 Machine-readable release bundle and manifest policy is documented in
 `docs/RELEASE_BUNDLE_POLICY.md` and `docs/RELEASE_MANIFEST_POLICY.md`. Those
-policies are implemented by the local release generators. The currently
-tracked release bundle is `CURRENT / LOCAL_ONLY` for its recorded source basis.
-That state does not authorize regeneration, packaging, tag, signing, upload,
-publication, or remote release.
+policies are implemented by the local release generators. Read `STATUS.md` for
+the tracked release bundle's current state. No bundle state by itself authorizes
+regeneration, packaging, tag, signing, upload, publication, or remote release.
 
 ## Included Files
 
@@ -81,9 +80,7 @@ The local package should preserve the local-first baseline. It should not become
 Release generators for `release-manifest.json`, `checksums.sha256`,
 `sbom.spdx.json`, `sbom.cdx.json`, and `provenance.intoto.jsonl` are
 implemented. This checklist does not itself run them, refresh tracked
-artifacts, or approve future changes to eval-report inclusion. The current
-tracked bundle is `VALID ANCESTOR / REFRESH REQUIRED` for the current HEAD and
-remains internally valid for its recorded ancestor source basis. A manual
-exact-SHA GitHub evidence export is contract-selected; this checklist does not
-authorize its execution or package inclusion. Read `STATUS.md` for its current
-implementation state.
+artifacts, or approve future changes to eval-report inclusion. Read `STATUS.md`
+for the current bundle, source-basis, local Git, transport, and publication
+state. A manual exact-SHA GitHub evidence export is contract-selected; this
+checklist does not authorize its execution or package inclusion.

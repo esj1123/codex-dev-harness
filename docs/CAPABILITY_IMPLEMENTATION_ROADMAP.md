@@ -35,7 +35,7 @@ This roadmap does not authorize implementation or side effects.
 | Read-only Local Verify | Implemented | Keep manual and exact-SHA unless owner selects a different CI policy. |
 | JSON evidence core | Ready | Core schema validation is in the default gate; optional bundles stay standalone. |
 | Release evidence generators | Hardened; refresh required | Re-run only after a new source basis and exact artifact-write approval are established. |
-| Tracked release bundle | `VALID ANCESTOR / REFRESH REQUIRED` | Existing evidence remains valid for its recorded ancestor source basis; current release readiness requires a new exact-SHA refresh. |
+| Tracked release bundle | See `STATUS.md` | Keep source basis, artifact commit, local Git availability, transient transport, and publication state distinct. |
 | Manual GitHub release-evidence export | Selected; contract frozen | Preserve default V3 verification, use one explicit exact-SHA export mode, one-day transient transport, and local evidence integration only. Read `STATUS.md` for implementation state. |
 | Approved corpus and local retrieval | Advisory, frozen | Change source membership or retrieval behavior only through separate review. |
 | Downstream contract validator | Implemented | Use only with target-specific authority and side-effect declarations. |

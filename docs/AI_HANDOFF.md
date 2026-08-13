@@ -48,9 +48,9 @@ and role calibration v7 are `NOT RUN`; neither is implied by
 - Structural PASS does not grant execution or side-effect permission.
 - A frozen contract change stops with `CONTRACT_CHANGE_REQUIRED`.
 - Agent-quality baseline creation remains separately approval-gated.
-- Existing tracked release evidence is `VALID ANCESTOR / REFRESH REQUIRED` for
-  the current HEAD. It remains internally valid for its recorded ancestor source
-  basis but does not authorize a current release claim.
+- Read `STATUS.md` for the tracked release bundle's current state. Keep the
+  source-basis commit, artifact-containing commit, local Git state, transient
+  transport context, and publication authority distinct.
 - The selected manual GitHub export capability does not authorize automatic
   triggers, durable distribution, tag, signing, publication, deployment,
   `origin/main` mutation, or downstream access.

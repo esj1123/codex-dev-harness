@@ -120,9 +120,9 @@ workflow. It first calls the standing local verification wrapper and then
 generates approved release evidence under `artifacts/`. Run it only when the
 task explicitly authorizes those artifact writes. It does not publish a
 release, move tags, sign artifacts, create archives, or install workflows.
-The tracked release bundle is `VALID ANCESTOR / REFRESH REQUIRED`: its existing
-files remain valid for their recorded ancestor source basis but do not establish
-release readiness for the current HEAD.
+`STATUS.md` is the sole current-state authority for the tracked release bundle.
+Keep its source-basis commit, artifact-containing commit, local Git availability,
+transient transport context, and publication state distinct.
 
 Python runtime and dependency reproducibility are documented in
 `docs/PYTHON_RUNTIME_POLICY.md`. The local verification runtime is pinned in

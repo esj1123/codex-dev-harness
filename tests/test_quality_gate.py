@@ -308,7 +308,7 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     normalized_next_step = " ".join(
         status.split(next_step_marker, 1)[1].split("\n## ", 1)[0].split()
     )
-    expected_next_step = (
+    transitional_next_step = (
         "Refresh only `artifacts/corpus-digest.json` under its separately approved serial "
         "work-package, then freeze that clean commit as release source basis `S`. Push "
         "`S` only to the existing feature branch and require an exact-SHA GitHub `verify` "
@@ -317,6 +317,18 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
         "downloaded, validated, committed locally, and promoted to local `main`. Tag, "
         "release, signing, publication, deployment, `origin/main`, Agent Quality/provider, "
         "Hermes, MCP, and downstream mutation remain outside this selection."
+    )
+    final_next_step = (
+        "Keep the current local release bundle frozen and review it through local Git. "
+        "The bundle was generated from an exact-SHA GitHub manual export, downloaded, "
+        "independently validated, committed locally, and promoted to local `main`; the "
+        "transient Actions artifact is transport only and expires after one day. No "
+        "remote publication was performed. Tag, GitHub Release, signing, publication, "
+        "deployment, `origin/main`, Agent Quality/provider, Hermes, MCP, and downstream "
+        "mutation remain `NOT RUN` or outside this release."
+    )
+    final_bundle_state = (
+        "`CURRENT / LOCAL RELEASE / GITHUB-VERIFIED / TRANSIENT CI EXPORT / NOT PUBLISHED`"
     )
 
     assert "`CORE_HARNESS_READY`" in normalized_status
@@ -327,7 +339,11 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     )
     assert "Tag, release, signing, publication, or durable remote distribution." in normalized_held
     assert "outside the selected manual GitHub release-evidence export contract" in normalized_held
-    assert normalized_next_step == expected_next_step
+    if final_bundle_state in normalized_status:
+        assert normalized_next_step == final_next_step
+    else:
+        assert "`VALID ANCESTOR / REFRESH REQUIRED`" in normalized_status
+        assert normalized_next_step == transitional_next_step
     release_state_docs = {
         "STATUS.md": status,
         "README.md": readme,
@@ -337,8 +353,9 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     }
     for path, text in release_state_docs.items():
         normalized_text = " ".join(text.split())
-        assert "`VALID ANCESTOR / REFRESH REQUIRED`" in normalized_text, path
         assert "`HISTORICAL_INVALID / REFRESH_NOT_RUN`" not in normalized_text, path
+        if path != "STATUS.md":
+            assert "`STATUS.md`" in normalized_text, path
     assert "decide whether it should include an eval report" not in normalized_next_step
     assert "Review the verified verification-lane branch tip" not in normalized_status
     assert "decide whether to promote it to local `main`" not in normalized_status
