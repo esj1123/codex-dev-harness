@@ -547,6 +547,7 @@ def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
     assert "include-hidden-files: false" in export_job
     assert "overwrite: false" in export_job
     assert "release wrapper changed paths outside the exact six-file contract" in export_job
+    assert "release manifest git_ref does not match the dispatched branch" in export_job
     assert "GITHUB_SHA" in verify_job and "GITHUB_SHA" in export_job
     for forbidden in [
         "--report",
@@ -585,6 +586,10 @@ def test_local_wrapper_runs_console_eval_and_release_refreshes_present_report() 
     assert '$env:GITHUB_ACTIONS -cne "true"' in release
     assert '$env:GITHUB_EVENT_NAME -cne "workflow_dispatch"' in release
     assert '$headCommit -cne $env:GITHUB_SHA' in release
+    assert '$env:GITHUB_REF_TYPE -cne "branch"' in release
+    assert 'git check-ref-format --branch $env:GITHUB_REF_NAME' in release
+    assert 'git switch --create $env:GITHUB_REF_NAME $env:GITHUB_SHA' in release
+    assert '$currentBranch -cne $env:GITHUB_REF_NAME' in release
     assert '@("--execution-context", "github_actions_manual_export")' in release
     assert "Test-Path -LiteralPath" in release
     selector = "$PythonCommand = Find-Python"

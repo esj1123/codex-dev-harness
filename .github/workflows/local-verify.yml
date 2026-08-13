@@ -203,6 +203,9 @@ jobs:
           if ($manifest.git_commit -cne $env:EXPECTED_SHA) {
             throw 'release manifest source basis does not match expected_sha'
           }
+          if ($manifest.git_ref -cne $env:GITHUB_REF_NAME) {
+            throw 'release manifest git_ref does not match the dispatched branch'
+          }
           $evalReport = Get-Content -Raw -LiteralPath artifacts/eval-report.json | ConvertFrom-Json
           if ($evalReport.total_cases -ne 15 -or $evalReport.passed_cases -ne 15 -or $evalReport.failed_cases -ne 0) {
             throw 'standalone eval report is not 15/15'

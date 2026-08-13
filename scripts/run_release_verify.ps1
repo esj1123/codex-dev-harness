@@ -231,9 +231,31 @@ function Assert-EvidenceContext {
     if ($env:GITHUB_SHA -cnotmatch '^[0-9a-f]{40}$') {
         Fail-Step "evidence context" "GitHubActionsManualExport requires a lowercase GITHUB_SHA"
     }
+    if ($env:GITHUB_REF_TYPE -cne "branch" -or [string]::IsNullOrWhiteSpace($env:GITHUB_REF_NAME)) {
+        Fail-Step "evidence context" "GitHubActionsManualExport requires a branch ref"
+    }
+    & git check-ref-format --branch $env:GITHUB_REF_NAME *> $null
+    if ($LASTEXITCODE -ne 0) {
+        Fail-Step "evidence context" "GITHUB_REF_NAME is not a valid branch name"
+    }
     $headCommit = & git rev-parse HEAD
     if ($LASTEXITCODE -ne 0 -or $headCommit -cne $env:GITHUB_SHA) {
         Fail-Step "evidence context" "GITHUB_SHA does not match HEAD"
+    }
+    $currentBranch = & git branch --show-current
+    if ([string]::IsNullOrWhiteSpace($currentBranch)) {
+        & git show-ref --verify --quiet ("refs/heads/{0}" -f $env:GITHUB_REF_NAME)
+        if ($LASTEXITCODE -eq 0) {
+            Fail-Step "evidence context" "hosted branch already exists unexpectedly"
+        }
+        & git switch --create $env:GITHUB_REF_NAME $env:GITHUB_SHA
+        if ($LASTEXITCODE -ne 0) {
+            Fail-Step "evidence context" "unable to bind hosted evidence to the dispatched branch"
+        }
+        $currentBranch = & git branch --show-current
+    }
+    if ($currentBranch -cne $env:GITHUB_REF_NAME) {
+        Fail-Step "evidence context" "checked out branch does not match GITHUB_REF_NAME"
     }
     Add-Result "evidence context" "PASS" "github_actions_manual_export"
 }
