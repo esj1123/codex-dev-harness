@@ -83,7 +83,13 @@ def fixture(tmp_path: Path) -> dict[str, object]:
                 }
             ],
         },
-        "declared_side_effects": ["local_write", "execute", "stage", "commit"],
+        "declared_side_effects": [
+            "repository_access",
+            "local_write",
+            "execute",
+            "stage",
+            "commit",
+        ],
         "approval_ref": "synthetic-approval",
         "agent_profile_id": profile["profile_id"],
         "agent_profile_hash": sha256_json(profile),
