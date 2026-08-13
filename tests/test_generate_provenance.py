@@ -91,6 +91,11 @@ def test_provenance_records_repo_commands_python_and_digests(tmp_path: Path) -> 
     )
 
     assert statement["_type"] == "https://in-toto.io/Statement/v1"
+    assert statement["predicateType"] == generate_provenance.LOCAL_PREDICATE_TYPE
+    assert statement["predicate"]["schema_version"] == "1"
+    assert statement["predicate"]["local_only"] is True
+    assert statement["predicate"]["builder"]["id"] == generate_provenance.LOCAL_BUILDER_ID
+    assert "execution_context" not in statement["predicate"]
     assert statement["predicate"]["repo"]["git_ref"] == "main"
     assert statement["predicate"]["repo"]["git_commit"] == "abc123"
     assert statement["predicate"]["python_version"]
@@ -106,6 +111,55 @@ def test_provenance_records_repo_commands_python_and_digests(tmp_path: Path) -> 
         }
         for product in statement["predicate"]["products"]
     ]
+
+
+def test_hosted_manual_export_provenance_is_truthful_and_bounded(tmp_path: Path) -> None:
+    manifest_path = write_release_artifacts(tmp_path)
+    output_path = tmp_path / "artifacts" / "provenance.intoto.jsonl"
+
+    statement = generate_provenance.build_statement(
+        sample_snapshot(manifest_path),
+        output_path,
+        tmp_path,
+        "2026-01-01T00:00:00Z",
+        execution_context=generate_provenance.HOSTED_EXECUTION_CONTEXT,
+    )
+
+    predicate = statement["predicate"]
+    assert statement["predicateType"] == generate_provenance.HOSTED_PREDICATE_TYPE
+    assert predicate["schema_version"] == "2"
+    assert predicate["execution_context"] == "github_actions_manual_export"
+    assert predicate["local_only"] is False
+    assert predicate["builder"]["id"] == generate_provenance.HOSTED_BUILDER_ID
+    assert any("--execution-context github_actions_manual_export" in command for command in predicate["commands"])
+    encoded = json.dumps(statement, sort_keys=True).lower()
+    for forbidden in [
+        "github_run_id",
+        "runner_name",
+        "account_name",
+        "token",
+        str(tmp_path).lower(),
+        "upload succeeded",
+        "published",
+        "signed",
+    ]:
+        assert forbidden not in encoded
+
+
+def test_provenance_rejects_unknown_execution_context(tmp_path: Path) -> None:
+    manifest_path = write_release_artifacts(tmp_path)
+
+    try:
+        generate_provenance.build_statement(
+            sample_snapshot(manifest_path),
+            tmp_path / "artifacts" / "provenance.intoto.jsonl",
+            tmp_path,
+            execution_context="unknown",
+        )
+    except ValueError as exc:
+        assert "unsupported execution context" in str(exc)
+    else:
+        raise AssertionError("unknown execution context should be rejected")
 
 
 def test_release_evidence_pipeline_final_checksum_and_product_digests_match(

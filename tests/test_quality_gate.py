@@ -309,14 +309,14 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
         status.split(next_step_marker, 1)[1].split("\n## ", 1)[0].split()
     )
     expected_next_step = (
-        "Implement the selected `manual_github_release_evidence_export` capability only "
-        "through its serial work-package v3 contract. Preserve the existing Local Verify "
-        "commands as the default `verify` mode and keep export separate from V3. The "
-        "tracked release bundle remains `VALID ANCESTOR / REFRESH REQUIRED` until a new "
-        "exact-SHA source basis is verified, exported, downloaded, validated, committed "
-        "locally, and promoted to local `main`. Tag, release, signing, publication, "
-        "deployment, `origin/main`, Agent Quality/provider, Hermes, MCP, and downstream "
-        "mutation remain outside this selection."
+        "Refresh only `artifacts/corpus-digest.json` under its separately approved serial "
+        "work-package, then freeze that clean commit as release source basis `S`. Push "
+        "`S` only to the existing feature branch and require an exact-SHA GitHub `verify` "
+        "V3 before the separately approved export run. The tracked release bundle remains "
+        "`VALID ANCESTOR / REFRESH REQUIRED` until the exported six-file bundle is "
+        "downloaded, validated, committed locally, and promoted to local `main`. Tag, "
+        "release, signing, publication, deployment, `origin/main`, Agent Quality/provider, "
+        "Hermes, MCP, and downstream mutation remain outside this selection."
     )
 
     assert "`CORE_HARNESS_READY`" in normalized_status
@@ -481,6 +481,8 @@ def test_acceptance_trace_is_historical_through_last_existing_checkpoint() -> No
 
 def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
     text = Path(".github/workflows/local-verify.yml").read_text(encoding="utf-8")
+    verify_job = text.split("  verify:\n", 1)[1].split("  release-evidence-export:\n", 1)[0]
+    export_job = text.split("  release-evidence-export:\n", 1)[1]
     verify_python = r".\.venv\Scripts\python.exe"
     tests_command = f"run: {verify_python} -m pytest tests --durations=50 -rs"
     eval_command = f"run: {verify_python} scripts/run_eval.py"
@@ -488,9 +490,14 @@ def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
 
     assert "workflow_dispatch:" in text
     assert "expected_sha:" in text
+    assert "mode:" in text
+    assert "default: verify" in text
+    assert "- verify" in text
+    assert "- release-evidence-export" in text
     assert "required: true" in text
     assert "ref: ${{ inputs.expected_sha }}" in text
     assert "git rev-parse HEAD" in text
+    assert "workflow definition commit does not match expected_sha" in text
     assert "^[0-9a-f]{40}$" in text
     assert "permissions:\n  contents: read" in text
     assert "actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09" in text
@@ -508,32 +515,43 @@ def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
     )
     assert install_step in text
     assert f"run: {install}" not in text
-    assert text.count(install) == 1
+    assert verify_job.count(install) == 1
+    assert export_job.count(install) == 1
     verifier = (
         f"{verify_python} scripts/verify_dev_environment.py "
         "--expected-version-file .python-version --lock requirements-dev.lock --json"
     )
     pip_check = f"{verify_python} -m pip check"
-    assert verifier in text
-    assert pip_check in text
+    assert verifier in verify_job
+    assert pip_check in verify_job
     assert 'PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"' in text
     assert 'PYTEST_ADDOPTS: ""' in text
     assert 'PYTEST_PLUGINS: ""' in text
     assert 'PYTHONPATH: ""' in text
-    assert text.count(eval_command) == 1
+    assert verify_job.count(eval_command) == 1
     assert (
-        text.index(install)
-        < text.index(verifier)
-        < text.index(pip_check)
-        < text.index(tests_command)
-        < text.index(eval_command)
-        < text.index(quality_gate_command)
+        verify_job.index(install)
+        < verify_job.index(verifier)
+        < verify_job.index(pip_check)
+        < verify_job.index(tests_command)
+        < verify_job.index(eval_command)
+        < verify_job.index(quality_gate_command)
     )
+    assert "if: inputs.mode == 'verify'" in verify_job
+    assert "upload-artifact" not in verify_job
+    assert "if: inputs.mode == 'release-evidence-export'" in export_job
+    assert "scripts/run_release_verify.ps1 -EvidenceContext GitHubActionsManualExport" in export_job
+    assert "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a" in export_job
+    assert "retention-days: 1" in export_job
+    assert "if-no-files-found: error" in export_job
+    assert "include-hidden-files: false" in export_job
+    assert "overwrite: false" in export_job
+    assert "release wrapper changed paths outside the exact six-file contract" in export_job
+    assert "GITHUB_SHA" in verify_job and "GITHUB_SHA" in export_job
     for forbidden in [
         "--report",
         "--summary-report",
         "--cases-report",
-        "upload-artifact",
         "pull_request:",
         "push:",
         "secrets:",
@@ -562,6 +580,12 @@ def test_local_wrapper_runs_console_eval_and_release_refreshes_present_report() 
         '@("scripts/run_eval.py", "--report", $EvalReportPath)'
     )
     assert release.count(report_refresh) == 1
+    assert '[ValidateSet("Local", "GitHubActionsManualExport")]' in release
+    assert '[string]$EvidenceContext = "Local"' in release
+    assert '$env:GITHUB_ACTIONS -cne "true"' in release
+    assert '$env:GITHUB_EVENT_NAME -cne "workflow_dispatch"' in release
+    assert '$headCommit -cne $env:GITHUB_SHA' in release
+    assert '@("--execution-context", "github_actions_manual_export")' in release
     assert "Test-Path -LiteralPath" in release
     selector = "$PythonCommand = Find-Python"
     propagation = "$env:PYTHON = $PythonCommand"

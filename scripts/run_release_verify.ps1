@@ -1,3 +1,8 @@
+param(
+    [ValidateSet("Local", "GitHubActionsManualExport")]
+    [string]$EvidenceContext = "Local"
+)
+
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
@@ -213,6 +218,26 @@ function Assert-CleanGitTree {
     Add-Result "clean Git tree" "PASS" "HEAD source basis is clean"
 }
 
+function Assert-EvidenceContext {
+    if ($EvidenceContext -eq "Local") {
+        return
+    }
+    if ($env:GITHUB_ACTIONS -cne "true") {
+        Fail-Step "evidence context" "GitHubActionsManualExport requires GITHUB_ACTIONS=true"
+    }
+    if ($env:GITHUB_EVENT_NAME -cne "workflow_dispatch") {
+        Fail-Step "evidence context" "GitHubActionsManualExport requires workflow_dispatch"
+    }
+    if ($env:GITHUB_SHA -cnotmatch '^[0-9a-f]{40}$') {
+        Fail-Step "evidence context" "GitHubActionsManualExport requires a lowercase GITHUB_SHA"
+    }
+    $headCommit = & git rev-parse HEAD
+    if ($LASTEXITCODE -ne 0 -or $headCommit -cne $env:GITHUB_SHA) {
+        Fail-Step "evidence context" "GITHUB_SHA does not match HEAD"
+    }
+    Add-Result "evidence context" "PASS" "github_actions_manual_export"
+}
+
 function Write-ArtifactPaths {
     $artifactPaths = @(
         "artifacts/release-manifest.json",
@@ -244,6 +269,7 @@ $EvalReportPath = "artifacts/eval-report.json"
 $PythonCommand = Find-Python
 $env:PYTHON = $PythonCommand
 
+Assert-EvidenceContext
 Assert-CleanGitTree
 Invoke-PowerShellStep "local verification wrapper" (Join-Path $RepoRoot "scripts/run_local_verify.ps1")
 
@@ -254,7 +280,11 @@ if (Test-Path -LiteralPath (Join-Path $RepoRoot $EvalReportPath) -PathType Leaf)
     Add-Result "optional eval report refresh" "SKIPPED" "optional eval report is absent"
 }
 Invoke-OptionalPythonScript "optional SBOM generation" (Join-Path $RepoRoot "scripts/generate_sbom.py") @("scripts/generate_sbom.py", "--manifest", $ManifestPath, "--spdx", $SpdxPath, "--cyclonedx", $CycloneDxPath)
-Invoke-OptionalPythonScript "optional provenance generation" (Join-Path $RepoRoot "scripts/generate_provenance.py") @("scripts/generate_provenance.py", "--manifest", $ManifestPath, "--output", $ProvenancePath)
+$ProvenanceArgs = @("scripts/generate_provenance.py", "--manifest", $ManifestPath, "--output", $ProvenancePath)
+if ($EvidenceContext -eq "GitHubActionsManualExport") {
+    $ProvenanceArgs += @("--execution-context", "github_actions_manual_export")
+}
+Invoke-OptionalPythonScript "optional provenance generation" (Join-Path $RepoRoot "scripts/generate_provenance.py") $ProvenanceArgs
 Invoke-PythonStep "final checksum generation" @("scripts/generate_checksums.py", "--manifest", $ManifestPath, "--output", $ChecksumsPath)
 Invoke-PythonStep "checksum verification" @("scripts/generate_checksums.py", "--verify")
 

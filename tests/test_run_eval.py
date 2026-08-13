@@ -685,7 +685,7 @@ def test_jsonl_shape_validates_local_provenance(tmp_path: Path) -> None:
         "predicate": {
             "schema_version": "1",
             "local_only": True,
-            "builder": {},
+            "builder": {"id": "codex-dev-harness-local"},
             "materials": [],
             "products": [],
         },
@@ -696,8 +696,15 @@ def test_jsonl_shape_validates_local_provenance(tmp_path: Path) -> None:
         "eval": "jsonl_shape",
         "path": "artifacts/provenance.intoto.jsonl",
         "required_top_level": ["_type", "subject", "predicateType", "predicate"],
-        "expected_predicate_type": "https://codex-dev-harness.local/provenance/v1",
-        "require_local_only": True,
+        "allowed_predicate_profiles": [
+            {
+                "predicate_type": "https://codex-dev-harness.local/provenance/v1",
+                "schema_version": "1",
+                "execution_context": None,
+                "local_only": True,
+                "builder_id": "codex-dev-harness-local",
+            }
+        ],
         "required_predicate_fields": ["schema_version", "local_only", "builder", "materials", "products"],
     }
 
@@ -705,3 +712,52 @@ def test_jsonl_shape_validates_local_provenance(tmp_path: Path) -> None:
 
     assert result.passed is True
     assert result.name == "provenance_shape"
+
+
+def test_jsonl_shape_validates_hosted_manual_export_provenance(tmp_path: Path) -> None:
+    statement = {
+        "_type": "https://in-toto.io/Statement/v1",
+        "subject": [],
+        "predicateType": "https://codex-dev-harness.local/provenance/v2",
+        "predicate": {
+            "schema_version": "2",
+            "execution_context": "github_actions_manual_export",
+            "local_only": False,
+            "builder": {"id": "codex-dev-harness-github-actions-manual-export"},
+            "repo": {},
+            "python_version": "3.12.10",
+            "commands": [],
+            "input_manifest": {},
+            "materials": [],
+            "products": [],
+        },
+    }
+    write(tmp_path / "artifacts/provenance.intoto.jsonl", json.dumps(statement) + "\n")
+    case = json.loads((run_eval.REPO_ROOT / "evals/cases/provenance_shape.yml").read_text(encoding="utf-8"))
+
+    result = run_eval.run_jsonl_shape(tmp_path, case)
+
+    assert result.passed is True
+
+
+def test_jsonl_shape_rejects_unapproved_provenance_profile(tmp_path: Path) -> None:
+    statement = {
+        "_type": "https://in-toto.io/Statement/v1",
+        "subject": [],
+        "predicateType": "https://codex-dev-harness.local/provenance/v2",
+        "predicate": {
+            "schema_version": "2",
+            "execution_context": "github_actions_manual_export",
+            "local_only": True,
+            "builder": {"id": "codex-dev-harness-github-actions-manual-export"},
+            "materials": [],
+            "products": [],
+        },
+    }
+    write(tmp_path / "artifacts/provenance.intoto.jsonl", json.dumps(statement) + "\n")
+    case = json.loads((run_eval.REPO_ROOT / "evals/cases/provenance_shape.yml").read_text(encoding="utf-8"))
+
+    result = run_eval.run_jsonl_shape(tmp_path, case)
+
+    assert result.passed is False
+    assert any("profile is not approved" in message for message in result.messages)

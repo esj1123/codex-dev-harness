@@ -85,6 +85,7 @@ def write_evidence(
     provenance_commit: str | None = None,
     repository: str | None = "example/repository",
     git_ref: str | None = "main",
+    provenance_context: str = "local",
 ) -> None:
     provenance_basis = provenance_commit or source_commit
     manifest: dict[str, object] = {
@@ -153,27 +154,45 @@ def write_evidence(
         "name": preflight.MANIFEST_PATH,
         "digest": {"sha256": manifest_digest},
     }
+    provenance_predicate: dict[str, object] = {
+        "schema_version": "1",
+        "local_only": True,
+        "builder": {"id": "codex-dev-harness-local"},
+        "repo": {
+            "repository": bound_repository,
+            "git_ref": bound_git_ref,
+            "git_commit": provenance_basis,
+        },
+        "input_manifest": {
+            "path": preflight.MANIFEST_PATH,
+            "digest": {"sha256": manifest_digest},
+        },
+        "products": [manifest_product],
+        "checksum_entries": [
+            {"path": preflight.MANIFEST_PATH, "sha256": manifest_digest}
+        ],
+    }
+    predicate_type = preflight.LOCAL_PROVENANCE_TYPE
+    if provenance_context == preflight.HOSTED_EXECUTION_CONTEXT:
+        predicate_type = preflight.HOSTED_PROVENANCE_TYPE
+        provenance_predicate.update(
+            {
+                "schema_version": "2",
+                "execution_context": preflight.HOSTED_EXECUTION_CONTEXT,
+                "local_only": False,
+                "builder": {
+                    "id": "codex-dev-harness-github-actions-manual-export"
+                },
+            }
+        )
     write(
         root / "artifacts/provenance.intoto.jsonl",
         json.dumps(
             {
                 "_type": "https://in-toto.io/Statement/v1",
                 "subject": [manifest_product],
-                "predicate": {
-                    "repo": {
-                        "repository": bound_repository,
-                        "git_ref": bound_git_ref,
-                        "git_commit": provenance_basis,
-                    },
-                    "input_manifest": {
-                        "path": preflight.MANIFEST_PATH,
-                        "digest": {"sha256": manifest_digest},
-                    },
-                    "products": [manifest_product],
-                    "checksum_entries": [
-                        {"path": preflight.MANIFEST_PATH, "sha256": manifest_digest}
-                    ],
-                },
+                "predicateType": predicate_type,
+                "predicate": provenance_predicate,
             },
             sort_keys=True,
         )
@@ -206,6 +225,7 @@ def make_repo(
     evidence_mutator: Callable[[Path], None] | None = None,
     repository: str | None = "example/repository",
     git_ref: str | None = "main",
+    provenance_context: str = "local",
 ) -> SyntheticRepo:
     root = tmp_path / "repo"
     init_repo(root)
@@ -218,6 +238,7 @@ def make_repo(
         provenance_commit=provenance_commit,
         repository=repository,
         git_ref=git_ref,
+        provenance_context=provenance_context,
     )
     if evidence_mutator is not None:
         evidence_mutator(root)
@@ -339,9 +360,59 @@ def test_clean_evidence_passes_and_keeps_states_separate(tmp_path: Path) -> None
     assert result["evidence_state"]["checksum_entry_count"] == 5
     assert result["evidence_state"]["checksum_status"] == "PASS"
     assert result["evidence_state"]["license_status"] == "PASS"
+    assert result["evidence_state"]["provenance_execution_context"] == "local"
+    assert result["evidence_state"]["provenance_local_only"] is True
     assert result["performed_actions"] == []
     for key in ["release_target", "uploaded_artifact", "downstream_release"]:
         assert result["external_state"][key]["status"] == "NOT RUN"
+    assert result["external_state"]["uploaded_artifact"]["reason_code"] == "EXTERNAL_STATE_NOT_INSPECTED"
+
+
+def test_current_hosted_manual_export_evidence_is_release_ready(tmp_path: Path) -> None:
+    repo = make_repo(
+        tmp_path,
+        provenance_context=preflight.HOSTED_EXECUTION_CONTEXT,
+    )
+
+    result = preflight.inspect_preflight(repo.root)
+
+    assert result["status"] == "PASS"
+    assert_readiness(result, refresh="READY", release="READY")
+    assert result["evidence_state"]["provenance_execution_context"] == preflight.HOSTED_EXECUTION_CONTEXT
+    assert result["evidence_state"]["provenance_local_only"] is False
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("predicateType", preflight.HOSTED_PROVENANCE_TYPE),
+        ("schema_version", "2"),
+        ("local_only", False),
+        ("builder", {"id": "wrong-builder"}),
+        ("execution_context", preflight.HOSTED_EXECUTION_CONTEXT),
+    ],
+)
+def test_provenance_context_mismatch_blocks_release_readiness(
+    tmp_path: Path,
+    field: str,
+    value: object,
+) -> None:
+    def mutate(root: Path) -> None:
+        path = root / "artifacts/provenance.intoto.jsonl"
+        statement = json.loads(path.read_text(encoding="utf-8"))
+        if field == "predicateType":
+            statement[field] = value
+        else:
+            statement["predicate"][field] = value
+        write(path, json.dumps(statement, sort_keys=True) + "\n")
+
+    repo = make_repo(tmp_path, evidence_mutator=mutate)
+
+    result = preflight.inspect_preflight(repo.root)
+
+    assert result["status"] == "FAIL"
+    assert result["reason_codes"] == [preflight.PROVENANCE_CONTEXT_MISMATCH]
+    assert_readiness(result, refresh="BLOCKED", release="BLOCKED")
 
 
 def test_matching_slash_named_branch_and_upstream_pass(tmp_path: Path) -> None:

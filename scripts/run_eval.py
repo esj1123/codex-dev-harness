@@ -422,12 +422,38 @@ def run_jsonl_shape(repo_root: Path, case: dict[str, Any]) -> EvalResult:
         for field in case.get("required_top_level", []):
             if field not in row:
                 findings.append(f"{relative}: missing top-level field: {field}")
-        expected_predicate_type = case.get("expected_predicate_type")
-        if expected_predicate_type and row.get("predicateType") != expected_predicate_type:
-            findings.append(f"{relative}: unexpected predicateType: {row.get('predicateType')}")
         predicate = row.get("predicate")
-        if case.get("require_local_only") and not (isinstance(predicate, dict) and predicate.get("local_only") is True):
-            findings.append(f"{relative}: predicate.local_only must be true")
+        allowed_profiles = case.get("allowed_predicate_profiles", [])
+        if allowed_profiles:
+            matched = False
+            if isinstance(predicate, dict):
+                builder = predicate.get("builder")
+                builder_id = builder.get("id") if isinstance(builder, dict) else None
+                for profile in allowed_profiles:
+                    if not isinstance(profile, dict):
+                        continue
+                    execution_context_matches = (
+                        predicate.get("execution_context") == profile["execution_context"]
+                        if profile.get("execution_context") is not None
+                        else "execution_context" not in predicate
+                    )
+                    if (
+                        row.get("predicateType") == profile.get("predicate_type")
+                        and predicate.get("schema_version") == profile.get("schema_version")
+                        and predicate.get("local_only") is profile.get("local_only")
+                        and builder_id == profile.get("builder_id")
+                        and execution_context_matches
+                    ):
+                        matched = True
+                        break
+            if not matched:
+                findings.append(f"{relative}: provenance predicate profile is not approved")
+        else:
+            expected_predicate_type = case.get("expected_predicate_type")
+            if expected_predicate_type and row.get("predicateType") != expected_predicate_type:
+                findings.append(f"{relative}: unexpected predicateType: {row.get('predicateType')}")
+            if case.get("require_local_only") and not (isinstance(predicate, dict) and predicate.get("local_only") is True):
+                findings.append(f"{relative}: predicate.local_only must be true")
         if isinstance(predicate, dict):
             for field in case.get("required_predicate_fields", []):
                 if field not in predicate:

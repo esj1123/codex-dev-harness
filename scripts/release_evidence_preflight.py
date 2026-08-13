@@ -26,8 +26,8 @@ MAX_GIT_OUTPUT_BYTES = 64 * 1024
 GIT_TIMEOUT_SECONDS = 10
 
 POLICY_PATHS = (
-    "docs/RELEASE_AUTOMATION_CANDIDATE_CONTRACT.md",
-    "docs/RELEASE_AUTOMATION_PROVENANCE_BOUNDARY_REVIEW.md",
+    "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md",
+    "docs/CI_POLICY.md",
     "docs/RELEASE_BUNDLE_POLICY.md",
     "docs/RELEASE_MANIFEST_POLICY.md",
     "docs/SBOM_PROVENANCE_PLAN.md",
@@ -49,6 +49,10 @@ CHECKSUM_INPUT_PATHS = (
 MANIFEST_PATH = "artifacts/release-manifest.json"
 MANIFEST_DIGEST_MISMATCH = "MANIFEST_DIGEST_MISMATCH"
 REPOSITORY_METADATA_MISMATCH = "REPOSITORY_METADATA_MISMATCH"
+PROVENANCE_CONTEXT_MISMATCH = "PROVENANCE_CONTEXT_MISMATCH"
+LOCAL_PROVENANCE_TYPE = "https://codex-dev-harness.local/provenance/v1"
+HOSTED_PROVENANCE_TYPE = "https://codex-dev-harness.local/provenance/v2"
+HOSTED_EXECUTION_CONTEXT = "github_actions_manual_export"
 READ_ONLY_INPUT_PATHS = POLICY_PATHS + RELEASE_ARTIFACT_PATHS + ("artifacts/eval-report.json",)
 SHA_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 SAFE_REF_PATTERN = re.compile(r"^[A-Za-z0-9._/-]{1,128}$")
@@ -91,11 +95,13 @@ def base_result(*, dry_run: bool) -> dict[str, Any]:
             "checksum_entry_count": 0,
             "checksum_status": "NOT RUN",
             "license_status": "NOT RUN",
+            "provenance_execution_context": None,
+            "provenance_local_only": None,
         },
         "external_state": {
             "tag_target": None,
             "release_target": {"status": "NOT RUN", "reason_code": "NETWORK_NOT_AUTHORIZED"},
-            "uploaded_artifact": {"status": "NOT RUN", "reason_code": "UPLOAD_NOT_AUTHORIZED"},
+            "uploaded_artifact": {"status": "NOT RUN", "reason_code": "EXTERNAL_STATE_NOT_INSPECTED"},
             "downstream_release": {"status": "NOT RUN", "reason_code": "DOWNSTREAM_NOT_AUTHORIZED"},
         },
         "performed_actions": [],
@@ -259,6 +265,36 @@ def read_provenance(repo_root: Path) -> dict[str, Any]:
     return value
 
 
+def provenance_profile(provenance: dict[str, Any]) -> tuple[str, bool]:
+    predicate_type = provenance.get("predicateType")
+    predicate = provenance.get("predicate")
+    if not isinstance(predicate, dict):
+        raise EvidenceValidationError(PROVENANCE_CONTEXT_MISMATCH)
+    builder = predicate.get("builder")
+    builder_id = builder.get("id") if isinstance(builder, dict) else None
+    schema_version = predicate.get("schema_version")
+    local_only = predicate.get("local_only")
+    execution_context = predicate.get("execution_context")
+
+    if (
+        predicate_type == LOCAL_PROVENANCE_TYPE
+        and schema_version == "1"
+        and local_only is True
+        and builder_id == "codex-dev-harness-local"
+        and execution_context is None
+    ):
+        return "local", True
+    if (
+        predicate_type == HOSTED_PROVENANCE_TYPE
+        and schema_version == "2"
+        and execution_context == HOSTED_EXECUTION_CONTEXT
+        and local_only is False
+        and builder_id == "codex-dev-harness-github-actions-manual-export"
+    ):
+        return HOSTED_EXECUTION_CONTEXT, False
+    raise EvidenceValidationError(PROVENANCE_CONTEXT_MISMATCH)
+
+
 def artifact_commits(repo_root: Path) -> dict[str, str]:
     commits: dict[str, str] = {}
     for relative_path in RELEASE_ARTIFACT_PATHS:
@@ -355,6 +391,14 @@ def validate_evidence(repo_root: Path, result: dict[str, Any]) -> tuple[list[str
     except EvidenceValidationError as exc:
         fail_reasons.append(exc.reason_code)
         return fail_reasons, blocked_reasons, note_reasons
+
+    try:
+        provenance_context, provenance_local_only = provenance_profile(provenance)
+    except EvidenceValidationError as exc:
+        fail_reasons.append(exc.reason_code)
+        return fail_reasons, blocked_reasons, note_reasons
+    result["evidence_state"]["provenance_execution_context"] = provenance_context
+    result["evidence_state"]["provenance_local_only"] = provenance_local_only
 
     source_basis = safe_sha(manifest.get("git_commit"))
     repository = concrete_metadata(manifest.get("repository"))
