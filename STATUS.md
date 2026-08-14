@@ -19,7 +19,7 @@ remain available in Git history and `ACCEPTANCE_TRACE.md`.
 | Release generator code | `HARDENED` | Clean-HEAD Git-blob lineage, hash-locked SBOM inputs, non-circular provenance/checksums, and physical output-path controls are implemented. |
 | Tracked release bundle | `VALID ANCESTOR / REFRESH REQUIRED` | The tracked six-file bundle remains internally valid for its recorded ancestor, but the selected maintenance contract changes the current source basis and requires a new exact-SHA export before release readiness is current. |
 | Manual GitHub release-evidence export | `IMPLEMENTED / APPROVAL-GATED / NOT RUN FOR CURRENT SOURCE BASIS` | The bounded one-day transport remains available but has not run for the selected maintenance source basis. Workflow run IDs remain task closeout evidence rather than tracked authority. |
-| External control-plane packages | `CONTRACT SELECTED / IMPLEMENTATION NOT RUN` | Optional local `--package-root` support is frozen as maintenance hardening; it adds no capability, approval, downstream remote action, or schema migration. |
+| External control-plane packages | `HARDENED / EXTERNAL CONTROL-PLANE ROOT VALIDATED` | Optional local `--package-root` support passed same-root compatibility, physical-safety, identity-drift, and real downstream read-only acceptance. It adds no capability, approval, downstream remote action, or schema migration. |
 | Agent Quality/provider | `FROZEN / NOT_ADOPTED` | Optional controls remain available for review, but provider execution and role adoption are held. |
 | Role calibration v7 | `NOT RUN` | No calibration trial or review batch is authorized by core readiness. |
 | Hermes/MCP | `HELD` | Runtime activation requires a selected repository use case and separate approval. |
@@ -40,8 +40,8 @@ remain available in Git history and `ACCEPTANCE_TRACE.md`.
 - Read-only downstream contract validation and release-evidence preflight.
 - Work-package preflight with deterministic `plan_digest`.
 - Work-package postflight over actual Git changes.
-- Selected maintenance contract for physical-safe external control-plane
-  package roots while keeping all Git observation in the downstream target.
+- Physical-safe external control-plane package roots are implemented and
+  validated while all Git observation remains in the downstream target.
 - Authority manifest separating current, durable, and historical documents.
 - Advisory verification-impact planning.
 - Work-package schema v3:

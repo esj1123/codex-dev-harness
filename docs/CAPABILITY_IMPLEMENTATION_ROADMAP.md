@@ -29,7 +29,7 @@ This roadmap does not authorize implementation or side effects.
 | Capability | State | Next decision trigger |
 |---|---|---|
 | Authority manifest and docs gate | Implemented | Change only when authority classes or required documents change. |
-| Work-package preflight/postflight | Implemented | Extend only for a reproduced coordination escape. |
+| Work-package preflight/postflight | Hardened; external control-plane package root validated | Use same-root by default or an explicitly declared physical-safe local package root; extend only for another reproduced coordination escape. |
 | Verification impact planner | Implemented, advisory | Extend when a real changed path cannot be classified safely. |
 | Tiered template rendering | Ready; explicit apply | Preview is the default; use `--apply` only after reviewing the complete plan. |
 | Read-only Local Verify | Implemented | Keep manual and exact-SHA unless owner selects a different CI policy. |
