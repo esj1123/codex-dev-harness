@@ -31,6 +31,22 @@ impact-required extras represented by `checksum_verify`,
 projection in `docs/VERIFICATION_IMPACT_MAP.json` must remain synchronized with
 this contract but cannot override it, execute commands, or grant approval.
 
+## External Control-Plane Packages
+
+Work-package preflight and postflight may read a package from a separately
+declared local `--package-root` while observing Git only in `--repo-root`.
+Omitting `--package-root` preserves the existing same-root behavior. External
+package location does not change work-package schema version `3`, the selected
+verification tier, the package bytes, or the resulting `plan_digest`.
+
+Downstream pilot packages and safe closeout summaries may be retained under
+ignored `local/downstream-pilots/<safe-target-alias>/`. They are local control-
+plane evidence only. They must not contain absolute paths, host or account
+identifiers, runtime executable paths, raw commands or logs, prompts,
+transcripts, private operational data, Office/source content, or generated
+downstream source. Structural `PASS` remains distinct from authenticated
+approval, integration, release, or deployment.
+
 ## Current Verification Checklist
 
 - Requested files exist.

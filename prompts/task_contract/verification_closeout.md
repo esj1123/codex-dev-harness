@@ -8,6 +8,7 @@ This template is documentation-only. It does not run verification or approve sid
 
 - Goal: [task goal]
 - Repository/path: [target path]
+- Package location class: [same-root / external-local-control-plane]
 - Basis ref or commit: [branch, tag, or commit]
 - Work mode: [read-only, documentation-only, implementation, release record, other]
 - Task ID and lane: [task ID] / [contract, feature, or integration]
@@ -47,11 +48,13 @@ Confirm:
 - actual untracked files remained within declared generated outputs
 - work-package conflicts were checked before parallel execution
 - preflight and postflight used the same `plan_digest`
+- preflight and postflight used identical package bytes and package-root class
 - exact verification runtime matched and every required command ID completed
 - rename/delete and commit-count checks passed
 - frozen contract paths were unchanged, or the batch stopped with `CONTRACT_CHANGE_REQUIRED`
 - integration-only files were changed only by the integration lane
 - structural PASS was not treated as authenticated approval
+- no absolute repository, package-root, host, account, or runtime executable path was persisted in JSON evidence
 - no unrelated refactor
 - no secrets or private raw input
 - no sensitive source text or live values

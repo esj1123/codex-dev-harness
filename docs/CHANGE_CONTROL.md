@@ -93,6 +93,22 @@ than shell strings. `{PYTHON}` denotes the separately selected runtime whose
 identity is recorded by `interpreter_id`; the package must not persist an
 absolute interpreter path.
 
+The preflight and postflight CLIs accept an optional `--package-root`. When it
+is omitted, the package root is the target `--repo-root`, preserving the
+existing same-repository command contract. When it is supplied, every
+`--package` value remains a safe relative path under that separate local
+control-plane root, while all Git observations continue to run only against
+the target `--repo-root`.
+
+An external package root is evidence transport, not authority over the target
+repository. It must be a physical local directory: UNC paths, symlinks,
+junctions, reparse points, and root escapes are rejected. A package must be a
+single-link regular `.json` file within the size limit and must decode as
+strict UTF-8 and JSON. The checker captures its bytes once from an open
+descriptor and rejects pre-read/post-read identity, size, time, or attribute
+drift. JSON results never include the repository root, package root, account,
+host, or runtime executable path.
+
 Package declarations do not authenticate approval. They describe the intended
 scope so the checker can detect overlap before independent tasks begin. A
 successful result therefore includes `authorization_status` set to
@@ -122,6 +138,10 @@ JSON. Every lane in one batch must use the same package set and therefore the
 same `plan_digest`. The digest binds the exact verification command arrays and
 runtime identity. `approval_ref` remains part of the execution instance and
 does not authenticate authorization.
+
+Callers must use the process exit code, stable result fields, reason codes, and
+declared command IDs as evidence. Human-readable stderr text is diagnostic and
+is not a stable verification interface.
 
 After focused verification and one coherent lane commit, run the postflight
 checker for that task. Postflight observes Git without writing and verifies:

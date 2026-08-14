@@ -517,6 +517,13 @@ def test_protocol_namespace_ownership_is_unambiguous_in_current_policy() -> None
     assert tier_table_owners == ["docs/VERIFICATION.md"]
 
     verification = Path("docs/VERIFICATION.md").read_text(encoding="utf-8")
+    change_control = Path("docs/CHANGE_CONTROL.md").read_text(encoding="utf-8")
+    task_contract = Path("prompts/task_contract/task_contract.md").read_text(
+        encoding="utf-8"
+    )
+    closeout = Path(
+        "prompts/task_contract/verification_closeout.md"
+    ).read_text(encoding="utf-8")
     for semantic_name in [
         "CONTRACT_SCOPE",
         "FOCUSED_FEATURE",
@@ -524,6 +531,15 @@ def test_protocol_namespace_ownership_is_unambiguous_in_current_policy() -> None
         "HOSTED_EXACT_SHA",
     ]:
         assert f"`{semantic_name}`" in verification
+
+    for text in [change_control, verification, task_contract]:
+        assert "`--package-root`" in text
+        assert "--repo-root" in text
+    assert "same-root / external-local-control-plane" in closeout
+    assert "identical package bytes and package-root class" in closeout
+    assert "stderr" in change_control
+    assert "stderr wording is diagnostic only" in task_contract
+    assert "absolute repository, package-root, host, account" in closeout
 
     status = Path("STATUS.md").read_text(encoding="utf-8")
     roadmap = Path("docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md").read_text(

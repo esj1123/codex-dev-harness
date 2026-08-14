@@ -12,6 +12,7 @@ This template is documentation-only. It does not grant approval for side effects
 
 - Repository: [repo name or URL]
 - Local path: [absolute or repo-relative path]
+- Package root: [same as repository / separate local control-plane root]
 - Basis ref or commit, if relevant: [branch, tag, or commit]
 
 ## Work Package
@@ -39,6 +40,13 @@ For parallel work, save the machine-readable package under the ignored
 python scripts/work_package_conflict_check.py --repo-root . --package <PACKAGE_JSON> [--package <PACKAGE_JSON> ...] --json
 ```
 
+For an approved external control-plane package, keep each package name relative
+to that root and run:
+
+```text
+python scripts/work_package_conflict_check.py --repo-root <TARGET_ROOT> --package-root <CONTROL_PLANE_ROOT> --package <PACKAGE_ROOT_RELATIVE_JSON> --json
+```
+
 The package describes scope and conflicts. It does not grant approval.
 `authorization_status=NOT_AUTHENTICATED` remains fixed even when structural
 validation passes.
@@ -49,6 +57,11 @@ its focused verification is complete, run:
 ```text
 python scripts/work_package_postflight.py --repo-root . --package <PACKAGE_JSON> [--package <PACKAGE_JSON> ...] --task-id <TASK_ID> --verification-status PASS --verification-interpreter-id <INTERPRETER_ID> --completed-command-id <COMMAND_ID> --json
 ```
+
+Use the identical `--package-root` and package-relative name at postflight.
+Never copy repository or package-root absolute paths into the package or JSON
+evidence. Treat process exit status, reason codes, and command IDs as the
+verification interface; stderr wording is diagnostic only.
 
 Do not integrate the lane unless preflight and postflight use the same
 `plan_digest`, postflight reports `PASS`, the frozen contract is unchanged, and
