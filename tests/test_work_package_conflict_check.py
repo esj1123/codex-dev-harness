@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 from pathlib import Path
+import stat
+from types import SimpleNamespace
 
 import pytest
 
@@ -537,3 +540,147 @@ def test_oversized_package_is_rejected(tmp_path: Path) -> None:
 
     assert result["status"] == "FAIL"
     assert result["reason_codes"] == ["PACKAGE_TOO_LARGE"]
+
+
+def test_external_package_root_preserves_same_root_result_and_cli_output(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    target = tmp_path / "target"
+    control = tmp_path / "control"
+    target.mkdir()
+    relative = "work-packages/feature.json"
+    write_json(control / relative, package("feature-a"))
+
+    same_root = checker.inspect_packages([relative], repo_root=control)
+    external = checker.inspect_packages(
+        [relative],
+        repo_root=target,
+        package_root=control,
+    )
+
+    assert external == same_root
+    args = [
+        "--repo-root",
+        str(target),
+        "--package-root",
+        str(control),
+        "--package",
+        relative,
+        "--json",
+    ]
+    assert checker.main(args) == 0
+    output = capsys.readouterr().out
+    assert json.loads(output) == external
+    assert str(target) not in output
+    assert str(control) not in output
+
+
+@pytest.mark.parametrize("relative", ["../package.json", "C:/package.json", "package.txt"])
+def test_external_package_name_fails_closed(tmp_path: Path, relative: str) -> None:
+    control = tmp_path / "control"
+    control.mkdir()
+
+    result = checker.inspect_packages(
+        [relative],
+        repo_root=tmp_path,
+        package_root=control,
+    )
+
+    assert result["status"] == "FAIL"
+    assert result["reason_codes"] == ["PACKAGE_PATH_INVALID"]
+
+
+def test_unc_and_unsafe_physical_package_roots_fail_closed(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    control = tmp_path / "control"
+    write_json(control / "package.json", package("feature-a"))
+
+    unc = checker.inspect_packages(
+        ["package.json"],
+        repo_root=tmp_path,
+        package_root=Path(r"\\server\share"),
+    )
+    assert unc["reason_codes"] == ["PACKAGE_ROOT_INVALID"]
+
+    monkeypatch.setattr(checker, "_is_unsafe_link", lambda _info: True)
+    unsafe = checker.inspect_packages(
+        ["package.json"],
+        repo_root=tmp_path,
+        package_root=control,
+    )
+    assert unsafe["reason_codes"] == ["PACKAGE_ROOT_UNSAFE"]
+
+
+@pytest.mark.parametrize(
+    "mode,attributes",
+    [
+        (stat.S_IFLNK, 0),
+        (stat.S_IFDIR, 0x400),
+    ],
+)
+def test_symlink_and_junction_reparse_metadata_are_unsafe(
+    mode: int,
+    attributes: int,
+) -> None:
+    info = SimpleNamespace(st_mode=mode, st_file_attributes=attributes)
+
+    assert checker._is_unsafe_link(info) is True
+
+
+def test_external_package_hardlink_is_rejected(tmp_path: Path) -> None:
+    control = tmp_path / "control"
+    source = control / "package.json"
+    alias = control / "alias.json"
+    write_json(source, package("feature-a"))
+    os.link(source, alias)
+
+    result = checker.inspect_packages(
+        ["package.json"],
+        repo_root=tmp_path,
+        package_root=control,
+    )
+
+    assert result["reason_codes"] == ["PACKAGE_MULTIPLE_LINKS"]
+
+
+@pytest.mark.parametrize("drift_field", ["st_mtime_ns", "st_ctime_ns"])
+def test_external_package_metadata_drift_is_rejected(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    drift_field: str,
+) -> None:
+    control = tmp_path / "control"
+    write_json(control / "package.json", package("feature-a"))
+    original_fstat = checker.os.fstat
+    calls = 0
+
+    def drifting_fstat(fd: int):
+        nonlocal calls
+        calls += 1
+        info = original_fstat(fd)
+        if calls != 2:
+            return info
+        values = {
+            "st_dev": info.st_dev,
+            "st_ino": info.st_ino,
+            "st_mode": info.st_mode,
+            "st_nlink": info.st_nlink,
+            "st_size": info.st_size,
+            "st_mtime_ns": info.st_mtime_ns,
+            "st_ctime_ns": info.st_ctime_ns,
+            "st_file_attributes": getattr(info, "st_file_attributes", 0),
+        }
+        values[drift_field] += 1
+        return SimpleNamespace(**values)
+
+    monkeypatch.setattr(checker.os, "fstat", drifting_fstat)
+    result = checker.inspect_packages(
+        ["package.json"],
+        repo_root=tmp_path,
+        package_root=control,
+    )
+
+    assert result["reason_codes"] == ["PACKAGE_IDENTITY_DRIFT"]

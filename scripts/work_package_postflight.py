@@ -84,11 +84,19 @@ def run_git(repo_root: Path, *args: str, check: bool = True) -> subprocess.Compl
     return completed
 
 
-def load_payloads(package_paths: list[str], repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+def load_payloads(
+    package_paths: list[str],
+    repo_root: Path,
+    package_root: Path | None = None,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     payloads: list[dict[str, Any]] = []
     for package_path in package_paths:
         try:
-            payload = preflight.load_package(package_path, repo_root=repo_root)
+            payload = preflight.load_package(
+                package_path,
+                repo_root=repo_root,
+                package_root=package_root,
+            )
         except FileNotFoundError:
             result = base_result()
             result["status"] = "BLOCKED"
@@ -199,6 +207,7 @@ def inspect_postflight(
     verification_interpreter_id: str,
     completed_command_ids: list[str],
     repo_root: Path = REPO_ROOT,
+    package_root: Path | None = None,
 ) -> dict[str, Any]:
     result = base_result()
     result["verification"]["status"] = verification_status
@@ -219,7 +228,11 @@ def inspect_postflight(
         result["reason_codes"] = ["VERIFICATION_COMMAND_ID_SET_INVALID"]
         return result
 
-    payloads, preflight_result = load_payloads(package_paths, repo_root)
+    payloads, preflight_result = load_payloads(
+        package_paths,
+        repo_root,
+        package_root,
+    )
     if not payloads:
         preflight_result["verification"]["status"] = verification_status
         return preflight_result
@@ -371,7 +384,11 @@ def text_summary(result: dict[str, Any]) -> str:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Validate a completed work-package lane.")
     parser.add_argument("--repo-root", default=str(REPO_ROOT), help="Repository root")
-    parser.add_argument("--package", action="append", required=True, help="Repo-relative work-package JSON path")
+    parser.add_argument(
+        "--package-root",
+        help="Optional local control-plane root; defaults to repo-root",
+    )
+    parser.add_argument("--package", action="append", required=True, help="Package-root-relative work-package JSON path")
     parser.add_argument("--task-id", required=True, help="Task ID to validate")
     parser.add_argument("--verification-status", required=True, choices=VERIFICATION_STATUSES)
     parser.add_argument("--verification-interpreter-id", required=True)
@@ -394,6 +411,7 @@ def main(argv: list[str] | None = None) -> int:
         verification_interpreter_id=args.verification_interpreter_id,
         completed_command_ids=args.completed_command_id,
         repo_root=Path(args.repo_root),
+        package_root=Path(args.package_root) if args.package_root else None,
     )
     if args.json:
         sys.stdout.buffer.write(safe_output_bytes(result))

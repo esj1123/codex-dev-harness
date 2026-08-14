@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path, PurePosixPath
 import re
 import stat
@@ -452,37 +453,135 @@ def inspect_payloads(payloads: list[Any]) -> dict[str, Any]:
     return result
 
 
-def load_package(raw_path: str, *, repo_root: Path) -> Any:
-    if not safe_repo_path(raw_path) or not raw_path.endswith(".json"):
-        raise ValueError("PACKAGE_PATH_INVALID")
-    root = repo_root.resolve()
-    candidate = root.joinpath(*PurePosixPath(raw_path).parts)
+def _stat_snapshot(info: os.stat_result) -> tuple[int, ...]:
+    return (
+        info.st_dev,
+        info.st_ino,
+        stat.S_IFMT(info.st_mode),
+        info.st_nlink,
+        info.st_size,
+        info.st_mtime_ns,
+        info.st_ctime_ns,
+        getattr(info, "st_file_attributes", 0),
+    )
+
+
+def _path_descriptor_identity(info: os.stat_result) -> tuple[int, ...]:
+    return (
+        info.st_dev,
+        info.st_ino,
+        stat.S_IFMT(info.st_mode),
+        info.st_nlink,
+        info.st_size,
+        info.st_mtime_ns,
+        getattr(info, "st_file_attributes", 0),
+    )
+
+
+def _is_unsafe_link(info: os.stat_result) -> bool:
+    return stat.S_ISLNK(info.st_mode) or bool(
+        getattr(info, "st_file_attributes", 0)
+        & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+    )
+
+
+def _physical_package_root(raw_root: Path) -> Path:
+    raw_text = str(raw_root)
+    normalized = raw_text.replace("/", "\\")
+    if normalized.startswith("\\\\"):
+        raise ValueError("PACKAGE_ROOT_INVALID")
+    root = Path(os.path.abspath(raw_root))
+    nodes = list(root.parents)
+    nodes.reverse()
+    nodes.append(root)
     try:
-        resolved = candidate.resolve(strict=True)
+        for node in nodes:
+            info = node.lstat()
+            if _is_unsafe_link(info):
+                raise ValueError("PACKAGE_ROOT_UNSAFE")
+    except FileNotFoundError as exc:
+        raise FileNotFoundError("PACKAGE_ROOT_MISSING") from exc
+    if not stat.S_ISDIR(root.lstat().st_mode):
+        raise ValueError("PACKAGE_ROOT_INVALID")
+    return root
+
+
+def _validate_package_parents(root: Path, relative: PurePosixPath) -> Path:
+    candidate = root.joinpath(*relative.parts)
+    try:
+        candidate.relative_to(root)
+    except ValueError as exc:
+        raise ValueError("PACKAGE_PATH_OUTSIDE_ROOT") from exc
+    current = root
+    try:
+        for part in relative.parts[:-1]:
+            current = current / part
+            info = current.lstat()
+            if not stat.S_ISDIR(info.st_mode) or _is_unsafe_link(info):
+                raise ValueError("PACKAGE_PARENT_UNSAFE")
     except FileNotFoundError as exc:
         raise FileNotFoundError("PACKAGE_MISSING") from exc
+    return candidate
+
+
+def load_package(
+    raw_path: str,
+    *,
+    repo_root: Path,
+    package_root: Path | None = None,
+) -> Any:
+    if not safe_repo_path(raw_path) or not raw_path.endswith(".json"):
+        raise ValueError("PACKAGE_PATH_INVALID")
+    root = _physical_package_root(package_root if package_root is not None else repo_root)
+    candidate = _validate_package_parents(root, PurePosixPath(raw_path))
     try:
-        resolved.relative_to(root)
-    except ValueError as exc:
-        raise ValueError("PACKAGE_PATH_OUTSIDE_REPOSITORY") from exc
-    info = resolved.stat()
-    if not stat.S_ISREG(info.st_mode) or candidate.is_symlink():
+        leaf_info = candidate.lstat()
+    except FileNotFoundError as exc:
+        raise FileNotFoundError("PACKAGE_MISSING") from exc
+    if not stat.S_ISREG(leaf_info.st_mode) or _is_unsafe_link(leaf_info):
         raise ValueError("PACKAGE_NOT_REGULAR_FILE")
-    if info.st_size > MAX_INPUT_BYTES:
+    if leaf_info.st_nlink != 1:
+        raise ValueError("PACKAGE_MULTIPLE_LINKS")
+    if leaf_info.st_size > MAX_INPUT_BYTES:
         raise ValueError("PACKAGE_TOO_LARGE")
     try:
-        return json.loads(resolved.read_text(encoding="utf-8"))
+        with candidate.open("rb") as handle:
+            before = os.fstat(handle.fileno())
+            data = handle.read(MAX_INPUT_BYTES + 1)
+            after = os.fstat(handle.fileno())
+        path_after = candidate.lstat()
+        if (
+            _stat_snapshot(before) != _stat_snapshot(after)
+            or _stat_snapshot(leaf_info) != _stat_snapshot(path_after)
+            or _path_descriptor_identity(leaf_info)
+            != _path_descriptor_identity(before)
+        ):
+            raise ValueError("PACKAGE_IDENTITY_DRIFT")
+        if len(data) > MAX_INPUT_BYTES:
+            raise ValueError("PACKAGE_TOO_LARGE")
+        return json.loads(data.decode("utf-8"))
     except UnicodeDecodeError as exc:
         raise ValueError("PACKAGE_NOT_UTF8") from exc
     except json.JSONDecodeError as exc:
         raise ValueError("PACKAGE_JSON_INVALID") from exc
 
 
-def inspect_packages(package_paths: list[str], *, repo_root: Path = REPO_ROOT) -> dict[str, Any]:
+def inspect_packages(
+    package_paths: list[str],
+    *,
+    repo_root: Path = REPO_ROOT,
+    package_root: Path | None = None,
+) -> dict[str, Any]:
     payloads: list[Any] = []
     for raw_path in package_paths:
         try:
-            payloads.append(load_package(raw_path, repo_root=repo_root))
+            payloads.append(
+                load_package(
+                    raw_path,
+                    repo_root=repo_root,
+                    package_root=package_root,
+                )
+            )
         except FileNotFoundError:
             result = base_result()
             result["status"] = "BLOCKED"
@@ -516,14 +615,22 @@ def text_summary(result: dict[str, Any]) -> str:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Check whether repository work packages may run in parallel.")
     parser.add_argument("--repo-root", default=str(REPO_ROOT), help="Repository root")
-    parser.add_argument("--package", action="append", required=True, help="Repo-relative work-package JSON path")
+    parser.add_argument(
+        "--package-root",
+        help="Optional local control-plane root; defaults to repo-root",
+    )
+    parser.add_argument("--package", action="append", required=True, help="Package-root-relative work-package JSON path")
     parser.add_argument("--json", action="store_true", help="Emit bounded deterministic JSON")
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    result = inspect_packages(args.package, repo_root=Path(args.repo_root))
+    result = inspect_packages(
+        args.package,
+        repo_root=Path(args.repo_root),
+        package_root=Path(args.package_root) if args.package_root else None,
+    )
     if args.json:
         sys.stdout.buffer.write(json_bytes(result))
     else:

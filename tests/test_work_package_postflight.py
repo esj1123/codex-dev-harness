@@ -79,12 +79,14 @@ def inspect(
     repo: Path,
     package_path: str,
     *,
+    package_root: Path | None = None,
     task_id: str = "feature-a",
     verification_status: str = "PASS",
     verification_interpreter_id: str | None = None,
     completed_command_ids: list[str] | None = None,
 ) -> dict[str, object]:
-    payload = json.loads((repo / package_path).read_text(encoding="utf-8"))
+    package_base = package_root if package_root is not None else repo
+    payload = json.loads((package_base / package_path).read_text(encoding="utf-8"))
     contract = payload["verification_contract"]
     return postflight.inspect_postflight(
         [package_path],
@@ -99,6 +101,7 @@ def inspect(
             else [command["command_id"] for command in contract["commands"]]
         ),
         repo_root=repo,
+        package_root=package_root,
     )
 
 
@@ -474,3 +477,82 @@ def test_cli_json_is_deterministic_bounded_and_path_safe(
     assert str(tmp_path) not in first
     assert json.loads(first)["performed_actions"] == []
     assert json.loads(first)["authorization_status"] == "NOT_AUTHENTICATED"
+
+
+def test_external_package_root_postflight_passes_with_preflight_digest(
+    tmp_path: Path,
+) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    control = tmp_path / "control"
+    package_path = "work-packages/feature.json"
+    payload = package(base_sha)
+    target = control / package_path
+    target.parent.mkdir(parents=True)
+    target.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    commit_file(repo, "feature.txt", "feature\n")
+
+    result = inspect(
+        repo,
+        package_path,
+        package_root=control,
+    )
+    expected = preflight.inspect_packages(
+        [package_path],
+        repo_root=repo,
+        package_root=control,
+    )
+
+    assert result["status"] == "PASS"
+    assert result["plan_digest"] == expected["plan_digest"]
+    encoded = json.dumps(result, sort_keys=True)
+    assert str(repo) not in encoded
+    assert str(control) not in encoded
+
+
+def test_external_package_root_cli_is_deterministic_and_path_safe(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    control = tmp_path / "control"
+    package_path = "work-packages/feature.json"
+    payload = package(base_sha)
+    target = control / package_path
+    target.parent.mkdir(parents=True)
+    target.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    commit_file(repo, "feature.txt", "feature\n")
+    args = [
+        "--repo-root",
+        str(repo),
+        "--package-root",
+        str(control),
+        "--package",
+        package_path,
+        "--task-id",
+        "feature-a",
+        "--verification-status",
+        "PASS",
+        "--verification-interpreter-id",
+        "python-3.12.13-pytest-9.0.3",
+        "--completed-command-id",
+        "focused_pytest",
+        "--json",
+    ]
+
+    assert postflight.main(args) == 0
+    first = capsys.readouterr().out
+    assert postflight.main(args) == 0
+    second = capsys.readouterr().out
+
+    assert first == second
+    assert str(repo) not in first
+    assert str(control) not in first
+    assert json.loads(first)["status"] == "PASS"
