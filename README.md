@@ -102,7 +102,9 @@ Other unlisted documents are non-authoritative reference material.
 
 ## Read-Only Validation
 
-Use the standing local wrapper for the normal V2 verification surface:
+Use the standing local wrapper for the normal `LOCAL_INTEGRATION (V2)`
+verification surface. Tier meaning is defined only in
+`docs/VERIFICATION.md`:
 
 - `python --version`
 - `python -m pip install --require-hashes --only-binary=:all: -r requirements-dev.lock`
@@ -138,7 +140,8 @@ artifact upload.
 
 The owner has selected a bounded `manual_github_release_evidence_export`
 extension. Its contract preserves the
-existing verification path as the default V3 mode and allows only a separate,
+existing verification path as the default `HOSTED_EXACT_SHA (V3)` mode and
+allows only a separate,
 exact-SHA, manual, one-day evidence transport after explicit approval. It does
 not authorize an automatic trigger, tag, GitHub Release, signing, publication,
 deployment, secret use, or `origin/main` mutation.

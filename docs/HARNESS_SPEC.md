@@ -14,7 +14,9 @@ The harness provides:
 2. task and work-package contracts;
 3. base templates, profiles, and tiered rendering;
 4. side-effect and downstream boundaries;
-5. focused, V2, impact-extra, and manual V3 verification;
+5. focused, `LOCAL_INTEGRATION (V2)`, impact-extra, and manual
+   `HOSTED_EXACT_SHA (V3)` verification as defined only in
+   `docs/VERIFICATION.md`;
 6. safe JSON evidence and checkout-independent integrity checks;
 7. advisory approved-corpus retrieval;
 8. repeated Agent Quality trial validation and aggregation; and

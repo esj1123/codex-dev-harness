@@ -27,7 +27,8 @@ for its current human summary.
 historical evidence. `STATUS.md` is the current implementation sequencing
 source of truth; `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` is consulted only
 when selecting a capability. The manifest also declares bounded operational
-inputs that tools consume without making those files current authority. A
+inputs and the sole owner document for each protocol namespace without making
+operational inputs current authority. A
 feature lane that needs to change
 `contract_frozen_paths` must stop with `CONTRACT_CHANGE_REQUIRED` and return to
 the integration owner.
@@ -36,7 +37,7 @@ Allowed:
 - Edit documentation, markdown templates, profiles, examples, tests, and quality gate scripts within the requested scope.
 - Keep render behavior dry-run first for examples.
 - Preserve the safety boundary around private data and live targets.
-- Use separately approved disjoint feature lanes under the work-package v3 contract.
+- Use separately approved disjoint feature lanes under the work-package schema v3 contract.
 
 Not allowed by default:
 - Add real application code.

@@ -60,6 +60,7 @@ def test_current_tree_manifest_passes_with_exact_required_doc_coverage() -> None
     assert result["manifest_summary"]["classified_required_doc_count"] == 78
     assert result["manifest_summary"]["default_read_order_count"] == 6
     assert result["manifest_summary"]["conditional_read_order_count"] == 4
+    assert result["manifest_summary"]["namespace_authority_count"] == 4
     assert result["manifest_summary"]["operational_input_count"] == 6
     assert result["performed_actions"] == []
 
@@ -105,6 +106,60 @@ def test_default_read_order_is_exact_ordered_current_authority_subset() -> None:
     result = checker.validate_manifest(changed, repo_root=REPO_ROOT)
     assert result["status"] == "FAIL"
     assert "DEFAULT_READ_ORDER_INVALID" in result["reason_codes"]
+
+
+def test_namespace_authority_is_exact_and_points_to_declared_authority() -> None:
+    payload = load_manifest()
+
+    assert payload["schema_version"] == "2"
+    assert payload["namespace_authority"] == checker.EXPECTED_NAMESPACE_AUTHORITY
+    declared = {
+        path
+        for key in checker.CLASSIFICATION_KEYS
+        for path in payload[key]
+    }
+    assert set(payload["namespace_authority"].values()) <= declared
+
+
+def test_manifest_v1_is_rejected_after_namespace_authority_migration() -> None:
+    payload = load_manifest()
+    payload["schema_version"] = "1"
+
+    result = checker.validate_manifest(payload, repo_root=REPO_ROOT)
+
+    assert result["status"] == "FAIL"
+    assert "SCHEMA_VERSION_INVALID" in result["reason_codes"]
+
+
+@pytest.mark.parametrize(
+    ("mutation", "reason_code"),
+    [
+        (
+            lambda payload: payload["namespace_authority"].pop("verification_tier"),
+            "NAMESPACE_AUTHORITY_SET_INVALID",
+        ),
+        (
+            lambda payload: payload["namespace_authority"].update(
+                verification_tier="../VERIFICATION.md"
+            ),
+            "NAMESPACE_AUTHORITY_PATH_UNSAFE",
+        ),
+        (
+            lambda payload: payload["namespace_authority"].update(
+                verification_tier="docs/UNLISTED.md"
+            ),
+            "NAMESPACE_AUTHORITY_OUTSIDE_AUTHORITY",
+        ),
+    ],
+)
+def test_namespace_authority_drift_fails_closed(mutation, reason_code: str) -> None:
+    payload = load_manifest()
+    mutation(payload)
+
+    result = checker.validate_manifest(payload, repo_root=REPO_ROOT)
+
+    assert result["status"] == "FAIL"
+    assert reason_code in result["reason_codes"]
 
 
 def test_status_current_state_must_match_manifest(tmp_path: Path) -> None:

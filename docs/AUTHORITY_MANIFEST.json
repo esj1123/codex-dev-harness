@@ -127,6 +127,12 @@
     "scripts/gates/"
   ],
   "manifest_id": "authority_manifest",
+  "namespace_authority": {
+    "agent_run_evidence_schema": "docs/AGENT_QUALITY_STABILITY_POLICY.md",
+    "release_provenance_schema": "docs/SBOM_PROVENANCE_PLAN.md",
+    "verification_tier": "docs/VERIFICATION.md",
+    "work_package_schema": "docs/CHANGE_CONTROL.md"
+  },
   "operational_inputs": [
     "docs/APPROVED_CORPUS_SOURCE_SET.v2.json",
     "docs/DOWNSTREAM_PRODUCT_INTEGRATION_BOUNDARY_REVIEW.md",
@@ -135,6 +141,6 @@
     "evals/agentic/agent-role-profiles.json",
     "evals/agentic/suites/agentic-regression-v2.json"
   ],
-  "schema_version": "1",
+  "schema_version": "2",
   "unlisted_document_policy": "non_authoritative_reference_only_except_declared_operational_inputs"
 }

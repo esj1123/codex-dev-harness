@@ -34,9 +34,9 @@ This roadmap does not authorize implementation or side effects.
 | Tiered template rendering | Ready; explicit apply | Preview is the default; use `--apply` only after reviewing the complete plan. |
 | Read-only Local Verify | Implemented | Keep manual and exact-SHA unless owner selects a different CI policy. |
 | JSON evidence core | Ready | Core schema validation is in the default gate; optional bundles stay standalone. |
-| Release evidence generators | Hardened; refresh required | Re-run only after a new source basis and exact artifact-write approval are established. |
+| Release evidence generators | Hardened | Re-run only after a new source basis and exact artifact-write approval are established. |
 | Tracked release bundle | See `STATUS.md` | Keep source basis, artifact commit, local Git availability, transient transport, and publication state distinct. |
-| Manual GitHub release-evidence export | Selected; contract frozen | Preserve default V3 verification, use one explicit exact-SHA export mode, one-day transient transport, and local evidence integration only. Read `STATUS.md` for implementation state. |
+| Manual GitHub release-evidence export | Implemented; approval-gated | Preserve default `HOSTED_EXACT_SHA (V3)` verification, use one explicit exact-SHA export mode, one-day transient transport, and local evidence integration only. Read `STATUS.md` for the current run state. |
 | Approved corpus and local retrieval | Advisory, frozen | Change source membership or retrieval behavior only through separate review. |
 | Downstream contract validator | Implemented | Use only with target-specific authority and side-effect declarations. |
 | Agent Quality/provider | Frozen, not adopted | Reopen only after a separate value decision; role calibration v7 is not run. |
@@ -47,11 +47,11 @@ This roadmap does not authorize implementation or side effects.
 
 ## Current Selection
 
-The owner selected `manual_github_release_evidence_export` as the next bounded
-capability because the current local host cannot provide a trustworthy Full
-release-wrapper execution. Follow `STATUS.md` and the serial work-package v3
-contract for its implementation state and sequencing; no other capability is
-selected automatically.
+No new capability implementation is currently selected. Authority and release
+evidence maintenance may use already implemented controls under their existing
+approval gates, but it does not select a new capability. Follow `STATUS.md` for
+current sequencing and the serial work-package schema v3 contract for scoped
+repository changes.
 
 For Agent Quality work:
 

@@ -83,7 +83,10 @@ Each package must declare:
 - `declared_side_effects`
 - an optional safe `approval_ref`
 
-Schema version `3` requires `contract_basis_sha` to equal `base_sha`. Feature
+Work-package schema version `3` requires `contract_basis_sha` to equal
+`base_sha`. It is independent of the `HOSTED_EXACT_SHA (V3)` verification tier;
+`docs/AUTHORITY_MANIFEST.json` routes those namespaces to this document and
+`docs/VERIFICATION.md` respectively. Feature
 packages must declare a non-empty shared `contract_frozen_paths` list and include
 that surface in `read_set`. Verification commands use argument arrays rather
 than shell strings. `{PYTHON}` denotes the separately selected runtime whose
@@ -190,7 +193,7 @@ push a cumulative tip, or dispatch the existing Local Verify workflow.
 
 The selected `manual_github_release_evidence_export` capability is a bounded
 integration-only exception to the previous no-upload CI policy. It does not
-exist until its workflow implementation commit passes its own work-package v3
+exist until its workflow implementation commit passes its own work-package schema v3
 postflight. When implemented, its exact branch push, manual dispatch, one
 transient artifact upload/download, and local artifact integration remain
 separate declared side effects. It does not authorize automatic triggers,

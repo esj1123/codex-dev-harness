@@ -253,13 +253,17 @@ def test_docs_gate_fails_closed_for_missing_or_malformed_manifest(
 
 
 def test_v2_policy_separates_core_from_impact_required_extras() -> None:
-    policy = Path("docs/CI_POLICY.md").read_text(encoding="utf-8")
+    verification = Path("docs/VERIFICATION.md").read_text(encoding="utf-8")
+    ci_policy = Path("docs/CI_POLICY.md").read_text(encoding="utf-8")
     impact_map = json.loads(
         Path("docs/VERIFICATION_IMPACT_MAP.json").read_text(encoding="utf-8")
     )
 
-    assert "The V2 core is always" in policy
-    assert "impact-required extras" in policy
+    assert "## Verification Tiers" in verification
+    assert "The V2 core is always" in verification
+    assert "impact-required extras" in verification
+    assert "## Verification Tiers" not in ci_policy
+    assert "sole normative authority" in ci_policy
     assert impact_map["tier_command_ids"]["V2"][-3:] == [
         "full_pytest",
         "standalone_eval",
@@ -271,7 +275,7 @@ def test_v2_policy_separates_core_from_impact_required_extras() -> None:
         "render_dry_runs",
     ]:
         assert command_id in impact_map["command_ids"]
-        assert f"`{command_id}`" in policy
+        assert f"`{command_id}`" in verification
 
 
 def test_readme_describes_installed_manual_local_verify_workflow() -> None:
@@ -312,7 +316,8 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
         "Refresh only `artifacts/corpus-digest.json` under its separately approved serial "
         "work-package, then freeze that clean commit as release source basis `S`. Push "
         "`S` only to the existing feature branch and require an exact-SHA GitHub `verify` "
-        "V3 before the separately approved export run. The tracked release bundle remains "
+        "`HOSTED_EXACT_SHA (V3)` before the separately approved export run. The tracked "
+        "release bundle remains "
         "`VALID ANCESTOR / REFRESH REQUIRED` until the exported six-file bundle is "
         "downloaded, validated, committed locally, and promoted to local `main`. Tag, "
         "release, signing, publication, deployment, `origin/main`, Agent Quality/provider, "
@@ -393,7 +398,7 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
         assert clause in normalized_text, path
 
     assert "focused development and narrow test commands" in runtime
-    assert "exact V2 verification run" in runtime
+    assert "exact `LOCAL_INTEGRATION (V2)` verification run" in runtime
     install = "python -m pip install --require-hashes --only-binary=:all: -r requirements-dev.lock"
     assert runtime.index(install) < runtime.index(
         "python -m pip check"
@@ -466,7 +471,8 @@ def test_top_level_architecture_and_capability_docs_are_current_and_compact() ->
     assert len(roadmap.splitlines()) <= 200
     assert "## Capability Registry" in roadmap
     assert "### Phase " not in roadmap
-    assert "Follow `STATUS.md` and the serial work-package v3" in roadmap
+    assert "No new capability implementation is currently selected" in roadmap
+    assert "serial work-package schema v3" in roadmap
     assert "## Read-Only Validation" in readme
     assert "## Artifact-Writing Release Verification" in readme
 
@@ -484,6 +490,48 @@ def test_work_package_v2_policy_separates_plan_from_authorization() -> None:
         "`NOT_AUTHENTICATED`",
     ]:
         assert phrase in change_control
+
+
+def test_protocol_namespace_ownership_is_unambiguous_in_current_policy() -> None:
+    manifest = json.loads(
+        Path("docs/AUTHORITY_MANIFEST.json").read_text(encoding="utf-8")
+    )
+    expected = {
+        "agent_run_evidence_schema": "docs/AGENT_QUALITY_STABILITY_POLICY.md",
+        "release_provenance_schema": "docs/SBOM_PROVENANCE_PLAN.md",
+        "verification_tier": "docs/VERIFICATION.md",
+        "work_package_schema": "docs/CHANGE_CONTROL.md",
+    }
+    assert manifest["namespace_authority"] == expected
+
+    current_policy_paths = sorted(
+        set(manifest["current_authority"]) | set(manifest["durable_policy"])
+    )
+    tier_table_owners = []
+    for path in current_policy_paths:
+        text = Path(path).read_text(encoding="utf-8")
+        if "## Verification Tiers" in text:
+            tier_table_owners.append(path)
+        assert "work-package v3" not in text, path
+
+    assert tier_table_owners == ["docs/VERIFICATION.md"]
+
+    verification = Path("docs/VERIFICATION.md").read_text(encoding="utf-8")
+    for semantic_name in [
+        "CONTRACT_SCOPE",
+        "FOCUSED_FEATURE",
+        "LOCAL_INTEGRATION",
+        "HOSTED_EXACT_SHA",
+    ]:
+        assert f"`{semantic_name}`" in verification
+
+    status = Path("STATUS.md").read_text(encoding="utf-8")
+    roadmap = Path("docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Exact-SHA export run `" not in status
+    assert "Selected; contract frozen" not in roadmap
+    assert "Hardened; refresh required" not in roadmap
 
 
 def test_acceptance_trace_is_historical_through_last_existing_checkpoint() -> None:

@@ -17,7 +17,8 @@ separates:
 - historical evidence;
 - conditional read groups;
 - integration-only paths; and
-- bounded operational inputs consumed by specific tools.
+- bounded operational inputs consumed by specific tools; and
+- the sole owner document for each protocol namespace.
 
 `STATUS.md` is the current human sequencing summary. The capability roadmap is
 consulted only when selecting work. Operational inputs are not current
@@ -58,12 +59,13 @@ Optional packs remain outside the base render path until explicitly integrated.
 
 ## Verification Plane
 
-Verification has separate layers:
+`docs/VERIFICATION.md` is the sole normative authority for verification tier
+meaning. The execution layers are:
 
 - focused tests for the changed contract or implementation;
-- V2 core: full pytest, standalone eval, and quality gates;
+- `LOCAL_INTEGRATION (V2)`: full pytest, standalone eval, and quality gates;
 - impact-required extras: checksum, corpus, render, or focused checks;
-- manual exact-SHA Local Verify for approved remote V3 evidence; and
+- manual exact-SHA Local Verify for approved `HOSTED_EXACT_SHA (V3)` evidence; and
 - artifact-writing release verification as a distinct explicit workflow.
 
 `docs/VERIFICATION_IMPACT_MAP.json` is an operational input for advisory

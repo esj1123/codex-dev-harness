@@ -18,8 +18,9 @@ checkout uses that exact ref and fails before verification if the observed HEAD
 does not match. Checkout and Python setup actions are pinned to immutable
 commit SHAs, checkout credentials are not persisted, and hosted Windows
 verification uses exact Python `3.12.10`. The preferred local runtime is the
-same exact Python `3.12.10`, so local V2 and hosted V3 share one executable
-version contract.
+same exact Python `3.12.10`, so `LOCAL_INTEGRATION (V2)` and
+`HOSTED_EXACT_SHA (V3)` share one executable version contract. Tier meaning
+and required evidence are defined only in `docs/VERIFICATION.md`.
 
 The workflow also runs exactly `python scripts/run_eval.py` without report
 flags after pytest and before the quality gate. This is console-only validation:
@@ -49,8 +50,9 @@ The wrapper also offers an explicit local `-Lane Routine` feedback mode. It is
 non-authoritative and excludes only the exact held test-file inventory for
 frozen Agent Quality and Local RAG plus held Hermes/MCP. The no-argument wrapper,
 release verification wrapper, and hosted Local Verify workflow all remain
-`Full`. Routine PASS does not satisfy V2 or V3 and cannot be used as release or
-promotion evidence. New tests remain in Routine unless the integration owner
+`Full`. Routine PASS does not satisfy `LOCAL_INTEGRATION (V2)` or
+`HOSTED_EXACT_SHA (V3)` and cannot be used as release or promotion evidence.
+New tests remain in Routine unless the integration owner
 explicitly adds their exact path to the held inventory.
 
 Additional workflows, triggers, permissions, required-check policies, artifact
@@ -60,7 +62,7 @@ task.
 
 The owner has now selected one such task:
 `manual_github_release_evidence_export`. The selected contract preserves the
-existing commands as default `verify` V3
+existing commands as default `verify` `HOSTED_EXACT_SHA (V3)`
 and permits only a separate exact-SHA manual export, one-day Actions artifact
 transport, and subsequent local validation and commit. It does not select an
 automatic trigger, required check, durable artifact distribution, release,
@@ -84,7 +86,7 @@ checks:
 The workflow installs development requirements from `requirements-dev.lock`
 with `--require-hashes --only-binary=:all:`, runs `python -m pip check`, and
 uses exact hosted Windows Python `3.12.10`.
-Local V2 and hosted V3 both remain on Python 3.12 and use the same locked
+`LOCAL_INTEGRATION (V2)` and `HOSTED_EXACT_SHA (V3)` both remain on Python 3.12 and use the same locked
 development dependencies. Both clear ambient pytest and Python-path options,
 disable third-party pytest plugin autoload, and report slow-test durations and
 reviewed skip reasons.
@@ -104,11 +106,12 @@ Agent Quality checks remain in their standalone static-check path.
 
 ## Minimum Branch Protection
 
-After a successful exact-SHA V3, the separately approval-gated minimum policy
+After a successful `HOSTED_EXACT_SHA (V3)`, the separately approval-gated minimum policy
 may enforce administrators and required linear history while disabling force
 pushes and branch deletion. Required status checks, pull-request reviews,
 restrictions, conversation resolution, branch locking, and fork syncing remain
-disabled. This preserves direct non-force owner pushes and manual V3 while
+disabled. This preserves direct non-force owner pushes and manual
+`HOSTED_EXACT_SHA (V3)` while
 prohibiting merge commits, force pushes, and branch deletion.
 
 ## CI Boundaries
@@ -153,48 +156,32 @@ Line-ending warnings, if any, should be recorded as repository hygiene notes
 unless they affect executable behavior or generated artifact content. A local
 commit is not a push, tag, release, artifact upload, deployment, or publication.
 
-## Verification Tiers
+## Verification Protocol Reference
 
-Repository work uses four verification tiers:
+`docs/VERIFICATION.md` is the sole normative authority for verification tier
+identifiers, semantic names, required evidence, and the distinction between
+the V2 core and impact-required extras. This CI policy owns only execution
+environment, workflow permissions, and remote side-effect boundaries.
 
-| tier | owner | required checks |
-|---|---|---|
-| `V0` | contract or scope review | work-package validation, base-SHA confirmation, allowed-file review, and `git diff --check` |
-| `V1` | feature lane | `V0` plus focused tests for the declared write set |
-| `V2` | integration lane | V2 core: full pytest, no-report standalone eval, and all quality gates; impact-required extras: checksum, corpus, and relevant render checks |
-| `V3` | remote integration gate | one push and one manual Local Verify run with required `expected_sha` for the final cumulative SHA |
-
-Feature and contract lanes do not run V2 or V3 by default. The integration lane
-runs V2 once after all approved feature commits and any required digest-only
-commit are present. V3 runs once for that cumulative tip. A failed V2 or V3
-result may trigger focused diagnosis, but does not require repeating every
-successful feature-lane check.
-
-The V2 core is always `full_pytest`, `standalone_eval`, and `quality_gate`.
-Checksum verification, corpus digest checking, and relevant render dry-runs are
-impact-required extras represented by `checksum_verify`,
-`corpus_digest_check`, and `render_dry_runs`. The advisory verification impact
-planner adds those extras when a matched change surface or the integration
-scope requires them; their omission from the V2 core list does not make them
-optional when flagged.
-
-Digest check is read-only in V2. Digest write remains separately approval-gated
-and runs only when an approved source is stale. If the digest is refreshed, V2
-is run on the final digest-containing commit rather than both sides of the
-digest commit.
+Feature and contract lanes do not run `LOCAL_INTEGRATION (V2)` or
+`HOSTED_EXACT_SHA (V3)` by default. The integration lane runs local integration
+once after approved feature and digest commits are present, then runs the
+hosted exact-SHA gate once for that cumulative tip. Digest writes remain
+separately approval-gated; the read-only digest check runs on the final
+digest-containing source basis.
 
 ## Verification Impact Planner
 
 `scripts/verification_plan.py` is a standalone read-only advisory planner. It
 observes the path diff between an approved base commit and a selected head,
-then reports the minimum V0-V2 tier, required command identifiers and their
+then reports the minimum V0-V2 machine tier, required command identifiers and their
 machine-readable argument-list contracts, plus integration-owner or
 digest/checksum/render escalation flags from
 `docs/VERIFICATION_IMPACT_MAP.json`. Parameterized commands retain safe
 placeholders for the integration owner to resolve.
 
 The planner does not execute commands, cache results, write a corpus digest,
-dispatch V3, authenticate approval, or grant permission to run the checks it
+dispatch `HOSTED_EXACT_SHA (V3)`, authenticate approval, or grant permission to run the checks it
 names. An integration owner must still review the work-package contract and
 obtain every required side-effect approval.
 

@@ -4,6 +4,33 @@
 
 Define verification expectations for this template repository.
 
+This document is the sole normative authority for the `verification_tier`
+namespace. `docs/AUTHORITY_MANIFEST.json` owns the namespace-to-document
+routing. Other current documents may describe where a tier runs or report its
+current result, but they must not redefine the tier contract.
+
+## Verification Tiers
+
+| Machine ID | Semantic name | Required evidence |
+|---|---|---|
+| `V0` | `CONTRACT_SCOPE` | Work-package validation, base-SHA and allowed-file review, and `git diff --check`. |
+| `V1` | `FOCUSED_FEATURE` | `CONTRACT_SCOPE (V0)` plus focused verification for the declared change. |
+| `V2` | `LOCAL_INTEGRATION` | Full pytest, no-report standalone eval, all core quality gates, and every impact-required extra. |
+| `V3` | `HOSTED_EXACT_SHA` | One approved push and one successful GitHub `verify` run bound to the final exact SHA. |
+
+Machine-readable work packages continue to use only `V0`, `V1`, `V2`, or
+`V3` in `verification_tier`. The semantic names make the trust claim explicit;
+they do not replace or migrate those enum values. Work-package schema versions,
+release provenance schemas, and Agent Quality run schemas are separate
+namespaces and do not imply a verification tier.
+
+The V2 core is always `full_pytest`, `standalone_eval`, and `quality_gate`.
+Checksum verification, corpus digest checking, and relevant render dry-runs are
+impact-required extras represented by `checksum_verify`,
+`corpus_digest_check`, and `render_dry_runs`. The advisory operational
+projection in `docs/VERIFICATION_IMPACT_MAP.json` must remain synchronized with
+this contract but cannot override it, execute commands, or grant approval.
+
 ## Current Verification Checklist
 
 - Requested files exist.
@@ -32,7 +59,8 @@ the no-report standalone eval, the quality gate, and all three example render
 dry-runs in that order. It does not write rendered files and does not use
 `--force`.
 
-The default lane is `Full` and remains the canonical V2 behavior:
+The default lane is `Full` and remains the canonical
+`LOCAL_INTEGRATION (V2)` behavior:
 
 `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1`
 
@@ -51,9 +79,9 @@ is included in both lanes unless the integration owner explicitly adds it to
 the held list. A missing declared held file fails closed instead of silently
 changing Routine coverage.
 
-Routine PASS is a feedback result, not canonical V2, release, or promotion
-evidence. Full collection and execution are still required wherever this
-document or `docs/CI_POLICY.md` requires V2.
+Routine PASS is a feedback result, not `LOCAL_INTEGRATION (V2)`, release, or
+promotion evidence. Full collection and execution are required by this
+document whenever that tier is selected.
 
 Before selecting Python, the wrapper removes ambient `PYTEST_ADDOPTS`,
 `PYTEST_PLUGINS`, and `PYTHONPATH`, then disables third-party pytest plugin
@@ -82,8 +110,9 @@ running checks. It mirrors the non-release local verification subset:
 It installs the exact development set from `requirements-dev.lock` with
 `--require-hashes --only-binary=:all:`, runs `python -m pip check`, and uses
 Python `3.12.10`, the final Python 3.12 release
-with Windows binary installers. Local V2 and hosted V3 both require that exact
-patch version as declared in `.python-version`.
+with Windows binary installers. `LOCAL_INTEGRATION (V2)` and
+`HOSTED_EXACT_SHA (V3)` both require that exact patch version as declared in
+`.python-version`.
 Third-party actions are pinned to immutable commit SHAs, checkout credentials
 are not persisted, and the workflow retains only `contents: read`.
 
@@ -98,12 +127,14 @@ automation, run MCP/Hermes code, or perform live-write behavior.
 
 The owner has selected an explicit
 `release-evidence-export` mode for this existing workflow identity. Its contract
-keeps the commands above as the default `verify` job and the only V3 result. A
-future export job must use the same exact-SHA binding, run the approved release
-wrapper with a hosted evidence context, upload only the six approved files for
-one day, and return them for isolated local validation and commit. It is not a
-V3 result, publication, release, tag, signing, deployment, or `origin/main`
-mutation. `STATUS.md` records the mode's current implementation and run state.
+keeps the commands above as the default `verify` job and the only
+`HOSTED_EXACT_SHA (V3)` result. The implemented export job uses the same
+exact-SHA binding, runs the approved release wrapper with a hosted evidence
+context, uploads only the six approved files for one day, and returns them for
+isolated local validation and commit. It is not a `HOSTED_EXACT_SHA (V3)` result, publication,
+release, tag, signing, deployment, or `origin/main` mutation. `STATUS.md`
+records the mode's current implementation state without storing workflow run
+IDs.
 
 ## Local Release Verification Flow
 
@@ -158,7 +189,7 @@ that distinction honestly instead of treating it as a failure:
 The preferred local verification runtime is pinned in `.python-version` and
 documented in `docs/PYTHON_RUNTIME_POLICY.md`.
 
-The hosted Windows V3 workflow and local V2 use exact Python `3.12.10`, the
+`HOSTED_EXACT_SHA (V3)` and `LOCAL_INTEGRATION (V2)` use exact Python `3.12.10`, the
 final Python 3.12 release with Windows binary installers. Both use the same
 exact development dependency lock and report the resolved runtime in their
 console output.
@@ -168,7 +199,8 @@ local development requirement:
 
 `python -m pip install -r requirements-dev.txt`
 
-Use `requirements-dev.lock` for V2 and V3 exact verification:
+Use `requirements-dev.lock` for `LOCAL_INTEGRATION (V2)` and
+`HOSTED_EXACT_SHA (V3)` verification:
 
 `python -m pip install --require-hashes --only-binary=:all: -r requirements-dev.lock`
 
@@ -181,7 +213,7 @@ After installation, exact verification runs:
 
 `python -m pip check`
 
-The minimum post-V3 branch-protection contract enforces administrators and
+The minimum post-`HOSTED_EXACT_SHA (V3)` branch-protection contract enforces administrators and
 linear history while disabling force pushes and branch deletion. It does not
 add required status checks or pull-request review requirements. Applying or
 changing that remote policy remains separately approval-gated.

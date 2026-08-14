@@ -17,8 +17,10 @@ The repository pins the local verification runtime in `.python-version`:
 
 This pin matches the hosted Windows verification runtime and the final Python
 3.12 release with Windows binary installers. Contributors may use another
-compatible Python 3.12 runtime for focused local work, but exact V2 and V3
-verification require the pinned patch version.
+compatible Python 3.12 runtime for focused local work, but exact
+`LOCAL_INTEGRATION (V2)` and `HOSTED_EXACT_SHA (V3)` verification require the
+pinned patch version. Tier meaning is defined only in
+`docs/VERIFICATION.md`.
 
 ## Development Dependencies
 
@@ -51,7 +53,7 @@ python -m pip install -r requirements-dev.txt
 ```
 
 For `scripts/run_local_verify.ps1`, `scripts/run_release_verify.ps1`, or another
-exact V2 verification run:
+exact `LOCAL_INTEGRATION (V2)` verification run:
 
 ```powershell
 python --version

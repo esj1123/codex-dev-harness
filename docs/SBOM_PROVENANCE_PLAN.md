@@ -148,6 +148,13 @@ tokens, absolute paths, attestation, signing, upload success, publication, or
 release claims.
 `STATUS.md` records the context's current implementation and run state.
 
+The `release_provenance_schema` namespace is owned by this document. Historical
+local generation uses provenance v1 with `local_only=true` and the local
+builder identifier. Manual GitHub evidence export uses provenance v2 with
+`execution_context=github_actions_manual_export`, `local_only=false`, and the
+bounded hosted builder identifier. These component-local schema versions do
+not imply `LOCAL_INTEGRATION (V2)` or `HOSTED_EXACT_SHA (V3)` verification.
+
 ## Output Path Safety
 
 The local SBOM generator rejects output paths that would overwrite the input

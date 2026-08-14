@@ -27,7 +27,7 @@ except ImportError:  # pragma: no cover - direct script execution
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-SCHEMA_VERSION = "1"
+SCHEMA_VERSION = "2"
 VALIDATOR_ID = "authority_manifest_check"
 MANIFEST_ID = "authority_manifest"
 MANIFEST_PATH = "docs/AUTHORITY_MANIFEST.json"
@@ -44,6 +44,7 @@ EXPECTED_KEYS = {
     *CLASSIFICATION_KEYS,
     "integration_only_exact",
     "integration_only_prefixes",
+    "namespace_authority",
     "operational_inputs",
     "unlisted_document_policy",
 }
@@ -97,6 +98,12 @@ EXPECTED_OPERATIONAL_INPUTS = [
     "evals/agentic/agent-role-profiles.json",
     "evals/agentic/suites/agentic-regression-v2.json",
 ]
+EXPECTED_NAMESPACE_AUTHORITY = {
+    "agent_run_evidence_schema": "docs/AGENT_QUALITY_STABILITY_POLICY.md",
+    "release_provenance_schema": "docs/SBOM_PROVENANCE_PLAN.md",
+    "verification_tier": "docs/VERIFICATION.md",
+    "work_package_schema": "docs/CHANGE_CONTROL.md",
+}
 
 
 def base_result() -> dict[str, Any]:
@@ -116,6 +123,7 @@ def base_result() -> dict[str, Any]:
             "conditional_read_order_count": 0,
             "integration_only_exact_count": 0,
             "integration_only_prefix_count": 0,
+            "namespace_authority_count": 0,
             "operational_input_count": 0,
         },
         "performed_actions": [],
@@ -197,11 +205,29 @@ def validate_manifest(payload: Any, *, repo_root: Path) -> dict[str, Any]:
     summary["integration_only_prefix_count"] = len(payload["integration_only_prefixes"])
     summary["operational_input_count"] = len(payload["operational_inputs"])
 
+    namespace_authority = payload["namespace_authority"]
+    if not isinstance(namespace_authority, dict):
+        issues.add("NAMESPACE_AUTHORITY_SET_INVALID")
+        namespace_owner_paths: list[str] = []
+    else:
+        summary["namespace_authority_count"] = len(namespace_authority)
+        if namespace_authority != EXPECTED_NAMESPACE_AUTHORITY:
+            issues.add("NAMESPACE_AUTHORITY_SET_INVALID")
+        namespace_owner_paths = [
+            value for value in namespace_authority.values() if isinstance(value, str)
+        ]
+        if len(namespace_owner_paths) != len(namespace_authority) or any(
+            not safe_repo_path(path) for path in namespace_owner_paths
+        ):
+            issues.add("NAMESPACE_AUTHORITY_PATH_UNSAFE")
+
     declared_paths = [path for key in CLASSIFICATION_KEYS for path in classifications[key]]
     if any(not safe_repo_path(path) for path in declared_paths):
         issues.add("CLASSIFICATION_PATH_UNSAFE")
     if len(declared_paths) != len(set(declared_paths)):
         issues.add("CLASSIFICATION_DUPLICATE")
+    if any(path not in declared_paths for path in namespace_owner_paths):
+        issues.add("NAMESPACE_AUTHORITY_OUTSIDE_AUTHORITY")
 
     required_docs = set(REQUIRED_DOCS)
     classified_required_docs = set(declared_paths) - {MANIFEST_PATH}

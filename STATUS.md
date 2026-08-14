@@ -17,8 +17,8 @@ remain available in Git history and `ACCEPTANCE_TRACE.md`.
 | Core template harness | `READY` | Core docs, templates, examples, tests, and local verification are supported. |
 | Renderer apply | `READY` | No-flag and `--dry-run` are previews; writes require explicit `--apply`. |
 | Release generator code | `HARDENED` | Clean-HEAD Git-blob lineage, hash-locked SBOM inputs, non-circular provenance/checksums, and physical output-path controls are implemented. |
-| Tracked release bundle | `CURRENT / LOCAL RELEASE / GITHUB-VERIFIED / TRANSIENT CI EXPORT / NOT PUBLISHED` | The six tracked release artifacts were generated for exact source basis `438cc1def76666ee5431e1c5fcbf830f48bf0207`, exported through the approval-gated one-day Actions transport, independently validated, and committed for local release use. No remote release or publication is claimed. |
-| Manual GitHub release-evidence export | `IMPLEMENTED / APPROVAL-GATED / COMPLETED` | Exact-SHA export run `31678866653` completed with hosted provenance v2, exact six-file validation, and one-day transient Actions transport. The upload is transport evidence only, not publication. |
+| Tracked release bundle | `VALID ANCESTOR / REFRESH REQUIRED` | The tracked six-file bundle remains valid ancestor evidence, but the current authority source basis has changed and requires a new exact-SHA export before the bundle can be current again. No remote release or publication is claimed. |
+| Manual GitHub release-evidence export | `IMPLEMENTED / APPROVAL-GATED / NOT RUN FOR CURRENT SOURCE BASIS` | The bounded one-day transport remains implemented, but it has not yet run for the current authority source basis. Workflow run IDs remain task closeout evidence rather than tracked authority. |
 | Agent Quality/provider | `FROZEN / NOT_ADOPTED` | Optional controls remain available for review, but provider execution and role adoption are held. |
 | Role calibration v7 | `NOT RUN` | No calibration trial or review batch is authorized by core readiness. |
 | Hermes/MCP | `HELD` | Runtime activation requires a selected repository use case and separate approval. |
@@ -115,16 +115,12 @@ effect.
 
 ## Verification Model
 
-- `V0`: package, base, allowed-file, and diff review.
-- `V1`: V0 plus focused lane tests.
-- `V2 core`: full pytest, standalone eval, and all quality gates.
-- Standing local integration verification runs the V2 core followed by the
-  three profile dry-runs through `scripts/run_local_verify.ps1`.
-- `Routine`: explicit non-authoritative local feedback only. It cannot satisfy
-  V2, V3, promotion, or release evidence requirements.
-- `V2 impact-required extras`: checksum, corpus, and relevant render checks.
-- `V3`: one approved push and one manual Local Verify whose required
-  `expected_sha` is checked out and asserted before verification.
+`docs/VERIFICATION.md` is the sole normative authority for verification tier
+meaning and required evidence. Current execution maps the standing Full local
+wrapper to `LOCAL_INTEGRATION (V2)` and the exact-SHA GitHub `verify` job to
+`HOSTED_EXACT_SHA (V3)`. Routine remains non-authoritative feedback and cannot
+satisfy either tier, promotion, or release evidence requirements. The
+release-evidence export mode is transport and generation evidence, not V3.
 
 PASS from preflight or postflight proves structural consistency only. It does
 not authenticate approval.
@@ -152,10 +148,11 @@ not authenticate approval.
 
 ## Next Recommended Step
 
-Keep the current local release bundle frozen and review it through local Git.
-The bundle was generated from an exact-SHA GitHub manual export, downloaded,
-independently validated, committed locally, and promoted to local `main`; the
-transient Actions artifact is transport only and expires after one day. No
-remote publication was performed. Tag, GitHub Release, signing, publication,
-deployment, `origin/main`, Agent Quality/provider, Hermes, MCP, and downstream
-mutation remain `NOT RUN` or outside this release.
+Refresh only `artifacts/corpus-digest.json` under its separately approved serial
+work-package, then freeze that clean commit as release source basis `S`. Push
+`S` only to the existing feature branch and require an exact-SHA GitHub `verify`
+`HOSTED_EXACT_SHA (V3)` before the separately approved export run. The tracked release bundle remains
+`VALID ANCESTOR / REFRESH REQUIRED` until the exported six-file bundle is
+downloaded, validated, committed locally, and promoted to local `main`. Tag,
+release, signing, publication, deployment, `origin/main`, Agent Quality/provider,
+Hermes, MCP, and downstream mutation remain outside this selection.

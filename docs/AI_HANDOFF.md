@@ -7,7 +7,8 @@ Provide a compact handoff index without duplicating current authority.
 ## Authority
 
 Read `docs/AUTHORITY_MANIFEST.json` for the machine-readable current state,
-default Read Order, conditional read groups, and document classifications.
+default Read Order, conditional read groups, document classifications, and the
+sole normative owner of each protocol namespace.
 Read `STATUS.md` for the current human summary, held items, and next
 recommended action. Those two files are authoritative when older phase or run
 records differ.
@@ -27,9 +28,9 @@ default operating context.
   `scripts/agent_quality.py`
 - Core-only quality gate:
   `scripts/quality_gate.py`
-- Current deterministic verification:
+- Current `LOCAL_INTEGRATION (V2)` verification:
   `scripts/run_local_verify.ps1`
-- Manual exact-SHA remote verification:
+- Manual `HOSTED_EXACT_SHA (V3)` verification:
   `.github/workflows/local-verify.yml`
 - Selected manual release-evidence export contract:
   `manual_github_release_evidence_export` (implementation state in `STATUS.md`)
