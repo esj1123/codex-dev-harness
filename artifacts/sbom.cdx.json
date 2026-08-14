@@ -3,7 +3,7 @@
   "specVersion": "1.5",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-08-14T02:34:47Z",
+    "timestamp": "2026-08-14T06:59:12Z",
     "tools": {
       "components": [
         {
@@ -16,11 +16,11 @@
     "component": {
       "type": "application",
       "name": "esj1123/codex-dev-harness",
-      "version": "c22e637e0a8a78c566efc4f578adb8093b4415cf",
+      "version": "099ab9f44b51e022db59eff70a89bc28d348a0ab",
       "properties": [
         {
           "name": "git_ref",
-          "value": "codex/authority-protocol-reconciliation"
+          "value": "codex/downstream-package-root-hardening"
         },
         {
           "name": "manifest_path",
@@ -28,7 +28,7 @@
         },
         {
           "name": "manifest_sha256",
-          "value": "cfe9ec64191d895024018c05e154967e997818b2459725c0a59570b48d48b78d"
+          "value": "e5d2aa26c5e98e76aec066329c858c89da6e405d48830b27a6f253812d87de3f"
         }
       ],
       "licenses": [
@@ -191,13 +191,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "4fb5fbbf1e9919e018aeeb0b7db498d3edde5b15a7b534d335c9519c3681210b"
+          "content": "9c2f3f801e7d768407ff213f833e5e74debc379fec2f6da0e9e1b056b8a4f128"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "8980"
+          "value": "9427"
         }
       ]
     },
@@ -511,13 +511,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "c94517b9fbe6a8472172dcfd0bdba9be3210910d4af5277c402704b098f994a9"
+          "content": "168cec35ed7dc4a86c4f660d643a20a7adcdeebbbc4322616490be55c6b72e55"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "6380"
+          "value": "6515"
         }
       ]
     },
@@ -527,13 +527,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "2f811a5565c1487374f54c5f455b097176bb55085637603d18c7974ff76561cd"
+          "content": "f37f27e615b26002820606b417573fe8ed9225e957228c30b9aa84a59a0e68f3"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "12318"
+          "value": "13480"
         }
       ]
     },
@@ -2543,13 +2543,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "551ba6cab0aaa45d955137e45248f9cfd5b7d230adbe7492b4bfd828fb5065e4"
+          "content": "c92a04d623cc8aff5b4521d9cd433cbdde43ffd38435f4de5bd7fd856b532d4c"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "20253"
+          "value": "21164"
         }
       ]
     },
@@ -4143,13 +4143,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "7f703aeed004d15a435ff1ba692f111c425c1c3e167975f4dde830d29b78bf74"
+          "content": "b3f62c62c467eef2449767bbb075f061dd5d530c0e64b9c06fe32880f545e8be"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "4476"
+          "value": "5107"
         }
       ]
     },
@@ -4159,13 +4159,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "25a7939262dc42f9cb942e1fe135aa7c649a81786b6bd0e5e26cc54081dc2527"
+          "content": "b361750aac644a8ad9e69393e46add14e687e447025f17873f7567e7a7145d70"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "2604"
+          "value": "2865"
         }
       ]
     },
@@ -4879,13 +4879,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "9f8ef6fc964148c4a1110ece3b9626733c700c639f1abec4b5dd563c72ba6825"
+          "content": "867da7950dd87710ddb85b46a4d0bf84e50de46b784cc190c9187acce8964196"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "20095"
+          "value": "23354"
         }
       ]
     },
@@ -4895,13 +4895,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "8dea866cc2280bde6688063971f89b979991df456c83281fdf48e280588e0e73"
+          "content": "b8eb6a32d3f4ebd7906d3442fc496e7a9798ee7792d840d68043e574ea873f39"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "15287"
+          "value": "15724"
         }
       ]
     },
@@ -6047,13 +6047,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "0cbb61d36694508193d6452125ce3a8eed41709a5c8a7ae3989500123307c3fd"
+          "content": "39b6244adc68f73ed3996d08ed1fcc978e522a2a7f492bdb24bb51ae0252dd51"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "69784"
+          "value": "70542"
         }
       ]
     },
@@ -6207,13 +6207,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "236f14b683ffac896c034fd19802c18504d068801d1226906cb5e4ca7e6e12c4"
+          "content": "5601523f283fcdca0884020811495fc47bfe2b9f74d21f140cdf31dfa606754d"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "17729"
+          "value": "21862"
         }
       ]
     },
@@ -6223,13 +6223,13 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "06f268d74cfa4e4932c170114684c89b674e13b6fe4933d96314aeb2da01ee6c"
+          "content": "b617924014e005ef49896bbc799bbc8fa346774d184d688f5ef8ae3ac9418b86"
         }
       ],
       "properties": [
         {
           "name": "size_bytes",
-          "value": "15762"
+          "value": "18112"
         }
       ]
     },

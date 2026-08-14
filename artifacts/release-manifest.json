@@ -1,9 +1,9 @@
 {
   "schema_version": "1",
-  "generated_at_utc": "2026-08-14T02:34:46Z",
+  "generated_at_utc": "2026-08-14T06:59:11Z",
   "repository": "esj1123/codex-dev-harness",
-  "git_ref": "codex/authority-protocol-reconciliation",
-  "git_commit": "c22e637e0a8a78c566efc4f578adb8093b4415cf",
+  "git_ref": "codex/downstream-package-root-hardening",
+  "git_commit": "099ab9f44b51e022db59eff70a89bc28d348a0ab",
   "git_tag": null,
   "python_version": "3.12.10",
   "included_roots": [
@@ -181,8 +181,8 @@
     },
     {
       "path": "STATUS.md",
-      "size_bytes": 8980,
-      "sha256": "4fb5fbbf1e9919e018aeeb0b7db498d3edde5b15a7b534d335c9519c3681210b"
+      "size_bytes": 9427,
+      "sha256": "9c2f3f801e7d768407ff213f833e5e74debc379fec2f6da0e9e1b056b8a4f128"
     },
     {
       "path": "audits/audit-log.schema.json",
@@ -281,13 +281,13 @@
     },
     {
       "path": "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md",
-      "size_bytes": 6380,
-      "sha256": "c94517b9fbe6a8472172dcfd0bdba9be3210910d4af5277c402704b098f994a9"
+      "size_bytes": 6515,
+      "sha256": "168cec35ed7dc4a86c4f660d643a20a7adcdeebbbc4322616490be55c6b72e55"
     },
     {
       "path": "docs/CHANGE_CONTROL.md",
-      "size_bytes": 12318,
-      "sha256": "2f811a5565c1487374f54c5f455b097176bb55085637603d18c7974ff76561cd"
+      "size_bytes": 13480,
+      "sha256": "f37f27e615b26002820606b417573fe8ed9225e957228c30b9aa84a59a0e68f3"
     },
     {
       "path": "docs/CI_POLICY.md",
@@ -916,8 +916,8 @@
     },
     {
       "path": "docs/VERIFICATION.md",
-      "size_bytes": 20253,
-      "sha256": "551ba6cab0aaa45d955137e45248f9cfd5b7d230adbe7492b4bfd828fb5065e4"
+      "size_bytes": 21164,
+      "sha256": "c92a04d623cc8aff5b4521d9cd433cbdde43ffd38435f4de5bd7fd856b532d4c"
     },
     {
       "path": "docs/VERIFICATION_IMPACT_MAP.json",
@@ -1416,13 +1416,13 @@
     },
     {
       "path": "prompts/task_contract/task_contract.md",
-      "size_bytes": 4476,
-      "sha256": "7f703aeed004d15a435ff1ba692f111c425c1c3e167975f4dde830d29b78bf74"
+      "size_bytes": 5107,
+      "sha256": "b3f62c62c467eef2449767bbb075f061dd5d530c0e64b9c06fe32880f545e8be"
     },
     {
       "path": "prompts/task_contract/verification_closeout.md",
-      "size_bytes": 2604,
-      "sha256": "25a7939262dc42f9cb942e1fe135aa7c649a81786b6bd0e5e26cc54081dc2527"
+      "size_bytes": 2865,
+      "sha256": "b361750aac644a8ad9e69393e46add14e687e447025f17873f7567e7a7145d70"
     },
     {
       "path": "pytest.ini",
@@ -1646,13 +1646,13 @@
     },
     {
       "path": "scripts/work_package_conflict_check.py",
-      "size_bytes": 20095,
-      "sha256": "9f8ef6fc964148c4a1110ece3b9626733c700c639f1abec4b5dd563c72ba6825"
+      "size_bytes": 23354,
+      "sha256": "867da7950dd87710ddb85b46a4d0bf84e50de46b784cc190c9187acce8964196"
     },
     {
       "path": "scripts/work_package_postflight.py",
-      "size_bytes": 15287,
-      "sha256": "8dea866cc2280bde6688063971f89b979991df456c83281fdf48e280588e0e73"
+      "size_bytes": 15724,
+      "sha256": "b8eb6a32d3f4ebd7906d3442fc496e7a9798ee7792d840d68043e574ea873f39"
     },
     {
       "path": "template.config.example.yml",
@@ -2011,8 +2011,8 @@
     },
     {
       "path": "tests/test_quality_gate.py",
-      "size_bytes": 69784,
-      "sha256": "0cbb61d36694508193d6452125ce3a8eed41709a5c8a7ae3989500123307c3fd"
+      "size_bytes": 70542,
+      "sha256": "39b6244adc68f73ed3996d08ed1fcc978e522a2a7f492bdb24bb51ae0252dd51"
     },
     {
       "path": "tests/test_release_automation_candidate_contract.py",
@@ -2061,13 +2061,13 @@
     },
     {
       "path": "tests/test_work_package_conflict_check.py",
-      "size_bytes": 17729,
-      "sha256": "236f14b683ffac896c034fd19802c18504d068801d1226906cb5e4ca7e6e12c4"
+      "size_bytes": 21862,
+      "sha256": "5601523f283fcdca0884020811495fc47bfe2b9f74d21f140cdf31dfa606754d"
     },
     {
       "path": "tests/test_work_package_postflight.py",
-      "size_bytes": 15762,
-      "sha256": "06f268d74cfa4e4932c170114684c89b674e13b6fe4933d96314aeb2da01ee6c"
+      "size_bytes": 18112,
+      "sha256": "b617924014e005ef49896bbc799bbc8fa346774d184d688f5ef8ae3ac9418b86"
     }
   ]
 }
