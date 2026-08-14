@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "esj1123/codex-dev-harness local release SBOM",
-  "documentNamespace": "https://example.invalid/codex-dev-harness/spdx/d6c3a608a7116be4cacc35be9e0edf2b539df79e5677cc74ec09bbee41db1136",
+  "documentNamespace": "https://example.invalid/codex-dev-harness/spdx/cfe9ec64191d895024018c05e154967e997818b2459725c0a59570b48d48b78d",
   "creationInfo": {
-    "created": "2026-08-13T07:46:46Z",
+    "created": "2026-08-14T02:34:47Z",
     "creators": [
       "Tool: codex-dev-harness generate_sbom.py"
     ]
@@ -20,7 +20,7 @@
       "licenseConcluded": "MIT",
       "licenseDeclared": "MIT",
       "copyrightText": "Copyright (c) 2026 esj1123",
-      "versionInfo": "438cc1def76666ee5431e1c5fcbf830f48bf0207"
+      "versionInfo": "c22e637e0a8a78c566efc4f578adb8093b4415cf"
     },
     {
       "name": "colorama",
@@ -120,7 +120,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "d8b544a20de53e5050a803da1377e0321b915ae1f3ea8dcdf6ae8eac28c88fbc"
+          "checksumValue": "41ecdbf06d5dca854cee52f34a6d6eb78153009d95fe8032f7f259bc447571e6"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -168,7 +168,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "9d7160f50e5c79edb89d7053f194ff94dafdb936dda2a65c543cbc1403a8342b"
+          "checksumValue": "72145e2c01267f838ef64c9f297b30eea01dbf2f0d5b155dcff5cb8385758f4c"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -204,7 +204,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5ade369a2da0f40b90f18ad8f240a507fd960636aa63d42c8bc9830470b5f3e1"
+          "checksumValue": "4fb5fbbf1e9919e018aeeb0b7db498d3edde5b15a7b534d335c9519c3681210b"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -300,7 +300,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "7508bebaadb38d0277743423fd0bb7418c1d1ced3bc60ee1e92d9c4831b2ca31"
+          "checksumValue": "221a471767660ecdf478a1e3f350b29489fcc78ece4b35069a6b717219b50988"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -372,7 +372,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "9759c2654bb8e17d45437f43a17978e4ed2917539565c8f27a6a43b95d44f3f7"
+          "checksumValue": "e9bddd89a7ed50548d5c4cc2b95b77c46352d442c31aeb46597aeb76b1672982"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -420,7 +420,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "21109066d4b5b22d28df94c57a73db4b5537f8e49a7da2485c0ee732c432313d"
+          "checksumValue": "01669c0faf8acd13cb8b0ec1f28b6cddeb522588d94d9fd1ca041f36501ca5ee"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -444,7 +444,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "1673d91d94b8578c6d92d795dd0ae307221a891c5861cff4e613fd54864bf85f"
+          "checksumValue": "c94517b9fbe6a8472172dcfd0bdba9be3210910d4af5277c402704b098f994a9"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -456,7 +456,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "9faf5cf95e37feb14dd3040eff75a733634ddd3a4a2a38cadc9b367729dd4be0"
+          "checksumValue": "2f811a5565c1487374f54c5f455b097176bb55085637603d18c7974ff76561cd"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -468,7 +468,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "b77b22c8f64fac9b050997b76e1c7cdf75d6378fc31e42009a45c1f08a2e3408"
+          "checksumValue": "6e8535b89e1e8b86b25b3656715299f15c422487d00beaf2b22e043a3e2cc47d"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -756,7 +756,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "b976a736ddd1b802d92e974bf1894882e6e7ef3f70fba4862a33db2b2bd1358a"
+          "checksumValue": "e980e09978f529579ac20cd62b6d4c268237d0065e20011147fa55812110577d"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -1608,7 +1608,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "d412acf04baceb5dd9259f3924060ea7cb2a49dcb70f01af6dff12e5ee6a771c"
+          "checksumValue": "f6cce5250161f1719a0ea32e87ae8aa0d866fff957601f28629f67e310a7a94b"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -1884,7 +1884,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "43c5c619d0ada1f133b3d052714f20e954443e5e123970993fdd8101a11ab2e1"
+          "checksumValue": "20f7ee1975ef70758615434dcc26cfc5fc3033aab00944640e0ed1a0cb7e9e7c"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -1968,7 +1968,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "dd3e6c938c7193b93cd683c0174e064d60de592f7148daf9e9f2ccda2919369d"
+          "checksumValue": "551ba6cab0aaa45d955137e45248f9cfd5b7d230adbe7492b4bfd828fb5065e4"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -3348,7 +3348,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "63ba0eb718a9466099df3abf0210e334d4a656d46196c3a805bbab3c0c6332a5"
+          "checksumValue": "7cd7fa8cc6f0843c48b13e0ef69a23140537a92e41c554fbae77760c65cd5ac1"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -4164,7 +4164,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "718fcd2e9ccfc02d8a0e6ff8c7a198063c810be53368945546a3e2e29975ee9e"
+          "checksumValue": "838f80aeddb443749445c7375635f8942154d9398fdc5c74e6ec4d502d64fefa"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -4596,7 +4596,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "bd4e7193ddbab63bfd29ed06762474bc4ca6c62d80d1c746483d0ba6b92c01f3"
+          "checksumValue": "0cbb61d36694508193d6452125ce3a8eed41709a5c8a7ae3989500123307c3fd"
         }
       ],
       "licenseConcluded": "UNKNOWN",
@@ -6680,10 +6680,10 @@
   "externalDocumentRefs": [],
   "annotations": [
     {
-      "annotationDate": "2026-08-13T07:46:46Z",
+      "annotationDate": "2026-08-14T02:34:47Z",
       "annotationType": "OTHER",
       "annotator": "Tool: codex-dev-harness generate_sbom.py",
-      "comment": "manifest=artifacts/release-manifest.json sha256=d6c3a608a7116be4cacc35be9e0edf2b539df79e5677cc74ec09bbee41db1136"
+      "comment": "manifest=artifacts/release-manifest.json sha256=cfe9ec64191d895024018c05e154967e997818b2459725c0a59570b48d48b78d"
     }
   ]
 }

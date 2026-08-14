@@ -1,9 +1,9 @@
 {
   "schema_version": "1",
-  "generated_at_utc": "2026-08-13T07:46:44Z",
+  "generated_at_utc": "2026-08-14T02:34:46Z",
   "repository": "esj1123/codex-dev-harness",
-  "git_ref": "codex/repo-contract-reconciliation",
-  "git_commit": "438cc1def76666ee5431e1c5fcbf830f48bf0207",
+  "git_ref": "codex/authority-protocol-reconciliation",
+  "git_commit": "c22e637e0a8a78c566efc4f578adb8093b4415cf",
   "git_tag": null,
   "python_version": "3.12.10",
   "included_roots": [
@@ -146,8 +146,8 @@
     },
     {
       "path": "AGENTS.md",
-      "size_bytes": 3224,
-      "sha256": "d8b544a20de53e5050a803da1377e0321b915ae1f3ea8dcdf6ae8eac28c88fbc"
+      "size_bytes": 3275,
+      "sha256": "41ecdbf06d5dca854cee52f34a6d6eb78153009d95fe8032f7f259bc447571e6"
     },
     {
       "path": "LICENSE",
@@ -166,8 +166,8 @@
     },
     {
       "path": "README.md",
-      "size_bytes": 8337,
-      "sha256": "9d7160f50e5c79edb89d7053f194ff94dafdb936dda2a65c543cbc1403a8342b"
+      "size_bytes": 8436,
+      "sha256": "72145e2c01267f838ef64c9f297b30eea01dbf2f0d5b155dcff5cb8385758f4c"
     },
     {
       "path": "ROADMAP.md",
@@ -181,8 +181,8 @@
     },
     {
       "path": "STATUS.md",
-      "size_bytes": 9079,
-      "sha256": "5ade369a2da0f40b90f18ad8f240a507fd960636aa63d42c8bc9830470b5f3e1"
+      "size_bytes": 8980,
+      "sha256": "4fb5fbbf1e9919e018aeeb0b7db498d3edde5b15a7b534d335c9519c3681210b"
     },
     {
       "path": "audits/audit-log.schema.json",
@@ -221,8 +221,8 @@
     },
     {
       "path": "docs/AI_HANDOFF.md",
-      "size_bytes": 2639,
-      "sha256": "7508bebaadb38d0277743423fd0bb7418c1d1ced3bc60ee1e92d9c4831b2ca31"
+      "size_bytes": 2710,
+      "sha256": "221a471767660ecdf478a1e3f350b29489fcc78ece4b35069a6b717219b50988"
     },
     {
       "path": "docs/AI_READINESS_REPORT_INITIAL.md",
@@ -251,8 +251,8 @@
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "size_bytes": 4420,
-      "sha256": "9759c2654bb8e17d45437f43a17978e4ed2917539565c8f27a6a43b95d44f3f7"
+      "size_bytes": 4588,
+      "sha256": "e9bddd89a7ed50548d5c4cc2b95b77c46352d442c31aeb46597aeb76b1672982"
     },
     {
       "path": "docs/AUDIT_LOG_POLICY.md",
@@ -271,8 +271,8 @@
     },
     {
       "path": "docs/AUTHORITY_MANIFEST.json",
-      "size_bytes": 4682,
-      "sha256": "21109066d4b5b22d28df94c57a73db4b5537f8e49a7da2485c0ee732c432313d"
+      "size_bytes": 4955,
+      "sha256": "01669c0faf8acd13cb8b0ec1f28b6cddeb522588d94d9fd1ca041f36501ca5ee"
     },
     {
       "path": "docs/BUG_REVIEW_TEMPLATE.md",
@@ -281,18 +281,18 @@
     },
     {
       "path": "docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md",
-      "size_bytes": 6373,
-      "sha256": "1673d91d94b8578c6d92d795dd0ae307221a891c5861cff4e613fd54864bf85f"
+      "size_bytes": 6380,
+      "sha256": "c94517b9fbe6a8472172dcfd0bdba9be3210910d4af5277c402704b098f994a9"
     },
     {
       "path": "docs/CHANGE_CONTROL.md",
-      "size_bytes": 12117,
-      "sha256": "9faf5cf95e37feb14dd3040eff75a733634ddd3a4a2a38cadc9b367729dd4be0"
+      "size_bytes": 12318,
+      "sha256": "2f811a5565c1487374f54c5f455b097176bb55085637603d18c7974ff76561cd"
     },
     {
       "path": "docs/CI_POLICY.md",
-      "size_bytes": 10398,
-      "sha256": "b77b22c8f64fac9b050997b76e1c7cdf75d6378fc31e42009a45c1f08a2e3408"
+      "size_bytes": 9703,
+      "sha256": "6e8535b89e1e8b86b25b3656715299f15c422487d00beaf2b22e043a3e2cc47d"
     },
     {
       "path": "docs/CLEAN_CLONE_VALIDATION_v0.1.0-rc1.md",
@@ -411,8 +411,8 @@
     },
     {
       "path": "docs/HARNESS_SPEC.md",
-      "size_bytes": 2388,
-      "sha256": "b976a736ddd1b802d92e974bf1894882e6e7ef3f70fba4862a33db2b2bd1358a"
+      "size_bytes": 2479,
+      "sha256": "e980e09978f529579ac20cd62b6d4c268237d0065e20011147fa55812110577d"
     },
     {
       "path": "docs/HERMES_GIT_PUSH_PREFLIGHT_CALLER_SELECTION_REVIEW.md",
@@ -766,8 +766,8 @@
     },
     {
       "path": "docs/PYTHON_RUNTIME_POLICY.md",
-      "size_bytes": 5039,
-      "sha256": "d412acf04baceb5dd9259f3924060ea7cb2a49dcb70f01af6dff12e5ee6a771c"
+      "size_bytes": 5160,
+      "sha256": "f6cce5250161f1719a0ea32e87ae8aa0d866fff957601f28629f67e310a7a94b"
     },
     {
       "path": "docs/RC2_CANDIDATE_CLOSEOUT.md",
@@ -881,8 +881,8 @@
     },
     {
       "path": "docs/SBOM_PROVENANCE_PLAN.md",
-      "size_bytes": 8072,
-      "sha256": "43c5c619d0ada1f133b3d052714f20e954443e5e123970993fdd8101a11ab2e1"
+      "size_bytes": 8530,
+      "sha256": "20f7ee1975ef70758615434dcc26cfc5fc3033aab00944640e0ed1a0cb7e9e7c"
     },
     {
       "path": "docs/SCENARIO_SIMULATOR_READINESS_IMPROVEMENT_PLAN.md",
@@ -916,8 +916,8 @@
     },
     {
       "path": "docs/VERIFICATION.md",
-      "size_bytes": 18429,
-      "sha256": "dd3e6c938c7193b93cd683c0174e064d60de592f7148daf9e9f2ccda2919369d"
+      "size_bytes": 20253,
+      "sha256": "551ba6cab0aaa45d955137e45248f9cfd5b7d230adbe7492b4bfd828fb5065e4"
     },
     {
       "path": "docs/VERIFICATION_IMPACT_MAP.json",
@@ -1491,8 +1491,8 @@
     },
     {
       "path": "scripts/authority_manifest_check.py",
-      "size_bytes": 13074,
-      "sha256": "63ba0eb718a9466099df3abf0210e334d4a656d46196c3a805bbab3c0c6332a5"
+      "size_bytes": 14312,
+      "sha256": "7cd7fa8cc6f0843c48b13e0ef69a23140537a92e41c554fbae77760c65cd5ac1"
     },
     {
       "path": "scripts/downstream_task_contract_validator.py",
@@ -1831,8 +1831,8 @@
     },
     {
       "path": "tests/test_authority_manifest_check.py",
-      "size_bytes": 8407,
-      "sha256": "718fcd2e9ccfc02d8a0e6ff8c7a198063c810be53368945546a3e2e29975ee9e"
+      "size_bytes": 10161,
+      "sha256": "838f80aeddb443749445c7375635f8942154d9398fdc5c74e6ec4d502d64fefa"
     },
     {
       "path": "tests/test_checksum_verify_gate.py",
@@ -2011,8 +2011,8 @@
     },
     {
       "path": "tests/test_quality_gate.py",
-      "size_bytes": 67862,
-      "sha256": "bd4e7193ddbab63bfd29ed06762474bc4ca6c62d80d1c746483d0ba6b92c01f3"
+      "size_bytes": 69784,
+      "sha256": "0cbb61d36694508193d6452125ce3a8eed41709a5c8a7ae3989500123307c3fd"
     },
     {
       "path": "tests/test_release_automation_candidate_contract.py",
