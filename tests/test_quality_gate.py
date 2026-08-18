@@ -357,6 +357,9 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     normalized_next_step = " ".join(
         status.split(next_step_marker, 1)[1].split("\n## ", 1)[0].split()
     )
+    normalized_h04l_held = " ".join(
+        status.split("\n## HELD\n", 1)[1].split("\n## ", 1)[0].split()
+    )
     assert "`CORE_HARNESS_READY`" in normalized_status
     assert (
         "Tracked release evidence regeneration until the eval-report inclusion policy "
@@ -386,32 +389,66 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
             assert len(items) == 1
 
     work_ids = [work_id for _, work_id in queue_items]
-    assert work_ids == ["H02", "H03"]
+    assert work_ids == ["H04L", "F", "U05", "H04R"]
     assert len(work_ids) == len(set(work_ids))
 
     for field in ["Interrupt reason:", "Resume target:", "Displaced-item disposition:"]:
         assert field in status
-    assert "The only active work is `H02`" in status
+    assert "The active local work is H04L closeout sequencing" in status
     assert "## Completed Checkpoint" in status
-    assert "### H01 — Sequencing-authority proposal" in status
-    assert "DONE / PROPOSED CHECKPOINT / PENDING INTEGRATION" in status
-    assert "ACTIVE / PROPOSED / PENDING VERIFICATION" in status
-    assert "Accumulate comparable Harness evidence across multiple repositories" in status
-    assert "`main@965fb86de1a8a307c646874d17d44c60c5dd9cf8`" in status
+    assert "### H01-H03 and recovery history" in status
+    assert "`68b5971325a8371a259c63db081d209fba005b96`" in status
+    assert "`78100a50a1ff8013492b39023b2d6a77e8e4cbba`" in status
+    assert "`5568442d96df40a99a22862d273dfc7b005e0a97`" in status
+    assert "PROPOSED / PENDING INTEGRATION" in status
+    assert "PARTIAL / HOLD" in status
+    assert "70 bytes" in status
+    for evidence in [
+        "837 passed / 10 skipped / 414 deselected",
+        "1251 passed / 10 skipped",
+        "15/15",
+        "8/8",
+        "48` paths",
+        "34/34",
+        "stale=0",
+        "3.12.10",
+        "9.0.3",
+        "dependency lock `6/6`",
+        "pip check` `PASS",
+    ]:
+        assert evidence in normalized_status
+    assert "authorization_status=NOT_AUTHENTICATED" in status
+    assert "`965fb86de1a8a307c646874d17d44c60c5dd9cf8`" in status
     assert (
         "`9a2ee297664e142c716654926a1cb30293c063ab.."
-        "347ec27f810558a89b3d06242f3833c4eccede40`"
+        "5568442d96df40a99a22862d273dfc7b005e0a97`"
     ) in status
-    assert "ADOPTED local basis" in status
-    assert "PROPOSED feature basis" in status
+    assert "GUARDED OLD VALUE" in status
+    assert "not a self-updating assertion about the current ref" in normalized_status
     assert "branch-local `STATUS.md`" in status
-    assert (
-        "H01 completion is not verification UX adoption or local-main integration"
-        in normalized_status
-    )
-    assert "begin H03 under a separate artifact-only high contract" in normalized_next_step
-    assert "multi-repository Harness evidence objective" in normalized_next_step
+    assert "tracked status intentionally omits its own final SHA" in normalized_status
+    assert "If local `main` does not contain this tracked tree" in status
+    assert "verified exact-F compare-and-swap integration decision" in normalized_next_step
+    assert "If it already contains the tree" in normalized_next_step
+    assert "U05 whole-repository audit" in normalized_next_step
+    assert "separate H04R" in normalized_next_step
     assert "Verification UX adoption, push, and Harness or target Hosted execution" in normalized_held
+    for held_boundary in [
+        "Remote fetch/push",
+        "Hosted workflow execution",
+        "export",
+        "tag",
+        "release",
+        "checksum",
+        "SBOM",
+        "provenance",
+        "signing",
+        "publication",
+        "deployment",
+        "local-main mutation",
+    ]:
+        assert held_boundary in normalized_h04l_held
+    assert "no new capability selection" in normalized_h04l_held
     release_state_docs = {
         "STATUS.md": status,
         "README.md": readme,

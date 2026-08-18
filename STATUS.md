@@ -10,99 +10,123 @@ the default quality gate is limited to core verification. Current authority is
 defined by `docs/AUTHORITY_MANIFEST.json`; historical phase and run details
 remain available in Git history and `ACCEPTANCE_TRACE.md`.
 
-The verification UX commits on the current feature line are `IMPLEMENTED ON
-FEATURE BRANCH` but remain `PROPOSED / PENDING INTEGRATION`. This branch-local
-status does not adopt them, integrate them into local `main`, or change the
-current authority basis.
+The verification UX line through `5568442d96df40a99a22862d273dfc7b005e0a97`
+is implemented and independently recovered under exact-runtime local
+verification. This branch-local status records that evidence without adopting
+the line, updating local `main`, or recording this closeout commit's own SHA.
 
 ## Current Strategic Objective
 
-Accumulate comparable Harness evidence across multiple repositories at
-reviewed exact SHAs. Record executor, verification scope, duration, findings,
-false positives or negatives, manual decisions, and local/remote baseline
-state before selecting another core capability.
+Close the verification UX integration sequence without collapsing historical
+proposal, partial, hold, implementation, and verification states into one
+claim. No new capability is selected. Comparable multi-repository Harness
+evidence resumes only after the separately bounded U05 and H04R sequence.
 
 ## Authority Basis
 
 | Basis class | Exact ref or range | Authority state | Meaning |
 |---|---|---|---|
-| ADOPTED local basis | `main@965fb86de1a8a307c646874d17d44c60c5dd9cf8` | `ADOPTED` | Current local sequencing authority. |
-| PROPOSED feature basis | `9a2ee297664e142c716654926a1cb30293c063ab..347ec27f810558a89b3d06242f3833c4eccede40` | `PROPOSED / PENDING INTEGRATION` | Verification UX implementation evidence awaiting an explicit integration-owner decision. |
+| Historical pre-H04L local-main guard | `965fb86de1a8a307c646874d17d44c60c5dd9cf8` | `GUARDED OLD VALUE` | The observed local `main` value before H04L. It is not a self-updating assertion about the current ref. |
+| Reviewed verification UX predecessor range | `9a2ee297664e142c716654926a1cb30293c063ab..5568442d96df40a99a22862d273dfc7b005e0a97` | `IMPLEMENTED / LOCALLY VERIFIED / NOT ADOPTED` | Reviewed H01-H03 history and the exact H03R2 recovery basis; integration still requires the ref-conditional owner action below. |
 
 `PASS`, `V2`, `V3`, postflight, a `plan_digest`, or a recommendation does not
-promote the proposed feature basis. A branch-local `STATUS.md`, including this
-H01 proposal, cannot supply its own `ADOPTED` evidence. Adoption requires an
-explicit owner decision tied to an exact ref/SHA and an adopted `STATUS.md`
-basis after the required cumulative verification, digest disposition, and
+promote the verification UX line. A branch-local `STATUS.md` cannot supply its
+own `ADOPTED` evidence. Adoption requires an explicit owner decision tied to an
+exact ref/SHA after cumulative verification, digest disposition, and
 integration-owner disposition are recorded.
 
 ## Active Work
 
-The only active work is `H02`, a bounded additive verification-contract
-rework. It strengthens planner fail-closed behavior, corrects Core/Full and
-installed-workflow documentation drift, and separates Harness Hosted evidence
-from target-repository Hosted evidence. It does not change workflow or suite
-execution behavior, adopt the verification UX, or integrate any feature commit
-into local `main`.
+The active local work is H04L closeout sequencing: record the completed H01-H03
+history, preserve H03R/H03R2 evidence boundaries, refresh the approved digest
+from the clean closeout source basis, and verify the frozen final SHA. It does
+not update local `main`, adopt the line, or authorize any remote action.
 
-- Interrupt reason: H01 closed at `68b5971325a8371a259c63db081d209fba005b96`
-  as a local `DONE / PROPOSED CHECKPOINT`, exposing the bounded H02 rework
-  without adopting the verification UX.
-- Resume target: complete H02 as one additive local checkpoint, then begin H03
-  digest disposition and final cumulative verification under a separate
-  artifact-only package.
-- Displaced-item disposition: multi-repository Harness evidence accumulation is
-  preserved as the strategic objective and resumes after the H02/H03 sequence;
-  no displaced capability, release, or runtime item is implicitly authorized.
+- Interrupt reason: the primary feature line reached exact `5568442` but its
+  closeout writer could not safely apply the two-file documentation/test patch.
+- Resume target: create a strict linear descendant in an isolated worktree,
+  freeze its final digest-containing SHA, and run the cumulative exact-runtime
+  verification once at that frozen tip.
+- Displaced-item disposition: multi-repository evidence remains preserved for
+  H04R after U05; no capability, release, Hosted, or target-repository item is
+  implicitly authorized.
 
 ## Completed Checkpoint
 
-### H01 — Sequencing-authority proposal
+### H01-H03 and recovery history
 
-- State: `DONE / PROPOSED CHECKPOINT / PENDING INTEGRATION`.
-- Scope: `STATUS.md`, the verification closeout prompt, and their structural
-  quality assertions only.
-- Checkpoint: `68b5971325a8371a259c63db081d209fba005b96` (`docs: define
-  verification sequencing authority`). H01 completion is not verification UX
-  adoption or local-main integration.
+- H01 implementation completed at `68b5971325a8371a259c63db081d209fba005b96`
+  (`docs: define verification sequencing authority`). Its execution-time state
+  remained `PROPOSED / PENDING INTEGRATION`; completion did not adopt it.
+- H02 implementation completed at
+  `78100a50a1ff8013492b39023b2d6a77e8e4cbba` (`fix(verify): harden
+  planning and hosted evidence boundaries`). Its original cumulative result
+  remained `PARTIAL / HOLD`; implementation completion did not rewrite that
+  result as a pass.
+- H03 digest refresh completed at
+  `5568442d96df40a99a22862d273dfc7b005e0a97` (`chore(corpus): refresh
+  approved digest`) with `34/34` approved sources and `stale=0`. Its original
+  runtime-selection attempt remained `HOLD` and is not rewritten by the digest
+  commit.
+- H03R stopped at preflight because its proposed interpreter ID was 70 bytes;
+  the schema limit made that attempt `HOLD` before execution.
+- H03R2 independently recovered the cumulative sequence at exact `5568442`:
+  Core `837 passed / 10 skipped / 414 deselected`; Full `1251 passed / 10
+  skipped`; eval `15/15`; quality gates `8/8`; three dry-run renders covering
+  `48` paths; corpus `34/34` with `stale=0`; Python `3.12.10`; pytest `9.0.3`;
+  dependency lock `6/6`; and `pip check` `PASS`.
+
+H03R2 is structural local evidence with `authorization_status=NOT_AUTHENTICATED`.
+It is not adoption, Hosted evidence, release evidence, or permission to mutate
+local `main` or any remote.
 
 ## NOW
 
-### H02 — Planner and Hosted-evidence separation rework
+### H04L — Verification integration closeout
 
-- State: `ACTIVE / PROPOSED / PENDING VERIFICATION`.
-- Scope: exactly the H02 eight-file additive write set; workflow and suite
-  execution behavior remain unchanged.
-- Completion boundary: targeted and Routine checks pass, authority and planner
-  checks pass, the actual diff remains in scope, and one local checkpoint is
-  created without claiming completed V2/V3 verification.
+- State: `CLOSEOUT RECORDING / EXACT-F VERIFICATION REQUIRED`.
+- Scope: one two-file status/test commit, one separately contracted corpus
+  digest commit, and exact-runtime cumulative verification at the frozen final
+  SHA.
+- The tracked status intentionally omits its own final SHA. The final SHA and
+  pass/fail observation belong to the task closeout and Git evidence.
 
 ## NEXT
 
-### H03 — Artifact digest refresh and final cumulative verification
+### F — Ref-conditional integration-owner action
 
-Use an artifact-only high package to disposition corpus digest freshness and
-then run the integration owner's final cumulative command set at the exact
-final SHA, including Local Full when the planner requires it. A freshness
-failure is `HOLD` unless the H03 package separately authorizes the exact digest
-artifact refresh.
+- If local `main` does not contain this tracked tree, the next action is a
+  separately verified exact-F compare-and-swap integration decision.
+- If local `main` already contains this tracked tree, the next action is U05
+  whole-repository audit.
+
+The historical pre-H04L `main` value above is only the guarded old value for
+the first branch of this decision. It must not be treated as a current-ref
+self-updating assertion.
 
 ## LATER
 
-Resume the strategic multi-repository Harness evidence objective only after
-H03 records the final cumulative verification and digest disposition. No
-target repository, push, or Hosted execution is implied.
+### U05 — Whole-repository audit
+
+Run the separately scoped whole-repository audit only after the exact-F
+integration disposition.
+
+### H04R — Multi-repository evidence resumption
+
+Resume multi-repository Harness evidence only after U05 and a separate H04R
+authorization. No target repository, push, or Hosted execution is implied.
 
 ## HELD
 
-- Release, tag, signing, publication, deployment, workflow/ref/remote mutation,
-  and local-main integration require separate explicit approval.
+- Remote fetch/push, Hosted workflow execution, export, tag, release, checksum,
+  SBOM, provenance, signing, publication, deployment, and local-main mutation
+  remain `HOLD` and require separate explicit approval.
 - Verification UX adoption, push, and Harness or target Hosted execution remain
   `HOLD` pending exact-SHA cumulative evidence and explicit owner authority.
 - Agent Quality/provider, Hermes, MCP, Local RAG, and target mutation remain
   held or separately approval-gated.
-- Verification UX adoption is held pending an explicit integration-owner
-  decision and the required exact-SHA cumulative evidence.
+- Multi-repository evidence is held until U05 and a separate H04R; no new
+  capability selection is made by this closeout.
 
 ## Operational Capability Status
 
@@ -252,10 +276,11 @@ not authenticate approval.
 
 ## Next Recommended Step
 
-After H02 closes as one local proposed checkpoint, begin H03 under a separate
-artifact-only high contract for digest disposition and final cumulative
-verification. Do not treat the handoff, any structural PASS, or a branch-local
-status as adoption, push authority, Hosted authorization, or local-main
-integration. Preserve the multi-repository Harness evidence objective for
-resumption after H03; all held surfaces remain `NOT RUN` or separately
-approval-gated.
+After the digest-containing final SHA is frozen and exact-runtime cumulative
+verification is recorded, inspect local `main` without mutating it. If `main`
+does not contain this tracked tree, the next action is a separately authorized
+verified exact-F compare-and-swap integration decision. If it already contains
+the tree, proceed to the separately scoped U05 whole-repository audit. Resume
+multi-repository evidence only after U05 and a separate H04R. Structural PASS,
+a branch-local status, or a plan digest does not grant adoption, push, Hosted,
+release, or deployment authority.
