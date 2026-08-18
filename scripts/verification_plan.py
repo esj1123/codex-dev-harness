@@ -53,7 +53,7 @@ IMPACT_MAP_BOOTSTRAP_RULE = {
     "match_kind": "exact",
     "patterns": [MAP_PATH],
     "minimum_tier": "V2",
-    "command_ids": [],
+    "command_ids": ["full_pytest"],
     "digest_check_required": False,
     "checksum_check_required": False,
     "render_check_required": False,

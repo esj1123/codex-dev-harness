@@ -1,8 +1,10 @@
 # Optional GitHub Actions
 
 > **HISTORICAL TEMPLATE QUARANTINE - DO NOT COPY OR INSTALL.** The two files
-> under `templates/ci/` are non-authoritative historical evidence. The sole
-> canonical installed workflow is `.github/workflows/local-verify.yml`.
+> under `templates/ci/` are non-authoritative historical evidence. The
+> canonical installed Hosted verifier is `.github/workflows/local-verify.yml`.
+> The separately installed `.github/workflows/release-evidence-export.yml` is a
+> release-evidence export workflow, not a Hosted verifier.
 
 ## Purpose
 
@@ -20,8 +22,11 @@ boundaries recorded here remain active.
 ## Policy
 
 - GitHub Actions are not required for the local-first baseline.
-- The owner-approved local verification workflow is installed at
+- The owner-approved canonical Hosted verification workflow is installed at
   `.github/workflows/local-verify.yml`.
+- The separately approved release-evidence export workflow is installed at
+  `.github/workflows/release-evidence-export.yml`; it does not establish
+  `HOSTED_EXACT_SHA (V3)` evidence.
 - The legacy workflow templates are historical evidence only. They are not
   installation instructions and must not be copied or installed.
 - Historical decision at that time: keep CI deferred and template-only. Current
@@ -52,11 +57,11 @@ template bodies must not be used as a starting-point authority.
 
 ## Canonical Workflow Reference
 
-The canonical installed workflow uses the exact dependency lock and runs the
-current verify contract:
+The canonical installed Hosted verifier uses the exact dependency lock and
+runs the current Core verify contract:
 
 - dependency installation from `requirements-dev.lock` with hash and binary-only enforcement
-- `python -m pytest tests --durations=50 -rs`
+- `python -m pytest tests -m "not optional_agent_quality and not optional_hermes_mcp and not optional_local_rag" --durations=50 -rs`
 - `python scripts/run_eval.py` without report flags
 - `python scripts/quality_gate.py`
 - render dry-run for `examples/python_cli_minimal`
@@ -64,11 +69,12 @@ current verify contract:
 - render dry-run for `examples/plc_tool_minimal`
 
 The installed Hosted Integration Verify workflow uses `workflow_dispatch`,
-read-only repository permissions, and no secrets. It does not upload generated
-release evidence. The separate
-`.github/workflows/release-evidence-export.yml` workflow is the only approved
-exception and transports the six approved files for one day. The release
-verification template remains historical and uninstalled.
+read-only repository permissions, and no secrets. It is the canonical Hosted
+verifier and does not upload generated release evidence. The separately
+installed `.github/workflows/release-evidence-export.yml` workflow is the only
+approved export exception and transports the six approved files for one day.
+That export is not Hosted verification. The release verification template
+remains historical and uninstalled.
 
 ## Actualization Decision
 

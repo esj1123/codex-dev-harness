@@ -38,50 +38,67 @@ integration-owner disposition are recorded.
 
 ## Active Work
 
-The only active work is `H01`, a sequencing-authority proposal. It documents
-the current boundary and order; it does not adopt the verification UX or
-integrate any feature commit into local `main`.
+The only active work is `H02`, a bounded additive verification-contract
+rework. It strengthens planner fail-closed behavior, corrects Core/Full and
+installed-workflow documentation drift, and separates Harness Hosted evidence
+from target-repository Hosted evidence. It does not change workflow or suite
+execution behavior, adopt the verification UX, or integrate any feature commit
+into local `main`.
 
-- Interrupt reason: the implemented verification UX lacked a durable boundary
-  between feature evidence and adopted local authority, so evidence expansion
-  is paused while the sequence is made explicit.
-- Resume target: begin separately bounded `H02` only after the H01 proposal has
-  one coherent local commit and its required focused checks and postflight pass.
+- Interrupt reason: H01 closed at `68b5971325a8371a259c63db081d209fba005b96`
+  as a local `DONE / PROPOSED CHECKPOINT`, exposing the bounded H02 rework
+  without adopting the verification UX.
+- Resume target: complete H02 as one additive local checkpoint, then begin H03
+  digest disposition and final cumulative verification under a separate
+  artifact-only package.
 - Displaced-item disposition: multi-repository Harness evidence accumulation is
   preserved as the strategic objective and resumes after the H02/H03 sequence;
   no displaced capability, release, or runtime item is implicitly authorized.
 
-## NOW
+## Completed Checkpoint
 
 ### H01 — Sequencing-authority proposal
 
-- State: `PROPOSED / PENDING INTEGRATION`.
+- State: `DONE / PROPOSED CHECKPOINT / PENDING INTEGRATION`.
 - Scope: `STATUS.md`, the verification closeout prompt, and their structural
   quality assertions only.
-- Completion boundary: one local proposal commit with required checks. H01
-  completion is not verification UX adoption or local-main integration.
+- Checkpoint: `68b5971325a8371a259c63db081d209fba005b96` (`docs: define
+  verification sequencing authority`). H01 completion is not verification UX
+  adoption or local-main integration.
+
+## NOW
+
+### H02 — Planner and Hosted-evidence separation rework
+
+- State: `ACTIVE / PROPOSED / PENDING VERIFICATION`.
+- Scope: exactly the H02 eight-file additive write set; workflow and suite
+  execution behavior remain unchanged.
+- Completion boundary: targeted and Routine checks pass, authority and planner
+  checks pass, the actual diff remains in scope, and one local checkpoint is
+  created without claiming completed V2/V3 verification.
 
 ## NEXT
 
-### H02 — Hosted PASS evidence-field separation
+### H03 — Artifact digest refresh and final cumulative verification
 
-Define separate Harness Hosted PASS and target Hosted PASS fields under its own
-bounded contract. H01 intentionally does not extend the closeout contract with
-those fields.
+Use an artifact-only high package to disposition corpus digest freshness and
+then run the integration owner's final cumulative command set at the exact
+final SHA, including Local Full when the planner requires it. A freshness
+failure is `HOLD` unless the H03 package separately authorizes the exact digest
+artifact refresh.
 
 ## LATER
 
-### H03 — Final cumulative verification
-
-At the final cumulative SHA after H02, run the integration owner's selected
-cumulative verification, including one local Full run if required by the final
-plan. Evaluate corpus freshness read-only; an expected freshness failure is a
-`HOLD`, not authority to refresh or write a corpus artifact.
+Resume the strategic multi-repository Harness evidence objective only after
+H03 records the final cumulative verification and digest disposition. No
+target repository, push, or Hosted execution is implied.
 
 ## HELD
 
 - Release, tag, signing, publication, deployment, workflow/ref/remote mutation,
   and local-main integration require separate explicit approval.
+- Verification UX adoption, push, and Harness or target Hosted execution remain
+  `HOLD` pending exact-SHA cumulative evidence and explicit owner authority.
 - Agent Quality/provider, Hermes, MCP, Local RAG, and target mutation remain
   held or separately approval-gated.
 - Verification UX adoption is held pending an explicit integration-owner
@@ -219,6 +236,8 @@ not authenticate approval.
 ## Held Or Not Authorized
 
 - Tag, release, signing, publication, or durable remote distribution.
+- Verification UX adoption, push, and Harness or target Hosted execution remain
+  `HOLD` pending exact-SHA cumulative evidence and explicit owner authority.
 - Automatic digest writes, automatic release triggers, or release automation
   outside the selected manual GitHub release-evidence export contract.
 - MCP execution, Hermes execution bridges, AgentOps, or durable audit logging.
@@ -233,8 +252,10 @@ not authenticate approval.
 
 ## Next Recommended Step
 
-After H01 closes as a local proposal commit, begin H02 under a separate bounded
-contract. Do not treat that handoff, any verification PASS, or the H01 branch
-status as adoption or local-main integration. Preserve the multi-repository
-Harness evidence objective for resumption after the H02/H03 sequence; all held
-surfaces remain `NOT RUN` or separately approval-gated.
+After H02 closes as one local proposed checkpoint, begin H03 under a separate
+artifact-only high contract for digest disposition and final cumulative
+verification. Do not treat the handoff, any structural PASS, or a branch-local
+status as adoption, push authority, Hosted authorization, or local-main
+integration. Preserve the multi-repository Harness evidence objective for
+resumption after H03; all held surfaces remain `NOT RUN` or separately
+approval-gated.

@@ -63,10 +63,15 @@ Optional packs remain outside the base render path until explicitly integrated.
 meaning. The execution layers are:
 
 - focused tests for the changed contract or implementation;
-- `LOCAL_INTEGRATION (V2)`: full pytest, standalone eval, and quality gates;
-- impact-required extras: checksum, corpus, render, or focused checks;
-- manual exact-SHA Local Verify for approved `HOSTED_EXACT_SHA (V3)` evidence; and
-- artifact-writing release verification as a distinct explicit workflow.
+- `LOCAL_INTEGRATION (V2)`: the official Core integration scope of core pytest,
+  standalone eval, and the core quality gate;
+- Full pytest as an impact-required extended regression for pytest
+  infrastructure, dependency locks, common validators, and unclassified paths;
+- other impact-required extras: checksum, corpus, render, or focused checks;
+- the manual exact-SHA canonical Hosted verifier for approved
+  `HOSTED_EXACT_SHA (V3)` evidence; and
+- the separate release-evidence export workflow, which is artifact transport
+  and generation evidence rather than Hosted verification.
 
 `docs/VERIFICATION_IMPACT_MAP.json` is an operational input for advisory
 planning. It selects commands but does not execute them or authenticate

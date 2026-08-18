@@ -181,6 +181,7 @@
         "requirements-dev.lock",
         "requirements-dev.txt",
         "scripts/quality_gate.py",
+        "scripts/repo_path_policy.py",
         "scripts/run_local_verify.ps1",
         "scripts/verification_plan.py",
         "tests/conftest.py"

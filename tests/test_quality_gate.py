@@ -256,6 +256,8 @@ def test_docs_gate_fails_closed_for_missing_or_malformed_manifest(
 def test_v2_policy_separates_core_from_impact_required_extras() -> None:
     verification = Path("docs/VERIFICATION.md").read_text(encoding="utf-8")
     ci_policy = Path("docs/CI_POLICY.md").read_text(encoding="utf-8")
+    architecture = Path("docs/ARCHITECTURE.md").read_text(encoding="utf-8")
+    optional = Path("docs/OPTIONAL_GITHUB_ACTIONS.md").read_text(encoding="utf-8")
     impact_map = json.loads(
         Path("docs/VERIFICATION_IMPACT_MAP.json").read_text(encoding="utf-8")
     )
@@ -263,6 +265,15 @@ def test_v2_policy_separates_core_from_impact_required_extras() -> None:
     assert "## Verification Tiers" in verification
     assert "The V2 core is always" in verification
     assert "impact-required extras" in verification
+    assert "official Core integration scope" in architecture
+    assert "Full pytest as an impact-required extended regression" in architecture
+    assert "canonical installed Hosted verifier" in optional
+    assert "release-evidence export workflow, not a Hosted verifier" in optional
+    assert (
+        'python -m pytest tests -m "not optional_agent_quality and not '
+        'optional_hermes_mcp and not optional_local_rag" --durations=50 -rs'
+        in optional
+    )
     assert "## Verification Tiers" not in ci_policy
     assert "sole normative authority" in ci_policy
     assert impact_map["tier_command_ids"]["V2"][-3:] == [
@@ -375,12 +386,16 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
             assert len(items) == 1
 
     work_ids = [work_id for _, work_id in queue_items]
-    assert work_ids == ["H01", "H02", "H03"]
+    assert work_ids == ["H02", "H03"]
     assert len(work_ids) == len(set(work_ids))
 
     for field in ["Interrupt reason:", "Resume target:", "Displaced-item disposition:"]:
         assert field in status
-    assert "The only active work is `H01`" in status
+    assert "The only active work is `H02`" in status
+    assert "## Completed Checkpoint" in status
+    assert "### H01 — Sequencing-authority proposal" in status
+    assert "DONE / PROPOSED CHECKPOINT / PENDING INTEGRATION" in status
+    assert "ACTIVE / PROPOSED / PENDING VERIFICATION" in status
     assert "Accumulate comparable Harness evidence across multiple repositories" in status
     assert "`main@965fb86de1a8a307c646874d17d44c60c5dd9cf8`" in status
     assert (
@@ -394,8 +409,9 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
         "H01 completion is not verification UX adoption or local-main integration"
         in normalized_status
     )
-    assert "begin H02 under a separate bounded contract" in normalized_next_step
+    assert "begin H03 under a separate artifact-only high contract" in normalized_next_step
     assert "multi-repository Harness evidence objective" in normalized_next_step
+    assert "Verification UX adoption, push, and Harness or target Hosted execution" in normalized_held
     release_state_docs = {
         "STATUS.md": status,
         "README.md": readme,
@@ -438,7 +454,20 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
         assert non_adopting_evidence in closeout
     assert "cannot adopt itself" in closeout
     assert "H01 closeout itself remains `PROPOSED / PENDING INTEGRATION`" in normalized_closeout
-    assert "reserved for the separately bounded H02 work" in normalized_closeout
+    for hosted_field in [
+        "Workflow repository identity:",
+        "Harness workflow SHA:",
+        "Harness Hosted executor/status/run:",
+        "Target base/head SHA:",
+        "Target verification executor/status:",
+        "Target Hosted status/run:",
+    ]:
+        assert hosted_field in closeout
+    assert "record Target Hosted status/run as `NOT RUN`" in normalized_closeout
+    assert (
+        "Harness Hosted PASS does not establish target-repository Hosted PASS"
+        in normalized_closeout
+    )
 
     assert "manual read-only `.github/workflows/local-verify.yml`" in usage
     assert "`workflow_dispatch` with an exact commit SHA" in usage

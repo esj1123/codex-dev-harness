@@ -130,6 +130,34 @@ def test_impact_map_change_is_code_bootstrapped_to_v2(tmp_path: Path) -> None:
     assert result["minimum_tier"] == "V2"
     assert result["integration_owner_required"] is True
     assert "verification_impact_map_bootstrap" in result["matched_rule_ids"]
+    assert "full_pytest" in result["required_command_ids"]
+
+
+def test_impact_map_bootstrap_preserves_full_when_map_removes_its_self_path(
+    tmp_path: Path,
+) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    payload = json.loads(MAP_PATH.read_text(encoding="utf-8"))
+    full_rule = next(
+        rule
+        for rule in payload["rules"]
+        if rule["rule_id"] == "pytest_infrastructure_full_regression"
+    )
+    full_rule["patterns"].remove(verification_plan.MAP_PATH)
+    head_sha = commit_file(
+        repo,
+        verification_plan.MAP_PATH,
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
+    )
+
+    result = inspect(repo, base_sha, head_sha)
+
+    assert result["status"] == "PASS"
+    assert result["minimum_tier"] == "V2"
+    assert result["integration_owner_required"] is True
+    assert result["matched_rule_ids"] == ["verification_impact_map_bootstrap"]
+    assert "core_pytest" in result["required_command_ids"]
+    assert "full_pytest" in result["required_command_ids"]
 
 
 def test_document_change_returns_v1(tmp_path: Path) -> None:
@@ -428,10 +456,11 @@ def test_optional_surface_adds_its_focused_command(
         "pytest.ini",
         "tests/conftest.py",
         "requirements-dev.lock",
+        "scripts/repo_path_policy.py",
         "scripts/verification_plan.py",
     ],
 )
-def test_pytest_infrastructure_requires_full_regression(
+def test_pytest_infrastructure_and_common_validator_require_full_regression(
     tmp_path: Path, relative_path: str
 ) -> None:
     repo, base_sha = init_repo(tmp_path)

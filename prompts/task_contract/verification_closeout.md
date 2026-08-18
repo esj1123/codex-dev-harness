@@ -27,11 +27,14 @@ This template is documentation-only. It does not run verification or approve sid
 ## Verification Execution
 
 - Target repository safe alias: [redacted safe alias; no absolute path]
-- Harness SHA: [40-character commit SHA]
+- Workflow repository identity: [safe owner/repository identity; no credentials]
+- Harness workflow SHA: [40-character commit SHA]
+- Harness Hosted executor/status/run: [github / PASS / FAIL / NOT RUN] / [workflow name and safe run ID]
 - Target base/head SHA: [base SHA] / [head SHA]
-- Verification scope/executor: [focused / integration / extended] / [local / github]
+- Target verification executor/status: [local / github] / [PASS / FAIL / NOT RUN / ENVIRONMENT BLOCKED]
+- Target Hosted status/run: [PASS / FAIL / NOT RUN] / [workflow name and safe run ID, or reason]
+- Verification scope: [focused / integration / extended]
 - Exact-SHA binding: [BOUND / NOT BOUND / not applicable]
-- Workflow name/run ID/conclusion: [name] / [safe run ID] / [PASS / FAIL / NOT RUN]
 - Setup/pytest/overall duration: [seconds] / [seconds] / [seconds]
 - Artifact upload status: [NOT RUN / NONE / TRANSIENT EXPORT]
 - Local Full status: [PASS / FAIL / NOT RUN] - [reason when NOT RUN]
@@ -40,6 +43,11 @@ This template is documentation-only. It does not run verification or approve sid
 - Manual judgment points: [decisions requiring human review]
 - Local/remote baseline state: [local HEAD, reviewed remote ref, workflow head equality]
 - Residual risk: [remaining uncertainty]
+
+If target-repository Hosted evidence was not executed and bound to the target
+head SHA, record Target Hosted status/run as `NOT RUN`; do not inherit the
+Harness result. Harness Hosted PASS does not establish target-repository Hosted
+PASS.
 
 ## Changed Files
 
@@ -114,8 +122,8 @@ A closeout, recommendation, or branch-local `STATUS.md` cannot adopt itself.
 The H01 closeout itself remains `PROPOSED / PENDING INTEGRATION` and its
 next-step authority remains `ADVISORY`.
 
-H01 does not add or infer separate Harness Hosted PASS and target Hosted PASS
-fields. That field separation is reserved for the separately bounded H02 work.
+The separately bounded H02 fields above preserve the H01 authority boundary.
+They do not adopt H01, the verification UX feature basis, or any next step.
 
 ## Next Step
 
