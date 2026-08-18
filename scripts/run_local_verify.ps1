@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet("Full", "Routine")]
+    [ValidateSet("Full", "Routine", "Core")]
     [string]$Lane = "Full",
     [AllowNull()]
     [string]$PytestBaseTempRoot
@@ -240,6 +240,12 @@ if ($Lane -eq "Routine") {
         }
         $PytestArgs += @("--ignore", $heldTestFile)
     }
+}
+elseif ($Lane -eq "Core") {
+    $PytestArgs += @(
+        "-m",
+        "not optional_agent_quality and not optional_hermes_mcp and not optional_local_rag"
+    )
 }
 
 Write-Host "Local verification lane: $Lane"

@@ -26,6 +26,28 @@ POSIX_ALLOWED_SKIPS = {
     "tests/test_render_template.py::test_render_rejects_profile_source_junction": "Windows junction regression",
 }
 
+
+OPTIONAL_AGENT_QUALITY_TEST_FILES = {
+    "test_agent_quality_aggregation.py",
+    "test_agent_quality_capture.py",
+    "test_agent_quality_cli.py",
+    "test_agent_quality_contracts.py",
+    "test_agent_quality_semantic_failure.py",
+    "test_agent_quality_trial_validation.py",
+    "test_agent_role_profiles.py",
+}
+
+
+def _optional_marker_for_test(path: Path) -> str | None:
+    name = path.name
+    if name in OPTIONAL_AGENT_QUALITY_TEST_FILES:
+        return "optional_agent_quality"
+    if name.startswith(("test_hermes_", "test_mcp_")):
+        return "optional_hermes_mcp"
+    if name == "test_local_rag_retriever.py":
+        return "optional_local_rag"
+    return None
+
 _AMBIENT_GIT_KEYS = (
     "GIT_ALTERNATE_OBJECT_DIRECTORIES",
     "GIT_COMMON_DIR",
@@ -107,6 +129,14 @@ def isolate_git_process_environment(tmp_path_factory: pytest.TempPathFactory):
     _apply_git_environment(monkeypatch, disabled_hooks)
     yield
     monkeypatch.undo()
+
+
+
+def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
+    for item in items:
+        marker_name = _optional_marker_for_test(Path(str(item.path)))
+        if marker_name is not None:
+            item.add_marker(getattr(pytest.mark, marker_name))
 
 
 def pytest_sessionstart(session: pytest.Session) -> None:

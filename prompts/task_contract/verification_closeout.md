@@ -22,6 +22,24 @@ This template is documentation-only. It does not run verification or approve sid
 - Postflight status: [PASS / BLOCKED / FAIL / ENVIRONMENT BLOCKED / not applicable]
 - Authorization status: [NOT_AUTHENTICATED plus separate approval evidence]
 
+
+## Verification Execution
+
+- Target repository safe alias: [redacted safe alias; no absolute path]
+- Harness SHA: [40-character commit SHA]
+- Target base/head SHA: [base SHA] / [head SHA]
+- Verification scope/executor: [focused / integration / extended] / [local / github]
+- Exact-SHA binding: [BOUND / NOT BOUND / not applicable]
+- Workflow name/run ID/conclusion: [name] / [safe run ID] / [PASS / FAIL / NOT RUN]
+- Setup/pytest/overall duration: [seconds] / [seconds] / [seconds]
+- Artifact upload status: [NOT RUN / NONE / TRANSIENT EXPORT]
+- Local Full status: [PASS / FAIL / NOT RUN] - [reason when NOT RUN]
+- Actual findings: [defects found or none]
+- False positives/false negatives: [observed items or none known]
+- Manual judgment points: [decisions requiring human review]
+- Local/remote baseline state: [local HEAD, reviewed remote ref, workflow head equality]
+- Residual risk: [remaining uncertainty]
+
 ## Changed Files
 
 | file | change type | notes |

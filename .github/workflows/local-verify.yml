@@ -56,6 +56,8 @@ jobs:
           # Python 3.12.10 is the final 3.12 release with Windows binaries.
           python-version: "3.12.10"
           check-latest: false
+          cache: pip
+          cache-dependency-path: requirements-dev.lock
 
       - name: Show Python version
         run: python --version
@@ -77,7 +79,7 @@ jobs:
         run: .\.venv\Scripts\python.exe -m pip check
 
       - name: Run tests
-        run: .\.venv\Scripts\python.exe -m pytest tests --durations=50 -rs
+        run: .\.venv\Scripts\python.exe -m pytest tests -m "not optional_agent_quality and not optional_hermes_mcp and not optional_local_rag" --durations=50 -rs
 
       - name: Run standalone evals
         run: .\.venv\Scripts\python.exe scripts/run_eval.py

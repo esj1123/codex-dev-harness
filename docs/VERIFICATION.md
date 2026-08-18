@@ -15,7 +15,7 @@ current result, but they must not redefine the tier contract.
 |---|---|---|
 | `V0` | `CONTRACT_SCOPE` | Work-package validation, base-SHA and allowed-file review, and `git diff --check`. |
 | `V1` | `FOCUSED_FEATURE` | `CONTRACT_SCOPE (V0)` plus focused verification for the declared change. |
-| `V2` | `LOCAL_INTEGRATION` | Full pytest, no-report standalone eval, all core quality gates, and every impact-required extra. |
+| `V2` | `LOCAL_INTEGRATION` | Core pytest, no-report standalone eval, all core quality gates, and every impact-required extra. |
 | `V3` | `HOSTED_EXACT_SHA` | One approved push and one successful GitHub `verify` run bound to the final exact SHA. |
 
 Machine-readable work packages continue to use only `V0`, `V1`, `V2`, or
@@ -34,7 +34,10 @@ hosted PASS satisfies the V2 integration scope without a separate local Full
 run. It adds hosted reproducibility and SHA binding; it does not add a product
 capability, release, publication, or deployment claim.
 
-The V2 core is always `full_pytest`, `standalone_eval`, and `quality_gate`.
+The V2 core is always `core_pytest`, `standalone_eval`, and `quality_gate`.
+`full_pytest` remains the extended regression command and is added for pytest
+infrastructure, dependency-lock, common-validator, or unclassified-path
+changes.
 Checksum verification, corpus digest checking, and relevant render dry-runs are
 impact-required extras represented by `checksum_verify`,
 `corpus_digest_check`, and `render_dry_runs`. The advisory operational
@@ -95,17 +98,19 @@ missing, repository-internal, empty, and reparse-point roots fail before Python
 selection. When the parameter is omitted, pytest retains its normal OS-temp
 behavior. Pytest's cache provider is disabled in both modes.
 
-The wrapper runs full pytest with the 50 slowest durations and skip reasons,
+The wrapper runs the selected pytest lane with the 50 slowest durations and skip reasons,
 the no-report standalone eval, the quality gate, and all three example render
 dry-runs in that order. It does not write rendered files and does not use
 `--force`. Tests and tools may still write runner-side temporary files;
 verification does not claim a zero-filesystem-write execution.
 
-The default lane is `Full` and remains the canonical
-`LOCAL_INTEGRATION (V2)` behavior:
+The default lane remains `Full` for CLI compatibility and supplies the
+extended regression superset. The explicit `Core` lane is the official
+integration pytest scope:
 
-`powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1`
+`powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1 -Lane Core`
 
+The unchanged no-argument command runs `Full`, including optional/held tests.
 For faster, non-authoritative local feedback, select the explicit `Routine`
 lane:
 
@@ -120,6 +125,16 @@ declaration uses exact file paths rather than filename patterns, so a new test
 is included in both lanes unless the integration owner explicitly adds it to
 the held list. A missing declared held file fails closed instead of silently
 changing Routine coverage.
+
+
+Central collection policy in `tests/conftest.py` marks the 56 test modules as
+core or one of `optional_agent_quality`, `optional_hermes_mcp`, and
+`optional_local_rag`; `pytest.ini` registers those markers. Core excludes the
+three optional categories. Routine preserves its exact 29-file ignore contract,
+and Full collects all categories. Hosted Core has a 15-minute overall target and
+local Routine has a 5-minute target. The first optimization response to a miss
+is review of `--durations=50` fixture and Git-subprocess costs; deterministic
+sharding is considered only if hosted Core still exceeds 15 minutes.
 
 Routine PASS is local feedback, not standalone `LOCAL_INTEGRATION (V2)`,
 release, or promotion evidence. For a hosted integration package, Routine may
@@ -145,15 +160,16 @@ The workflow is manual-only through `workflow_dispatch` and uses
 `expected_sha`; checkout uses that ref and asserts the observed HEAD before
 running checks. It mirrors the non-release local verification subset:
 
-- `python -m pytest tests --durations=50 -rs`
+- `python -m pytest tests -m "not optional_agent_quality and not optional_hermes_mcp and not optional_local_rag" --durations=50 -rs`
 - `python scripts/run_eval.py`
 - `python scripts/quality_gate.py`
 - `python scripts/render_template.py --config examples/python_cli_minimal/template.config.yml --target examples/python_cli_minimal --dry-run`
 - `python scripts/render_template.py --config examples/csharp_desktop_minimal/template.config.yml --target examples/csharp_desktop_minimal --dry-run`
 - `python scripts/render_template.py --config examples/plc_tool_minimal/template.config.yml --target examples/plc_tool_minimal --dry-run`
 
-It installs the exact development set from `requirements-dev.lock` with
-`--require-hashes --only-binary=:all:`, runs `python -m pip check`, and uses
+It keys the setup-python pip cache to `requirements-dev.lock`, installs the
+exact development set with `--require-hashes --only-binary=:all:`, runs
+`python -m pip check`, and uses
 Python `3.12.10`, the final Python 3.12 release
 with Windows binary installers. `LOCAL_INTEGRATION (V2)` and
 `HOSTED_EXACT_SHA (V3)` both require that exact patch version as declared in

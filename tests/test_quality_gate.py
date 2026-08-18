@@ -1,5 +1,6 @@
 import json
 import os
+import shlex
 from pathlib import Path
 import subprocess
 import sys
@@ -265,7 +266,7 @@ def test_v2_policy_separates_core_from_impact_required_extras() -> None:
     assert "## Verification Tiers" not in ci_policy
     assert "sole normative authority" in ci_policy
     assert impact_map["tier_command_ids"]["V2"][-3:] == [
-        "full_pytest",
+        "core_pytest",
         "standalone_eval",
         "quality_gate",
     ]
@@ -405,7 +406,7 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     assert "is not automatic and is not a required check" in usage
     assert "`manual_github_release_evidence_export`" in usage
     assert "Hosted Integration Verify performs no artifact upload" in " ".join(usage.split())
-    assert usage.index("full `python -m pytest tests`") < usage.index(
+    assert usage.index("pytest for the selected `Routine`, `Core`, or `Full` lane") < usage.index(
         "standalone `python scripts/run_eval.py`"
     ) < usage.index("core `python scripts/quality_gate.py`") < usage.index(
         "profile render dry-runs"
@@ -600,7 +601,10 @@ def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
     )
     verify_job = text.split("  verify:\n", 1)[1]
     verify_python = r".\.venv\Scripts\python.exe"
-    tests_command = f"run: {verify_python} -m pytest tests --durations=50 -rs"
+    tests_command = (
+        f'run: {verify_python} -m pytest tests -m "not optional_agent_quality and '
+        'not optional_hermes_mcp and not optional_local_rag" --durations=50 -rs'
+    )
     eval_command = f"run: {verify_python} scripts/run_eval.py"
     quality_gate_command = f"run: {verify_python} scripts/quality_gate.py"
 
@@ -775,7 +779,7 @@ def test_local_wrapper_defaults_to_full_and_routine_excludes_only_exact_held_fil
         if line.strip().startswith('\"tests/')
     }
 
-    assert '[ValidateSet("Full", "Routine")]' in local
+    assert '[ValidateSet("Full", "Routine", "Core")]' in local
     assert '[string]$Lane = "Full"' in local
     assert '[string]$PytestBaseTempRoot' in local
     assert '$PSBoundParameters.ContainsKey("PytestBaseTempRoot")' in local
@@ -830,7 +834,14 @@ def _wrapper_pytest_args(
     pytest_invocation = next(
         invocation for invocation in invocations if invocation.startswith("-m pytest ")
     )
-    return pytest_invocation.split()[2:]
+    parsed = shlex.split(pytest_invocation, posix=False)
+    normalized = [
+        argument[1:-1]
+        if len(argument) >= 2 and argument.startswith('"') and argument.endswith('"')
+        else argument
+        for argument in parsed
+    ]
+    return normalized[2:]
 
 
 def _run_wrapper_basetemp_validation(
@@ -1125,6 +1136,7 @@ def test_local_wrapper_lane_arguments_produce_exact_collection_difference(
     default_full_args = _wrapper_pytest_args(tmp_path, "Full", explicit=False)
     explicit_full_args = _wrapper_pytest_args(tmp_path, "Full", explicit=True)
     routine_args = _wrapper_pytest_args(tmp_path, "Routine", explicit=True)
+    core_args = _wrapper_pytest_args(tmp_path, "Core", explicit=True)
     assert default_full_args == explicit_full_args
     assert default_full_args == [
         "tests",
@@ -1143,6 +1155,7 @@ def test_local_wrapper_lane_arguments_produce_exact_collection_difference(
 
     full_nodes = _collected_nodes(default_full_args)
     routine_nodes = _collected_nodes(routine_args)
+    core_nodes = _collected_nodes(core_args)
     held_files = {
         routine_args[index + 1].replace("\\", "/")
         for index, argument in enumerate(routine_args)
@@ -1156,6 +1169,11 @@ def test_local_wrapper_lane_arguments_produce_exact_collection_difference(
     assert held_nodes
     assert {node.split("::", 1)[0] for node in held_nodes} == held_files
     assert routine_nodes == expected_routine_nodes
+    assert core_nodes == expected_routine_nodes
+    assert core_args[-2:] == [
+        "-m",
+        "not optional_agent_quality and not optional_hermes_mcp and not optional_local_rag",
+    ]
     assert any(node.startswith("tests/test_quality_gate.py::") for node in routine_nodes)
     assert any(
         node.startswith("tests/test_json_evidence_gate.py::")
@@ -1271,13 +1289,14 @@ def test_local_wrapper_rejects_unknown_lane_before_execution(tmp_path: Path) -> 
     assert not argument_log.exists()
 
 
-def test_release_and_hosted_verification_remain_full_only() -> None:
+def test_release_remains_full_and_hosted_verification_uses_core() -> None:
     release = Path("scripts/run_release_verify.ps1").read_text(encoding="utf-8")
     workflow = Path(".github/workflows/local-verify.yml").read_text(encoding="utf-8")
 
     assert "-Lane Routine" not in release
     assert "-Lane Routine" not in workflow
-    assert ".\\.venv\\Scripts\\python.exe -m pytest tests --durations=50 -rs" in workflow
+    assert '-m pytest tests -m "not optional_agent_quality and not optional_hermes_mcp and not optional_local_rag" --durations=50 -rs' in workflow
+    assert "cache-dependency-path: requirements-dev.lock" in workflow
 
 
 def test_eval_policy_docs_define_manual_console_integration_boundary() -> None:

@@ -56,6 +56,17 @@ outside the repository, then pass it explicitly:
 
 `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1 -PytestBaseTempRoot D:\Codex\_tmp\CODEX-HARNESS`
 
+
+For the official integration pytest scope, run:
+
+`powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1 -Lane Core`
+
+`Routine` keeps the existing quick-feedback exclusions and targets five
+minutes or less. `Core` excludes centrally marked Agent Quality, Hermes/MCP, and
+Local RAG optional tests and is the default Hosted Integration scope. The
+no-argument `Full` behavior is unchanged and remains the extended regression
+superset.
+
 The directory must already exist, be absolute, remain outside the repository,
 and not be a reparse point. The wrapper creates a unique pytest child path and
 does not remove it automatically. Omitting the option preserves normal OS-temp
@@ -64,7 +75,7 @@ behavior.
 The wrapper runs:
 
 1. exact development-environment validation and `pip check`
-2. full `python -m pytest tests`
+2. pytest for the selected `Routine`, `Core`, or `Full` lane
 3. standalone `python scripts/run_eval.py`
 4. core `python scripts/quality_gate.py`
 5. Python CLI, C# desktop, and PLC/device profile render dry-runs

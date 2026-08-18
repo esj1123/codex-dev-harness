@@ -484,6 +484,7 @@ def build_plan(
     unknown_paths = sorted(set(changed_paths) - matched_paths)
     if unknown_paths:
         minimum_tier = "V2"
+        additional_commands.add("full_pytest")
         result["reason_codes"] = ["UNKNOWN_PATH_ESCALATED"]
 
     required_commands = set(impact_map["tier_command_ids"][minimum_tier])

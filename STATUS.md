@@ -28,10 +28,10 @@ remain available in Git history and `ACCEPTANCE_TRACE.md`.
 ## Implemented Control Surface
 
 - Render tiers: `minimal`, `standard`, and `full`, with closed Read Orders.
-- Manual read-only Local Verify defaults to the authoritative `Full` lane with
-  pytest, standalone eval, quality gates, and three profile dry-runs. Explicit
-  `-Lane Routine` is non-authoritative feedback that excludes only the exact
-  frozen/held Agent Quality, Hermes/MCP, and Local RAG test inventory.
+- Manual read-only Local Verify preserves the no-argument `Full` extended
+  lane. `-Lane Core` is the official integration scope; explicit `-Lane
+  Routine` remains non-authoritative feedback with the exact frozen/held Agent
+  Quality, Hermes/MCP, and Local RAG file exclusions.
 - The core JSON evidence gate excludes frozen Agent Quality and held Hermes
   receipt/trace shapes; standalone full validation preserves both optional
   surfaces.
@@ -119,12 +119,15 @@ effect.
 ## Verification Model
 
 `docs/VERIFICATION.md` is the sole normative authority for verification tier
-meaning and required evidence. Current execution maps the standing Full local
-wrapper to `LOCAL_INTEGRATION (V2)` and the exact-SHA GitHub `verify` job to
+meaning and required evidence. Current execution maps the explicit Core
+command set to `LOCAL_INTEGRATION (V2)`, retains Full as its extended regression
+superset, and maps the exact-SHA GitHub `verify` job to
 `HOSTED_EXACT_SHA (V3)`. V3 is an integration-scope run on GitHub bound to the
 final exact SHA, not a product-version successor to V2. When it runs every
 required integration command, it satisfies the included V2 scope without a
-duplicate local Full run. Routine remains local feedback. The separate release
+duplicate local Full run. Routine remains local feedback; Full remains
+impact-required for pytest infrastructure, dependency locks, common validators,
+and unclassified paths. The separate release
 evidence export workflow is transport and generation evidence, not V3.
 
 PASS from preflight or postflight proves structural consistency only. It does

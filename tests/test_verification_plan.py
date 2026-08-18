@@ -179,7 +179,8 @@ def test_authority_change_requires_integration_owner(tmp_path: Path) -> None:
     assert result["minimum_tier"] == "V2"
     assert result["integration_owner_required"] is True
     assert "central_authority_exact" in result["matched_rule_ids"]
-    assert "full_pytest" in result["required_command_ids"]
+    assert "core_pytest" in result["required_command_ids"]
+    assert "full_pytest" not in result["required_command_ids"]
 
 
 @pytest.mark.parametrize(
@@ -349,7 +350,8 @@ def test_multiple_paths_preserve_flags_and_select_highest_tier(tmp_path: Path) -
         "corpus_control_surface",
     ]
     assert "corpus_digest_check" in result["required_command_ids"]
-    assert "full_pytest" in result["required_command_ids"]
+    assert "core_pytest" in result["required_command_ids"]
+    assert "full_pytest" not in result["required_command_ids"]
 
 
 def test_invalid_approved_source_set_fails_closed(tmp_path: Path) -> None:
@@ -398,6 +400,49 @@ def test_release_generator_change_requires_checksum_check(
     assert result["checksum_check_required"] is True
     assert "release_checksum_surface" in result["matched_rule_ids"]
     assert "checksum_verify" in result["required_command_ids"]
+
+
+
+@pytest.mark.parametrize(
+    ("relative_path", "command_id"),
+    [
+        ("scripts/hermes_sidecar.py", "hermes_mcp_static_check"),
+        ("tests/test_mcp_tool_boundary_contract.py", "hermes_mcp_static_check"),
+        ("scripts/local_rag_retriever.py", "local_rag_static_check"),
+    ],
+)
+def test_optional_surface_adds_its_focused_command(
+    tmp_path: Path, relative_path: str, command_id: str
+) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    commit_file(repo, relative_path, "value = 1\n")
+
+    result = inspect(repo, base_sha)
+
+    assert command_id in result["required_command_ids"]
+
+
+@pytest.mark.parametrize(
+    "relative_path",
+    [
+        "pytest.ini",
+        "tests/conftest.py",
+        "requirements-dev.lock",
+        "scripts/verification_plan.py",
+    ],
+)
+def test_pytest_infrastructure_requires_full_regression(
+    tmp_path: Path, relative_path: str
+) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    commit_file(repo, relative_path, "synthetic\n")
+
+    result = inspect(repo, base_sha)
+
+    assert result["minimum_tier"] == "V2"
+    assert "pytest_infrastructure_full_regression" in result["matched_rule_ids"]
+    assert "core_pytest" in result["required_command_ids"]
+    assert "full_pytest" in result["required_command_ids"]
 
 
 def test_unknown_path_conservatively_escalates_to_v2(tmp_path: Path) -> None:

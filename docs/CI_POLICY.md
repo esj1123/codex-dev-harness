@@ -51,15 +51,15 @@ The current local evidence baseline includes:
   artifacts
 
 These local surfaces are the baseline that CI must mirror when approved. The
-installed workflow mirrors `scripts/run_local_verify.ps1`: full pytest, the
+installed workflow mirrors the `Core` command set: core pytest, the
 no-report standalone eval, all eight core quality gates, and three profile render
 dry-runs.
 
-The wrapper also offers an explicit local `-Lane Routine` feedback mode. It is
+The wrapper offers explicit local `Routine`, `Core`, and `Full` lanes. It is
 non-authoritative and excludes only the exact held test-file inventory for
-frozen Agent Quality and Local RAG plus held Hermes/MCP. The no-argument wrapper,
-release verification wrapper, and hosted Local Verify workflow all remain
-`Full`. Routine PASS does not satisfy `LOCAL_INTEGRATION (V2)` or
+frozen Agent Quality and Local RAG plus held Hermes/MCP. The no-argument and
+release verification wrappers remain `Full`; Hosted Integration Verify runs
+`Core`. Routine PASS does not satisfy `LOCAL_INTEGRATION (V2)` or
 `HOSTED_EXACT_SHA (V3)` and cannot be used as release or promotion evidence.
 New tests remain in Routine unless the integration owner
 explicitly adds their exact path to the held inventory.
@@ -88,7 +88,7 @@ CI starts as a manual read-only workflow that only runs repository validation
 checks. Read-only describes repository authority and Git side effects, not a
 zero-write runner filesystem:
 
-- `python -m pytest tests --durations=50 -rs`
+- `python -m pytest tests -m "not optional_agent_quality and not optional_hermes_mcp and not optional_local_rag" --durations=50 -rs`
 - `python scripts/run_eval.py`
 - `python scripts/quality_gate.py`
 - `python scripts/render_template.py --config examples/python_cli_minimal/template.config.yml --target examples/python_cli_minimal --dry-run`
@@ -97,9 +97,13 @@ zero-write runner filesystem:
 
 The workflow installs development requirements from `requirements-dev.lock`
 with `--require-hashes --only-binary=:all:`, runs `python -m pip check`, and
-uses exact hosted Windows Python `3.12.10`.
+uses exact hosted Windows Python `3.12.10`. setup-python caches pip downloads
+using `requirements-dev.lock` as the cache key source.
 `LOCAL_INTEGRATION (V2)` and `HOSTED_EXACT_SHA (V3)` both remain on Python 3.12 and use the same locked
-development dependencies. Both clear ambient pytest and Python-path options,
+development dependencies. Core is the V2 default, while `full_pytest` is
+added for optional capability, pytest-infrastructure, dependency-lock,
+common-validator, and unclassified-path changes. Both local and hosted
+verification clear ambient pytest and Python-path options,
 disable third-party pytest plugin autoload, and report slow-test durations and
 reviewed skip reasons.
 

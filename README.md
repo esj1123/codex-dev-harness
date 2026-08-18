@@ -114,17 +114,21 @@ independent attributes; `V3` is hosted exact-SHA evidence, not the next product
 version. A hosted run that executes the complete integration command set may
 satisfy the V2 integration scope without duplicating the Full run locally.
 Push and workflow dispatch remain separate approval-gated side effects.
-Use the standing local wrapper for the normal `LOCAL_INTEGRATION (V2)`
-verification surface. Tier meaning is defined only in
+Use `scripts/run_local_verify.ps1 -Lane Core` for the official
+`LOCAL_INTEGRATION (V2)` pytest scope. The no-argument `Full` lane remains the
+compatible extended regression superset. Tier meaning is defined only in
 `docs/VERIFICATION.md`:
 
 - `python --version`
 - `python -m pip install --require-hashes --only-binary=:all: -r requirements-dev.lock`
 - `python -m pip check`
-- `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1`
+- `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1 -Lane Routine`
+- `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1 -Lane Core`
+- extended compatibility: `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1`
 - optional external pytest root: `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1 -PytestBaseTempRoot D:\Codex\_tmp\CODEX-HARNESS`
 
-That wrapper runs pytest, standalone eval without report flags, the eight core
+The wrapper runs the selected Routine, Core, or Full pytest lane, standalone
+eval without report flags, the eight core
 quality gates, and the three profile dry-runs. Impact planning may additionally
 require checksum, corpus, render, or focused checks. The optional pytest root
 must already exist outside the repository; the wrapper allocates a unique

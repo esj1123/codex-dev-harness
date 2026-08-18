@@ -107,6 +107,42 @@
         "--json"
       ],
       "kind": "parameterized_command"
+    },
+    "core_pytest": {
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "tests",
+        "-m",
+        "not optional_agent_quality and not optional_hermes_mcp and not optional_local_rag",
+        "-q"
+      ],
+      "kind": "command"
+    },
+    "hermes_mcp_static_check": {
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "tests",
+        "-m",
+        "optional_hermes_mcp",
+        "-q"
+      ],
+      "kind": "command"
+    },
+    "local_rag_static_check": {
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "tests",
+        "-m",
+        "optional_local_rag",
+        "-q"
+      ],
+      "kind": "command"
     }
   },
   "command_ids": [
@@ -115,16 +151,98 @@
     "allowed_file_review",
     "git_diff_check",
     "focused_pytest",
+    "core_pytest",
     "full_pytest",
     "standalone_eval",
     "quality_gate",
     "checksum_verify",
     "corpus_digest_check",
     "render_dry_runs",
-    "agent_quality_static_check"
+    "agent_quality_static_check",
+    "hermes_mcp_static_check",
+    "local_rag_static_check"
   ],
   "planner_id": "verification_plan",
   "rules": [
+    {
+      "checksum_check_required": false,
+      "command_ids": [
+        "full_pytest"
+      ],
+      "digest_check_required": false,
+      "integration_owner_required": true,
+      "match_kind": "exact",
+      "minimum_tier": "V2",
+      "patterns": [
+        ".github/workflows/local-verify.yml",
+        ".python-version",
+        "docs/VERIFICATION_IMPACT_MAP.json",
+        "pytest.ini",
+        "requirements-dev.lock",
+        "requirements-dev.txt",
+        "scripts/quality_gate.py",
+        "scripts/run_local_verify.ps1",
+        "scripts/verification_plan.py",
+        "tests/conftest.py"
+      ],
+      "render_check_required": false,
+      "rule_id": "pytest_infrastructure_full_regression"
+    },
+    {
+      "checksum_check_required": false,
+      "command_ids": [
+        "hermes_mcp_static_check"
+      ],
+      "digest_check_required": false,
+      "integration_owner_required": false,
+      "match_kind": "exact",
+      "minimum_tier": "V1",
+      "patterns": [
+        "scripts/hermes_git_push_preflight.py",
+        "scripts/hermes_git_push_preflight_receipt_writer.py",
+        "scripts/hermes_git_push_preflight_writer.py",
+        "scripts/hermes_sidecar.py",
+        "tests/test_hermes_git_push_preflight.py",
+        "tests/test_hermes_git_push_preflight_durable_writer_proposal.py",
+        "tests/test_hermes_git_push_preflight_evidence_decision.py",
+        "tests/test_hermes_git_push_preflight_output_contract.py",
+        "tests/test_hermes_git_push_preflight_receipt_trace_plan.py",
+        "tests/test_hermes_git_push_preflight_receipt_writer.py",
+        "tests/test_hermes_git_push_preflight_schema_alignment.py",
+        "tests/test_hermes_git_push_preflight_selection_review.py",
+        "tests/test_hermes_git_push_preflight_tracked_receipt_contract.py",
+        "tests/test_hermes_git_push_preflight_tracked_receipt_policy.py",
+        "tests/test_hermes_git_push_preflight_tracked_receipt_post_generation_review.py",
+        "tests/test_hermes_git_push_preflight_usage_probe.py",
+        "tests/test_hermes_git_push_preflight_writer.py",
+        "tests/test_hermes_git_push_preflight_writer_persistence_hold.py",
+        "tests/test_hermes_mcp_security_alignment.py",
+        "tests/test_hermes_preflight_caller_boundary.py",
+        "tests/test_hermes_preflight_use_planning_contract.py",
+        "tests/test_hermes_sidecar.py",
+        "tests/test_hermes_sidecar_planning_contract.py",
+        "tests/test_hermes_sidecar_result_schema_contract.py",
+        "tests/test_mcp_tool_boundary_contract.py"
+      ],
+      "render_check_required": false,
+      "rule_id": "hermes_mcp_optional_surface"
+    },
+    {
+      "checksum_check_required": false,
+      "command_ids": [
+        "local_rag_static_check"
+      ],
+      "digest_check_required": false,
+      "integration_owner_required": false,
+      "match_kind": "exact",
+      "minimum_tier": "V1",
+      "patterns": [
+        "scripts/local_rag_retriever.py",
+        "tests/test_local_rag_retriever.py"
+      ],
+      "render_check_required": false,
+      "rule_id": "local_rag_optional_surface"
+    },
     {
       "checksum_check_required": false,
       "command_ids": [],
@@ -196,6 +314,27 @@
       ],
       "render_check_required": false,
       "rule_id": "agent_quality_prefix"
+    },
+    {
+      "checksum_check_required": false,
+      "command_ids": [
+        "agent_quality_static_check"
+      ],
+      "digest_check_required": false,
+      "integration_owner_required": true,
+      "match_kind": "exact",
+      "minimum_tier": "V2",
+      "patterns": [
+        "tests/test_agent_quality_aggregation.py",
+        "tests/test_agent_quality_capture.py",
+        "tests/test_agent_quality_cli.py",
+        "tests/test_agent_quality_contracts.py",
+        "tests/test_agent_quality_semantic_failure.py",
+        "tests/test_agent_quality_trial_validation.py",
+        "tests/test_agent_role_profiles.py"
+      ],
+      "render_check_required": false,
+      "rule_id": "agent_quality_test_surface"
     },
     {
       "checksum_check_required": false,
@@ -391,7 +530,7 @@
       "base_sha_check",
       "allowed_file_review",
       "git_diff_check",
-      "full_pytest",
+      "core_pytest",
       "standalone_eval",
       "quality_gate"
     ]
