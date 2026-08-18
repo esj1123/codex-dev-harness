@@ -267,6 +267,85 @@ def test_profile_inventory_rejects_casefold_collision_on_every_os() -> None:
         renderer._select_profile_from_inventory("python_cli", directories)
 
 
+def test_profile_inventory_rejects_non_regular_projection_with_metadata(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo = tmp_path / "repo"
+    populate_template_repo(repo, "python_cli")
+    projection = repo / "profiles" / "ZANTD0.DOCX"
+    projection.write_bytes(b"")
+    original_lstat = Path.lstat
+
+    def projected_lstat(path: Path):
+        if path == projection:
+            return SimpleNamespace(
+                st_mode=stat.S_IFBLK,
+                st_nlink=0,
+                st_size=0,
+                st_file_attributes=0,
+                st_reparse_tag=0,
+            )
+        return original_lstat(path)
+
+    monkeypatch.setattr(Path, "lstat", projected_lstat)
+
+    with pytest.raises(ValueError, match="unsafe profiles/ inventory entry") as exc_info:
+        renderer._select_profile_directory(repo, "python_cli")
+
+    message = str(exc_info.value)
+    assert str(projection) in message
+    assert "mode=0o60000" in message
+    assert "nlink=0" in message
+    assert "size=0" in message
+    assert "file_attributes=0x0" in message
+    assert "reparse_tag=0x0" in message
+
+
+@pytest.mark.parametrize(
+    ("name", "mode", "nlink", "size", "attributes", "reparse_tag"),
+    [
+        ("zantd0.docx", stat.S_IFBLK, 0, 0, 0, 0),
+        ("OTHER.DOCX", stat.S_IFBLK, 0, 0, 0, 0),
+        ("ZANTD0.DOCX", stat.S_IFBLK, 1, 0, 0, 0),
+        ("ZANTD0.DOCX", stat.S_IFBLK, 0, 1, 0, 0),
+        ("ZANTD0.DOCX", stat.S_IFBLK, 0, 0, 1, 0),
+        ("ZANTD0.DOCX", stat.S_IFBLK, 0, 0, 0, 1),
+    ],
+)
+def test_profile_inventory_rejects_non_regular_projection_near_matches(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    name: str,
+    mode: int,
+    nlink: int,
+    size: int,
+    attributes: int,
+    reparse_tag: int,
+) -> None:
+    repo = tmp_path / "repo"
+    populate_template_repo(repo, "python_cli")
+    projection = repo / "profiles" / name
+    projection.write_bytes(b"")
+    original_lstat = Path.lstat
+
+    def projected_lstat(path: Path):
+        if path == projection:
+            return SimpleNamespace(
+                st_mode=mode,
+                st_nlink=nlink,
+                st_size=size,
+                st_file_attributes=attributes,
+                st_reparse_tag=reparse_tag,
+            )
+        return original_lstat(path)
+
+    monkeypatch.setattr(Path, "lstat", projected_lstat)
+
+    with pytest.raises(ValueError, match="unsafe profiles/ inventory entry"):
+        renderer._select_profile_directory(repo, "python_cli")
+
+
 @pytest.mark.parametrize("tier", VALID_RENDER_TIERS)
 def test_load_config_accepts_explicit_render_tier(tmp_path: Path, tier: str) -> None:
     config = tmp_path / "template.config.yml"
