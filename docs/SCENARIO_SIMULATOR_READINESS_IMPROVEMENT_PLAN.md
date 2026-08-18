@@ -2,7 +2,7 @@
 
 ## 1. 결론
 
-`C:\Users\KSLV-II\codex_projects\ScenarioSimulator`는
+`SCENARIO_SIMULATOR_ROOT`는
 `AI_Readiness_Scanner_v0`의 첫 pilot 적용 대상이다. 이 문서는
 ScenarioSimulator를 기준으로 범용 표준을 새로 정의하려는 문서가 아니다.
 범용 AI readiness framework의 소유 위치는 `codex-dev-harness`이며,
@@ -84,7 +84,7 @@ AI readiness scan 결과:
 
 | 항목 | 결과 |
 |---|---|
-| 대상 경로 | `C:\Users\KSLV-II\codex_projects\ScenarioSimulator` |
+| 대상 경로 | `SCENARIO_SIMULATOR_ROOT` |
 | 점수 | 11/16 |
 | 판정 | `LIMITED_AI_ASSISTED_WORK_ALLOWED` |
 | 부족 증거 | safety boundary, acceptance/evidence discipline |
