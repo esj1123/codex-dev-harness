@@ -281,14 +281,15 @@ def test_v2_policy_separates_core_from_impact_required_extras() -> None:
 def test_readme_describes_installed_manual_local_verify_workflow() -> None:
     text = Path("README.md").read_text(encoding="utf-8")
 
-    assert "manual read-only `.github/workflows/local-verify.yml` workflow" in text
+    assert "`.github/workflows/local-verify.yml` Hosted Integration Verify" in text
     assert "`workflow_dispatch` with a required exact commit SHA" in text
     assert "`contents: read`" in text
-    assert "installed manual read-only Local Verify workflow is the baseline verification" in text
+    assert "installed Hosted Integration Verify workflow is the baseline hosted" in text
     assert "`manual_github_release_evidence_export`" in text
     assert "See `STATUS.md` for its current implementation state" in text
     assert "runner-side temporary files" in text
-    assert "default `verify` job performs no artifact upload" in text
+    assert "performs no artifact upload" in text
+    assert "`.github/workflows/release-evidence-export.yml`" in text
     assert "next planned CI step is a read-only verification hygiene path" not in text
 
 
@@ -356,13 +357,13 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
         "Hermes, MCP, and downstream mutation remain outside this selection."
     )
     final_next_step = (
-        "Keep the current local release bundle frozen and review it through local Git. "
-        "The bundle was generated from an exact-SHA GitHub manual export, downloaded, "
-        "independently validated, committed locally, and promoted to local `main`; the "
-        "transient Actions artifact is transport only and expires after one day. No "
-        "remote publication was performed. Tag, GitHub Release, signing, publication, "
-        "deployment, `origin/main`, Agent Quality/provider, Hermes, MCP, and downstream "
-        "mutation remain `NOT RUN` or outside this release."
+        "Apply the harness to additional real repositories and accumulate comparable "
+        "Local Quick and Hosted Integration evidence at reviewed exact SHAs. Record "
+        "executor, verification scope, duration, findings, false positives or negatives, "
+        "manual decisions, and local/remote baseline state before selecting another core "
+        "capability. Keep the current release bundle frozen. Tag, GitHub Release, "
+        "signing, publication, deployment, Agent Quality/provider, Hermes, MCP, and "
+        "downstream mutation remain `NOT RUN` or separately approval-gated."
     )
     final_bundle_state = (
         "`CURRENT / LOCAL RELEASE / GITHUB-VERIFIED / TRANSIENT CI EXPORT / NOT PUBLISHED`"
@@ -403,7 +404,7 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     assert "`workflow_dispatch` with an exact commit SHA" in usage
     assert "is not automatic and is not a required check" in usage
     assert "`manual_github_release_evidence_export`" in usage
-    assert "default Local Verify path remains read-only" in " ".join(usage.split())
+    assert "Hosted Integration Verify performs no artifact upload" in " ".join(usage.split())
     assert usage.index("full `python -m pytest tests`") < usage.index(
         "standalone `python scripts/run_eval.py`"
     ) < usage.index("core `python scripts/quality_gate.py`") < usage.index(
@@ -594,8 +595,10 @@ def test_acceptance_trace_is_historical_through_last_existing_checkpoint() -> No
 
 def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
     text = Path(".github/workflows/local-verify.yml").read_text(encoding="utf-8")
-    verify_job = text.split("  verify:\n", 1)[1].split("  release-evidence-export:\n", 1)[0]
-    export_job = text.split("  release-evidence-export:\n", 1)[1]
+    export_job = Path(".github/workflows/release-evidence-export.yml").read_text(
+        encoding="utf-8"
+    )
+    verify_job = text.split("  verify:\n", 1)[1]
     verify_python = r".\.venv\Scripts\python.exe"
     tests_command = f"run: {verify_python} -m pytest tests --durations=50 -rs"
     eval_command = f"run: {verify_python} scripts/run_eval.py"
@@ -603,10 +606,7 @@ def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
 
     assert "workflow_dispatch:" in text
     assert "expected_sha:" in text
-    assert "mode:" in text
-    assert "default: verify" in text
-    assert "- verify" in text
-    assert "- release-evidence-export" in text
+    assert "mode:" not in text
     assert "required: true" in text
     assert "ref: ${{ inputs.expected_sha }}" in text
     assert "git rev-parse HEAD" in text
@@ -650,9 +650,9 @@ def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
         < verify_job.index(eval_command)
         < verify_job.index(quality_gate_command)
     )
-    assert "if: inputs.mode == 'verify'" in verify_job
+    assert "inputs.mode" not in verify_job
     assert "upload-artifact" not in verify_job
-    assert "if: inputs.mode == 'release-evidence-export'" in export_job
+    assert "jobs:\n  export:" in export_job
     assert "scripts/run_release_verify.ps1 -EvidenceContext GitHubActionsManualExport" in export_job
     assert "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a" in export_job
     assert "retention-days: 1" in export_job
@@ -662,6 +662,7 @@ def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
     assert "release wrapper changed paths outside the exact six-file contract" in export_job
     assert "release manifest git_ref does not match the dispatched branch" in export_job
     assert "GITHUB_SHA" in verify_job and "GITHUB_SHA" in export_job
+    combined_workflows = text + export_job
     for forbidden in [
         "--report",
         "--summary-report",
@@ -670,7 +671,7 @@ def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:
         "push:",
         "secrets:",
     ]:
-        assert forbidden not in text
+        assert forbidden not in combined_workflows
 
 
 def test_local_wrapper_runs_console_eval_and_release_refreshes_present_report() -> None:

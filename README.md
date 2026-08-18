@@ -107,6 +107,13 @@ Other unlisted documents are non-authoritative reference material.
 
 ## Read-Only Validation
 
+The default operating loop is Local Quick, an approved non-force push of the
+reviewed exact SHA, Hosted Integration Verify for that SHA, and a comparable
+closeout. Verification scope, executor, source binding, and evidence export are
+independent attributes; `V3` is hosted exact-SHA evidence, not the next product
+version. A hosted run that executes the complete integration command set may
+satisfy the V2 integration scope without duplicating the Full run locally.
+Push and workflow dispatch remain separate approval-gated side effects.
 Use the standing local wrapper for the normal `LOCAL_INTEGRATION (V2)`
 verification surface. Tier meaning is defined only in
 `docs/VERIFICATION.md`:
@@ -144,20 +151,18 @@ Python runtime and dependency reproducibility are documented in
 restricted to the approved binary wheels.
 
 CI policy is documented in `docs/CI_POLICY.md`. The repository includes the
-manual read-only `.github/workflows/local-verify.yml` workflow. It uses
-`workflow_dispatch` with a required exact commit SHA and `contents: read`.
-Here, read-only describes repository permissions and the absence of tracked-file,
-ref, or remote mutation; normal runner filesystem writes still occur. The
-default `verify` job performs no artifact upload. Only the separate explicit
-release-evidence export mode may upload the six approved files for one day.
+manual read-only `.github/workflows/local-verify.yml` Hosted Integration Verify
+workflow. It uses `workflow_dispatch` with a required exact commit SHA and
+`contents: read`. Here, read-only describes repository permissions and the
+absence of tracked-file, ref, or remote mutation; normal runner filesystem
+writes still occur. It performs no artifact upload.
 
 The owner has selected a bounded `manual_github_release_evidence_export`
-extension. Its contract preserves the
-existing verification path as the default `HOSTED_EXACT_SHA (V3)` mode and
-allows only a separate,
-exact-SHA, manual, one-day evidence transport after explicit approval. It does
-not authorize an automatic trigger, tag, GitHub Release, signing, publication,
-deployment, secret use, or `origin/main` mutation.
+extension at `.github/workflows/release-evidence-export.yml`. It allows only a
+separate exact-SHA, manual, one-day evidence transport after explicit approval
+and is not a verification result. It does not authorize an automatic trigger,
+tag, GitHub Release, signing, publication, deployment, secret use, or
+`origin/main` mutation.
 
 ## Local-First Usage
 
@@ -173,10 +178,10 @@ The intended baseline workflow is local-first:
 See `docs/LOCAL_USAGE.md` for the full local usage flow and `docs/LOCAL_RELEASE_PACKAGE.md` for local package boundaries.
 
 CI remains approval-gated and is not a baseline runtime requirement. The
-installed manual read-only Local Verify workflow is the baseline verification
-hygiene path. The separately selected manual transient release-evidence export
-remains approval-gated; broader triggers, required checks, durable artifact
-distribution, release publication, and deployment remain separately
+installed Hosted Integration Verify workflow is the baseline hosted
+verification path. The separate manual transient release-evidence export
+workflow remains approval-gated; broader triggers, required checks, durable
+artifact distribution, release publication, and deployment remain separately
 approval-gated. See `STATUS.md` for its current implementation state.
 
 ## AI Readiness Scanner

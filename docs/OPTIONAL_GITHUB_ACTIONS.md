@@ -63,11 +63,12 @@ current verify contract:
 - render dry-run for `examples/csharp_desktop_minimal`
 - render dry-run for `examples/plc_tool_minimal`
 
-The installed local verification workflow uses `workflow_dispatch`, read-only
-repository permissions, and no secrets. Its default `verify` job does not
-upload generated release evidence. The separate explicit export job is the
-only approved exception and transports the six approved files for one day.
-The release verification template remains historical and uninstalled.
+The installed Hosted Integration Verify workflow uses `workflow_dispatch`,
+read-only repository permissions, and no secrets. It does not upload generated
+release evidence. The separate
+`.github/workflows/release-evidence-export.yml` workflow is the only approved
+exception and transports the six approved files for one day. The release
+verification template remains historical and uninstalled.
 
 ## Actualization Decision
 

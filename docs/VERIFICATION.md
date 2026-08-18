@@ -24,6 +24,16 @@ they do not replace or migrate those enum values. Work-package schema versions,
 release provenance schemas, and Agent Quality run schemas are separate
 namespaces and do not imply a verification tier.
 
+The tier identifier is not a product-version sequence. Verification work has
+four independent attributes: scope (`focused`, `integration`, or `extended`),
+executor (`local` or `github`), source binding (`worktree` or exact commit SHA),
+and evidence export (`none` or separately approved transient export). `V3`
+means that the integration command set passed on GitHub while bound to the
+final exact SHA. When that command set contains every V2-required command, the
+hosted PASS satisfies the V2 integration scope without a separate local Full
+run. It adds hosted reproducibility and SHA binding; it does not add a product
+capability, release, publication, or deployment claim.
+
 The V2 core is always `full_pytest`, `standalone_eval`, and `quality_gate`.
 Checksum verification, corpus digest checking, and relevant render dry-runs are
 impact-required extras represented by `checksum_verify`,
@@ -111,9 +121,12 @@ is included in both lanes unless the integration owner explicitly adds it to
 the held list. A missing declared held file fails closed instead of silently
 changing Routine coverage.
 
-Routine PASS is a feedback result, not `LOCAL_INTEGRATION (V2)`, release, or
-promotion evidence. Full collection and execution are required by this
-document whenever that tier is selected.
+Routine PASS is local feedback, not standalone `LOCAL_INTEGRATION (V2)`,
+release, or promotion evidence. For a hosted integration package, Routine may
+be the local pre-push check when the exact-SHA GitHub workflow subsequently
+runs and passes every required integration command. A local-only integration
+still requires the declared local integration command set. No workflow result
+authenticates approval or authorizes a push.
 
 Before selecting Python, the wrapper removes ambient `PYTEST_ADDOPTS`,
 `PYTEST_PLUGINS`, and `PYTHONPATH`, then disables third-party pytest plugin
@@ -161,16 +174,14 @@ artifacts, upload artifacts, publish releases, sign artifacts, move tags,
 deploy, check out downstream repositories, run RAG/index tooling, run audit
 automation, run MCP/Hermes code, or perform live-write behavior.
 
-The owner has selected an explicit
-`release-evidence-export` mode for this existing workflow identity. Its contract
-keeps the commands above as the default `verify` job and the only
-`HOSTED_EXACT_SHA (V3)` result. The implemented export job uses the same
+The separately installed `.github/workflows/release-evidence-export.yml`
+workflow owns the approval-gated transient export path. It uses the same
 exact-SHA binding, runs the approved release wrapper with a hosted evidence
 context, uploads only the six approved files for one day, and returns them for
-isolated local validation and commit. It is not a `HOSTED_EXACT_SHA (V3)` result, publication,
-release, tag, signing, deployment, or `origin/main` mutation. `STATUS.md`
-records the mode's current implementation state without storing workflow run
-IDs.
+isolated local validation and commit. The export workflow is not a
+`HOSTED_EXACT_SHA (V3)` result, publication, release, tag, signing, deployment,
+or `origin/main` mutation. `STATUS.md` records the export capability's current
+implementation state without storing workflow run IDs.
 
 ## Local Release Verification Flow
 

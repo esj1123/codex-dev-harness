@@ -260,8 +260,11 @@ Separate explicit owner approval is required before:
 ## Verification
 
 Use the verification tier declared by the work package. The cumulative
-integration checkpoint must run the broader local verification defined in
-`docs/CI_POLICY.md`.
+integration checkpoint must run the broader integration command set defined in
+`docs/CI_POLICY.md`. The integration owner may use local execution for V2 or
+the exact-SHA GitHub executor for V3. A hosted run discharges only the commands
+it actually ran; matching postflight evidence, approval, push, and workflow
+dispatch remain distinct requirements.
 
 Feature lanes run focused checks only. They do not refresh the corpus digest,
 push, dispatch workflows, or record remote verification evidence.

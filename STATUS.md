@@ -121,9 +121,11 @@ effect.
 `docs/VERIFICATION.md` is the sole normative authority for verification tier
 meaning and required evidence. Current execution maps the standing Full local
 wrapper to `LOCAL_INTEGRATION (V2)` and the exact-SHA GitHub `verify` job to
-`HOSTED_EXACT_SHA (V3)`. Routine remains non-authoritative feedback and cannot
-satisfy either tier, promotion, or release evidence requirements. The
-release-evidence export mode is transport and generation evidence, not V3.
+`HOSTED_EXACT_SHA (V3)`. V3 is an integration-scope run on GitHub bound to the
+final exact SHA, not a product-version successor to V2. When it runs every
+required integration command, it satisfies the included V2 scope without a
+duplicate local Full run. Routine remains local feedback. The separate release
+evidence export workflow is transport and generation evidence, not V3.
 
 PASS from preflight or postflight proves structural consistency only. It does
 not authenticate approval.
@@ -151,10 +153,10 @@ not authenticate approval.
 
 ## Next Recommended Step
 
-Keep the current local release bundle frozen and review it through local Git.
-The bundle was generated from an exact-SHA GitHub manual export, downloaded,
-independently validated, committed locally, and promoted to local `main`; the
-transient Actions artifact is transport only and expires after one day. No
-remote publication was performed. Tag, GitHub Release, signing, publication,
-deployment, `origin/main`, Agent Quality/provider, Hermes, MCP, and downstream
-mutation remain `NOT RUN` or outside this release.
+Apply the harness to additional real repositories and accumulate comparable
+Local Quick and Hosted Integration evidence at reviewed exact SHAs. Record
+executor, verification scope, duration, findings, false positives or negatives,
+manual decisions, and local/remote baseline state before selecting another core
+capability. Keep the current release bundle frozen. Tag, GitHub Release,
+signing, publication, deployment, Agent Quality/provider, Hermes, MCP, and
+downstream mutation remain `NOT RUN` or separately approval-gated.

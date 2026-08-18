@@ -1,4 +1,4 @@
-name: Local Verify
+name: Hosted Integration Verify
 
 on:
   workflow_dispatch:
@@ -7,21 +7,12 @@ on:
         description: Exact lowercase commit SHA to verify
         required: true
         type: string
-      mode:
-        description: Verification or approval-gated release evidence export
-        required: true
-        default: verify
-        type: choice
-        options:
-          - verify
-          - release-evidence-export
 
 permissions:
   contents: read
 
 jobs:
   verify:
-    if: inputs.mode == 'verify'
     runs-on: windows-latest
     timeout-minutes: 20
     env:
@@ -102,142 +93,3 @@ jobs:
 
       - name: Render plc_tool example dry-run
         run: .\.venv\Scripts\python.exe scripts/render_template.py --config examples/plc_tool_minimal/template.config.yml --target examples/plc_tool_minimal --dry-run
-
-  release-evidence-export:
-    if: inputs.mode == 'release-evidence-export'
-    runs-on: windows-latest
-    timeout-minutes: 20
-    env:
-      PYTEST_ADDOPTS: ""
-      PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
-      PYTEST_PLUGINS: ""
-      PYTHONPATH: ""
-
-    steps:
-      - name: Validate expected SHA
-        shell: pwsh
-        env:
-          EXPECTED_SHA: ${{ inputs.expected_sha }}
-        run: |
-          if ($env:EXPECTED_SHA -cnotmatch '^[0-9a-f]{40}$') {
-            throw 'expected_sha must be a lowercase 40-character commit SHA'
-          }
-          if ($env:GITHUB_SHA -cne $env:EXPECTED_SHA) {
-            throw 'workflow definition commit does not match expected_sha'
-          }
-
-      - name: Checkout
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
-        with:
-          ref: ${{ inputs.expected_sha }}
-          persist-credentials: false
-
-      - name: Assert checked out SHA
-        shell: pwsh
-        env:
-          EXPECTED_SHA: ${{ inputs.expected_sha }}
-        run: |
-          $actualSha = git rev-parse HEAD
-          if ($actualSha -cne $env:EXPECTED_SHA) {
-            throw 'checked out commit does not match expected_sha'
-          }
-
-      - name: Set up Python
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
-        with:
-          python-version: "3.12.10"
-          check-latest: false
-
-      - name: Show Python version
-        run: python --version
-
-      - name: Create repository verification environment
-        run: python -m venv .venv
-
-      - name: Show verification Python version
-        run: .\.venv\Scripts\python.exe --version
-
-      - name: Install development requirements
-        run: |
-          .\.venv\Scripts\python.exe -m pip install --require-hashes --only-binary=:all: -r requirements-dev.lock
-
-      - name: Verify exact development environment
-        run: .\.venv\Scripts\python.exe scripts/verify_dev_environment.py --expected-version-file .python-version --lock requirements-dev.lock --json
-
-      - name: Check development dependencies
-        run: .\.venv\Scripts\python.exe -m pip check
-
-      - name: Capture corpus digest
-        shell: pwsh
-        run: |
-          $digest = (Get-FileHash -Algorithm SHA256 -LiteralPath artifacts/corpus-digest.json).Hash.ToLowerInvariant()
-          [System.IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP 'corpus-digest.sha256'), $digest)
-
-      - name: Generate and verify release evidence
-        shell: pwsh
-        run: |
-          powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run_release_verify.ps1 -EvidenceContext GitHubActionsManualExport
-
-      - name: Validate exact release evidence output
-        shell: pwsh
-        env:
-          EXPECTED_SHA: ${{ inputs.expected_sha }}
-        run: |
-          $expected = @(
-            'artifacts/checksums.sha256'
-            'artifacts/eval-report.json'
-            'artifacts/provenance.intoto.jsonl'
-            'artifacts/release-manifest.json'
-            'artifacts/sbom.cdx.json'
-            'artifacts/sbom.spdx.json'
-          )
-          $modified = @(git diff --name-only) | Sort-Object
-          $untracked = @(git ls-files --others --exclude-standard) | Sort-Object
-          if ($LASTEXITCODE -ne 0 -or $untracked.Count -ne 0) {
-            throw 'unexpected untracked output or Git inspection failure'
-          }
-          if (@(Compare-Object ($expected | Sort-Object) $modified).Count -ne 0) {
-            throw 'release wrapper changed paths outside the exact six-file contract'
-          }
-          $manifest = Get-Content -Raw -LiteralPath artifacts/release-manifest.json | ConvertFrom-Json
-          if ($manifest.git_commit -cne $env:EXPECTED_SHA) {
-            throw 'release manifest source basis does not match expected_sha'
-          }
-          if ($manifest.git_ref -cne $env:GITHUB_REF_NAME) {
-            throw 'release manifest git_ref does not match the dispatched branch'
-          }
-          $evalReport = Get-Content -Raw -LiteralPath artifacts/eval-report.json | ConvertFrom-Json
-          if ($evalReport.total_cases -ne 15 -or $evalReport.passed_cases -ne 15 -or $evalReport.failed_cases -ne 0) {
-            throw 'standalone eval report is not 15/15'
-          }
-          $checksumLines = @(Get-Content -LiteralPath artifacts/checksums.sha256 | Where-Object { $_.Trim() })
-          if ($checksumLines.Count -ne 5) {
-            throw 'checksum evidence is not 5/5'
-          }
-          $provenance = Get-Content -Raw -LiteralPath artifacts/provenance.intoto.jsonl | ConvertFrom-Json
-          if ($provenance.predicate.schema_version -ne '2' -or
-              $provenance.predicate.execution_context -cne 'github_actions_manual_export' -or
-              $provenance.predicate.local_only -ne $false) {
-            throw 'hosted provenance context is invalid'
-          }
-          $before = [System.IO.File]::ReadAllText((Join-Path $env:RUNNER_TEMP 'corpus-digest.sha256'))
-          $after = (Get-FileHash -Algorithm SHA256 -LiteralPath artifacts/corpus-digest.json).Hash.ToLowerInvariant()
-          if ($before -cne $after) {
-            throw 'corpus digest changed during release evidence export'
-          }
-
-      - name: Upload transient release evidence
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: codex-harness-release-evidence-${{ inputs.expected_sha }}
-          path: |
-            artifacts/release-manifest.json
-            artifacts/eval-report.json
-            artifacts/sbom.spdx.json
-            artifacts/sbom.cdx.json
-            artifacts/provenance.intoto.jsonl
-            artifacts/checksums.sha256
-          retention-days: 1
-          if-no-files-found: error
-          include-hidden-files: false
-          overwrite: false

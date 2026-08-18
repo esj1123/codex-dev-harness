@@ -24,6 +24,12 @@ verification uses exact Python `3.12.10`. The preferred local runtime is the
 same exact Python `3.12.10`, so `LOCAL_INTEGRATION (V2)` and
 `HOSTED_EXACT_SHA (V3)` share one executable version contract. Tier meaning
 and required evidence are defined only in `docs/VERIFICATION.md`.
+A successful exact-SHA hosted run that executes every impact-required
+integration command satisfies the underlying V2 integration scope; a separate
+local Full run is not a prerequisite. The local pre-push path remains focused
+or Routine feedback plus work-package checks. This offloads the expensive
+integration run without weakening the locked environment, command set, or
+exact-SHA evidence boundary.
 
 The workflow also runs exactly `python scripts/run_eval.py` without report
 flags after pytest and before the quality gate. This is console-only validation:
@@ -65,15 +71,14 @@ task.
 
 The owner has now selected one such task:
 `manual_github_release_evidence_export`. The selected contract preserves the
-existing commands as default `verify` `HOSTED_EXACT_SHA (V3)`
-and permits only a separate exact-SHA manual export, one-day Actions artifact
-transport, and subsequent local validation and commit. It does not select an
-automatic trigger, required check, durable artifact distribution, release,
-signing, publication, deployment, secret use, or `origin/main` mutation.
-`STATUS.md` records the capability's current implementation state.
-The no-upload statement applies to the default `verify` job. The separately
-selected export job is the sole bounded exception and may transport only the
-six approved files with one-day retention.
+existing verification commands in `.github/workflows/local-verify.yml` and
+permits only the separate `.github/workflows/release-evidence-export.yml`
+exact-SHA manual export, one-day Actions artifact transport, and subsequent
+local validation and commit. It does not select an automatic trigger, required
+check, durable artifact distribution, release, signing, publication,
+deployment, secret use, or `origin/main` mutation. `STATUS.md` records the
+capability's current implementation state. Only the separate export workflow
+may transport the six approved files with one-day retention.
 
 ## First CI Implementation Target
 
@@ -173,11 +178,13 @@ the V2 core and impact-required extras. This CI policy owns only execution
 environment, workflow permissions, and remote side-effect boundaries.
 
 Feature and contract lanes do not run `LOCAL_INTEGRATION (V2)` or
-`HOSTED_EXACT_SHA (V3)` by default. The integration lane runs local integration
-once after approved feature and digest commits are present, then runs the
-hosted exact-SHA gate once for that cumulative tip. Digest writes remain
-separately approval-gated; the read-only digest check runs on the final
-digest-containing source basis.
+`HOSTED_EXACT_SHA (V3)` by default. After approved feature and digest commits
+are present, the integration owner selects one authoritative executor for the
+complete command set: local integration for V2, or the hosted exact-SHA gate
+for V3. A hosted V3 PASS discharges the included V2 scope without requiring the
+same Full command set to run locally first. Digest writes remain separately
+approval-gated; the read-only digest check runs on the final digest-containing
+source basis.
 A feature package may therefore close at `FOCUSED_FEATURE (V1)`, while the
 integration owner must evaluate the complete base-to-tip diff and satisfy the
 impact planner's cumulative minimum tier. Prior feature V1 evidence never

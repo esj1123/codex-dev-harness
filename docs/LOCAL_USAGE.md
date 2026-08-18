@@ -2,23 +2,25 @@
 
 ## Purpose
 
-codex-dev-harness is local-first. The primary workflow is to clone the
-repository, verify it locally, preview template rendering, then apply the
-generated documents to a new target project only after review with explicit
-`--apply`.
+codex-dev-harness keeps local inspection and write intent local-first. The
+normal verification loop is Local Quick, an approved exact-SHA push, Hosted
+Integration Verify, and a comparable closeout. Template rendering remains a
+local preview followed by explicit `--apply` only after review.
 
 The repository includes a manual read-only `.github/workflows/local-verify.yml`
-workflow. It runs only through `workflow_dispatch` with an exact commit SHA; it
-is not automatic and is not a required check. Read-only means `contents: read`
-and no tracked-file, ref, tag, release, or remote mutation; the hosted runner
-still performs normal checkout, environment, dependency, and test filesystem
-writes.
+Hosted Integration Verify workflow. It uses `workflow_dispatch` with an exact commit SHA; it is not automatic and is not a required check.
+Read-only means `contents: read` and no tracked-file, ref, tag, release, or
+remote mutation; the hosted runner still performs normal checkout, environment,
+dependency, and test filesystem writes. A PASS that contains every required
+integration command satisfies the V2 command scope without a prior local Full
+run.
 
-The owner has selected a separate `manual_github_release_evidence_export` mode.
-It remains explicit and approval-gated, while the default Local Verify path
-remains read-only and performs no artifact upload. Only the separate export
-job may upload the six approved files with one-day retention. Read `STATUS.md`
-for the export mode's current implementation and run state.
+The owner-selected `manual_github_release_evidence_export` contract is
+implemented by the separate `.github/workflows/release-evidence-export.yml` workflow and remains
+explicit and approval-gated. Hosted Integration Verify performs no artifact
+upload. Only the export workflow may upload the six approved files with
+one-day retention. Read `STATUS.md` for its current implementation and run
+state.
 
 ## Clone And Prepare
 
