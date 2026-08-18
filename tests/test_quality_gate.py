@@ -346,30 +346,6 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     normalized_next_step = " ".join(
         status.split(next_step_marker, 1)[1].split("\n## ", 1)[0].split()
     )
-    transitional_next_step = (
-        "Refresh only `artifacts/corpus-digest.json` under its separately approved serial "
-        "work-package, then freeze that clean commit as release source basis `S`. Push "
-        "`S` only to the existing feature branch and require an exact-SHA GitHub `verify` "
-        "`HOSTED_EXACT_SHA (V3)` before the separately approved export run. The tracked "
-        "release bundle remains "
-        "`VALID ANCESTOR / REFRESH REQUIRED` until the exported six-file bundle is "
-        "downloaded, validated, committed locally, and promoted to local `main`. Tag, "
-        "release, signing, publication, deployment, `origin/main`, Agent Quality/provider, "
-        "Hermes, MCP, and downstream mutation remain outside this selection."
-    )
-    final_next_step = (
-        "Apply the harness to additional real repositories and accumulate comparable "
-        "Local Quick and Hosted Integration evidence at reviewed exact SHAs. Record "
-        "executor, verification scope, duration, findings, false positives or negatives, "
-        "manual decisions, and local/remote baseline state before selecting another core "
-        "capability. Keep the current release bundle frozen. Tag, GitHub Release, "
-        "signing, publication, deployment, Agent Quality/provider, Hermes, MCP, and "
-        "downstream mutation remain `NOT RUN` or separately approval-gated."
-    )
-    final_bundle_state = (
-        "`CURRENT / LOCAL RELEASE / GITHUB-VERIFIED / TRANSIENT CI EXPORT / NOT PUBLISHED`"
-    )
-
     assert "`CORE_HARNESS_READY`" in normalized_status
     assert (
         "Tracked release evidence regeneration until the eval-report inclusion policy "
@@ -378,11 +354,48 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     )
     assert "Tag, release, signing, publication, or durable remote distribution." in normalized_held
     assert "outside the selected manual GitHub release-evidence export contract" in normalized_held
-    if final_bundle_state in normalized_status:
-        assert normalized_next_step == final_next_step
-    else:
-        assert "`VALID ANCESTOR / REFRESH REQUIRED`" in normalized_status
-        assert normalized_next_step == transitional_next_step
+    required_status_sections = [
+        "Current Strategic Objective",
+        "Authority Basis",
+        "Active Work",
+        "NOW",
+        "NEXT",
+        "LATER",
+        "HELD",
+    ]
+    for section_name in required_status_sections:
+        assert status.count(f"\n## {section_name}\n") == 1
+
+    queue_items: list[tuple[str, str]] = []
+    for section_name in ["NOW", "NEXT", "LATER"]:
+        section = status.split(f"\n## {section_name}\n", 1)[1].split("\n## ", 1)[0]
+        items = [line for line in section.splitlines() if line.startswith("### ")]
+        queue_items.extend((section_name, line.split(" ", 2)[1]) for line in items)
+        if section_name == "NOW":
+            assert len(items) == 1
+
+    work_ids = [work_id for _, work_id in queue_items]
+    assert work_ids == ["H01", "H02", "H03"]
+    assert len(work_ids) == len(set(work_ids))
+
+    for field in ["Interrupt reason:", "Resume target:", "Displaced-item disposition:"]:
+        assert field in status
+    assert "The only active work is `H01`" in status
+    assert "Accumulate comparable Harness evidence across multiple repositories" in status
+    assert "`main@965fb86de1a8a307c646874d17d44c60c5dd9cf8`" in status
+    assert (
+        "`9a2ee297664e142c716654926a1cb30293c063ab.."
+        "347ec27f810558a89b3d06242f3833c4eccede40`"
+    ) in status
+    assert "ADOPTED local basis" in status
+    assert "PROPOSED feature basis" in status
+    assert "branch-local `STATUS.md`" in status
+    assert (
+        "H01 completion is not verification UX adoption or local-main integration"
+        in normalized_status
+    )
+    assert "begin H02 under a separate bounded contract" in normalized_next_step
+    assert "multi-repository Harness evidence objective" in normalized_next_step
     release_state_docs = {
         "STATUS.md": status,
         "README.md": readme,
@@ -400,6 +413,32 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     assert "decide whether to promote it to local `main`" not in normalized_status
     assert "have been promoted to local `main`" not in normalized_status
     assert "Complete the core-only integration checks" not in normalized_status
+
+    closeout = Path("prompts/task_contract/verification_closeout.md").read_text(
+        encoding="utf-8"
+    )
+    normalized_closeout = " ".join(closeout.split())
+    assert "Next-step authority: [ADVISORY / ADOPTED] (default: `ADVISORY`)" in closeout
+    for required_adoption_field in [
+        "explicit owner decision",
+        "exact adopted ref/SHA",
+        "adopted `STATUS.md` basis",
+        "required cumulative verification disposition",
+        "required digest disposition",
+        "integration-owner disposition",
+    ]:
+        assert required_adoption_field in closeout
+    for non_adopting_evidence in [
+        "`PASS`",
+        "`V2`",
+        "`V3`",
+        "postflight result",
+        "`plan_digest`",
+    ]:
+        assert non_adopting_evidence in closeout
+    assert "cannot adopt itself" in closeout
+    assert "H01 closeout itself remains `PROPOSED / PENDING INTEGRATION`" in normalized_closeout
+    assert "reserved for the separately bounded H02 work" in normalized_closeout
 
     assert "manual read-only `.github/workflows/local-verify.yml`" in usage
     assert "`workflow_dispatch` with an exact commit SHA" in usage

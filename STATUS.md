@@ -10,6 +10,83 @@ the default quality gate is limited to core verification. Current authority is
 defined by `docs/AUTHORITY_MANIFEST.json`; historical phase and run details
 remain available in Git history and `ACCEPTANCE_TRACE.md`.
 
+The verification UX commits on the current feature line are `IMPLEMENTED ON
+FEATURE BRANCH` but remain `PROPOSED / PENDING INTEGRATION`. This branch-local
+status does not adopt them, integrate them into local `main`, or change the
+current authority basis.
+
+## Current Strategic Objective
+
+Accumulate comparable Harness evidence across multiple repositories at
+reviewed exact SHAs. Record executor, verification scope, duration, findings,
+false positives or negatives, manual decisions, and local/remote baseline
+state before selecting another core capability.
+
+## Authority Basis
+
+| Basis class | Exact ref or range | Authority state | Meaning |
+|---|---|---|---|
+| ADOPTED local basis | `main@965fb86de1a8a307c646874d17d44c60c5dd9cf8` | `ADOPTED` | Current local sequencing authority. |
+| PROPOSED feature basis | `9a2ee297664e142c716654926a1cb30293c063ab..347ec27f810558a89b3d06242f3833c4eccede40` | `PROPOSED / PENDING INTEGRATION` | Verification UX implementation evidence awaiting an explicit integration-owner decision. |
+
+`PASS`, `V2`, `V3`, postflight, a `plan_digest`, or a recommendation does not
+promote the proposed feature basis. A branch-local `STATUS.md`, including this
+H01 proposal, cannot supply its own `ADOPTED` evidence. Adoption requires an
+explicit owner decision tied to an exact ref/SHA and an adopted `STATUS.md`
+basis after the required cumulative verification, digest disposition, and
+integration-owner disposition are recorded.
+
+## Active Work
+
+The only active work is `H01`, a sequencing-authority proposal. It documents
+the current boundary and order; it does not adopt the verification UX or
+integrate any feature commit into local `main`.
+
+- Interrupt reason: the implemented verification UX lacked a durable boundary
+  between feature evidence and adopted local authority, so evidence expansion
+  is paused while the sequence is made explicit.
+- Resume target: begin separately bounded `H02` only after the H01 proposal has
+  one coherent local commit and its required focused checks and postflight pass.
+- Displaced-item disposition: multi-repository Harness evidence accumulation is
+  preserved as the strategic objective and resumes after the H02/H03 sequence;
+  no displaced capability, release, or runtime item is implicitly authorized.
+
+## NOW
+
+### H01 — Sequencing-authority proposal
+
+- State: `PROPOSED / PENDING INTEGRATION`.
+- Scope: `STATUS.md`, the verification closeout prompt, and their structural
+  quality assertions only.
+- Completion boundary: one local proposal commit with required checks. H01
+  completion is not verification UX adoption or local-main integration.
+
+## NEXT
+
+### H02 — Hosted PASS evidence-field separation
+
+Define separate Harness Hosted PASS and target Hosted PASS fields under its own
+bounded contract. H01 intentionally does not extend the closeout contract with
+those fields.
+
+## LATER
+
+### H03 — Final cumulative verification
+
+At the final cumulative SHA after H02, run the integration owner's selected
+cumulative verification, including one local Full run if required by the final
+plan. Evaluate corpus freshness read-only; an expected freshness failure is a
+`HOLD`, not authority to refresh or write a corpus artifact.
+
+## HELD
+
+- Release, tag, signing, publication, deployment, workflow/ref/remote mutation,
+  and local-main integration require separate explicit approval.
+- Agent Quality/provider, Hermes, MCP, Local RAG, and target mutation remain
+  held or separately approval-gated.
+- Verification UX adoption is held pending an explicit integration-owner
+  decision and the required exact-SHA cumulative evidence.
+
 ## Operational Capability Status
 
 | Surface | State | Meaning |
@@ -156,10 +233,8 @@ not authenticate approval.
 
 ## Next Recommended Step
 
-Apply the harness to additional real repositories and accumulate comparable
-Local Quick and Hosted Integration evidence at reviewed exact SHAs. Record
-executor, verification scope, duration, findings, false positives or negatives,
-manual decisions, and local/remote baseline state before selecting another core
-capability. Keep the current release bundle frozen. Tag, GitHub Release,
-signing, publication, deployment, Agent Quality/provider, Hermes, MCP, and
-downstream mutation remain `NOT RUN` or separately approval-gated.
+After H01 closes as a local proposal commit, begin H02 under a separate bounded
+contract. Do not treat that handoff, any verification PASS, or the H01 branch
+status as adoption or local-main integration. Preserve the multi-repository
+Harness evidence objective for resumption after the H02/H03 sequence; all held
+surfaces remain `NOT RUN` or separately approval-gated.

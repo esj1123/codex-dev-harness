@@ -21,6 +21,7 @@ This template is documentation-only. It does not run verification or approve sid
 - Plan digest: [SHA-256 from work-package preflight, or not applicable]
 - Postflight status: [PASS / BLOCKED / FAIL / ENVIRONMENT BLOCKED / not applicable]
 - Authorization status: [NOT_AUTHENTICATED plus separate approval evidence]
+- Next-step authority: [ADVISORY / ADOPTED] (default: `ADVISORY`)
 
 
 ## Verification Execution
@@ -93,6 +94,28 @@ Choose one:
 - PARTIAL
 - BLOCKED
 - NEEDS OWNER DECISION
+
+## Next-Step Authority
+
+The default is `ADVISORY`. A `PASS`, `V2`, `V3`, postflight result,
+`plan_digest`, or recommendation does not make a next step `ADOPTED` and does
+not authenticate authorization.
+
+Use `ADOPTED` only when the closeout records all of the following:
+
+- explicit owner decision;
+- exact adopted ref/SHA;
+- adopted `STATUS.md` basis;
+- required cumulative verification disposition;
+- required digest disposition; and
+- integration-owner disposition.
+
+A closeout, recommendation, or branch-local `STATUS.md` cannot adopt itself.
+The H01 closeout itself remains `PROPOSED / PENDING INTEGRATION` and its
+next-step authority remains `ADVISORY`.
+
+H01 does not add or infer separate Harness Hosted PASS and target Hosted PASS
+fields. That field separation is reserved for the separately bounded H02 work.
 
 ## Next Step
 
