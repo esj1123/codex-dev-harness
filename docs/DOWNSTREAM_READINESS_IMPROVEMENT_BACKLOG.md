@@ -181,7 +181,7 @@ Excel parser
 XML serialization
 simulation engine
 P0.5 / P1 / P2 phase naming
-C:\Users\KSLV-II\codex_projects\ScenarioSimulator
+SCENARIO_SIMULATOR_ROOT
 Obsidian specific folder paths
 codex/scenario-readiness-docs fixed branch
 ```
