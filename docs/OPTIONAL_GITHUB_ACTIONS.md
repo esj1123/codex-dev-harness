@@ -1,5 +1,9 @@
 # Optional GitHub Actions
 
+> **HISTORICAL TEMPLATE QUARANTINE - DO NOT COPY OR INSTALL.** The two files
+> under `templates/ci/` are non-authoritative historical evidence. The sole
+> canonical installed workflow is `.github/workflows/local-verify.yml`.
+
 ## Purpose
 
 GitHub Actions support is optional for codex-dev-harness. The baseline remains local-first: users should be able to clone the repository, install requirements, run tests, run the quality gate, and dry-run renders without cloud CI.
@@ -18,8 +22,8 @@ boundaries recorded here remain active.
 - GitHub Actions are not required for the local-first baseline.
 - The owner-approved local verification workflow is installed at
   `.github/workflows/local-verify.yml`.
-- Optional workflow templates remain documentation support for additional
-  owner-approved workflows, not automatic installation instructions.
+- The legacy workflow templates are historical evidence only. They are not
+  installation instructions and must not be copied or installed.
 - Historical decision at that time: keep CI deferred and template-only. Current
   roadmap decision: install only the first read-only local verification
   workflow.
@@ -30,46 +34,40 @@ boundaries recorded here remain active.
 - Artifact upload, release workflows, signing, tag movement, deployment, and
   required checks require separate owner approval.
 
-## Templates
+## Historical Templates
 
-Optional local verification template:
+Historical local verification template:
 
 `templates/ci/github-actions-local-verify.yml.template`
 
-Optional release verification template:
+Historical release verification template:
 
 `templates/ci/github-actions-release-verify.yml.template`
 
-To use a template in a downstream fork or project, review it first and copy it
-manually to an appropriate path under:
+Do not copy or install either template. Their action versions, dependency
+commands, and safety comments describe an older design and are intentionally
+not maintained as executable guidance. Any future workflow must be designed
+from the current authority documents and separately approved; the existing
+template bodies must not be used as a starting-point authority.
 
-`.github/workflows/`
+## Canonical Workflow Reference
 
-Do not copy templates automatically as part of this repository baseline. The
-only installed repository workflow is the owner-approved
-`.github/workflows/local-verify.yml`. Copying the release verification template
-or adding any additional workflow still requires a separate explicit
-owner-approved workflow installation task.
+The canonical installed workflow uses the exact dependency lock and runs the
+current verify contract:
 
-## Recommended Checks
-
-The installed local verification workflow runs:
-
-- dependency installation from `requirements-dev.txt`
-- `python -m pytest tests`
+- dependency installation from `requirements-dev.lock` with hash and binary-only enforcement
+- `python -m pytest tests --durations=50 -rs`
+- `python scripts/run_eval.py` without report flags
 - `python scripts/quality_gate.py`
 - render dry-run for `examples/python_cli_minimal`
 - render dry-run for `examples/csharp_desktop_minimal`
 - render dry-run for `examples/plc_tool_minimal`
 
-The optional release verification workflow should run:
-
-- dependency installation from `requirements-dev.txt`
-- `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run_release_verify.ps1`
-
 The installed local verification workflow uses `workflow_dispatch`, read-only
-permissions, and no secrets. It does not upload generated release evidence
-artifacts. The release verification template remains optional and uninstalled.
+repository permissions, and no secrets. Its default `verify` job does not
+upload generated release evidence. The separate explicit export job is the
+only approved exception and transports the six approved files for one day.
+The release verification template remains historical and uninstalled.
 
 ## Actualization Decision
 

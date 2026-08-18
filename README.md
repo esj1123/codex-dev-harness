@@ -80,9 +80,14 @@ Other unlisted documents are non-authoritative reference material.
 - docs/AUTHORITY_MANIFEST.json
 - docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md
 - code_review.md
+- .github/workflows/
+- artifacts/
+- audits/
 - docs/
+- evals/
 - templates/base/
 - profiles/
+- prompts/
 - scripts/
 - scripts/gates/
 - examples/
@@ -110,10 +115,15 @@ verification surface. Tier meaning is defined only in
 - `python -m pip install --require-hashes --only-binary=:all: -r requirements-dev.lock`
 - `python -m pip check`
 - `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1`
+- optional external pytest root: `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1 -PytestBaseTempRoot D:\Codex\_tmp\CODEX-HARNESS`
 
 That wrapper runs pytest, standalone eval without report flags, the eight core
 quality gates, and the three profile dry-runs. Impact planning may additionally
-require checksum, corpus, render, or focused checks.
+require checksum, corpus, render, or focused checks. The optional pytest root
+must already exist outside the repository; the wrapper allocates a unique
+run-specific child and does not remove it automatically. Verification may write
+runner-side temporary files, but it does not mutate tracked files, Git refs, or
+remotes.
 
 ## Artifact-Writing Release Verification
 
@@ -135,8 +145,11 @@ restricted to the approved binary wheels.
 
 CI policy is documented in `docs/CI_POLICY.md`. The repository includes the
 manual read-only `.github/workflows/local-verify.yml` workflow. It uses
-`workflow_dispatch` with a required exact commit SHA, `contents: read`, and no
-artifact upload.
+`workflow_dispatch` with a required exact commit SHA and `contents: read`.
+Here, read-only describes repository permissions and the absence of tracked-file,
+ref, or remote mutation; normal runner filesystem writes still occur. The
+default `verify` job performs no artifact upload. Only the separate explicit
+release-evidence export mode may upload the six approved files for one day.
 
 The owner has selected a bounded `manual_github_release_evidence_export`
 extension. Its contract preserves the

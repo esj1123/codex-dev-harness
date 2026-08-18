@@ -1,3 +1,6 @@
+# HISTORICAL TEMPLATE - DO NOT COPY OR INSTALL.
+# Non-authoritative; current canonical workflow is .github/workflows/local-verify.yml.
+# Preserved only for historical evidence.
 # Optional local verification workflow template.
 # This file is not active unless a user manually copies it to .github/workflows/.
 # The codex-dev-harness baseline is local-first and does not require GitHub Actions.
