@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from scripts import agent_quality
 from tests.test_agent_quality_aggregation import make_baseline, make_runs, make_suite
 from tests.test_agent_quality_trial_validation import valid_run
@@ -48,6 +50,18 @@ def failure_case(state: str) -> dict:
         "affected_configuration_hashes": ["b" * 64],
         "review_refs": [],
     }
+
+
+@pytest.fixture(autouse=True)
+def allow_each_test_temp_input_root(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Keep synthetic CLI inputs valid when pytest uses an external basetemp."""
+    monkeypatch.setattr(
+        agent_quality,
+        "READ_ROOTS",
+        (*agent_quality.READ_ROOTS, tmp_path),
+    )
 
 
 def test_validate_run_is_deterministic_and_does_not_echo_input(tmp_path: Path, capsys) -> None:
