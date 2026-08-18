@@ -30,6 +30,10 @@ impact-required extras represented by `checksum_verify`,
 `corpus_digest_check`, and `render_dry_runs`. The advisory operational
 projection in `docs/VERIFICATION_IMPACT_MAP.json` must remain synchronized with
 this contract but cannot override it, execute commands, or grant approval.
+A feature lane may close at `FOCUSED_FEATURE (V1)`, but acceptance into an
+integration branch does not lower the cumulative requirement: the integration
+owner applies the impact planner to the complete base-to-tip diff and discharges
+at least `LOCAL_INTEGRATION (V2)` when that cumulative diff requires V2.
 
 ## External Control-Plane Packages
 
@@ -70,10 +74,22 @@ Recommended local command:
 
 `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1`
 
+To keep pytest state outside the repository and away from an inaccessible OS
+temp root, an existing absolute non-reparse directory may be supplied:
+
+`powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1 -PytestBaseTempRoot D:\Codex\_tmp\CODEX-HARNESS`
+
+The wrapper allocates a unique, initially nonexistent child below that root and
+passes it to pytest as `--basetemp`. It never auto-deletes that child. Relative,
+missing, repository-internal, empty, and reparse-point roots fail before Python
+selection. When the parameter is omitted, pytest retains its normal OS-temp
+behavior. Pytest's cache provider is disabled in both modes.
+
 The wrapper runs full pytest with the 50 slowest durations and skip reasons,
 the no-report standalone eval, the quality gate, and all three example render
 dry-runs in that order. It does not write rendered files and does not use
-`--force`.
+`--force`. Tests and tools may still write runner-side temporary files;
+verification does not claim a zero-filesystem-write execution.
 
 The default lane is `Full` and remains the canonical
 `LOCAL_INTEGRATION (V2)` behavior:
@@ -131,6 +147,10 @@ with Windows binary installers. `LOCAL_INTEGRATION (V2)` and
 `.python-version`.
 Third-party actions are pinned to immutable commit SHAs, checkout credentials
 are not persisted, and the workflow retains only `contents: read`.
+In this document, read-only CI means read-only repository permissions plus no
+tracked-file, ref, tag, release, or remote mutation. Checkout, environment
+creation, dependency installation, and tests still write to the ephemeral
+runner filesystem.
 
 The eval step is console-only and runs without report flags after pytest and
 before the quality gate. A nonzero eval exit fails only that manually dispatched
@@ -448,7 +468,8 @@ Local package boundaries are documented in `docs/LOCAL_RELEASE_PACKAGE.md`.
 CI policy is documented in `docs/CI_POLICY.md`. The current CI surface is a
 manual read-only local verification workflow. It is not a release workflow,
 required-check policy, artifact upload policy, signing policy, deployment
-policy, tag policy, or publication mechanism.
+policy, tag policy, or publication mechanism. That read-only label does not
+mean the hosted runner performs zero filesystem writes.
 
 ## Verification Hygiene
 

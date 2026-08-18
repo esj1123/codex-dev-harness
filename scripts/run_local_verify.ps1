@@ -1,7 +1,9 @@
 [CmdletBinding()]
 param(
     [ValidateSet("Full", "Routine")]
-    [string]$Lane = "Full"
+    [string]$Lane = "Full",
+    [AllowNull()]
+    [string]$PytestBaseTempRoot
 )
 
 Set-StrictMode -Version Latest
@@ -9,6 +11,57 @@ $ErrorActionPreference = "Stop"
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location -LiteralPath $RepoRoot
+
+function New-PytestBaseTempPath {
+    param(
+        [AllowNull()]
+        [string]$Root
+    )
+
+    if ($null -eq $Root) {
+        return $null
+    }
+    if ([string]::IsNullOrWhiteSpace($Root)) {
+        throw "PytestBaseTempRoot must not be empty or whitespace."
+    }
+    if (-not [System.IO.Path]::IsPathRooted($Root)) {
+        throw "PytestBaseTempRoot must be an absolute path outside the repository."
+    }
+
+    $resolvedRoot = [System.IO.Path]::GetFullPath($Root)
+    $resolvedRepo = [System.IO.Path]::GetFullPath($RepoRoot)
+    $repoPrefix = $resolvedRepo + [System.IO.Path]::DirectorySeparatorChar
+    if (
+        $resolvedRoot.Equals($resolvedRepo, [System.StringComparison]::OrdinalIgnoreCase) -or
+        $resolvedRoot.StartsWith($repoPrefix, [System.StringComparison]::OrdinalIgnoreCase)
+    ) {
+        throw "PytestBaseTempRoot must remain outside the repository."
+    }
+    if (-not (Test-Path -LiteralPath $resolvedRoot -PathType Container)) {
+        throw "PytestBaseTempRoot must be an existing directory."
+    }
+
+    $rootItem = Get-Item -LiteralPath $resolvedRoot -Force
+    if (($rootItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+        throw "PytestBaseTempRoot must not be a reparse point."
+    }
+
+    $runLeaf = Join-Path $resolvedRoot (
+        "pytest-{0}-{1}-{2}" -f
+        $Lane.ToLowerInvariant(),
+        $PID,
+        [Guid]::NewGuid().ToString("N")
+    )
+    if (Test-Path -LiteralPath $runLeaf) {
+        throw "Unable to allocate a non-existent pytest basetemp path."
+    }
+    return $runLeaf
+}
+
+$PytestBaseTempPath = $null
+if ($PSBoundParameters.ContainsKey("PytestBaseTempRoot")) {
+    $PytestBaseTempPath = New-PytestBaseTempPath -Root $PytestBaseTempRoot
+}
 
 function Set-HermeticVerificationEnvironment {
     $ambientNames = @(
@@ -175,7 +228,10 @@ $RoutineHeldTestFiles = @(
     "tests/test_mcp_tool_boundary_contract.py"
 )
 
-$PytestArgs = @("-m", "pytest", "tests", "--durations=50", "-rs")
+$PytestArgs = @("-m", "pytest", "tests", "--durations=50", "-rs", "-p", "no:cacheprovider")
+if ($null -ne $PytestBaseTempPath) {
+    $PytestArgs += @("--basetemp", $PytestBaseTempPath)
+}
 if ($Lane -eq "Routine") {
     foreach ($heldTestFile in $RoutineHeldTestFiles) {
         $heldTestPath = Join-Path $RepoRoot $heldTestFile
@@ -187,6 +243,9 @@ if ($Lane -eq "Routine") {
 }
 
 Write-Host "Local verification lane: $Lane"
+if ($null -ne $PytestBaseTempPath) {
+    Write-Host "Pytest basetemp: $PytestBaseTempPath"
+}
 Invoke-PythonStep "development environment" @("scripts/verify_dev_environment.py", "--expected-version-file", ".python-version", "--lock", "requirements-dev.lock", "--json")
 Invoke-PythonStep "pytest" $PytestArgs
 Invoke-PythonStep "standalone eval" @("scripts/run_eval.py")

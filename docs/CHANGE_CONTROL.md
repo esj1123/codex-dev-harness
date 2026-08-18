@@ -265,6 +265,10 @@ integration checkpoint must run the broader local verification defined in
 
 Feature lanes run focused checks only. They do not refresh the corpus digest,
 push, dispatch workflows, or record remote verification evidence.
+A feature package that closes at `FOCUSED_FEATURE (V1)` may be accepted only
+into an integration branch where the integration owner evaluates the complete
+base-to-tip diff and cumulatively discharges the impact planner's required
+minimum tier, including `LOCAL_INTEGRATION (V2)` when selected.
 
 A lane is not ready for integration until preflight and postflight report the
 same `plan_digest`, the declared verification status is `PASS`, and postflight

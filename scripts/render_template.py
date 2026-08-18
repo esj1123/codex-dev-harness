@@ -371,6 +371,21 @@ def _is_unsafe_source_link(path: Path, metadata: os.stat_result) -> bool:
     )
 
 
+def _unsafe_profile_inventory_entry_error(
+    path: Path,
+    metadata: os.stat_result,
+) -> ValueError:
+    return ValueError(
+        "unsafe profiles/ inventory entry: "
+        f"{path} "
+        f"(mode={stat.S_IFMT(metadata.st_mode):#o}, "
+        f"nlink={metadata.st_nlink}, "
+        f"size={metadata.st_size}, "
+        f"file_attributes={getattr(metadata, 'st_file_attributes', 0):#x}, "
+        f"reparse_tag={getattr(metadata, 'st_reparse_tag', 0):#x})"
+    )
+
+
 def _lstat_source_safe(path: Path, *, allow_directory: bool) -> os.stat_result:
     try:
         metadata = path.lstat()
@@ -476,7 +491,7 @@ def _select_profile_directory(repo_root: Path, profile: str) -> Path:
         if stat.S_ISDIR(metadata.st_mode):
             directories.append(_absolute_lexical(child))
         elif not stat.S_ISREG(metadata.st_mode):
-            raise ValueError(f"unsafe profiles/ inventory entry: {child}")
+            raise _unsafe_profile_inventory_entry_error(child, metadata)
     return _select_profile_from_inventory(profile, directories)
 
 

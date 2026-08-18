@@ -8,6 +8,9 @@ owner-approved read-only local verification GitHub Actions workflow.
 ## Current Policy
 
 Local verification first, with one manual read-only GitHub Actions mirror.
+Here, read-only means `contents: read` and no tracked-file, Git-ref, tag,
+release, or remote mutation. Checkout, virtual-environment creation, dependency
+installation, tests, and other runner-local filesystem writes still occur.
 
 The repository now includes the owner-approved first implementation target:
 `.github/workflows/local-verify.yml`. It is a manual `workflow_dispatch`
@@ -68,13 +71,17 @@ transport, and subsequent local validation and commit. It does not select an
 automatic trigger, required check, durable artifact distribution, release,
 signing, publication, deployment, secret use, or `origin/main` mutation.
 `STATUS.md` records the capability's current implementation state.
+The no-upload statement applies to the default `verify` job. The separately
+selected export job is the sole bounded exception and may transport only the
+six approved files with one-day retention.
 
 ## First CI Implementation Target
 
 The first CI implementation target is now implemented as
 `.github/workflows/local-verify.yml`. Per the capability implementation roadmap,
 CI starts as a manual read-only workflow that only runs repository validation
-checks:
+checks. Read-only describes repository authority and Git side effects, not a
+zero-write runner filesystem:
 
 - `python -m pytest tests --durations=50 -rs`
 - `python scripts/run_eval.py`
@@ -96,7 +103,8 @@ Release verification remains local-only unless separately approved and may use:
 - `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run_release_verify.ps1`
 
 The installed local verification workflow does not run release verification,
-generate an eval report, or upload artifacts.
+generate an eval report, or upload artifacts in its default `verify` job. The
+separate explicit export job is the approved six-file, one-day exception.
 
 Agent-quality stability validation is also standalone, frozen, and manual. Local Verify
 does not execute agent trials, aggregate trial envelopes, compare model or
@@ -124,7 +132,8 @@ CI must not introduce:
 - Device start, stop, reset, or mode-change actions.
 - Secret or live config generation.
 - New profiles without a separate design and validation step.
-- Artifact upload without a separate release-publication decision.
+- Artifact upload outside the separately selected six-file, one-day export
+  contract or without another explicit decision.
 - Release publication, signing, tag creation, or tag movement.
 - Deployment behavior.
 - RAG, retrieval index, embeddings, or vector database behavior.
@@ -169,6 +178,10 @@ once after approved feature and digest commits are present, then runs the
 hosted exact-SHA gate once for that cumulative tip. Digest writes remain
 separately approval-gated; the read-only digest check runs on the final
 digest-containing source basis.
+A feature package may therefore close at `FOCUSED_FEATURE (V1)`, while the
+integration owner must evaluate the complete base-to-tip diff and satisfy the
+impact planner's cumulative minimum tier. Prior feature V1 evidence never
+substitutes for a required cumulative V2 run.
 
 ## Verification Impact Planner
 

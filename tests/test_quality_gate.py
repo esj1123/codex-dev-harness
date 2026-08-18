@@ -287,7 +287,39 @@ def test_readme_describes_installed_manual_local_verify_workflow() -> None:
     assert "installed manual read-only Local Verify workflow is the baseline verification" in text
     assert "`manual_github_release_evidence_export`" in text
     assert "See `STATUS.md` for its current implementation state" in text
+    assert "runner-side temporary files" in text
+    assert "default `verify` job performs no artifact upload" in text
     assert "next planned CI step is a read-only verification hygiene path" not in text
+
+
+def test_ci_docs_quarantine_legacy_templates_and_define_read_only_scope() -> None:
+    ci_policy = Path("docs/CI_POLICY.md").read_text(encoding="utf-8")
+    optional = Path("docs/OPTIONAL_GITHUB_ACTIONS.md").read_text(encoding="utf-8")
+    verification = Path("docs/VERIFICATION.md").read_text(encoding="utf-8")
+    usage = Path("docs/LOCAL_USAGE.md").read_text(encoding="utf-8")
+    templates = [
+        Path("templates/ci/github-actions-local-verify.yml.template"),
+        Path("templates/ci/github-actions-release-verify.yml.template"),
+    ]
+
+    assert "HISTORICAL TEMPLATE QUARANTINE - DO NOT COPY OR INSTALL" in optional
+    assert "must not be copied or installed" in optional
+    assert "requirements-dev.lock" in optional
+    assert "six approved files for one day" in optional
+    for path in templates:
+        lines = path.read_text(encoding="utf-8").splitlines()
+        assert lines[:3] == [
+            "# HISTORICAL TEMPLATE - DO NOT COPY OR INSTALL.",
+            "# Non-authoritative; current canonical workflow is .github/workflows/local-verify.yml.",
+            "# Preserved only for historical evidence.",
+        ]
+
+    for text in [ci_policy, verification, usage]:
+        normalized = " ".join(text.split())
+        assert "zero-write" in normalized or "zero-filesystem-write" in normalized
+        assert "six approved files" in normalized
+    assert "Prior feature V1 evidence never substitutes" in " ".join(ci_policy.split())
+    assert "complete base-to-tip diff" in verification
 
 
 def test_operational_docs_match_current_core_and_release_state() -> None:
@@ -744,6 +776,10 @@ def test_local_wrapper_defaults_to_full_and_routine_excludes_only_exact_held_fil
 
     assert '[ValidateSet("Full", "Routine")]' in local
     assert '[string]$Lane = "Full"' in local
+    assert '[string]$PytestBaseTempRoot' in local
+    assert '$PSBoundParameters.ContainsKey("PytestBaseTempRoot")' in local
+    assert '"-p", "no:cacheprovider"' in local
+    assert '@("--basetemp", $PytestBaseTempPath)' in local
     assert declared_held == expected_held
     assert "*" not in held_block
     assert '$Lane -eq "Routine"' in local
@@ -753,9 +789,11 @@ def test_local_wrapper_defaults_to_full_and_routine_excludes_only_exact_held_fil
 
 
 def _wrapper_pytest_args(
-    tmp_path: Path, lane: str, *, explicit: bool
+    tmp_path: Path, lane: str, *, explicit: bool, basetemp_root: Path | None = None
 ) -> list[str]:
     invocation_kind = "explicit" if explicit else "default"
+    if basetemp_root is not None:
+        invocation_kind += "-basetemp"
     argument_log = tmp_path / f"{lane.lower()}-{invocation_kind}-arguments.txt"
     python_shim = tmp_path / f"python-{lane.lower()}-{invocation_kind}.cmd"
     python_shim.write_text(
@@ -775,6 +813,8 @@ def _wrapper_pytest_args(
     ]
     if explicit:
         command.extend(["-Lane", lane])
+    if basetemp_root is not None:
+        command.extend(["-PytestBaseTempRoot", str(basetemp_root)])
     result = subprocess.run(
         command,
         cwd=Path.cwd(),
@@ -790,6 +830,39 @@ def _wrapper_pytest_args(
         invocation for invocation in invocations if invocation.startswith("-m pytest ")
     )
     return pytest_invocation.split()[2:]
+
+
+def _run_wrapper_basetemp_validation(
+    tmp_path: Path, label: str, root: str | Path
+) -> tuple[subprocess.CompletedProcess[str], Path]:
+    argument_log = tmp_path / f"{label}-arguments.txt"
+    python_shim = tmp_path / f"python-{label}.cmd"
+    python_shim.write_text(
+        '@echo off\r\n>>"%CODEX_TEST_ARGUMENT_LOG%" echo %*\r\nexit /b 0\r\n',
+        encoding="utf-8",
+    )
+    environment = os.environ.copy()
+    environment["PYTHON"] = str(python_shim)
+    environment["CODEX_TEST_ARGUMENT_LOG"] = str(argument_log)
+    result = subprocess.run(
+        [
+            "powershell.exe",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            "scripts/run_local_verify.ps1",
+            "-PytestBaseTempRoot",
+            str(root),
+        ],
+        cwd=Path.cwd(),
+        env=environment,
+        capture_output=True,
+        text=True,
+        timeout=60,
+        check=False,
+    )
+    return result, argument_log
 
 
 def _parse_environment_probe(path: Path) -> list[dict[str, str]]:
@@ -935,7 +1008,15 @@ def test_local_wrapper_sanitizes_git_environment_for_every_child(
         assert record["PYTHONPATH"] == ""
         assert record["PYTEST_DISABLE_PLUGIN_AUTOLOAD"] == "1"
     pytest_record = next(record for record in records if record["ARGS"].startswith("-m pytest "))
-    assert pytest_record["ARGS"].split() == ["-m", "pytest", "tests", "--durations=50", "-rs"]
+    assert pytest_record["ARGS"].split() == [
+        "-m",
+        "pytest",
+        "tests",
+        "--durations=50",
+        "-rs",
+        "-p",
+        "no:cacheprovider",
+    ]
 
 
 def test_release_wrapper_sanitizes_environment_before_first_git_command(
@@ -1044,8 +1125,14 @@ def test_local_wrapper_lane_arguments_produce_exact_collection_difference(
     explicit_full_args = _wrapper_pytest_args(tmp_path, "Full", explicit=True)
     routine_args = _wrapper_pytest_args(tmp_path, "Routine", explicit=True)
     assert default_full_args == explicit_full_args
-    assert default_full_args == ["tests", "--durations=50", "-rs"]
-    assert routine_args[:3] == default_full_args
+    assert default_full_args == [
+        "tests",
+        "--durations=50",
+        "-rs",
+        "-p",
+        "no:cacheprovider",
+    ]
+    assert routine_args[: len(default_full_args)] == default_full_args
     assert len(routine_args) == len(default_full_args) + (29 * 2)
     assert routine_args.count("--ignore") == 29
     assert all(
@@ -1081,6 +1168,73 @@ def test_local_wrapper_lane_arguments_produce_exact_collection_difference(
         node.startswith("tests/test_downstream_task_contract_validator.py::")
         for node in routine_nodes
     )
+
+
+def test_local_wrapper_accepts_external_pytest_basetemp_root(tmp_path: Path) -> None:
+    external_root = tmp_path / "external-pytest-root"
+    external_root.mkdir()
+
+    pytest_args = _wrapper_pytest_args(
+        tmp_path,
+        "Full",
+        explicit=True,
+        basetemp_root=external_root,
+    )
+
+    assert pytest_args[:7] == [
+        "tests",
+        "--durations=50",
+        "-rs",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        pytest_args[6],
+    ]
+    observed = Path(pytest_args[6])
+    assert observed.parent.resolve() == external_root.resolve()
+    assert observed.name.startswith("pytest-full-")
+    assert not observed.exists()
+
+
+def test_local_wrapper_rejects_invalid_pytest_basetemp_before_python(
+    tmp_path: Path,
+) -> None:
+    cases = [
+        ("relative", "relative-pytest-root", "must be an absolute path"),
+        ("missing", tmp_path / "missing-root", "must be an existing directory"),
+        ("inside-repo", Path.cwd() / "tests", "must remain outside the repository"),
+        ("whitespace", "   ", "must not be empty or whitespace"),
+    ]
+
+    for label, root, expected_message in cases:
+        result, argument_log = _run_wrapper_basetemp_validation(
+            tmp_path, label, root
+        )
+        assert result.returncode != 0
+        assert expected_message in f"{result.stdout}\n{result.stderr}"
+        assert not argument_log.exists()
+
+
+@pytest.mark.skipif(os.name != "nt", reason="junction behavior is Windows-specific")
+def test_local_wrapper_rejects_reparse_pytest_basetemp_root(tmp_path: Path) -> None:
+    target = tmp_path / "junction-target"
+    junction = tmp_path / "junction-root"
+    target.mkdir()
+    created = subprocess.run(
+        ["cmd.exe", "/c", "mklink", "/J", str(junction), str(target)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if created.returncode != 0:
+        pytest.skip(f"junction creation unavailable: {created.stderr or created.stdout}")
+
+    result, argument_log = _run_wrapper_basetemp_validation(
+        tmp_path, "reparse", junction
+    )
+    assert result.returncode != 0
+    assert "must not be a reparse point" in f"{result.stdout}\n{result.stderr}"
+    assert not argument_log.exists()
 
 
 def test_local_wrapper_rejects_unknown_lane_before_execution(tmp_path: Path) -> None:

@@ -9,12 +9,16 @@ generated documents to a new target project only after review with explicit
 
 The repository includes a manual read-only `.github/workflows/local-verify.yml`
 workflow. It runs only through `workflow_dispatch` with an exact commit SHA; it
-is not automatic and is not a required check.
+is not automatic and is not a required check. Read-only means `contents: read`
+and no tracked-file, ref, tag, release, or remote mutation; the hosted runner
+still performs normal checkout, environment, dependency, and test filesystem
+writes.
 
 The owner has selected a separate `manual_github_release_evidence_export` mode.
 It remains explicit and approval-gated, while the default Local Verify path
-remains read-only and performs no artifact upload. Read `STATUS.md` for the
-export mode's current implementation and run state.
+remains read-only and performs no artifact upload. Only the separate export
+job may upload the six approved files with one-day retention. Read `STATUS.md`
+for the export mode's current implementation and run state.
 
 ## Clone And Prepare
 
@@ -45,6 +49,16 @@ Use the wrapper from the repository root:
 
 `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1`
 
+If the normal OS temp root is unsuitable, first create a dedicated directory
+outside the repository, then pass it explicitly:
+
+`powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1 -PytestBaseTempRoot D:\Codex\_tmp\CODEX-HARNESS`
+
+The directory must already exist, be absolute, remain outside the repository,
+and not be a reparse point. The wrapper creates a unique pytest child path and
+does not remove it automatically. Omitting the option preserves normal OS-temp
+behavior.
+
 The wrapper runs:
 
 1. exact development-environment validation and `pip check`
@@ -54,6 +68,9 @@ The wrapper runs:
 5. Python CLI, C# desktop, and PLC/device profile render dry-runs
 
 The wrapper does not perform real render writes and does not use `--force`.
+It disables pytest's cache provider. Tests may still create runner-side
+temporary files, so read-only verification is not a zero-filesystem-write
+claim.
 
 ## Manual Render Dry-Run Checks
 

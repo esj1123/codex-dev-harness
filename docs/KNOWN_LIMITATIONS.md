@@ -21,8 +21,9 @@ Record known limitations for the current codex-dev-harness baseline after the fo
   `python scripts/run_eval.py` as a console-only check.
 - The installed Local Verify GitHub Actions workflow is manual
   `workflow_dispatch` and read-only; the eval step has no report flags, and
-  automatic push/PR triggers, required-check policy, and artifact upload remain
-  absent.
+  automatic push/PR triggers and required-check policy remain absent. The
+  default `verify` job performs no artifact upload; only the separate explicit
+  export job may upload the six approved files for one day.
 - Release manifest and full-bundle checksum generation plus read-only canonical
   checksum verification exist as local-only evidence; broader release archive,
   publication, signing, and upload behavior is not implemented.

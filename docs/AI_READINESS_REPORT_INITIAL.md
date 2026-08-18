@@ -5,7 +5,7 @@
 이번 Phase 5-B-1 점검은 명시적으로 승인된 두 경로만 대상으로 했다.
 
 - `.`
-- `C:\Users\KSLV-II\codex_projects\ScenarioSimulator`
+- `SCENARIO_SIMULATOR_ROOT`
 
 스캐너 실행 결과, 현재 repository는 `READY_FOR_AI_ASSISTED_WORK`, ScenarioSimulator
 로컬 경로는 `LIMITED_AI_ASSISTED_WORK_ALLOWED`로 판정되었다.
@@ -13,13 +13,13 @@
 | 대상 | 로컬 존재 여부 | 판정 | 점수 |
 |---|---|---|---:|
 | `.` | 존재 | `READY_FOR_AI_ASSISTED_WORK` | 16/16 |
-| `C:\Users\KSLV-II\codex_projects\ScenarioSimulator` | 존재 | `LIMITED_AI_ASSISTED_WORK_ALLOWED` | 11/16 |
+| `SCENARIO_SIMULATOR_ROOT` | 존재 | `LIMITED_AI_ASSISTED_WORK_ALLOWED` | 11/16 |
 
 `RSID-Inspection`은 승인된 로컬 경로가 없어서 이번 단계에서 스캔하지 않았다.
 `outlook-history-view`, `stock`, 기타 sibling repository, parent directory, live
 vault 또는 synced vault 폴더도 스캔하지 않았다.
 
-이전 경로 확인 단계에서 `C:\Users\KSLV-II\codex_projects\ScenarioSimulator`에
+이전 경로 확인 단계에서 `SCENARIO_SIMULATOR_ROOT`에
 대해 Git dubious ownership 경고가 관찰되었지만, 이번 스캔은 target repository의
 Git 상태에 의존하지 않았다. 이번 단계에서는 ScenarioSimulator 내부에서 Git
 명령을 실행하지 않았고, `safe.directory` 설정도 추가하지 않았다.
@@ -34,7 +34,7 @@ Git 상태에 의존하지 않았다. 이번 단계에서는 ScenarioSimulator �
 | repo | 목적 명확성 | AI 작업 규칙 | 안전 경계 | 검증 스크립트 | 테스트/스모크 | private data 보호 | acceptance/evidence | 다음 작업 명확성 | 총점 | 판정 |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
 | `.` | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 16 | `READY_FOR_AI_ASSISTED_WORK` |
-| `C:\Users\KSLV-II\codex_projects\ScenarioSimulator` | 2 | 2 | 0 | 1 | 2 | 2 | 0 | 2 | 11 | `LIMITED_AI_ASSISTED_WORK_ALLOWED` |
+| `SCENARIO_SIMULATOR_ROOT` | 2 | 2 | 0 | 1 | 2 | 2 | 0 | 2 | 11 | `LIMITED_AI_ASSISTED_WORK_ALLOWED` |
 
 ScenarioSimulator의 `INSUFFICIENT_EVIDENCE` 항목은 증거 부족을 의미하며 repo
 실패 판정이 아니다. 후속 작업 전에 안전 경계, acceptance/evidence discipline,
@@ -52,7 +52,7 @@ ScenarioSimulator의 `INSUFFICIENT_EVIDENCE` 항목은 증거 부족을 의미�
 - scanner는 `.git`, `artifacts`, `local`, cache 폴더를 기본 제외 경로로
   처리했다.
 
-### `C:\Users\KSLV-II\codex_projects\ScenarioSimulator`
+### `SCENARIO_SIMULATOR_ROOT`
 
 - `README.md`, `AGENTS.md`, `STATUS.md`가 확인되었다.
 - 목적 설명, AI 작업 규칙, private data 보호 문구, 다음 작업 명확성은 점수화
@@ -69,7 +69,7 @@ ScenarioSimulator의 `INSUFFICIENT_EVIDENCE` 항목은 증거 부족을 의미�
 - 다만 conservative risk flag가 존재하므로 후속 구현이나 live-target 관련
   작업 전에는 승인 경계와 no-touch 영역을 다시 확인해야 한다.
 
-### `C:\Users\KSLV-II\codex_projects\ScenarioSimulator`
+### `SCENARIO_SIMULATOR_ROOT`
 
 - 안전 정책 문서가 확인되지 않아 `Safety boundary`가 `INSUFFICIENT_EVIDENCE`로
   평가되었다.
@@ -91,7 +91,7 @@ ScenarioSimulator의 `INSUFFICIENT_EVIDENCE` 항목은 증거 부족을 의미�
 | repo | conservative risk flags |
 |---|---|
 | `.` | `PLC_DEVICE_LIVE_TARGET` 10개, `CREDENTIALS_SECRETS` 2개, `GENERATED_ARTIFACTS` 2개, `CI_RELEASE_DEPLOY` 10개 |
-| `C:\Users\KSLV-II\codex_projects\ScenarioSimulator` | `RSID` 4개, `CREDENTIALS_SECRETS` 1개, `GENERATED_ARTIFACTS` 1개, `EXTERNAL_SERVICES` 1개, `CI_RELEASE_DEPLOY` 1개 |
+| `SCENARIO_SIMULATOR_ROOT` | `RSID` 4개, `CREDENTIALS_SECRETS` 1개, `GENERATED_ARTIFACTS` 1개, `EXTERNAL_SERVICES` 1개, `CI_RELEASE_DEPLOY` 1개 |
 
 위 플래그는 path-level indicator이며 자동 실패가 아니다. 각 플래그는 후속
 작업 전에 영향범위, 승인 경계, private data 정책, 검증 명령을 확인해야 한다는
@@ -116,7 +116,7 @@ ScenarioSimulator의 `INSUFFICIENT_EVIDENCE` 항목은 증거 부족을 의미�
 generated artifact, CI/release/deploy 문서가 conservative flag로 감지된다.
 이는 template repo의 문서와 예시 특성에서 나온 검토 지표이며 자동 실패가 아니다.
 
-### `C:\Users\KSLV-II\codex_projects\ScenarioSimulator`
+### `SCENARIO_SIMULATOR_ROOT`
 
 ScenarioSimulator는 11/16으로 제한적 AI-assisted work가 가능한 상태로 평가되었다.
 다만 안전 경계와 acceptance/evidence discipline의 증거가 부족하므로 구현 전에
