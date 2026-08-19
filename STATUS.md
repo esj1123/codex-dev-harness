@@ -10,46 +10,33 @@ the default quality gate is limited to core verification. Current authority is
 defined by `docs/AUTHORITY_MANIFEST.json`; historical phase and run details
 remain available in Git history and `ACCEPTANCE_TRACE.md`.
 
-The verification UX line through `5568442d96df40a99a22862d273dfc7b005e0a97`
-is implemented and independently recovered under exact-runtime local
-verification. This branch-local status records that evidence without adopting
-the line, updating local `main`, or recording this closeout commit's own SHA.
+The owner-approved exact local compare-and-swap completed from guarded old
+`965fb86de1a8a307c646874d17d44c60c5dd9cf8` to adopted basis
+`ffc90e0f0801979bf67de4a5b32aaf8fc2745a0d`. That exact basis is locally
+adopted and exact-SHA Core plus Full verified. This status records the current
+local authority without authorizing a remote, release, publication, or target
+execution action.
 
 ## Current Strategic Objective
 
-Close the verification UX integration sequence without collapsing historical
+Maintain the adopted local verification basis without collapsing historical
 proposal, partial, hold, implementation, and verification states into one
-claim. No new capability is selected. Comparable multi-repository Harness
-evidence resumes only after the separately bounded U05 and H04R sequence.
+claim. U05 current-authority alignment corrects the resulting P1 documentation
+mismatch only. No new capability is selected; comparable multi-repository
+Harness evidence remains subject to a separate H04R owner decision.
 
 ## Authority Basis
 
 | Basis class | Exact ref or range | Authority state | Meaning |
 |---|---|---|---|
-| Historical pre-H04L local-main guard | `965fb86de1a8a307c646874d17d44c60c5dd9cf8` | `GUARDED OLD VALUE` | The observed local `main` value before H04L. It is not a self-updating assertion about the current ref. |
-| Reviewed verification UX predecessor range | `9a2ee297664e142c716654926a1cb30293c063ab..5568442d96df40a99a22862d273dfc7b005e0a97` | `IMPLEMENTED / LOCALLY VERIFIED / NOT ADOPTED` | Reviewed H01-H03 history and the exact H03R2 recovery basis; integration still requires the ref-conditional owner action below. |
+| Historical pre-local-adoption guard | `965fb86de1a8a307c646874d17d44c60c5dd9cf8` | `GUARDED OLD VALUE` | The historical observed local `main` value used by the completed owner-approved local compare-and-swap. It is not a self-updating assertion about the current ref. |
+| Current adopted local authority | `ffc90e0f0801979bf67de4a5b32aaf8fc2745a0d` | `LOCALLY ADOPTED / EXACT-SHA CORE+FULL VERIFIED` | Owner-approved local adoption after exact-SHA cumulative evidence; this status does not authorize any further local-main mutation or remote action. |
 
-`PASS`, `V2`, `V3`, postflight, a `plan_digest`, or a recommendation does not
-promote the verification UX line. A branch-local `STATUS.md` cannot supply its
-own `ADOPTED` evidence. Adoption requires an explicit owner decision tied to an
-exact ref/SHA after cumulative verification, digest disposition, and
-integration-owner disposition are recorded.
-
-## Active Work
-
-The active local work is H04L closeout sequencing: record the completed H01-H03
-history, preserve H03R/H03R2 evidence boundaries, refresh the approved digest
-from the clean closeout source basis, and verify the frozen final SHA. It does
-not update local `main`, adopt the line, or authorize any remote action.
-
-- Interrupt reason: the primary feature line reached exact `5568442` but its
-  closeout writer could not safely apply the two-file documentation/test patch.
-- Resume target: create a strict linear descendant in an isolated worktree,
-  freeze its final digest-containing SHA, and run the cumulative exact-runtime
-  verification once at that frozen tip.
-- Displaced-item disposition: multi-repository evidence remains preserved for
-  H04R after U05; no capability, release, Hosted, or target-repository item is
-  implicitly authorized.
+`PASS`, `V2`, `V3`, postflight, a `plan_digest`, or a recommendation remains
+structural evidence rather than independent authorization. The completed local
+adoption above required the owner decision and exact-SHA cumulative evidence;
+it does not authorize a new mutation, push, Hosted execution, release, or
+target action.
 
 ## Completed Checkpoint
 
@@ -77,56 +64,51 @@ not update local `main`, adopt the line, or authorize any remote action.
   dependency lock `6/6`; and `pip check` `PASS`.
 
 H03R2 is structural local evidence with `authorization_status=NOT_AUTHENTICATED`.
-It is not adoption, Hosted evidence, release evidence, or permission to mutate
-local `main` or any remote.
+It did not itself constitute adoption, Hosted evidence, release evidence, or
+permission to mutate local `main` or any remote.
+
+### H04 closeout and recovery history
+
+- H04LW recorded `Core PASS` at the adopted exact SHA. Its Full step remained
+  `HOLD`; that session's Core PASS must not be rewritten as a Full PASS.
+- H04LR stopped with a path-length `HOLD`; that environmental boundary remains
+  preserved as historical evidence.
+- H04LR2 recovered Full at the same adopted exact SHA with `Full PASS`.
+
+### U05 whole-repository audit
+
+- The whole-repository audit reviewed `7 commits/20 paths` with `GO`, observed
+  `14 worktrees clean`, and found no rename, delete, or mode change.
+- Its only current-authority finding was this P1 documentation mismatch. A
+  cached `origin` observation is not represented as live remote state.
 
 ## NOW
 
-### H04L — Verification integration closeout
+### U05 — Current-authority alignment
 
-- State: `CLOSEOUT RECORDING / EXACT-F VERIFICATION REQUIRED`.
-- Scope: one two-file status/test commit, one separately contracted corpus
-  digest commit, and exact-runtime cumulative verification at the frozen final
-  SHA.
-- The tracked status intentionally omits its own final SHA. The final SHA and
-  pass/fail observation belong to the task closeout and Git evidence.
+- State: `CURRENT-AUTHORITY ALIGNMENT / P1 REWORK`.
+- Scope: align the two authoritative tracked files to the already adopted
+  exact SHA and preserve the historical HOLD/PASS boundaries.
+- New capability: `NOT SELECTED`.
 
 ## NEXT
 
-### F — Ref-conditional integration-owner action
+### H04R — Separate owner decision
 
-- If local `main` does not contain this tracked tree, the next action is a
-  separately verified exact-F compare-and-swap integration decision.
-- If local `main` already contains this tracked tree, the next action is U05
-  whole-repository audit.
-
-The historical pre-H04L `main` value above is only the guarded old value for
-the first branch of this decision. It must not be treated as a current-ref
-self-updating assertion.
-
-## LATER
-
-### U05 — Whole-repository audit
-
-Run the separately scoped whole-repository audit only after the exact-F
-integration disposition.
-
-### H04R — Multi-repository evidence resumption
-
-Resume multi-repository Harness evidence only after U05 and a separate H04R
-authorization. No target repository, push, or Hosted execution is implied.
+Consider multi-repository Harness evidence only after a separate H04R owner
+decision. It does not authorize target-repository access, target execution,
+push, fetch, Hosted execution, export, release, or publication.
 
 ## HELD
 
 - Remote fetch/push, Hosted workflow execution, export, tag, release, checksum,
-  SBOM, provenance, signing, publication, deployment, and local-main mutation
-  remain `HOLD` and require separate explicit approval.
-- Verification UX adoption, push, and Harness or target Hosted execution remain
-  `HOLD` pending exact-SHA cumulative evidence and explicit owner authority.
+  SBOM, provenance, signing, publication, deployment, target execution, and
+  additional local-main mutation remain `HOLD` and require separate explicit
+  approval.
 - Agent Quality/provider, Hermes, MCP, Local RAG, and target mutation remain
   held or separately approval-gated.
-- Multi-repository evidence is held until U05 and a separate H04R; no new
-  capability selection is made by this closeout.
+- Multi-repository evidence remains held pending the separate H04R owner
+  decision; no new capability selection is made by this alignment.
 
 ## Operational Capability Status
 
@@ -260,8 +242,8 @@ not authenticate approval.
 ## Held Or Not Authorized
 
 - Tag, release, signing, publication, or durable remote distribution.
-- Verification UX adoption, push, and Harness or target Hosted execution remain
-  `HOLD` pending exact-SHA cumulative evidence and explicit owner authority.
+- Push, fetch, Harness or target Hosted execution, and target execution remain
+  `HOLD` pending separate explicit owner authority.
 - Automatic digest writes, automatic release triggers, or release automation
   outside the selected manual GitHub release-evidence export contract.
 - MCP execution, Hermes execution bridges, AgentOps, or durable audit logging.
@@ -276,11 +258,7 @@ not authenticate approval.
 
 ## Next Recommended Step
 
-After the digest-containing final SHA is frozen and exact-runtime cumulative
-verification is recorded, inspect local `main` without mutating it. If `main`
-does not contain this tracked tree, the next action is a separately authorized
-verified exact-F compare-and-swap integration decision. If it already contains
-the tree, proceed to the separately scoped U05 whole-repository audit. Resume
-multi-repository evidence only after U05 and a separate H04R. Structural PASS,
-a branch-local status, or a plan digest does not grant adoption, push, Hosted,
-release, or deployment authority.
+The next step is a separate H04R owner decision. The adopted local basis does
+not authorize additional local-main mutation, fetch, push, Hosted execution,
+export, release, publication, target-repository action, or target execution.
+Structural PASS and a plan digest remain distinct from future approvals.

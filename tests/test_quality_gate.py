@@ -357,7 +357,7 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     normalized_next_step = " ".join(
         status.split(next_step_marker, 1)[1].split("\n## ", 1)[0].split()
     )
-    normalized_h04l_held = " ".join(
+    normalized_alignment_held = " ".join(
         status.split("\n## HELD\n", 1)[1].split("\n## ", 1)[0].split()
     )
     assert "`CORE_HARNESS_READY`" in normalized_status
@@ -371,17 +371,16 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     required_status_sections = [
         "Current Strategic Objective",
         "Authority Basis",
-        "Active Work",
+        "Completed Checkpoint",
         "NOW",
         "NEXT",
-        "LATER",
         "HELD",
     ]
     for section_name in required_status_sections:
         assert status.count(f"\n## {section_name}\n") == 1
 
     queue_items: list[tuple[str, str]] = []
-    for section_name in ["NOW", "NEXT", "LATER"]:
+    for section_name in ["NOW", "NEXT"]:
         section = status.split(f"\n## {section_name}\n", 1)[1].split("\n## ", 1)[0]
         items = [line for line in section.splitlines() if line.startswith("### ")]
         queue_items.extend((section_name, line.split(" ", 2)[1]) for line in items)
@@ -389,12 +388,9 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
             assert len(items) == 1
 
     work_ids = [work_id for _, work_id in queue_items]
-    assert work_ids == ["H04L", "F", "U05", "H04R"]
+    assert work_ids == ["U05", "H04R"]
     assert len(work_ids) == len(set(work_ids))
 
-    for field in ["Interrupt reason:", "Resume target:", "Displaced-item disposition:"]:
-        assert field in status
-    assert "The active local work is H04L closeout sequencing" in status
     assert "## Completed Checkpoint" in status
     assert "### H01-H03 and recovery history" in status
     assert "`68b5971325a8371a259c63db081d209fba005b96`" in status
@@ -419,20 +415,21 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
         assert evidence in normalized_status
     assert "authorization_status=NOT_AUTHENTICATED" in status
     assert "`965fb86de1a8a307c646874d17d44c60c5dd9cf8`" in status
-    assert (
-        "`9a2ee297664e142c716654926a1cb30293c063ab.."
-        "5568442d96df40a99a22862d273dfc7b005e0a97`"
-    ) in status
+    assert "`ffc90e0f0801979bf67de4a5b32aaf8fc2745a0d`" in status
     assert "GUARDED OLD VALUE" in status
+    assert "LOCALLY ADOPTED / EXACT-SHA CORE+FULL VERIFIED" in status
     assert "not a self-updating assertion about the current ref" in normalized_status
-    assert "branch-local `STATUS.md`" in status
-    assert "tracked status intentionally omits its own final SHA" in normalized_status
-    assert "If local `main` does not contain this tracked tree" in status
-    assert "verified exact-F compare-and-swap integration decision" in normalized_next_step
-    assert "If it already contains the tree" in normalized_next_step
-    assert "U05 whole-repository audit" in normalized_next_step
-    assert "separate H04R" in normalized_next_step
-    assert "Verification UX adoption, push, and Harness or target Hosted execution" in normalized_held
+    assert "H04LW recorded `Core PASS`" in status
+    assert "Full step remained" in status
+    assert "H04LR stopped with a path-length `HOLD`" in status
+    assert "H04LR2 recovered Full at the same adopted exact SHA with `Full PASS`" in status
+    assert "`7 commits/20 paths` with `GO`" in status
+    assert "`14 worktrees clean`" in status
+    assert "no rename, delete, or mode change" in status
+    assert "cached `origin` observation is not represented as live remote state" in status
+    assert "H04R owner decision" in normalized_next_step
+    assert "additional local-main mutation" in normalized_next_step
+    assert "NOT SELECTED" in status
     for held_boundary in [
         "Remote fetch/push",
         "Hosted workflow execution",
@@ -445,10 +442,13 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
         "signing",
         "publication",
         "deployment",
-        "local-main mutation",
+        "target execution",
+        "additional local-main mutation",
     ]:
-        assert held_boundary in normalized_h04l_held
-    assert "no new capability selection" in normalized_h04l_held
+        assert held_boundary in normalized_alignment_held
+    assert "no new capability selection" in normalized_alignment_held
+    assert "exact-F" not in status
+    assert "### F —" not in status
     release_state_docs = {
         "STATUS.md": status,
         "README.md": readme,
