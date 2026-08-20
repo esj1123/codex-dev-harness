@@ -12,13 +12,15 @@ remain available in Git history and `ACCEPTANCE_TRACE.md`.
 
 The owner-approved exact local compare-and-swap completed from guarded old
 `965fb86de1a8a307c646874d17d44c60c5dd9cf8` to verified adopted basis
-`ffc90e0f0801979bf67de4a5b32aaf8fc2745a0d`. M00 authority alignment is now on
-local `main` at `845e56d81d006de07d405cbf1fe6711afd444e04`. The M01 read-only
-environment diagnostic is implemented on the integration branch at
-`2cfb40d72eafdd40ff95e99fa35ded11b57496f6`, one linear commit ahead of that
-local-main basis. This status records the observed local authority and
-sequencing without self-authorizing a corpus-digest write, local-main mutation,
-remote, release, publication, or target execution action.
+`ffc90e0f0801979bf67de4a5b32aaf8fc2745a0d`. M00 authority alignment remains on
+local `main` at `845e56d81d006de07d405cbf1fe6711afd444e04`. The M01 integration
+branch now contains the implementation at
+`2cfb40d72eafdd40ff95e99fa35ded11b57496f6`, authority closeout at
+`3f4e5c04991c169cd4aa89f1df8ee44ae9c43c7b`, and digest-only commit at
+`c573c1adfe92894750649ef0038663bd51ae1c43`. This status-only successor changes
+no approved corpus source. It records the observed local sequence without
+self-authorizing local-main mutation, remote, release, publication, or target
+execution action.
 
 ## Current Strategic Objective
 
@@ -26,10 +28,11 @@ Keep authority, capability selection, mechanization, and downstream pilots in
 one explicit order without collapsing historical proposal, partial, hold,
 implementation, and verification states into one claim. H04R is complete as a
 bounded Launchpad control-plane pilot, M00 authority alignment is complete, and
-the M01 Harness diagnostic is implemented and locally verified. The immediate
-checkpoint is the separately approved same-34-source corpus freshness repair;
-only after cumulative closeout does the dirty-worktree checkpoint receive a
-need decision. Later items remain queued and inherit no authorization.
+the M01 Harness diagnostic, authority closeout, and same-34-source corpus
+freshness repair are complete on the integration branch. The immediate
+checkpoint is the separate local-main adoption decision. Only after adoption
+does the dirty-worktree checkpoint receive a need decision. Later items remain
+queued and inherit no authorization.
 
 ## Authority Basis
 
@@ -39,6 +42,8 @@ need decision. Later items remain queued and inherit no authorization.
 | Verified adopted implementation basis | `ffc90e0f0801979bf67de4a5b32aaf8fc2745a0d` | `LOCALLY ADOPTED / EXACT-SHA CORE+FULL VERIFIED` | Owner-approved local adoption after exact-SHA cumulative evidence; later documentation commits do not rewrite that verification claim. |
 | M00 authority-alignment commit | `845e56d81d006de07d405cbf1fe6711afd444e04` | `CURRENT LOCAL MAIN / CLEAN AT M01 TASK START` | Exact local-main basis for M01. It completed the authority and priority alignment without authorizing later capability work. |
 | M01 environment-diagnostic commit | `2cfb40d72eafdd40ff95e99fa35ded11b57496f6` | `IMPLEMENTED / EXACT-SHA CORE+FULL VERIFIED / PENDING LOCAL INTEGRATION` | Read-only environment diagnostics are implemented one linear commit ahead of local main. This is not corpus freshness, local-main adoption, or remote evidence. |
+| M01 authority closeout | `3f4e5c04991c169cd4aa89f1df8ee44ae9c43c7b` | `CURRENT AUTHORITY ALIGNED / LOCAL MAIN NOT MUTATED` | Synchronizes completed M00/M01 evidence and preserves the next capability as a decision rather than inherited authorization. |
+| Same-34-source digest commit | `c573c1adfe92894750649ef0038663bd51ae1c43` | `34/34 CURRENT / V2 POSTFLIGHT PASS / PENDING LOCAL ADOPTION` | Digest-only child of the authority closeout. It changes no approved source membership, source order, schema, algorithm, normalization policy, local main, or remote. |
 
 `PASS`, `V2`, `V3`, postflight, a `plan_digest`, or a recommendation remains
 structural evidence rather than independent authorization. The completed local
@@ -116,21 +121,33 @@ permission to mutate local `main` or any remote.
   environment, Python `3.12.10`, pytest `9.0.3`, dependency lock `6/6`, and pip
   check `PASS`. It installed nothing, ran no verification suite, persisted no
   path, and reported no performed action.
-- The corpus digest was not changed by M00 or M01. Its current read-only check
-  is `32/34` valid with two stale approved sources and no missing, malformed,
-  unsafe, or invalid UTF-8 source. Freshness therefore remains pending a
-  separately approved exact-path write and commit sequence.
+- Before the approved refresh, the read-only check was `32/34` valid with two
+  stale approved sources and no missing, malformed, unsafe, or invalid UTF-8
+  source. That historical `PENDING OWNER APPROVAL / NOT AUTHORIZED` state was
+  discharged through separate write and commit approvals.
+- The approved write used `3f4e5c04991c169cd4aa89f1df8ee44ae9c43c7b`
+  as its exact source basis and preserved all 34 source paths and their order.
+  Post-write JSON validation, safety/quality `8/8`, Full `1254 passed / 10
+  skipped`, eval `15/15`, and three render dry-runs passed.
+- Digest-only commit `c573c1adfe92894750649ef0038663bd51ae1c43`
+  passed exact-commit JSON and corpus checks at `34/34`, stale `0`, and schema-v3
+  V2 postflight with one changed path, one commit, and no rename or delete.
+- The roadmap's M01 completion conditions are structurally discharged by the
+  `3f4e5c0` authority and `c573c1a` digest evidence. `STATUS.md` remains the
+  current human sequencing source; no additional capability is selected.
 
 ## NOW
 
+Current action: `LOCAL-MAIN ADOPTION DECISION / NOT AUTHORIZED`.
+
 ### Corpus freshness approval checkpoint
 
-- State: `PENDING OWNER APPROVAL / NOT AUTHORIZED`.
-- Scope: after this authority closeout has an exact clean commit, refresh only
-  `artifacts/corpus-digest.json` against the unchanged ordered 34-source set.
-- The write, post-write verification, artifact commit, and local-main
-  compare-and-swap remain distinct checkpoints. No source rebaseline, release
-  artifact, remote action, RAG action, or downstream action is implied.
+- State: `COMPLETED / 34 OF 34 CURRENT / LOCAL MAIN NOT ADOPTED`.
+- The write and commit approvals are complete, and the exact digest commit is
+  `c573c1adfe92894750649ef0038663bd51ae1c43`.
+- Local-main compare-and-swap remains a distinct owner decision. No source
+  rebaseline, release artifact, remote action, RAG action, or downstream action
+  is implied by the completed freshness checkpoint.
 
 ## NEXT
 
@@ -309,12 +326,15 @@ not authenticate approval.
 
 ## Next Recommended Step
 
-The next executable action after this authority closeout is a separately
-approved exact same-34-source corpus digest freshness commit. Validate the
-write before commit, obtain the required commit approval, then run cumulative
-exact-SHA integration verification before any approved local-main
-compare-and-swap. After real use, evaluate the dirty-worktree checkpoint; then
-keep Launchpad adapter work, stock, and RSID in separate repo-specific packages.
-No item in that queue authorizes fetch, push, Hosted execution, export, release,
-publication, target mutation, runtime repair, or target execution. Structural
-PASS and a plan digest remain distinct from future approvals.
+The exact same-34-source corpus digest freshness commit is complete at
+`c573c1adfe92894750649ef0038663bd51ae1c43`, and cumulative exact-SHA integration
+verification is `PASS` through the recorded Full, corpus, and V2 postflight
+evidence. The next executable action is the owner decision whether to advance
+local `main` from guarded exact value
+`845e56d81d006de07d405cbf1fe6711afd444e04` to the final clean status-only
+successor by non-force compare-and-swap. After adoption and real use, evaluate
+the dirty-worktree checkpoint; then keep Launchpad adapter work, stock, and RSID
+in separate repo-specific packages. No item in that queue authorizes fetch,
+push, Hosted execution, export, release, publication, target mutation, runtime
+repair, or target execution. Structural PASS and a plan digest remain distinct
+from future approvals.
