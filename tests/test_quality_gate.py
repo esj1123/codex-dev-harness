@@ -388,7 +388,7 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
             assert len(items) == 1
 
     work_ids = [work_id for _, work_id in queue_items]
-    assert work_ids == ["U05", "H04R"]
+    assert work_ids == ["M00", "M01"]
     assert len(work_ids) == len(set(work_ids))
 
     assert "## Completed Checkpoint" in status
@@ -416,6 +416,7 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     assert "authorization_status=NOT_AUTHENTICATED" in status
     assert "`965fb86de1a8a307c646874d17d44c60c5dd9cf8`" in status
     assert "`ffc90e0f0801979bf67de4a5b32aaf8fc2745a0d`" in status
+    assert "`db748759ed1c4f1b7c5cbce84180c598eaa6cdb4`" in status
     assert "GUARDED OLD VALUE" in status
     assert "LOCALLY ADOPTED / EXACT-SHA CORE+FULL VERIFIED" in status
     assert "not a self-updating assertion about the current ref" in normalized_status
@@ -427,9 +428,15 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     assert "`14 worktrees clean`" in status
     assert "no rename, delete, or mode change" in status
     assert "cached `origin` observation is not represented as live remote state" in status
-    assert "H04R owner decision" in normalized_next_step
-    assert "additional local-main mutation" in normalized_next_step
-    assert "NOT SELECTED" in status
+    assert "H04R Launchpad downstream pilot" in status
+    assert "`be49a668b09a85c9316da17bd6c3c40192ee68ed`" in status
+    assert "Focused verification passed `11/11`" in status
+    assert "local Full passed `130`" in status
+    assert "Hosted verification was `NOT RUN`" in status
+    assert "`DEPENDENCY_HOLD`" in status
+    assert "M01 alone" in normalized_next_step
+    assert "stock, and RSID in separate repo-specific packages" in normalized_next_step
+    assert "SELECTED / IMPLEMENTATION NOT STARTED" in status
     for held_boundary in [
         "Remote fetch/push",
         "Hosted workflow execution",
@@ -446,7 +453,12 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
         "additional local-main mutation",
     ]:
         assert held_boundary in normalized_alignment_held
-    assert "no new capability selection" in normalized_alignment_held
+    assert "Only the Harness read-only environment diagnostic is selected" in normalized_alignment_held
+    assert "generic command runner" in normalized_alignment_held
+    assert "Durable audit automation | Held" in roadmap
+    assert "The authoritative order is:" in roadmap
+    assert "stock first" in roadmap
+    assert "RSID second" in roadmap
     assert "exact-F" not in status
     assert "### F —" not in status
     release_state_docs = {
@@ -610,7 +622,7 @@ def test_top_level_architecture_and_capability_docs_are_current_and_compact() ->
     assert len(roadmap.splitlines()) <= 200
     assert "## Capability Registry" in roadmap
     assert "### Phase " not in roadmap
-    assert "No new capability implementation is currently selected" in roadmap
+    assert "The selected capability is the Harness read-only verification environment" in roadmap
     assert "serial work-package schema v3" in roadmap
     assert "## Read-Only Validation" in readme
     assert "## Artifact-Writing Release Verification" in readme

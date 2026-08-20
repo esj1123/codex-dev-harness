@@ -11,26 +11,30 @@ defined by `docs/AUTHORITY_MANIFEST.json`; historical phase and run details
 remain available in Git history and `ACCEPTANCE_TRACE.md`.
 
 The owner-approved exact local compare-and-swap completed from guarded old
-`965fb86de1a8a307c646874d17d44c60c5dd9cf8` to adopted basis
-`ffc90e0f0801979bf67de4a5b32aaf8fc2745a0d`. That exact basis is locally
-adopted and exact-SHA Core plus Full verified. This status records the current
-local authority without authorizing a remote, release, publication, or target
-execution action.
+`965fb86de1a8a307c646874d17d44c60c5dd9cf8` to verified adopted basis
+`ffc90e0f0801979bf67de4a5b32aaf8fc2745a0d`. The current alignment contract
+starts from local `main` at
+`db748759ed1c4f1b7c5cbce84180c598eaa6cdb4`, a documentation-only linear
+successor. This status records the observed local authority and sequencing
+without self-authorizing its closeout commit, a remote, release, publication,
+or target execution action.
 
 ## Current Strategic Objective
 
-Maintain the adopted local verification basis without collapsing historical
-proposal, partial, hold, implementation, and verification states into one
-claim. U05 current-authority alignment corrects the resulting P1 documentation
-mismatch only. No new capability is selected; comparable multi-repository
-Harness evidence remains subject to a separate H04R owner decision.
+Keep authority, capability selection, mechanization, and downstream pilots in
+one explicit order without collapsing historical proposal, partial, hold,
+implementation, and verification states into one claim. H04R is complete as a
+bounded Launchpad control-plane pilot. The selected next capability is the
+Harness read-only verification environment diagnostic; later items remain
+queued and do not inherit its authorization.
 
 ## Authority Basis
 
 | Basis class | Exact ref or range | Authority state | Meaning |
 |---|---|---|---|
 | Historical pre-local-adoption guard | `965fb86de1a8a307c646874d17d44c60c5dd9cf8` | `GUARDED OLD VALUE` | The historical observed local `main` value used by the completed owner-approved local compare-and-swap. It is not a self-updating assertion about the current ref. |
-| Current adopted local authority | `ffc90e0f0801979bf67de4a5b32aaf8fc2745a0d` | `LOCALLY ADOPTED / EXACT-SHA CORE+FULL VERIFIED` | Owner-approved local adoption after exact-SHA cumulative evidence; this status does not authorize any further local-main mutation or remote action. |
+| Verified adopted implementation basis | `ffc90e0f0801979bf67de4a5b32aaf8fc2745a0d` | `LOCALLY ADOPTED / EXACT-SHA CORE+FULL VERIFIED` | Owner-approved local adoption after exact-SHA cumulative evidence; later documentation commits do not rewrite that verification claim. |
+| Current authority-alignment contract base | `db748759ed1c4f1b7c5cbce84180c598eaa6cdb4` | `CURRENT LOCAL MAIN AT TASK START / CLEAN` | Exact local `main` and HEAD basis observed before this bounded alignment. Its successor requires its own verification and explicit local integration closeout. |
 
 `PASS`, `V2`, `V3`, postflight, a `plan_digest`, or a recommendation remains
 structural evidence rather than independent authorization. The completed local
@@ -82,22 +86,39 @@ permission to mutate local `main` or any remote.
 - Its only current-authority finding was this P1 documentation mismatch. A
   cached `origin` observation is not represented as live remote state.
 
+### H04R Launchpad downstream pilot
+
+- H04R completed the external control-plane alignment against Harness
+  `db748759ed1c4f1b7c5cbce84180c598eaa6cdb4` and Launchpad
+  `be49a668b09a85c9316da17bd6c3c40192ee68ed`.
+- Focused verification passed `11/11`; local Full passed `130` with one
+  reviewed dependency skip. Preflight and postflight preserved one exact
+  `plan_digest`, and both repositories ended clean at their recorded local
+  refs.
+- This is reusable local control-plane evidence only. Launchpad has no remote,
+  Hosted verification was `NOT RUN`, and artifact-tool runtime remains
+  `DEPENDENCY_HOLD` because `node_modules` is not the required Junction.
+
 ## NOW
 
-### U05 — Current-authority alignment
+### M00 - Authority and priority alignment
 
-- State: `CURRENT-AUTHORITY ALIGNMENT / P1 REWORK`.
-- Scope: align the two authoritative tracked files to the already adopted
-  exact SHA and preserve the historical HOLD/PASS boundaries.
-- New capability: `NOT SELECTED`.
+- State: `IN PROGRESS / SERIAL INTEGRATION`.
+- Scope: align current authority, completed H04R evidence, the selected
+  read-only capability, and the ordered downstream pilot queue.
+- No implementation code, target-repository change, runtime repair, remote
+  action, or durable evidence automation is included.
 
 ## NEXT
 
-### H04R — Separate owner decision
+### M01 - Harness environment diagnostic
 
-Consider multi-repository Harness evidence only after a separate H04R owner
-decision. It does not authorize target-repository access, target execution,
-push, fetch, Hosted execution, export, release, or publication.
+Implement the bounded read-only `EnvironmentOnly / Json` diagnostic for the
+existing Local Verify wrapper in its own schema-v3 package and commit. It may
+report safe interpreter identity, lock, pip, and basetemp readiness, but it
+must not install, create, repair, execute a verification suite, or persist
+absolute paths. The dirty-worktree checkpoint, Launchpad adapters, and repo
+pilots remain subsequent separate decisions.
 
 ## HELD
 
@@ -107,8 +128,13 @@ push, fetch, Hosted execution, export, release, or publication.
   approval.
 - Agent Quality/provider, Hermes, MCP, Local RAG, and target mutation remain
   held or separately approval-gated.
-- Multi-repository evidence remains held pending the separate H04R owner
-  decision; no new capability selection is made by this alignment.
+- A generic command runner, inferred package fields, durable audit writer,
+  automatic worktree prune, local-ref update, Junction repair, manifest
+  rewrite, dependency installation, and EOL normalization remain `NO-GO`.
+- Only the Harness read-only environment diagnostic is selected. The
+  dirty-worktree checkpoint, Launchpad transfer/Junction checks, stock pilot,
+  RSID static pilot, and P1 automation are queued without implementation or
+  inherited approval.
 
 ## Operational Capability Status
 
@@ -120,6 +146,8 @@ push, fetch, Hosted execution, export, release, or publication.
 | Tracked release bundle | `CURRENT / LOCAL RELEASE / GITHUB-VERIFIED / TRANSIENT CI EXPORT / NOT PUBLISHED` | The tracked six-file bundle was generated from the exact source basis by the approval-gated GitHub manual export, independently validated after download, and committed for local Git use. No remote release or publication is claimed. |
 | Manual GitHub release-evidence export | `IMPLEMENTED / APPROVAL-GATED / COMPLETED` | The bounded one-day transport completed for the current source basis. Workflow run IDs remain task closeout evidence rather than tracked authority. |
 | External control-plane packages | `HARDENED / EXTERNAL CONTROL-PLANE ROOT VALIDATED` | Optional local `--package-root` support passed same-root compatibility, physical-safety, identity-drift, and real downstream read-only acceptance. It adds no capability, approval, downstream remote action, or schema migration. |
+| Read-only environment diagnostic | `SELECTED / IMPLEMENTATION NOT STARTED` | First bounded mechanization item; safe JSON diagnostics only, with no installation, persistence, verification execution, or target-repository behavior. |
+| Downstream mechanization queue | `ORDERED / NOT AUTHORIZED FOR IMPLEMENTATION` | Dirty-worktree checkpoint, Launchpad read-only adapters, stock pilot, RSID Git-object static pilot, then only usage-justified P1 work. |
 | Agent Quality/provider | `FROZEN / NOT_ADOPTED` | Optional controls remain available for review, but provider execution and role adoption are held. |
 | Role calibration v7 | `NOT RUN` | No calibration trial or review batch is authorized by core readiness. |
 | Hermes/MCP | `HELD` | Runtime activation requires a selected repository use case and separate approval. |
@@ -258,7 +286,10 @@ not authenticate approval.
 
 ## Next Recommended Step
 
-The next step is a separate H04R owner decision. The adopted local basis does
-not authorize additional local-main mutation, fetch, push, Hosted execution,
-export, release, publication, target-repository action, or target execution.
-Structural PASS and a plan digest remain distinct from future approvals.
+Complete and verify M00, then integrate its exact commit to local `main` only
+through the approved compare-and-swap closeout. Next, implement M01 alone.
+After real use, evaluate the dirty-worktree checkpoint; then keep Launchpad
+adapter work, stock, and RSID in separate repo-specific packages. No item in
+that queue authorizes fetch, push, Hosted execution, export, release,
+publication, target mutation, runtime repair, or target execution. Structural
+PASS and a plan digest remain distinct from future approvals.
