@@ -382,10 +382,10 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     now_section = status.split("\n## NOW\n", 1)[1].split("\n## ", 1)[0]
     next_section = status.split("\n## NEXT\n", 1)[1].split("\n## ", 1)[0]
     assert [line for line in now_section.splitlines() if line.startswith("### ")] == [
-        "### Corpus freshness approval checkpoint"
+        "### Hosted exact-SHA baseline decision"
     ]
     assert [line for line in next_section.splitlines() if line.startswith("### ")] == [
-        "### Dirty-worktree package checkpoint decision"
+        "### Read-only worktree ownership audit"
     ]
 
     assert "## Completed Checkpoint" in status
@@ -417,6 +417,9 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     assert "GUARDED OLD VALUE" in status
     assert "LOCALLY ADOPTED / EXACT-SHA CORE+FULL VERIFIED" in status
     assert "not a self-updating assertion about the current ref" in normalized_status
+    assert "CURRENT LOCAL MAIN /" not in status
+    assert "PENDING LOCAL INTEGRATION" not in status
+    assert "`05027f899bb726e8a1717c35b1f10a712f1825e9`" in status
     assert "H04LW recorded `Core PASS`" in status
     assert "Full step remained" in status
     assert "H04LR stopped with a path-length `HOLD`" in status
@@ -431,10 +434,10 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     assert "local Full passed `130`" in status
     assert "Hosted verification was `NOT RUN`" in status
     assert "`DEPENDENCY_HOLD`" in status
-    assert "exact same-34-source corpus digest freshness commit" in normalized_next_step
-    assert "cumulative exact-SHA integration verification" in normalized_next_step
-    assert "stock, and RSID in separate repo-specific packages" in normalized_next_step
-    assert "IMPLEMENTED / EXACT-SHA LOCALLY VERIFIED / PENDING INTEGRATION" in status
+    assert "M01 local adoption completed" in normalized_next_step
+    assert "Hosted Integration Verify for the same final SHA" in normalized_next_step
+    assert "Launchpad/loxfs classification, stock, and RSID" in normalized_next_step
+    assert "IMPLEMENTED / EXACT-SHA LOCALLY VERIFIED / LOCALLY ADOPTED" in status
     assert "`2cfb40d72eafdd40ff95e99fa35ded11b57496f6`" in status
     assert "Focused environment tests passed `32`" in normalized_status
     assert "Core passed `840`" in normalized_status
@@ -461,6 +464,13 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     assert "generic command runner" in normalized_alignment_held
     assert "Durable audit automation | Held" in roadmap
     assert "The authoritative order is:" in roadmap
+    authoritative_order = roadmap.split("The authoritative order is:", 1)[1].split(
+        "\n## Dependency Rules", 1
+    )[0]
+    assert authoritative_order.index("Hosted exact-SHA") < authoritative_order.index(
+        "dirty-worktree checkpoint"
+    )
+    assert "completed local evidence only / not an active capability" in roadmap
     assert "stock first" in roadmap
     assert "RSID second" in roadmap
     assert "exact-F" not in status

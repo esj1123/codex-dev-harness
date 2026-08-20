@@ -10,16 +10,19 @@ the default quality gate is limited to core verification. Current authority is
 defined by `docs/AUTHORITY_MANIFEST.json`; historical phase and run details
 remain available in Git history and `ACCEPTANCE_TRACE.md`.
 
-The owner-approved exact local compare-and-swap completed from guarded old
-`965fb86de1a8a307c646874d17d44c60c5dd9cf8` to verified adopted basis
-`ffc90e0f0801979bf67de4a5b32aaf8fc2745a0d`. M00 authority alignment remains on
-local `main` at `845e56d81d006de07d405cbf1fe6711afd444e04`. The M01 integration
-branch now contains the implementation at
+The earlier owner-approved exact local compare-and-swap completed from guarded
+old `965fb86de1a8a307c646874d17d44c60c5dd9cf8` to verified adopted basis
+`ffc90e0f0801979bf67de4a5b32aaf8fc2745a0d`. M00 authority alignment then
+established the M01 task-start basis at
+`845e56d81d006de07d405cbf1fe6711afd444e04`. The completed M01 sequence contains
+the implementation at
 `2cfb40d72eafdd40ff95e99fa35ded11b57496f6`, authority closeout at
 `3f4e5c04991c169cd4aa89f1df8ee44ae9c43c7b`, and digest-only commit at
-`c573c1adfe92894750649ef0038663bd51ae1c43`. This status-only successor changes
-no approved corpus source. It records the observed local sequence without
-self-authorizing local-main mutation, remote, release, publication, or target
+`c573c1adfe92894750649ef0038663bd51ae1c43`. The owner-approved atomic
+compare-and-swap from the M00 basis to the status-only successor
+`05027f899bb726e8a1717c35b1f10a712f1825e9` completed local M01 adoption. These
+exact values record completed observations; they are not self-updating claims
+about a future ref and do not authorize remote, release, publication, or target
 execution action.
 
 ## Current Strategic Objective
@@ -28,11 +31,11 @@ Keep authority, capability selection, mechanization, and downstream pilots in
 one explicit order without collapsing historical proposal, partial, hold,
 implementation, and verification states into one claim. H04R is complete as a
 bounded Launchpad control-plane pilot, M00 authority alignment is complete, and
-the M01 Harness diagnostic, authority closeout, and same-34-source corpus
-freshness repair are complete on the integration branch. The immediate
-checkpoint is the separate local-main adoption decision. Only after adoption
-does the dirty-worktree checkpoint receive a need decision. Later items remain
-queued and inherit no authorization.
+the M01 Harness diagnostic, authority closeout, same-34-source corpus freshness
+repair, and local adoption are complete. The immediate checkpoint is the
+separate Hosted exact-SHA baseline decision. After that closeout, audit
+worktree ownership before deciding whether the dirty-worktree checkpoint has a
+demonstrated need. Later items remain queued and inherit no authorization.
 
 ## Authority Basis
 
@@ -40,10 +43,11 @@ queued and inherit no authorization.
 |---|---|---|---|
 | Historical pre-local-adoption guard | `965fb86de1a8a307c646874d17d44c60c5dd9cf8` | `GUARDED OLD VALUE` | The historical observed local `main` value used by the completed owner-approved local compare-and-swap. It is not a self-updating assertion about the current ref. |
 | Verified adopted implementation basis | `ffc90e0f0801979bf67de4a5b32aaf8fc2745a0d` | `LOCALLY ADOPTED / EXACT-SHA CORE+FULL VERIFIED` | Owner-approved local adoption after exact-SHA cumulative evidence; later documentation commits do not rewrite that verification claim. |
-| M00 authority-alignment commit | `845e56d81d006de07d405cbf1fe6711afd444e04` | `CURRENT LOCAL MAIN / CLEAN AT M01 TASK START` | Exact local-main basis for M01. It completed the authority and priority alignment without authorizing later capability work. |
-| M01 environment-diagnostic commit | `2cfb40d72eafdd40ff95e99fa35ded11b57496f6` | `IMPLEMENTED / EXACT-SHA CORE+FULL VERIFIED / PENDING LOCAL INTEGRATION` | Read-only environment diagnostics are implemented one linear commit ahead of local main. This is not corpus freshness, local-main adoption, or remote evidence. |
-| M01 authority closeout | `3f4e5c04991c169cd4aa89f1df8ee44ae9c43c7b` | `CURRENT AUTHORITY ALIGNED / LOCAL MAIN NOT MUTATED` | Synchronizes completed M00/M01 evidence and preserves the next capability as a decision rather than inherited authorization. |
-| Same-34-source digest commit | `c573c1adfe92894750649ef0038663bd51ae1c43` | `34/34 CURRENT / V2 POSTFLIGHT PASS / PENDING LOCAL ADOPTION` | Digest-only child of the authority closeout. It changes no approved source membership, source order, schema, algorithm, normalization policy, local main, or remote. |
+| M00 authority-alignment commit | `845e56d81d006de07d405cbf1fe6711afd444e04` | `M01 TASK-START BASIS / LOCALLY SUPERSEDED BY APPROVED CAS` | Exact observed local-main basis at M01 start. It completed authority and priority alignment without authorizing later capability work. |
+| M01 environment-diagnostic commit | `2cfb40d72eafdd40ff95e99fa35ded11b57496f6` | `IMPLEMENTED / EXACT-SHA CORE+FULL VERIFIED / INCLUDED IN ADOPTED M01 BASIS` | Read-only environment diagnostics are implemented without installation, persistence, suite execution, or target behavior. |
+| M01 authority closeout | `3f4e5c04991c169cd4aa89f1df8ee44ae9c43c7b` | `AUTHORITY ALIGNED / INCLUDED IN ADOPTED M01 BASIS` | Synchronizes completed M00/M01 evidence and preserves later work as separate decisions. |
+| Same-34-source digest commit | `c573c1adfe92894750649ef0038663bd51ae1c43` | `34/34 CURRENT / V2 POSTFLIGHT PASS / INCLUDED IN ADOPTED M01 BASIS` | Digest-only child of the authority closeout. It changes no approved source membership, source order, schema, algorithm, or normalization policy. |
+| Owner-adopted M01 basis | `05027f899bb726e8a1717c35b1f10a712f1825e9` | `LOCAL ADOPTION COMPLETED / STATUS-ONLY SUCCESSOR` | Exact target of the completed owner-approved compare-and-swap from the M00 task-start basis. This is a completed observation, not a self-updating current-ref assertion or remote evidence. |
 
 `PASS`, `V2`, `V3`, postflight, a `plan_digest`, or a recommendation remains
 structural evidence rather than independent authorization. The completed local
@@ -138,26 +142,28 @@ permission to mutate local `main` or any remote.
 
 ## NOW
 
-Current action: `LOCAL-MAIN ADOPTION DECISION / NOT AUTHORIZED`.
+Current action: `HOSTED EXACT-SHA BASELINE DECISION / NOT AUTHORIZED`.
 
-### Corpus freshness approval checkpoint
+### Hosted exact-SHA baseline decision
 
-- State: `COMPLETED / 34 OF 34 CURRENT / LOCAL MAIN NOT ADOPTED`.
-- The write and commit approvals are complete, and the exact digest commit is
-  `c573c1adfe92894750649ef0038663bd51ae1c43`.
-- Local-main compare-and-swap remains a distinct owner decision. No source
-  rebaseline, release artifact, remote action, RAG action, or downstream action
-  is implied by the completed freshness checkpoint.
+- State: `LOCAL M01 ADOPTION COMPLETED / REMOTE AND HOSTED NOT AUTHORIZED`.
+- The completed local adoption basis is
+  `05027f899bb726e8a1717c35b1f10a712f1825e9`. M02 authority alignment and any
+  resulting same-34-source digest repair remain local integration work.
+- Fetch, push, and workflow dispatch remain three separate owner checkpoints.
+  No local PASS or tracked recommendation grants those permissions.
 
 ## NEXT
 
-### Dirty-worktree package checkpoint decision
+### Read-only worktree ownership audit
 
-After exact corpus freshness and cumulative integration closeout, review the
-observed package workflow and decide whether a read-only `NOT_FINAL`
-dirty-worktree checkpoint prevents a demonstrated error. This is a decision
-checkpoint, not implementation approval. Launchpad adapters, stock, RSID, and
-other P1 work remain later repo-specific decisions.
+After the Hosted baseline closes or is explicitly retained as `NOT RUN`,
+classify each observed worktree as active, retained evidence, a superseded
+removal candidate, or owner-decision-required. The audit does not prune a
+worktree or delete a branch. Only after that audit should the dirty-worktree
+checkpoint receive a need decision; current pilot evidence demonstrates no
+prevented error, so implementation remains deferred. Launchpad, loxfs, stock,
+RSID, and other P1 work remain separate repo-specific decisions.
 
 ## HELD
 
@@ -170,10 +176,10 @@ other P1 work remain later repo-specific decisions.
 - A generic command runner, inferred package fields, durable audit writer,
   automatic worktree prune, local-ref update, Junction repair, manifest
   rewrite, dependency installation, and EOL normalization remain `NO-GO`.
-- No additional implementation capability is selected. Corpus freshness is an
-  approval-gated integration repair, not a new capability. The dirty-worktree
-  checkpoint, Launchpad transfer/Junction checks, stock pilot, RSID static
-  pilot, and P1 automation are queued without implementation or inherited
+- No additional implementation capability is selected. Hosted verification is
+  an operational evidence checkpoint, not a new capability. Worktree cleanup,
+  the dirty-worktree checkpoint, Launchpad transfer/Junction checks, stock,
+  RSID, and P1 automation are queued without implementation or inherited
   approval.
 
 ## Operational Capability Status
@@ -186,8 +192,8 @@ other P1 work remain later repo-specific decisions.
 | Tracked release bundle | `CURRENT / LOCAL RELEASE / GITHUB-VERIFIED / TRANSIENT CI EXPORT / NOT PUBLISHED` | The tracked six-file bundle was generated from the exact source basis by the approval-gated GitHub manual export, independently validated after download, and committed for local Git use. No remote release or publication is claimed. |
 | Manual GitHub release-evidence export | `IMPLEMENTED / APPROVAL-GATED / COMPLETED` | The bounded one-day transport completed for the current source basis. Workflow run IDs remain task closeout evidence rather than tracked authority. |
 | External control-plane packages | `HARDENED / EXTERNAL CONTROL-PLANE ROOT VALIDATED` | Optional local `--package-root` support passed same-root compatibility, physical-safety, identity-drift, and real downstream read-only acceptance. It adds no capability, approval, downstream remote action, or schema migration. |
-| Read-only environment diagnostic | `IMPLEMENTED / EXACT-SHA LOCALLY VERIFIED / PENDING INTEGRATION` | Safe JSON diagnostics are implemented without installation, persistence, verification execution, or target-repository behavior; corpus freshness and local-main adoption remain separate. |
-| Downstream mechanization queue | `ORDERED / NOT AUTHORIZED FOR IMPLEMENTATION` | Decide the dirty-worktree checkpoint from observed use, then keep Launchpad read-only adapters, stock, RSID Git-object static work, and any P1 work in separate packages. |
+| Read-only environment diagnostic | `IMPLEMENTED / EXACT-SHA LOCALLY VERIFIED / LOCALLY ADOPTED` | Safe JSON diagnostics are implemented without installation, persistence, verification execution, or target-repository behavior. Hosted evidence remains a separate decision. |
+| Downstream mechanization queue | `ORDERED / NOT AUTHORIZED FOR IMPLEMENTATION` | Establish the Hosted evidence disposition, audit worktree ownership, then keep dirty-worktree, Launchpad/loxfs, stock, RSID, and any P1 work in separate packages. |
 | Agent Quality/provider | `FROZEN / NOT_ADOPTED` | Optional controls remain available for review, but provider execution and role adoption are held. |
 | Role calibration v7 | `NOT RUN` | No calibration trial or review batch is authorized by core readiness. |
 | Hermes/MCP | `HELD` | Runtime activation requires a selected repository use case and separate approval. |
@@ -326,15 +332,15 @@ not authenticate approval.
 
 ## Next Recommended Step
 
-The exact same-34-source corpus digest freshness commit is complete at
-`c573c1adfe92894750649ef0038663bd51ae1c43`, and cumulative exact-SHA integration
-verification is `PASS` through the recorded Full, corpus, and V2 postflight
-evidence. The next executable action is the owner decision whether to advance
-local `main` from guarded exact value
-`845e56d81d006de07d405cbf1fe6711afd444e04` to the final clean status-only
-successor by non-force compare-and-swap. After adoption and real use, evaluate
-the dirty-worktree checkpoint; then keep Launchpad adapter work, stock, and RSID
-in separate repo-specific packages. No item in that queue authorizes fetch,
-push, Hosted execution, export, release, publication, target mutation, runtime
-repair, or target execution. Structural PASS and a plan digest remain distinct
-from future approvals.
+M01 local adoption completed through the exact status-only successor
+`05027f899bb726e8a1717c35b1f10a712f1825e9`. After M02 authority alignment,
+same-34-source freshness, verification, and a separately approved local CAS,
+the next external action is the owner decision whether to fetch and reconcile
+the live remote, perform one non-force push, and dispatch Hosted Integration
+Verify for the same final SHA. After that disposition, audit worktree ownership
+before deciding whether dirty-worktree behavior needs implementation. Keep
+Launchpad/loxfs classification, stock, and RSID in separate repo-specific
+packages. No tracked recommendation authorizes fetch, push, Hosted execution,
+export, release, publication, target mutation, runtime repair, branch deletion,
+or worktree removal. Structural PASS and a plan digest remain distinct from
+future approvals.

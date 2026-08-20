@@ -37,10 +37,10 @@ This roadmap does not authorize implementation or side effects.
 | Release evidence generators | Hardened | Re-run only after a new source basis and exact artifact-write approval are established. |
 | Tracked release bundle | See `STATUS.md` | Keep source basis, artifact commit, local Git availability, transient transport, and publication state distinct. |
 | Manual GitHub release-evidence export | Implemented; approval-gated | Preserve default `HOSTED_EXACT_SHA (V3)` verification, use one explicit exact-SHA export mode, one-day transient transport, and local evidence integration only. Read `STATUS.md` for the current run state. |
-| Read-only verification environment diagnostic | Implemented; exact-SHA locally verified; integration pending | Preserve safe `EnvironmentOnly / Json` observations without installation, persistence, suite execution, or target behavior. |
-| Dirty-worktree package checkpoint | Next decision after integration closeout; implementation not selected | Decide from observed package use whether a read-only `NOT_FINAL` readiness result prevents a demonstrated error; never substitute for postflight. |
+| Read-only verification environment diagnostic | Implemented; exact-SHA locally verified; locally adopted | Preserve safe `EnvironmentOnly / Json` observations without installation, persistence, suite execution, or target behavior. Hosted evidence remains separate. |
+| Dirty-worktree package checkpoint | Decision after Hosted disposition and worktree audit; implementation not selected | Require at least one demonstrated prevented error before implementing a read-only `NOT_FINAL` readiness result; never substitute for postflight. |
 | Launchpad transfer and Junction attestation | Queued; target-owned | Add separate read-only target adapters only after the Harness core items are exercised; never create, repair, retarget, or remove a Junction or rewrite a manifest. |
-| Downstream mechanization pilots | Ordered evidence collection | Use Launchpad as the reference, stock first, and RSID second; preserve repo-specific adapters and static-only evidence boundaries. |
+| Downstream mechanization pilots | Ordered evidence collection | Keep Launchpad as the reference and loxfs as completed local evidence only / not an active capability; then evaluate stock first and RSID second with repo-specific adapters. |
 | Approved corpus and local retrieval | Advisory, frozen | Change source membership or retrieval behavior only through separate review. |
 | Downstream contract validator | Implemented | Use only with target-specific authority and side-effect declarations. |
 | Agent Quality/provider | Frozen, not adopted | Reopen only after a separate value decision; role calibration v7 is not run. |
@@ -52,37 +52,43 @@ This roadmap does not authorize implementation or side effects.
 ## Current Selection
 
 No additional implementation capability is selected. The Harness read-only
-verification environment diagnostic was implemented alone under the serial
+verification environment diagnostic was implemented under the serial
 work-package schema v3 contract at
-`2cfb40d72eafdd40ff95e99fa35ded11b57496f6` and passed focused, Core, and Full
-local verification. Its integration still requires current-authority closeout,
-an exact same-34-source digest freshness repair under separate write and commit
-approvals, and cumulative exact-SHA verification. None of those steps
-authorizes the dirty-worktree checkpoint, Launchpad adapter changes,
-downstream execution, durable evidence persistence, runtime repair, or remote
-actions.
+`2cfb40d72eafdd40ff95e99fa35ded11b57496f6`, passed focused, Core, and Full
+local verification, and was included in the owner-adopted M01 basis
+`05027f899bb726e8a1717c35b1f10a712f1825e9`. M02 corrects tracked sequencing
+after that completed compare-and-swap. It does not authorize remote access,
+Hosted execution, worktree cleanup, the dirty-worktree checkpoint, downstream
+execution, durable evidence persistence, or runtime repair.
 
 The authoritative order is:
 
-1. preserve completed M00 authority alignment at
-   `845e56d81d006de07d405cbf1fe6711afd444e04`;
-2. preserve the implemented and exercised M01 Harness environment diagnostic at
-   `2cfb40d72eafdd40ff95e99fa35ded11b57496f6`;
-3. close current authority and, only after separate approvals, restore exact
-   same-34-source corpus freshness and cumulative integration evidence;
-4. decide the Harness dirty-worktree checkpoint from observed use;
-5. implement Launchpad transfer verification and Junction attestation as
-   separate target-owned read-only packages;
-6. apply the established intake and evidence boundary to stock;
-7. apply the Git-object static-only adapter to RSID Inspection; and
-8. select evidence lint, stale-worktree audit, or local-ref planning only when
-   the pilots demonstrate repeatable benefit.
+1. preserve M00 at `845e56d81d006de07d405cbf1fe6711afd444e04` as
+   the historical M01 task-start basis;
+2. record the completed owner adoption of the M01 sequence at
+   `05027f899bb726e8a1717c35b1f10a712f1825e9` without making a self-updating
+   assertion about a future local ref;
+3. close M02 authority, restore exact same-34-source corpus freshness under
+   separate approval, and obtain a separate local-main CAS decision;
+4. decide live-remote reconciliation, one non-force push, and Hosted exact-SHA
+   verification as three separately approval-gated actions;
+5. audit worktree and branch ownership without pruning, removing, or deleting;
+6. keep the dirty-worktree checkpoint deferred unless a real pilot demonstrates
+   at least one prevented error;
+7. retain Launchpad as the reference and classify `loxfs-cmd-sig-harness` as
+   completed local evidence only / not an active capability unless selected;
+8. apply the established intake and evidence boundary to stock;
+9. apply the Git-object static-only adapter to RSID Inspection; and
+10. select additional evidence lint, worktree automation, or local-ref planning
+    only when repeated outcomes demonstrate benefit.
 
 Each item has its own work package, commit, verification, and approval boundary.
-Later items are queued, not pre-authorized. Launchpad remains the reference
-pilot; its artifact runtime is still dependency-held. Stock is a local/read-only
-pilot until dependency and Hosted contracts are pinned. RSID remains static
-Git-object evidence only and must not execute tracked binaries.
+Later items are queued, not pre-authorized. Hosted disposition precedes the
+dirty-worktree decision. Launchpad remains the reference pilot; its artifact
+runtime is still dependency-held. Loxfs remains evidence-only by default.
+Stock is a local/read-only pilot until dependency and Hosted contracts are
+pinned. RSID remains static Git-object evidence only and must not execute
+tracked binaries.
 
 For Agent Quality work:
 
