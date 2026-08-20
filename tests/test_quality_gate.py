@@ -379,17 +379,14 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     for section_name in required_status_sections:
         assert status.count(f"\n## {section_name}\n") == 1
 
-    queue_items: list[tuple[str, str]] = []
-    for section_name in ["NOW", "NEXT"]:
-        section = status.split(f"\n## {section_name}\n", 1)[1].split("\n## ", 1)[0]
-        items = [line for line in section.splitlines() if line.startswith("### ")]
-        queue_items.extend((section_name, line.split(" ", 2)[1]) for line in items)
-        if section_name == "NOW":
-            assert len(items) == 1
-
-    work_ids = [work_id for _, work_id in queue_items]
-    assert work_ids == ["M00", "M01"]
-    assert len(work_ids) == len(set(work_ids))
+    now_section = status.split("\n## NOW\n", 1)[1].split("\n## ", 1)[0]
+    next_section = status.split("\n## NEXT\n", 1)[1].split("\n## ", 1)[0]
+    assert [line for line in now_section.splitlines() if line.startswith("### ")] == [
+        "### Corpus freshness approval checkpoint"
+    ]
+    assert [line for line in next_section.splitlines() if line.startswith("### ")] == [
+        "### Dirty-worktree package checkpoint decision"
+    ]
 
     assert "## Completed Checkpoint" in status
     assert "### H01-H03 and recovery history" in status
@@ -434,9 +431,16 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     assert "local Full passed `130`" in status
     assert "Hosted verification was `NOT RUN`" in status
     assert "`DEPENDENCY_HOLD`" in status
-    assert "M01 alone" in normalized_next_step
+    assert "exact same-34-source corpus digest freshness commit" in normalized_next_step
+    assert "cumulative exact-SHA integration verification" in normalized_next_step
     assert "stock, and RSID in separate repo-specific packages" in normalized_next_step
-    assert "SELECTED / IMPLEMENTATION NOT STARTED" in status
+    assert "IMPLEMENTED / EXACT-SHA LOCALLY VERIFIED / PENDING INTEGRATION" in status
+    assert "`2cfb40d72eafdd40ff95e99fa35ded11b57496f6`" in status
+    assert "Focused environment tests passed `32`" in normalized_status
+    assert "Core passed `840`" in normalized_status
+    assert "Full passed `1254`" in normalized_status
+    assert "`32/34` valid with two stale approved sources" in normalized_status
+    assert "PENDING OWNER APPROVAL / NOT AUTHORIZED" in status
     for held_boundary in [
         "Remote fetch/push",
         "Hosted workflow execution",
@@ -453,7 +457,7 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
         "additional local-main mutation",
     ]:
         assert held_boundary in normalized_alignment_held
-    assert "Only the Harness read-only environment diagnostic is selected" in normalized_alignment_held
+    assert "No additional implementation capability is selected" in normalized_alignment_held
     assert "generic command runner" in normalized_alignment_held
     assert "Durable audit automation | Held" in roadmap
     assert "The authoritative order is:" in roadmap
@@ -613,6 +617,7 @@ def test_top_level_architecture_and_capability_docs_are_current_and_compact() ->
     roadmap = Path("docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md").read_text(
         encoding="utf-8"
     )
+    normalized_roadmap = " ".join(roadmap.split())
     readme = Path("README.md").read_text(encoding="utf-8")
 
     assert "GitHub Actions workflow is still NOT INSTALLED" not in architecture
@@ -622,8 +627,8 @@ def test_top_level_architecture_and_capability_docs_are_current_and_compact() ->
     assert len(roadmap.splitlines()) <= 200
     assert "## Capability Registry" in roadmap
     assert "### Phase " not in roadmap
-    assert "The selected capability is the Harness read-only verification environment" in roadmap
-    assert "serial work-package schema v3" in roadmap
+    assert "No additional implementation capability is selected" in normalized_roadmap
+    assert "serial work-package schema v3" in normalized_roadmap
     assert "## Read-Only Validation" in readme
     assert "## Artifact-Writing Release Verification" in readme
 

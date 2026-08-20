@@ -37,8 +37,8 @@ This roadmap does not authorize implementation or side effects.
 | Release evidence generators | Hardened | Re-run only after a new source basis and exact artifact-write approval are established. |
 | Tracked release bundle | See `STATUS.md` | Keep source basis, artifact commit, local Git availability, transient transport, and publication state distinct. |
 | Manual GitHub release-evidence export | Implemented; approval-gated | Preserve default `HOSTED_EXACT_SHA (V3)` verification, use one explicit exact-SHA export mode, one-day transient transport, and local evidence integration only. Read `STATUS.md` for the current run state. |
-| Read-only verification environment diagnostic | Selected; implementation pending | Add safe `EnvironmentOnly / Json` observations to the existing Local Verify boundary without installation, persistence, or suite execution. |
-| Dirty-worktree package checkpoint | Queued after environment diagnostic | Reuse schema-v3 loading and path boundaries to report `NOT_FINAL` scope readiness; never substitute for postflight. |
+| Read-only verification environment diagnostic | Implemented; exact-SHA locally verified; integration pending | Preserve safe `EnvironmentOnly / Json` observations without installation, persistence, suite execution, or target behavior. |
+| Dirty-worktree package checkpoint | Next decision after integration closeout; implementation not selected | Decide from observed package use whether a read-only `NOT_FINAL` readiness result prevents a demonstrated error; never substitute for postflight. |
 | Launchpad transfer and Junction attestation | Queued; target-owned | Add separate read-only target adapters only after the Harness core items are exercised; never create, repair, retarget, or remove a Junction or rewrite a manifest. |
 | Downstream mechanization pilots | Ordered evidence collection | Use Launchpad as the reference, stock first, and RSID second; preserve repo-specific adapters and static-only evidence boundaries. |
 | Approved corpus and local retrieval | Advisory, frozen | Change source membership or retrieval behavior only through separate review. |
@@ -51,23 +51,31 @@ This roadmap does not authorize implementation or side effects.
 
 ## Current Selection
 
-The selected capability is the Harness read-only verification environment
-diagnostic. It follows the serial work-package schema v3 contract and is
-implemented alone in the next package. Its selection does not authorize the
-dirty-worktree checkpoint, Launchpad adapter
-changes, downstream execution, durable evidence persistence, runtime repair,
-or remote actions.
+No additional implementation capability is selected. The Harness read-only
+verification environment diagnostic was implemented alone under the serial
+work-package schema v3 contract at
+`2cfb40d72eafdd40ff95e99fa35ded11b57496f6` and passed focused, Core, and Full
+local verification. Its integration still requires current-authority closeout,
+an exact same-34-source digest freshness repair under separate write and commit
+approvals, and cumulative exact-SHA verification. None of those steps
+authorizes the dirty-worktree checkpoint, Launchpad adapter changes,
+downstream execution, durable evidence persistence, runtime repair, or remote
+actions.
 
 The authoritative order is:
 
-1. close the current authority and priority alignment;
-2. implement and exercise the Harness environment diagnostic;
-3. decide the Harness dirty-worktree checkpoint from observed use;
-4. implement Launchpad transfer verification and Junction attestation as
+1. preserve completed M00 authority alignment at
+   `845e56d81d006de07d405cbf1fe6711afd444e04`;
+2. preserve the implemented and exercised M01 Harness environment diagnostic at
+   `2cfb40d72eafdd40ff95e99fa35ded11b57496f6`;
+3. close current authority and, only after separate approvals, restore exact
+   same-34-source corpus freshness and cumulative integration evidence;
+4. decide the Harness dirty-worktree checkpoint from observed use;
+5. implement Launchpad transfer verification and Junction attestation as
    separate target-owned read-only packages;
-5. apply the established intake and evidence boundary to stock;
-6. apply the Git-object static-only adapter to RSID Inspection; and
-7. select evidence lint, stale-worktree audit, or local-ref planning only when
+6. apply the established intake and evidence boundary to stock;
+7. apply the Git-object static-only adapter to RSID Inspection; and
+8. select evidence lint, stale-worktree audit, or local-ref planning only when
    the pilots demonstrate repeatable benefit.
 
 Each item has its own work package, commit, verification, and approval boundary.
