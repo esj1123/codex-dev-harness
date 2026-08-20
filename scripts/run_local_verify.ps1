@@ -3,11 +3,17 @@ param(
     [ValidateSet("Full", "Routine", "Core")]
     [string]$Lane = "Full",
     [AllowNull()]
-    [string]$PytestBaseTempRoot
+    [string]$PytestBaseTempRoot,
+    [switch]$EnvironmentOnly,
+    [switch]$Json
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+
+if ($Json -and -not $EnvironmentOnly) {
+    throw "Json output is available only with EnvironmentOnly."
+}
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location -LiteralPath $RepoRoot
@@ -59,8 +65,19 @@ function New-PytestBaseTempPath {
 }
 
 $PytestBaseTempPath = $null
+$PytestBaseTempReadiness = "OS_DEFAULT_UNVERIFIED"
+$PytestBaseTempReason = $null
 if ($PSBoundParameters.ContainsKey("PytestBaseTempRoot")) {
-    $PytestBaseTempPath = New-PytestBaseTempPath -Root $PytestBaseTempRoot
+    try {
+        $PytestBaseTempPath = New-PytestBaseTempPath -Root $PytestBaseTempRoot
+        $PytestBaseTempReadiness = "READY"
+    } catch {
+        if (-not $EnvironmentOnly) {
+            throw
+        }
+        $PytestBaseTempReadiness = "BLOCKED"
+        $PytestBaseTempReason = "PYTEST_BASETEMP_ROOT_INVALID"
+    }
 }
 
 function Set-HermeticVerificationEnvironment {
@@ -139,32 +156,57 @@ function Set-HermeticVerificationEnvironment {
 Set-HermeticVerificationEnvironment
 
 function Find-Python {
+    param([switch]$Diagnostic)
+
     $candidates = @()
+    $candidateClasses = @()
     if ($env:PYTHON) {
         $candidates += $env:PYTHON
+        $candidateClasses += "explicit_env"
     }
 
     $repoVenvPython = Join-Path $RepoRoot ".venv\Scripts\python.exe"
     if (Test-Path -LiteralPath $repoVenvPython) {
         $candidates += $repoVenvPython
+        $candidateClasses += "repo_venv"
     }
 
     $candidates += "python"
+    $candidateClasses += "system_python"
     $candidates += "py"
+    $candidateClasses += "py_launcher"
 
     $codexPython = Join-Path $HOME ".cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe"
     if (Test-Path -LiteralPath $codexPython) {
         $candidates += $codexPython
+        $candidateClasses += "codex_bundled"
     }
 
-    foreach ($candidate in $candidates) {
+    $identityArgs = @()
+    if ($Diagnostic) {
+        $identityArgs += "--runtime-identity"
+    }
+    for ($index = 0; $index -lt $candidates.Count; $index++) {
+        $candidate = $candidates[$index]
         try {
             if ($candidate -eq "py") {
-                & py -3.12 scripts/verify_dev_environment.py --expected-version-file .python-version --lock requirements-dev.lock --json *> $null
+                $checkerOutput = & py -3.12 scripts/verify_dev_environment.py --expected-version-file .python-version --lock requirements-dev.lock --json @identityArgs 2>$null
             } else {
-                & $candidate scripts/verify_dev_environment.py --expected-version-file .python-version --lock requirements-dev.lock --json *> $null
+                $checkerOutput = & $candidate scripts/verify_dev_environment.py --expected-version-file .python-version --lock requirements-dev.lock --json @identityArgs 2>$null
             }
             if ($LASTEXITCODE -eq 0) {
+                if ($Diagnostic) {
+                    try {
+                        $checker = ($checkerOutput -join "`n") | ConvertFrom-Json
+                    } catch {
+                        continue
+                    }
+                    return [PSCustomObject]@{
+                        Command = $candidate
+                        CandidateClass = $candidateClasses[$index]
+                        Checker = $checker
+                    }
+                }
                 return $candidate
             }
         } catch {
@@ -173,6 +215,132 @@ function Find-Python {
     }
 
     throw "No Python candidate satisfies .python-version and requirements-dev.lock. Install the exact development environment or set PYTHON."
+}
+
+if ($EnvironmentOnly) {
+    $reasonCodes = New-Object System.Collections.Generic.List[string]
+    if ($null -ne $PytestBaseTempReason) {
+        $reasonCodes.Add($PytestBaseTempReason)
+    }
+
+    $selection = $null
+    try {
+        $selection = Find-Python -Diagnostic
+    } catch {
+        $reasonCodes.Add("NO_COMPATIBLE_PYTHON_CANDIDATE")
+    }
+
+    $shellIdentity = $null
+    if ($null -ne $selection) {
+        try {
+            $shellPath = [System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName
+            $shellHash = (
+                Get-FileHash -LiteralPath $shellPath -Algorithm SHA256
+            ).Hash.ToLowerInvariant()
+            $shellKind = if ($PSVersionTable.PSEdition -eq "Desktop") {
+                "winps"
+            } else {
+                "pwsh"
+            }
+            $shellIdentity = [PSCustomObject]@{
+                Kind = $shellKind
+                Version = $PSVersionTable.PSVersion.ToString()
+                Hash = $shellHash
+            }
+        } catch {
+            $reasonCodes.Add("SHELL_IDENTITY_UNAVAILABLE")
+        }
+    }
+
+    $candidateClass = "NONE"
+    $interpreterId = "UNKNOWN"
+    $executableHash = "UNKNOWN"
+    $pytestVersion = "UNKNOWN"
+    $expectedVersion = "UNKNOWN"
+    $observedVersion = "UNKNOWN"
+    $lockCount = 0
+    $matchedLockCount = 0
+    $pipCheck = "NOT RUN"
+    if ($null -ne $selection) {
+        $candidateClass = $selection.CandidateClass
+        $environment = $selection.Checker.environment
+        $identity = $selection.Checker.runtime_identity
+        $expectedVersion = $environment.expected_python_version
+        $observedVersion = $environment.observed_python_version
+        $lockCount = $environment.lock_package_count
+        $matchedLockCount = $environment.matched_lock_package_count
+        $pipCheck = $environment.pip_check
+        if ($null -eq $identity) {
+            $reasonCodes.Add("RUNTIME_IDENTITY_UNAVAILABLE")
+        } else {
+            $executableHash = $identity.executable_sha256
+            $pytestVersion = $identity.pytest_version
+            if ($null -ne $shellIdentity) {
+                $safePytestVersion = (
+                    [string]$identity.pytest_version
+                ).ToLowerInvariant() -replace '[^a-z0-9._-]', '-'
+                $interpreterId = (
+                    "py{0}-pytest{1}-{2}-{3}{4}-{5}" -f
+                    $observedVersion,
+                    $safePytestVersion,
+                    $executableHash.Substring(0, 10),
+                    $shellIdentity.Kind,
+                    $shellIdentity.Version,
+                    $shellIdentity.Hash.Substring(0, 10)
+                )
+                if (
+                    $interpreterId.Length -gt 64 -or
+                    $interpreterId -notmatch '^[a-z0-9](?:[a-z0-9._-]{0,62}[a-z0-9])?$'
+                ) {
+                    $interpreterId = "UNKNOWN"
+                    $reasonCodes.Add("INTERPRETER_ID_INVALID")
+                }
+            }
+        }
+    }
+
+    $diagnosticStatus = if ($null -eq $selection) {
+        "ENVIRONMENT BLOCKED"
+    } elseif ($reasonCodes.Count -eq 0) {
+        "PASS"
+    } else {
+        "FAIL"
+    }
+    $result = [ordered]@{
+        schema_version = "1"
+        checker_id = "local_verify_environment_diagnostic"
+        status = $diagnosticStatus
+        reason_codes = @($reasonCodes | Sort-Object -Unique)
+        candidate_class = $candidateClass
+        interpreter_id = $interpreterId
+        executable_sha256 = $executableHash
+        pytest_version = $pytestVersion
+        expected_python_version = $expectedVersion
+        observed_python_version = $observedVersion
+        lock_package_count = $lockCount
+        matched_lock_package_count = $matchedLockCount
+        pip_check = $pipCheck
+        basetemp_readiness = $PytestBaseTempReadiness
+        performed_actions = @()
+    }
+    if ($Json) {
+        Write-Output ($result | ConvertTo-Json -Compress -Depth 4)
+    } else {
+        Write-Output (
+            "{0}: candidate={1} python={2} lock={3}/{4} pip={5} basetemp={6}" -f
+            $diagnosticStatus,
+            $candidateClass,
+            $observedVersion,
+            $matchedLockCount,
+            $lockCount,
+            $pipCheck,
+            $PytestBaseTempReadiness
+        )
+    }
+    if ($diagnosticStatus -eq "PASS") {
+        exit 0
+    }
+    exit 1
 }
 
 $PythonCommand = Find-Python

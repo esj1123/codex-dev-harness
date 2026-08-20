@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+import hashlib
 import importlib.metadata
 import json
 from pathlib import Path
@@ -19,6 +20,7 @@ SCHEMA_VERSION = "1"
 MAX_INPUT_BYTES = 64 * 1024
 MAX_OUTPUT_BYTES = 8 * 1024
 MAX_PROCESS_BYTES = 1024 * 1024
+MAX_RUNTIME_BYTES = 128 * 1024 * 1024
 LOCK_LINE = re.compile(
     r"^(?P<name>[A-Za-z0-9][A-Za-z0-9._-]{0,127})=="
     r"(?P<version>[A-Za-z0-9][A-Za-z0-9.!+_-]{0,127})$"
@@ -27,6 +29,7 @@ LOCK_HASH = re.compile(r"^--hash=sha256:(?P<digest>[0-9a-f]{64})$")
 VERSION_LINE = re.compile(r"^\d+\.\d+\.\d+$")
 PACKAGE_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 BOOTSTRAP_PACKAGES = frozenset({"pip"})
+RUNTIME_VERSION = re.compile(r"^[A-Za-z0-9][A-Za-z0-9.!+_-]{0,63}$")
 
 
 class EnvironmentContractError(ValueError):
@@ -150,6 +153,29 @@ def run_pip_check() -> str:
     return "PASS" if result.returncode == 0 else "FAIL"
 
 
+def runtime_identity() -> dict[str, str]:
+    executable = Path(sys.executable)
+    try:
+        if executable.is_symlink():
+            raise OSError
+        resolved = executable.resolve(strict=True)
+        if not resolved.is_file() or resolved.stat().st_size > MAX_RUNTIME_BYTES:
+            raise OSError
+        digest = hashlib.sha256()
+        with resolved.open("rb") as stream:
+            for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                digest.update(chunk)
+        pytest_version = importlib.metadata.version("pytest")
+    except (OSError, importlib.metadata.PackageNotFoundError) as exc:
+        raise EnvironmentContractError(("RUNTIME_IDENTITY_UNAVAILABLE",)) from exc
+    if RUNTIME_VERSION.fullmatch(pytest_version) is None:
+        raise EnvironmentContractError(("RUNTIME_IDENTITY_INVALID",))
+    return {
+        "executable_sha256": digest.hexdigest(),
+        "pytest_version": pytest_version,
+    }
+
+
 def installed_distribution_inventory() -> tuple[dict[str, str], list[str]]:
     inventory: dict[str, str] = {}
     reason_codes: list[str] = []
@@ -181,6 +207,7 @@ def inspect_environment(
     packages: dict[str, str],
     *,
     version_only: bool,
+    include_runtime_identity: bool = False,
 ) -> dict[str, Any]:
     observed_version = ".".join(str(item) for item in sys.version_info[:3])
     reason_codes: list[str] = []
@@ -213,6 +240,13 @@ def inspect_environment(
             elif pip_status == "ENVIRONMENT BLOCKED":
                 reason_codes.append("PIP_CHECK_ENVIRONMENT_BLOCKED")
 
+    identity: dict[str, str] | None = None
+    if include_runtime_identity and not reason_codes:
+        try:
+            identity = runtime_identity()
+        except EnvironmentContractError as exc:
+            reason_codes.extend(exc.reason_codes)
+
     status = (
         "PASS"
         if not reason_codes
@@ -222,7 +256,7 @@ def inspect_environment(
             else "FAIL"
         )
     )
-    return {
+    result = {
         "schema_version": SCHEMA_VERSION,
         "checker_id": CHECKER_ID,
         "status": status,
@@ -237,6 +271,9 @@ def inspect_environment(
         },
         "performed_actions": [],
     }
+    if include_runtime_identity:
+        result["runtime_identity"] = identity
+    return result
 
 
 def json_bytes(result: dict[str, Any]) -> bytes:
@@ -254,6 +291,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--expected-version-file", required=True)
     parser.add_argument("--lock", required=True)
     parser.add_argument("--version-only", action="store_true")
+    parser.add_argument("--runtime-identity", action="store_true")
     parser.add_argument("--json", action="store_true")
     return parser
 
@@ -268,7 +306,10 @@ def main(argv: list[str] | None = None) -> int:
             else read_lock(_resolve_repo_file(args.lock))
         )
         result = inspect_environment(
-            expected, packages, version_only=args.version_only
+            expected,
+            packages,
+            version_only=args.version_only,
+            include_runtime_identity=args.runtime_identity,
         )
     except EnvironmentContractError as exc:
         result = {

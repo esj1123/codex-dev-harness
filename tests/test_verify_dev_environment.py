@@ -230,6 +230,39 @@ def test_json_cli_is_bounded_and_action_free(monkeypatch, capsys) -> None:
     assert len(gate.json_bytes(payload)) <= gate.MAX_OUTPUT_BYTES
 
 
+def test_runtime_identity_is_opt_in_and_path_free(monkeypatch) -> None:
+    monkeypatch.setattr(gate.sys, "version_info", (3, 12, 10))
+    set_installed_distributions(
+        monkeypatch, [("pytest", "9.0.3"), ("pip", "25.0.1")]
+    )
+    monkeypatch.setattr(gate, "run_pip_check", lambda: "PASS")
+    monkeypatch.setattr(
+        gate,
+        "runtime_identity",
+        lambda: {
+            "executable_sha256": "a" * 64,
+            "pytest_version": "9.0.3",
+        },
+    )
+
+    normal = gate.inspect_environment(
+        "3.12.10", {"pytest": "9.0.3"}, version_only=False
+    )
+    diagnostic = gate.inspect_environment(
+        "3.12.10",
+        {"pytest": "9.0.3"},
+        version_only=False,
+        include_runtime_identity=True,
+    )
+
+    assert "runtime_identity" not in normal
+    assert diagnostic["runtime_identity"] == {
+        "executable_sha256": "a" * 64,
+        "pytest_version": "9.0.3",
+    }
+    assert all("path" not in key for key in diagnostic["runtime_identity"])
+
+
 def test_local_wrapper_gates_candidates_and_environment_before_pytest() -> None:
     text = Path("scripts/run_local_verify.ps1").read_text(encoding="utf-8")
     full_environment_command = (
@@ -622,3 +655,90 @@ def test_python_launcher_fallback_is_minor_version_scoped() -> None:
         text = script.read_text(encoding="utf-8")
         assert text.count("& py -3.12") == 2
         assert "& py -3 " not in text
+
+
+def test_local_wrapper_environment_only_json_is_action_free_and_path_safe(
+    tmp_path: Path,
+) -> None:
+    environment = os.environ.copy()
+    environment["PYTHON"] = sys.executable
+    command = [
+        shutil.which("powershell") or "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "scripts/run_local_verify.ps1",
+        "-EnvironmentOnly",
+        "-Json",
+        "-PytestBaseTempRoot",
+        str(tmp_path),
+    ]
+
+    result = subprocess.run(
+        command,
+        cwd=Path.cwd(),
+        env=environment,
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        timeout=60,
+    )
+    payload = json.loads(result.stdout)
+
+    assert result.returncode == 0, result.stderr
+    assert result.stderr == ""
+    assert payload["status"] == "PASS"
+    assert payload["candidate_class"] == "explicit_env"
+    assert payload["interpreter_id"].startswith("py3.12.10-pytest9.0.3-")
+    assert len(payload["interpreter_id"].encode("utf-8")) <= 64
+    assert len(payload["executable_sha256"]) == 64
+    assert payload["pytest_version"] == "9.0.3"
+    assert payload["lock_package_count"] == 6
+    assert payload["matched_lock_package_count"] == 6
+    assert payload["pip_check"] == "PASS"
+    assert payload["basetemp_readiness"] == "READY"
+    assert payload["reason_codes"] == []
+    assert payload["performed_actions"] == []
+    assert str(Path.cwd()) not in result.stdout
+    assert str(tmp_path) not in result.stdout
+    assert "==> pytest" not in result.stdout
+    assert "standalone eval" not in result.stdout
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_environment_only_json_rejects_unsafe_basetemp_without_reflection() -> None:
+    environment = os.environ.copy()
+    environment["PYTHON"] = sys.executable
+    unsafe_value = "private-relative-root"
+    result = subprocess.run(
+        [
+            shutil.which("powershell") or "powershell",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            "scripts/run_local_verify.ps1",
+            "-EnvironmentOnly",
+            "-Json",
+            "-PytestBaseTempRoot",
+            unsafe_value,
+        ],
+        cwd=Path.cwd(),
+        env=environment,
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        timeout=60,
+    )
+    payload = json.loads(result.stdout)
+
+    assert result.returncode == 1
+    assert result.stderr == ""
+    assert payload["status"] == "FAIL"
+    assert payload["basetemp_readiness"] == "BLOCKED"
+    assert payload["reason_codes"] == ["PYTEST_BASETEMP_ROOT_INVALID"]
+    assert payload["performed_actions"] == []
+    assert unsafe_value not in result.stdout

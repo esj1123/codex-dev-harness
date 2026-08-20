@@ -76,6 +76,23 @@ verification wrappers then consider `.venv\Scripts\python.exe`, system
 order. Every selected interpreter must expose exactly the locked distributions
 plus bootstrap `pip`; selection priority is not an environment-check bypass.
 
+The Local Verify wrapper can inspect that selection contract without running
+pytest, evals, gates, or renders:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1 -EnvironmentOnly -Json
+powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1 -EnvironmentOnly -Json -PytestBaseTempRoot C:\tmp
+```
+
+The JSON reports only the safe candidate class, bounded interpreter ID,
+executable SHA-256, expected and observed Python versions, lock match counts,
+`pip check`, basetemp readiness, reason codes, and
+`performed_actions: []`. It does not report an executable or temp path, create
+an environment, install dependencies, allocate the proposed basetemp child, or
+run a verification suite. `OS_DEFAULT_UNVERIFIED` means no explicit external
+basetemp root was supplied; it is not a claim that the OS temp directory is
+writable. `-Json` is accepted only with `-EnvironmentOnly`.
+
 Focused work may then run its scoped pytest command. The Local Verify wrapper
 uses the exact environment and runs, in order:
 

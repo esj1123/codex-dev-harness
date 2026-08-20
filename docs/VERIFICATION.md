@@ -87,6 +87,20 @@ Recommended local command:
 
 `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1`
 
+Before choosing a verification lane, the same wrapper can emit a read-only
+environment diagnostic and exit:
+
+`powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1 -EnvironmentOnly -Json`
+
+This mode performs candidate environment checks only. It does not run pytest,
+standalone eval, the quality gate, or render dry-runs, and it does not install,
+repair, or persist an environment. Its path-free JSON contains a safe candidate
+class, interpreter ID, executable hash, Python and pytest identity, lock and pip
+status, basetemp readiness, bounded reason codes, and
+`performed_actions: []`. A diagnostic `PASS` is executor readiness evidence,
+not `FOCUSED_FEATURE (V1)`, `LOCAL_INTEGRATION (V2)`, approval, or
+authorization.
+
 To keep pytest state outside the repository and away from an inaccessible OS
 temp root, an existing absolute non-reparse directory may be supplied:
 
@@ -95,8 +109,11 @@ temp root, an existing absolute non-reparse directory may be supplied:
 The wrapper allocates a unique, initially nonexistent child below that root and
 passes it to pytest as `--basetemp`. It never auto-deletes that child. Relative,
 missing, repository-internal, empty, and reparse-point roots fail before Python
-selection. When the parameter is omitted, pytest retains its normal OS-temp
-behavior. Pytest's cache provider is disabled in both modes.
+selection during a verification run. In `EnvironmentOnly` mode those inputs
+produce a path-free `PYTEST_BASETEMP_ROOT_INVALID` result and no child is
+created. When the parameter is omitted, the diagnostic reports
+`OS_DEFAULT_UNVERIFIED`; an actual verification run retains normal OS-temp
+behavior. Pytest's cache provider is disabled in both verification modes.
 
 The wrapper runs the selected pytest lane with the 50 slowest durations and skip reasons,
 the no-report standalone eval, the quality gate, and all three example render
