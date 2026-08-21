@@ -657,6 +657,15 @@ def test_python_launcher_fallback_is_minor_version_scoped() -> None:
         assert "& py -3 " not in text
 
 
+def test_local_wrapper_shell_hash_does_not_require_powershell_module_autoload() -> None:
+    text = Path("scripts/run_local_verify.ps1").read_text(encoding="utf-8")
+
+    assert "Get-FileHash" not in text
+    assert "[System.Security.Cryptography.SHA256]::Create()" in text
+    assert "$sha256.ComputeHash($stream)" in text
+    assert "[System.BitConverter]::ToString($hashBytes)" in text
+
+
 def test_local_wrapper_environment_only_json_is_action_free_and_path_safe(
     tmp_path: Path,
 ) -> None:

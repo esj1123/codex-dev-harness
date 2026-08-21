@@ -18,6 +18,31 @@ if ($Json -and -not $EnvironmentOnly) {
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location -LiteralPath $RepoRoot
 
+function Get-Sha256Hex {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$LiteralPath
+    )
+
+    $stream = $null
+    $sha256 = $null
+    try {
+        $stream = [System.IO.File]::OpenRead($LiteralPath)
+        $sha256 = [System.Security.Cryptography.SHA256]::Create()
+        $hashBytes = $sha256.ComputeHash($stream)
+        return (
+            [System.BitConverter]::ToString($hashBytes) -replace "-", ""
+        ).ToLowerInvariant()
+    } finally {
+        if ($null -ne $sha256) {
+            $sha256.Dispose()
+        }
+        if ($null -ne $stream) {
+            $stream.Dispose()
+        }
+    }
+}
+
 function New-PytestBaseTempPath {
     param(
         [AllowNull()]
@@ -234,9 +259,7 @@ if ($EnvironmentOnly) {
     if ($null -ne $selection) {
         try {
             $shellPath = [System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName
-            $shellHash = (
-                Get-FileHash -LiteralPath $shellPath -Algorithm SHA256
-            ).Hash.ToLowerInvariant()
+            $shellHash = Get-Sha256Hex -LiteralPath $shellPath
             $shellKind = if ($PSVersionTable.PSEdition -eq "Desktop") {
                 "winps"
             } else {
