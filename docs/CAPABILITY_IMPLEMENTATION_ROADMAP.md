@@ -38,9 +38,9 @@ This roadmap does not authorize implementation or side effects.
 | Tracked release bundle | See `STATUS.md` | Keep source basis, artifact commit, local Git availability, transient transport, and publication state distinct. |
 | Manual GitHub release-evidence export | Implemented; approval-gated | Preserve default `HOSTED_EXACT_SHA (V3)` verification, use one explicit exact-SHA export mode, one-day transient transport, and local evidence integration only. Read `STATUS.md` for the current run state. |
 | Read-only verification environment diagnostic | Implemented; exact-SHA locally verified; locally adopted | Preserve safe `EnvironmentOnly / Json` observations without installation, persistence, suite execution, or target behavior. Hosted evidence remains separate. |
-| Dirty-worktree package checkpoint | Decision after Hosted disposition and worktree audit; implementation not selected | Require at least one demonstrated prevented error before implementing a read-only `NOT_FINAL` readiness result; never substitute for postflight. |
+| Dirty-worktree package checkpoint | Deferred; implementation not selected | Require at least one demonstrated prevented error from a real target before implementing a read-only `NOT_FINAL` readiness result; never substitute for postflight. |
 | Launchpad transfer and Junction attestation | Queued; target-owned | Add separate read-only target adapters only after the Harness core items are exercised; never create, repair, retarget, or remove a Junction or rewrite a manifest. |
-| Downstream mechanization pilots | Ordered evidence collection | Keep Launchpad as the reference and loxfs as completed local evidence only / not an active capability; then evaluate stock first and RSID second with repo-specific adapters. |
+| Downstream mechanization pilots | Stock then RSID selected; target-owned checkpoints | Keep Launchpad as the reference and loxfs as completed local evidence only / not an active capability. Rebaseline Stock first for one demonstrated local gap, then run RSID as a Git-object/static-only pilot. |
 | Approved corpus and local retrieval | Advisory, frozen | Change source membership or retrieval behavior only through separate review. |
 | Downstream contract validator | Implemented | Use only with target-specific authority and side-effect declarations. |
 | Agent Quality/provider | Frozen, not adopted | Reopen only after a separate value decision; role calibration v7 is not run. |
@@ -51,15 +51,20 @@ This roadmap does not authorize implementation or side effects.
 
 ## Current Selection
 
-No additional implementation capability is selected. The Harness read-only
-verification environment diagnostic was implemented under the serial
+No additional implementation capability is selected. Stock and RSID are
+target-owned operational selections, not new Harness capabilities. The Harness
+read-only verification environment diagnostic was implemented under the serial
 work-package schema v3 contract at
 `2cfb40d72eafdd40ff95e99fa35ded11b57496f6`, passed focused, Core, and Full
 local verification, and was included in the owner-adopted M01 basis
-`05027f899bb726e8a1717c35b1f10a712f1825e9`. M02 corrects tracked sequencing
-after that completed compare-and-swap. It does not authorize remote access,
-Hosted execution, worktree cleanup, the dirty-worktree checkpoint, downstream
-execution, durable evidence persistence, or runtime repair.
+`05027f899bb726e8a1717c35b1f10a712f1825e9`. M02 authority and digest work then
+completed local adoption at `2de218f0548c349c74151c0fcf8a79186f951d4c`.
+Post-adoption verification hardening at
+`99d4b863793042cd42a5c475f2bfb81bab0dff70` remains a local candidate requiring
+one authority commit, one digest-only child, one exact final Full, and a guarded
+local-main decision. Remote reconciliation, push, and Hosted verification are
+explicitly deferred; they are not prerequisites for the selected physical
+cleanup or target-owned local pilots.
 
 The authoritative order is:
 
@@ -68,27 +73,41 @@ The authoritative order is:
 2. record the completed owner adoption of the M01 sequence at
    `05027f899bb726e8a1717c35b1f10a712f1825e9` without making a self-updating
    assertion about a future local ref;
-3. close M02 authority, restore exact same-34-source corpus freshness under
-   separate approval, and obtain a separate local-main CAS decision;
-4. decide live-remote reconciliation, one non-force push, and Hosted exact-SHA
-   verification as three separately approval-gated actions;
-5. audit worktree and branch ownership without pruning, removing, or deleting;
-6. keep the dirty-worktree checkpoint deferred unless a real pilot demonstrates
+3. preserve completed M02 authority/digest evidence and local adoption at
+   `2de218f0548c349c74151c0fcf8a79186f951d4c` without rewriting the original
+   package BLOCKED result or later recovery PASS;
+4. close the `99d4b863793042cd42a5c475f2bfb81bab0dff70` post-adoption
+   hardening line with two authority files, a
+   separate same-34-source digest commit, one exact final Full, and a guarded
+   local-main compare-and-swap only after Full passes;
+5. record remote reconciliation, push, and Hosted exact-SHA verification as
+   `NOT RUN / DEFERRED` rather than blocking local cleanup or target work;
+6. keep the dirty-worktree checkpoint deferred until a real target demonstrates
    at least one prevented error;
-7. retain Launchpad as the reference and classify `loxfs-cmd-sig-harness` as
-   completed local evidence only / not an active capability unless selected;
-8. apply the established intake and evidence boundary to stock;
-9. apply the Git-object static-only adapter to RSID Inspection; and
-10. select additional evidence lint, worktree automation, or local-ref planning
-    only when repeated outcomes demonstrate benefit.
+7. archive ignored evidence once, remove only exact clean and inactive
+   worktrees without force, delete only exact merged branches with `-d`, and
+   finish with preservation-only Git packing;
+8. retain tracked Agent Quality contracts in `FROZEN / NOT_ADOPTED` state while
+   archiving only the two large ignored runtime/calibration groups outside the
+   active repo;
+9. rebaseline Stock and implement at most one demonstrated target-owned local
+   gap without broker, order, account, network, credential, or live-vault
+   behavior;
+10. follow Stock with a Git-object/static-only RSID pilot that never executes
+   tracked binaries; and
+11. add another Harness package only for a P0 safety/authority defect, an actual
+    target blocker, the same gap in two targets, or a demonstrated verifier
+    false PASS/FAIL.
 
 Each item has its own work package, commit, verification, and approval boundary.
-Later items are queued, not pre-authorized. Hosted disposition precedes the
-dirty-worktree decision. Launchpad remains the reference pilot; its artifact
-runtime is still dependency-held. Loxfs remains evidence-only by default.
-Stock is a local/read-only pilot until dependency and Hosted contracts are
-pinned. RSID remains static Git-object evidence only and must not execute
-tracked binaries.
+Harness cleanup and Stock use separately owned tasks after the local final
+baseline; neither inherits authority from structural package PASS. Launchpad
+remains the reference pilot and its artifact runtime is still dependency-held.
+Loxfs remains evidence-only by default. Stock begins with a read-only live
+rebaseline and may make one bounded target-owned local change under its own
+write/commit checkpoint; Hosted is not a prerequisite. RSID remains static
+Git-object evidence only and must not execute tracked binaries. The target
+sequence remains stock first and RSID second.
 
 For Agent Quality work:
 
@@ -97,7 +116,11 @@ For Agent Quality work:
   grader-bound invariant evidence;
 - baseline creation remains blocked until comparability is full and every
   adoption threshold passes;
-- a diagnostic or repeated trial requires its own execution approval.
+- a diagnostic or repeated trial requires its own execution approval;
+- keep tracked policy, schemas, validators, suites, and tests; archive the
+  ignored `runtime-bootstrap-v1-20260728T040223Z` and
+  `role-profile-calibration-v6-20260729T115311Z` groups outside the active repo
+  only after exact inventory, safety, archive-entry, and SHA-256 verification.
 
 For downstream work:
 
@@ -135,7 +158,8 @@ The following remain separate owner decisions:
 - a generic verification command runner, inferred package fields, automatic
   worktree prune, local-ref mutation, Junction repair, manifest rewrite,
   dependency installation, or repository-wide EOL normalization;
-- new downstream repository access or mutation;
+- downstream repository access or mutation outside the selected Stock-then-RSID
+  target-owned checkpoints;
 - private, customer, production, or live-system data;
 - application capability expansion not justified by measured usage.
 
