@@ -382,10 +382,10 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     now_section = status.split("\n## NOW\n", 1)[1].split("\n## ", 1)[0]
     next_section = status.split("\n## NEXT\n", 1)[1].split("\n## ", 1)[0]
     assert [line for line in now_section.splitlines() if line.startswith("### ")] == [
-        "### Hosted exact-SHA baseline decision"
+        "### Reconcile completed local checkpoints"
     ]
     assert [line for line in next_section.splitlines() if line.startswith("### ")] == [
-        "### Read-only worktree ownership audit"
+        "### Digest refresh and final local integration"
     ]
 
     assert "## Completed Checkpoint" in status
@@ -434,9 +434,13 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     assert "local Full passed `130`" in status
     assert "Hosted verification was `NOT RUN`" in status
     assert "`DEPENDENCY_HOLD`" in status
-    assert "M01 local adoption completed" in normalized_next_step
-    assert "Hosted Integration Verify for the same final SHA" in normalized_next_step
-    assert "Launchpad/loxfs classification, stock, and RSID" in normalized_next_step
+    assert "post-M02 authority reconciliation" in normalized_next_step
+    assert "separate artifact-only package and commit" in normalized_next_step
+    assert "FROZEN / NOT_ADOPTED" in normalized_next_step
+    assert "`bd434a200f4054f9b41eeea085183ff0df25c70b`" in status
+    assert "`c0ffc1d5ddd40bb050d10c0f6e42f93b7d16858c`" in status
+    assert "`main@1f9677a13044770bfb3be89ab910127674851d49`" in status
+    assert "AQ-R5K recovered and passed structural" in status
     assert "IMPLEMENTED / EXACT-SHA LOCALLY VERIFIED / LOCALLY ADOPTED" in status
     assert "`2cfb40d72eafdd40ff95e99fa35ded11b57496f6`" in status
     assert "Focused environment tests passed `32`" in normalized_status
@@ -470,9 +474,10 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     assert authoritative_order.index("Hosted exact-SHA") < authoritative_order.index(
         "dirty-worktree checkpoint"
     )
-    assert "completed local evidence only / not an active capability" in roadmap
-    assert "stock first" in roadmap
+    assert "Loxfs remains evidence-only by default" in roadmap
+    assert "Stock first" in roadmap
     assert "RSID second" in roadmap
+    assert "AQ-R5K passed package-bound structural verification" in roadmap
     assert "exact-F" not in status
     assert "### F —" not in status
     release_state_docs = {

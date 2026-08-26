@@ -39,11 +39,11 @@ This roadmap does not authorize implementation or side effects.
 | Manual GitHub release-evidence export | Implemented; approval-gated | Preserve default `HOSTED_EXACT_SHA (V3)` verification, use one explicit exact-SHA export mode, one-day transient transport, and local evidence integration only. Read `STATUS.md` for the current run state. |
 | Read-only verification environment diagnostic | Implemented; exact-SHA locally verified; locally adopted | Preserve safe `EnvironmentOnly / Json` observations without installation, persistence, suite execution, or target behavior. Hosted evidence remains separate. |
 | Dirty-worktree package checkpoint | Deferred; implementation not selected | Require at least one demonstrated prevented error from a real target before implementing a read-only `NOT_FINAL` readiness result; never substitute for postflight. |
-| Launchpad transfer and Junction attestation | Queued; target-owned | Add separate read-only target adapters only after the Harness core items are exercised; never create, repair, retarget, or remove a Junction or rewrite a manifest. |
-| Downstream mechanization pilots | Stock then RSID selected; target-owned checkpoints | Keep Launchpad as the reference and loxfs as completed local evidence only / not an active capability. Rebaseline Stock first for one demonstrated local gap, then run RSID as a Git-object/static-only pilot. |
+| Launchpad transfer and Junction attestation | Local authority rebaseline adopted | Launchpad local `main@1f9677a13044770bfb3be89ab910127674851d49`; structural V2 remains `NOT_AUTHENTICATED`. Office, transfer, Junction mutation, remote, and release are not authorized. |
+| Downstream mechanization pilots | Stock and RSID local pilots complete | Stock evidence closeout is `bd434a200f4054f9b41eeea085183ff0df25c70b`; RSID evidence-scope pilot is `c0ffc1d5ddd40bb050d10c0f6e42f93b7d16858c`. Preserve repo-specific authority and unresolved RSID GAP-013. |
 | Approved corpus and local retrieval | Advisory, frozen | Change source membership or retrieval behavior only through separate review. |
 | Downstream contract validator | Implemented | Use only with target-specific authority and side-effect declarations. |
-| Agent Quality/provider | Frozen, not adopted | Reopen only after a separate value decision; role calibration v7 is not run. |
+| Agent Quality/provider | Structural V2 passed; frozen, not adopted | AQ-R5K passed package-bound structural verification. The value decision is `REDESIGN_BEFORE_TRIAL`; demonstrated prevention, provider execution, calibration, baseline, promotion, and adoption remain unproven or not run. |
 | MCP boundary | Held | Reconsider only for a selected repository tool-integration use case. |
 | Hermes sidecar | Held | Reconsider only after an MCP-backed use case is justified. |
 | Release publication automation | Held | The selected transient evidence transport is not publication; publication still requires an explicit target and owner approval. |
@@ -51,20 +51,16 @@ This roadmap does not authorize implementation or side effects.
 
 ## Current Selection
 
-No additional implementation capability is selected. Stock and RSID are
-target-owned operational selections, not new Harness capabilities. The Harness
-read-only verification environment diagnostic was implemented under the serial
-work-package schema v3 contract at
-`2cfb40d72eafdd40ff95e99fa35ded11b57496f6`, passed focused, Core, and Full
-local verification, and was included in the owner-adopted M01 basis
-`05027f899bb726e8a1717c35b1f10a712f1825e9`. M02 authority and digest work then
-completed local adoption at `2de218f0548c349c74151c0fcf8a79186f951d4c`.
-Post-adoption verification hardening at
-`99d4b863793042cd42a5c475f2bfb81bab0dff70` remains a local candidate requiring
-one authority commit, one digest-only child, one exact final Full, and a guarded
-local-main decision. Remote reconciliation, push, and Hosted verification are
-explicitly deferred; they are not prerequisites for the selected physical
-cleanup or target-owned local pilots.
+No new operational capability is selected. The read-only verification
+environment diagnostic remains part of the locally adopted M01/M02 lineage,
+and the current reconciliation basis is
+`acd39a3c3e73fa05e752964a75059809e6e16f71`. Post-M02 physical cleanup and the
+Stock, RSID, and Launchpad local checkpoints are complete. AQ-R5K supplies
+structural V2 evidence for proposal
+`53de64a1a19ec5d50849ebda54bbec619e4097a1`, while the proposal remains
+`FROZEN / NOT_ADOPTED`; all earlier AQ HOLD/FAIL evidence remains historical.
+Remote reconciliation, push, Hosted verification, release, and Git GC are
+explicitly deferred.
 
 The authoritative order is:
 
@@ -76,38 +72,35 @@ The authoritative order is:
 3. preserve completed M02 authority/digest evidence and local adoption at
    `2de218f0548c349c74151c0fcf8a79186f951d4c` without rewriting the original
    package BLOCKED result or later recovery PASS;
-4. close the `99d4b863793042cd42a5c475f2bfb81bab0dff70` post-adoption
-   hardening line with two authority files, a
-   separate same-34-source digest commit, one exact final Full, and a guarded
-   local-main compare-and-swap only after Full passes;
+4. reconcile the completed post-M02 cleanup and target checkpoints in one
+   bounded authority commit, then use a separate same-source digest commit if
+   the approved corpus digest is stale;
 5. record remote reconciliation, push, and Hosted exact-SHA verification as
    `NOT RUN / DEFERRED` rather than blocking local cleanup or target work;
 6. keep the dirty-worktree checkpoint deferred until a real target demonstrates
    at least one prevented error;
-7. archive ignored evidence once, remove only exact clean and inactive
-   worktrees without force, delete only exact merged branches with `-d`, and
-   finish with preservation-only Git packing;
-8. retain tracked Agent Quality contracts in `FROZEN / NOT_ADOPTED` state while
-   archiving only the two large ignored runtime/calibration groups outside the
-   active repo;
-9. rebaseline Stock and implement at most one demonstrated target-owned local
-   gap without broker, order, account, network, credential, or live-vault
-   behavior;
-10. follow Stock with a Git-object/static-only RSID pilot that never executes
-   tracked binaries; and
+7. preserve the completed ignored-evidence archive, exact source deletion,
+   detached-worktree removal, and merged-branch deletion receipts while keeping
+   Git packing and GC held;
+8. retain tracked Agent Quality contracts and proposal branch in
+   `FROZEN / NOT_ADOPTED` state; AQ-R5K is structural V2 evidence, not trial,
+   baseline, promotion, or adoption;
+9. preserve Stock local closeout `bd434a200f4054f9b41eeea085183ff0df25c70b`
+   without broker, order, account, network, credential, or live-vault behavior;
+10. preserve the completed static-only RSID pilot
+    `c0ffc1d5ddd40bb050d10c0f6e42f93b7d16858c` and Launchpad local adoption
+    `1f9677a13044770bfb3be89ab910127674851d49`; and
 11. add another Harness package only for a P0 safety/authority defect, an actual
     target blocker, the same gap in two targets, or a demonstrated verifier
     false PASS/FAIL.
 
 Each item has its own work package, commit, verification, and approval boundary.
-Harness cleanup and Stock use separately owned tasks after the local final
-baseline; neither inherits authority from structural package PASS. Launchpad
-remains the reference pilot and its artifact runtime is still dependency-held.
-Loxfs remains evidence-only by default. Stock begins with a read-only live
-rebaseline and may make one bounded target-owned local change under its own
-write/commit checkpoint; Hosted is not a prerequisite. RSID remains static
-Git-object evidence only and must not execute tracked binaries. The target
-sequence remains stock first and RSID second.
+Harness cleanup and the target sequence completed under separately owned
+checkpoints; none inherited authority from structural package PASS. Launchpad
+remains the reference pilot and its authority rebaseline is adopted locally,
+while Office/template/runtime acceptance remains separate. Loxfs remains
+evidence-only by default. The completed target order was Stock first and RSID
+second; any new target work requires a new target-owned scope.
 
 For Agent Quality work:
 

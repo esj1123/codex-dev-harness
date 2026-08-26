@@ -25,25 +25,22 @@ then closed its authority at `5393dc8ca9762fff91ffa2b9aaf9680f3c6d63e3`,
 restored the unchanged 34-source digest at
 `2de218f0548c349c74151c0fcf8a79186f951d4c`, and completed a separately approved
 local-main compare-and-swap to that digest commit. Post-adoption verification
-hardening at `99d4b863793042cd42a5c475f2bfb81bab0dff70` remains an unadopted local
-candidate until its authority closeout, digest refresh, and exact final Full
-complete. These exact values record completed observations; they are not
+hardening at `99d4b863793042cd42a5c475f2bfb81bab0dff70` is included in the current
+post-M02 local basis `acd39a3c3e73fa05e752964a75059809e6e16f71`. Its earlier candidate state
+remains historical evidence. These exact values record completed observations; they are not
 self-updating claims about a future ref and do not authorize remote, release,
 publication, or target execution action.
 
 ## Current Strategic Objective
 
-Keep authority, capability selection, mechanization, cleanup, and downstream
-pilots in one explicit order without collapsing historical proposal, partial,
-hold, implementation, and verification states into one claim. H04R is complete
-as a bounded Launchpad control-plane pilot; M00/M01 and M02 local adoption are
-complete. The immediate checkpoint is one bounded post-adoption hardening
-closeout: two authority documents, one separate same-34-source digest commit,
-one exact final Full, and one local-main compare-and-swap if Full passes. Remote
-and Hosted evidence are explicitly deferred. After the local baseline closes,
-physical Harness cleanup and a Stock target-owned pilot proceed as separately
-owned tasks; RSID follows Stock as a static-only pilot. The dirty-worktree
-checkpoint remains deferred until a real target demonstrates a prevented error.
+Reconcile the completed post-M02 cleanup and target-owned pilots into current
+Harness authority without collapsing historical proposal, partial, hold,
+implementation, verification, and adoption states into one claim. Physical
+Harness cleanup, the Stock and RSID pilots, and Launchpad local-main adoption
+are complete local checkpoints. Agent Quality capability-v2 has structural
+`LOCAL_INTEGRATION (V2)` evidence from AQ-R5K, but remains a proposal in
+`FROZEN / NOT_ADOPTED` state. Remote, Hosted, release, provider, trial,
+calibration, baseline promotion, and Git GC remain deferred or held.
 
 ## Authority Basis
 
@@ -58,7 +55,8 @@ checkpoint remains deferred until a real target demonstrates a prevented error.
 | Owner-adopted M01 basis | `05027f899bb726e8a1717c35b1f10a712f1825e9` | `LOCAL ADOPTION COMPLETED / STATUS-ONLY SUCCESSOR` | Exact target of the completed owner-approved compare-and-swap from the M00 task-start basis. This is a completed observation, not a self-updating current-ref assertion or remote evidence. |
 | M02 authority closeout | `5393dc8ca9762fff91ffa2b9aaf9680f3c6d63e3` | `AUTHORITY ALIGNED / INCLUDED IN ADOPTED M02 BASIS` | Closes M01 local-adoption sequencing and preserves the original package PASS, final-tip BLOCKED result, and separate recovery evidence. |
 | M02 same-34-source digest commit | `2de218f0548c349c74151c0fcf8a79186f951d4c` | `34/34 CURRENT / LOCAL ADOPTION COMPLETED` | Digest-only child of the M02 authority closeout and exact target of the completed owner-approved local-main compare-and-swap. Remote and Hosted state remain unobserved. |
-| Post-adoption verification hardening | `99d4b863793042cd42a5c475f2bfb81bab0dff70` | `LOCAL CANDIDATE / FULL REQUIRED / NOT ADOPTED` | Avoids shell hash-module autoload in Local Verify. Because verification infrastructure changed, final authority and digest commits require one exact-SHA local Full before a new local-main decision. |
+| Post-adoption verification hardening | `99d4b863793042cd42a5c475f2bfb81bab0dff70` | `IMPLEMENTED / INCLUDED IN POST-M02 LOCAL BASIS` | Avoids shell hash-module autoload in Local Verify. It is an ancestor of the current `acd39a3` local basis; this does not authenticate remote or Hosted state. |
+| Post-M02 local closeout basis | `acd39a3c3e73fa05e752964a75059809e6e16f71` | `LOCAL MAIN / CLEANUP AND PILOT RECONCILIATION BASIS` | Current local authority basis for this reconciliation. It does not authenticate remote state or adopt the Agent Quality proposal. |
 
 `PASS`, `V2`, `V3`, postflight, a `plan_digest`, or a recommendation remains
 structural evidence rather than independent authorization. The completed local
@@ -176,40 +174,60 @@ permission to mutate local `main` or any remote.
   `05027f899bb726e8a1717c35b1f10a712f1825e9` to
   `2de218f0548c349c74151c0fcf8a79186f951d4c`. Fetch, push, and Hosted
   verification remained `NOT RUN`.
-- `99d4b863793042cd42a5c475f2bfb81bab0dff70` is one post-adoption hardening
-  commit ahead of that local-main basis. It is not adopted and requires final
-  authority/digest closure plus one exact-SHA Full.
+- `99d4b863793042cd42a5c475f2bfb81bab0dff70` is the historical post-adoption
+  hardening implementation and is an ancestor of current local basis
+  `acd39a3c3e73fa05e752964a75059809e6e16f71`. Its earlier candidate state is
+  historical and does not imply remote or Hosted verification.
+
+### Post-M02 cleanup and target closeout
+
+- Physical Harness cleanup completed: the approved ignored sources were
+  archived and verified, exact sources were deleted, eight detached worktrees
+  were removed, and three merged local branches were deleted. Git GC and
+  preservation packing remain `HOLD / NOT RUN`.
+- Stock completed its target-owned raw-addition verifier correction and evidence
+  closeout at `bd434a200f4054f9b41eeea085183ff0df25c70b` with focused `1 passed`,
+  full `350 passed`, and quality gate `19/19`. Cached remote freshness remains
+  `UNKNOWN_NO_FETCH`.
+- RSID completed its evidence-scope pilot at local
+  `main@c0ffc1d5ddd40bb050d10c0f6e42f93b7d16858c`. GAP-013 owner/provenance
+  remains unresolved; optional empty-root and merged-branch hygiene is separate.
+- Launchpad adopted its acd39 rebaseline by local fast-forward at
+  `main@1f9677a13044770bfb3be89ab910127674851d49`; structural V2 evidence remains
+  `NOT_AUTHENTICATED` and does not authorize Office, transfer, or release work.
+- AQ-R5K recovered and passed structural `LOCAL_INTEGRATION (V2)`: Agent Quality
+  static `153 passed`, Core `841 passed / 10 skipped / 416 deselected`,
+  standalone eval `15/15`, and quality gate `8/8`. AQ-R5F, AQ-R5H, AQ-R5I, and
+  AQ-R5J remain historical `HOLD` evidence. Candidate
+  `53de64a1a19ec5d50849ebda54bbec619e4097a1` remains `FROZEN / NOT_ADOPTED`.
 
 ## NOW
 
-Current action: `M02 POST-ADOPTION HARDENING CLOSEOUT / FINAL FULL REQUIRED`.
+Current action: `POST-M02 AUTHORITY RECONCILIATION`.
 
-### Hosted exact-SHA baseline decision
+### Reconcile completed local checkpoints
 
-- State: `LOCAL M02 ADOPTION COMPLETED AT 2de218f / 99d4 HARDENING CANDIDATE NOT
-  YET ADOPTED`.
-- Close exactly two authority documents, create one separate digest-only child,
-  and run one local Full at the final exact SHA. A Full failure leaves the
-  candidate and local `main` unchanged.
-- If Full passes, an exact guarded compare-and-swap may advance local `main`
-  from `2de218f0548c349c74151c0fcf8a79186f951d4c` to the final digest commit. No
-  further tracked commit records the CAS or volatile run identifiers.
-- Fetch, push, and Hosted workflow dispatch are explicitly `NOT RUN / DEFERRED`.
-  Their absence does not block the local cleanup or target-owned local pilots.
+- Align `STATUS.md`, the capability roadmap, the handoff, and their exact
+  quality-gate assertions to the completed cleanup, Stock, RSID, Launchpad, and
+  AQ-R5K results.
+- Keep the Agent Quality proposal separate from current authority. Its R5K PASS
+  is structural V2 evidence, not demonstrated prevention, provider execution,
+  trial evidence, a baseline, promotion, or adoption.
+- This authority write does not refresh the approved-corpus digest and does not
+  mutate local `main`; those remain separate exact packages and approvals.
 
 ## NEXT
 
-### Read-only worktree ownership audit
+### Digest refresh and final local integration
 
-After the local final baseline closes, a dedicated cleanup task revalidates
-task/worktree ownership and performs only the separately approved non-force
-archive, worktree removal, merged-branch deletion, and preservation-only Git
-packing. In parallel, a separate Stock task rebaselines its own authority and
-implements at most one demonstrated target-owned local gap without broker,
-order, account, network, credential, or live-vault behavior. RSID follows as a
-Git-object/static-only pilot. A new Harness package is justified only by a P0
-safety or authority defect, an actual target blocker, the same gap in two
-targets, or evidence that a verifier produced an incorrect PASS or FAIL.
+Commit the authority-only surface separately. If the approved corpus digest is
+stale, refresh it with a distinct artifact-only package and commit. At the exact
+final SHA, run the planner-required V2 or Full verification; only a separately
+approved guarded fast-forward or compare-and-swap may then move local `main`.
+Do not merge the Agent Quality proposal during this sequence. A new Harness
+package beyond reconciliation is justified only by a P0 safety or authority
+defect, an actual target blocker, the same gap in two targets, or evidence that
+a verifier produced an incorrect PASS or FAIL.
 
 ## HELD
 
@@ -239,8 +257,8 @@ targets, or evidence that a verifier produced an incorrect PASS or FAIL.
 | Manual GitHub release-evidence export | `IMPLEMENTED / APPROVAL-GATED / COMPLETED` | The bounded one-day transport completed for the current source basis. Workflow run IDs remain task closeout evidence rather than tracked authority. |
 | External control-plane packages | `HARDENED / EXTERNAL CONTROL-PLANE ROOT VALIDATED` | Optional local `--package-root` support passed same-root compatibility, physical-safety, identity-drift, and real downstream read-only acceptance. It adds no capability, approval, downstream remote action, or schema migration. |
 | Read-only environment diagnostic | `IMPLEMENTED / EXACT-SHA LOCALLY VERIFIED / LOCALLY ADOPTED` | Safe JSON diagnostics are implemented without installation, persistence, verification execution, or target-repository behavior. Hosted evidence remains a separate decision. |
-| Downstream mechanization queue | `STOCK THEN RSID / TARGET-OWNED CHECKPOINTS` | After the local final baseline, run Harness cleanup and Stock in separately owned tasks; follow with static-only RSID. Hosted remains deferred and no target result automatically changes Harness. |
-| Agent Quality/provider | `FROZEN / NOT_ADOPTED` | Optional controls remain available for review, but provider execution and role adoption are held. |
+| Downstream target closeout | `STOCK / RSID / LAUNCHPAD LOCAL CHECKPOINTS COMPLETE` | Stock is at `bd434a2`, RSID at `c0ffc1d5`, and Launchpad local main at `1f9677a`. These are repo-specific local results; remote, Hosted, Office, transfer, and release remain unobserved or not authorized. |
+| Agent Quality/provider | `STRUCTURAL V2 PASS / FROZEN / NOT_ADOPTED` | AQ-R5K passed the package-bound local integration structure while preserving all earlier HOLDs. Provider execution, demonstrated-prevention trial, calibration, baseline, promotion, and proposal adoption remain held. |
 | Role calibration v7 | `NOT RUN` | No calibration trial or review batch is authorized by core readiness. |
 | Hermes/MCP | `HELD` | Runtime activation requires a selected repository use case and separate approval. |
 | Local RAG | `ADVISORY / FROZEN` | Read-only retrieval remains optional and is not part of core verification. |
@@ -382,17 +400,14 @@ not authenticate approval.
 
 ## Next Recommended Step
 
-M01 local adoption completed earlier at
-`05027f899bb726e8a1717c35b1f10a712f1825e9`; M02 local adoption then completed
-at `2de218f0548c349c74151c0fcf8a79186f951d4c`. Close the
-`99d4b863793042cd42a5c475f2bfb81bab0dff70` post-adoption hardening line with
-one authority commit, one digest-only commit, one final exact-SHA local Full,
-and a guarded local-main CAS only after Full passes. Fetch, push, and Hosted
-Integration Verify for the same final SHA remain explicitly deferred. Then run
-the approved physical cleanup and Stock local pilot as separate tasks, follow
-Stock with static-only RSID, and keep Launchpad/loxfs classification, stock, and
-RSID as separate repo-specific evidence boundaries. Return to Harness only for
-a repeated or safety-critical gap. No tracked recommendation alone authorizes
-remote action, release/publication, runtime repair, branch deletion, worktree
-removal, or target mutation. Structural PASS and a plan digest remain distinct
-from future runtime and side-effect approvals.
+Commit this post-M02 authority reconciliation as a separate authority-docs
+change. Because the roadmap and handoff are approved corpus sources, refresh a
+stale corpus digest only through a separate artifact-only package and commit.
+Then run the planner-required V2 or Full verification at the exact final SHA;
+only after PASS may a separately approved guarded local-main fast-forward or CAS
+be considered. Keep `53de64a1a19ec5d50849ebda54bbec619e4097a1`
+`FROZEN / NOT_ADOPTED`. Fetch, push, Hosted Integration Verify, provider work,
+trial, calibration, baseline promotion, release, and Git GC remain explicitly
+`NOT RUN / DEFERRED`. No tracked recommendation alone authorizes remote action,
+release/publication, runtime repair, branch deletion, worktree removal, target
+mutation, or Agent Quality adoption.
