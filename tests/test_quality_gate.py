@@ -382,10 +382,10 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     now_section = status.split("\n## NOW\n", 1)[1].split("\n## ", 1)[0]
     next_section = status.split("\n## NEXT\n", 1)[1].split("\n## ", 1)[0]
     assert [line for line in now_section.splitlines() if line.startswith("### ")] == [
-        "### Reconcile completed local checkpoints"
+        "### Preserve clean local terminal checkpoint"
     ]
     assert [line for line in next_section.splitlines() if line.startswith("### ")] == [
-        "### Digest refresh and final local integration"
+        "### Await an owner-selected need"
     ]
 
     assert "## Completed Checkpoint" in status
@@ -434,12 +434,13 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     assert "local Full passed `130`" in status
     assert "Hosted verification was `NOT RUN`" in status
     assert "`DEPENDENCY_HOLD`" in status
-    assert "post-M02 authority reconciliation" in normalized_next_step
-    assert "separate artifact-only package and commit" in normalized_next_step
+    assert "post-H4R3 local sequence is closed" in normalized_next_step
+    assert "No additional implementation capability is selected" in normalized_next_step
     assert "FROZEN / NOT_ADOPTED" in normalized_next_step
     assert "`bd434a200f4054f9b41eeea085183ff0df25c70b`" in status
     assert "`c0ffc1d5ddd40bb050d10c0f6e42f93b7d16858c`" in status
     assert "`main@1f9677a13044770bfb3be89ab910127674851d49`" in status
+    assert "`80d1ac15d6c036f7d914bfe606664a7daac2378f`" in status
     assert "AQ-R5K recovered and passed structural" in status
     assert "IMPLEMENTED / EXACT-SHA LOCALLY VERIFIED / LOCALLY ADOPTED" in status
     assert "`2cfb40d72eafdd40ff95e99fa35ded11b57496f6`" in status

@@ -53,10 +53,14 @@ This roadmap does not authorize implementation or side effects.
 
 No additional implementation capability is selected. The read-only verification
 environment diagnostic remains part of the locally adopted M01/M02 lineage,
-and the current reconciliation basis is
-`acd39a3c3e73fa05e752964a75059809e6e16f71`. Post-M02 physical cleanup and the
-Stock, RSID, and Launchpad local checkpoints are complete. AQ-R5K supplies
-structural V2 evidence for proposal
+and post-M02 reconciliation started from
+`acd39a3c3e73fa05e752964a75059809e6e16f71`. Authority commit
+`3d54823c557317d54811b9731b3198a41a647e0f`, assertion correction
+`ac0efb08261a7c84828acff476d217ce9286b633`, and the separately verified and
+locally adopted digest `80d1ac15d6c036f7d914bfe606664a7daac2378f`
+close that local sequence. Physical cleanup and the Stock, RSID, and Launchpad
+local checkpoints are complete. AQ-R5K supplies structural V2 evidence for
+proposal
 `53de64a1a19ec5d50849ebda54bbec619e4097a1`, while the proposal remains
 `FROZEN / NOT_ADOPTED`; all earlier AQ HOLD/FAIL evidence remains historical.
 Remote reconciliation, push, Hosted verification, release, and Git GC are
@@ -72,9 +76,10 @@ The authoritative order is:
 3. preserve completed M02 authority/digest evidence and local adoption at
    `2de218f0548c349c74151c0fcf8a79186f951d4c` without rewriting the original
    package BLOCKED result or later recovery PASS;
-4. reconcile the completed post-M02 cleanup and target checkpoints in one
-   bounded authority commit, then use a separate same-source digest commit if
-   the approved corpus digest is stale;
+4. preserve the completed post-M02 reconciliation at
+   `3d54823c557317d54811b9731b3198a41a647e0f`, assertion correction at
+   `ac0efb08261a7c84828acff476d217ce9286b633`, and separate digest/local adoption
+   at `80d1ac15d6c036f7d914bfe606664a7daac2378f`;
 5. record remote reconciliation, push, and Hosted exact-SHA verification as
    `NOT RUN / DEFERRED` rather than blocking local cleanup or target work;
 6. keep the dirty-worktree checkpoint deferred until a real target demonstrates

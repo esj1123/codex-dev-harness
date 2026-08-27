@@ -25,22 +25,29 @@ then closed its authority at `5393dc8ca9762fff91ffa2b9aaf9680f3c6d63e3`,
 restored the unchanged 34-source digest at
 `2de218f0548c349c74151c0fcf8a79186f951d4c`, and completed a separately approved
 local-main compare-and-swap to that digest commit. Post-adoption verification
-hardening at `99d4b863793042cd42a5c475f2bfb81bab0dff70` is included in the current
-post-M02 local basis `acd39a3c3e73fa05e752964a75059809e6e16f71`. Its earlier candidate state
-remains historical evidence. These exact values record completed observations; they are not
-self-updating claims about a future ref and do not authorize remote, release,
-publication, or target execution action.
+hardening at `99d4b863793042cd42a5c475f2bfb81bab0dff70` is included in the
+post-M02 reconciliation basis `acd39a3c3e73fa05e752964a75059809e6e16f71`.
+The separately approved H4R3 sequence reconciled the completed local
+checkpoints at `3d54823c557317d54811b9731b3198a41a647e0f`, corrected the current
+authority assertions at `ac0efb08261a7c84828acff476d217ce9286b633`, refreshed the unchanged
+34-source digest at `80d1ac15d6c036f7d914bfe606664a7daac2378f`, passed fresh package-bound
+`LOCAL_INTEGRATION (V2)`, and completed a guarded local-main fast-forward to
+that digest commit. These exact values record completed observations; they are
+not self-updating claims about a future ref and do not authorize remote,
+release, publication, or target execution action.
 
 ## Current Strategic Objective
 
-Reconcile the completed post-M02 cleanup and target-owned pilots into current
-Harness authority without collapsing historical proposal, partial, hold,
-implementation, verification, and adoption states into one claim. Physical
-Harness cleanup, the Stock and RSID pilots, and Launchpad local-main adoption
-are complete local checkpoints. Agent Quality capability-v2 has structural
-`LOCAL_INTEGRATION (V2)` evidence from AQ-R5K, but remains a proposal in
-`FROZEN / NOT_ADOPTED` state. Remote, Hosted, release, provider, trial,
-calibration, baseline promotion, and Git GC remain deferred or held.
+Preserve the completed post-H4R3 local closeout without collapsing historical
+proposal, partial, hold, implementation, verification, and adoption states into
+one claim. Physical Harness cleanup, the Stock and RSID pilots, Launchpad
+local-main adoption, post-M02 authority reconciliation, the separate digest
+refresh, exact-final-SHA V2 verification, and guarded H4R3 local-main adoption
+are complete local checkpoints. No additional implementation capability is
+selected. Agent Quality capability-v2 has structural `LOCAL_INTEGRATION (V2)`
+evidence from AQ-R5K, but remains a proposal in `FROZEN / NOT_ADOPTED` state.
+Remote, Hosted, release, provider, trial, calibration, baseline promotion, and
+Git GC remain deferred or held.
 
 ## Authority Basis
 
@@ -56,7 +63,10 @@ calibration, baseline promotion, and Git GC remain deferred or held.
 | M02 authority closeout | `5393dc8ca9762fff91ffa2b9aaf9680f3c6d63e3` | `AUTHORITY ALIGNED / INCLUDED IN ADOPTED M02 BASIS` | Closes M01 local-adoption sequencing and preserves the original package PASS, final-tip BLOCKED result, and separate recovery evidence. |
 | M02 same-34-source digest commit | `2de218f0548c349c74151c0fcf8a79186f951d4c` | `34/34 CURRENT / LOCAL ADOPTION COMPLETED` | Digest-only child of the M02 authority closeout and exact target of the completed owner-approved local-main compare-and-swap. Remote and Hosted state remain unobserved. |
 | Post-adoption verification hardening | `99d4b863793042cd42a5c475f2bfb81bab0dff70` | `IMPLEMENTED / INCLUDED IN POST-M02 LOCAL BASIS` | Avoids shell hash-module autoload in Local Verify. It is an ancestor of the current `acd39a3` local basis; this does not authenticate remote or Hosted state. |
-| Post-M02 local closeout basis | `acd39a3c3e73fa05e752964a75059809e6e16f71` | `LOCAL MAIN / CLEANUP AND PILOT RECONCILIATION BASIS` | Current local authority basis for this reconciliation. It does not authenticate remote state or adopt the Agent Quality proposal. |
+| Post-M02 local closeout basis | `acd39a3c3e73fa05e752964a75059809e6e16f71` | `H4R3 TASK-START BASIS / LOCALLY SUPERSEDED BY APPROVED FAST-FORWARD` | Exact local-main basis from which the post-M02 authority reconciliation started. It remains historical authority evidence rather than a self-updating current-ref assertion. |
+| Post-M02 authority reconciliation | `3d54823c557317d54811b9731b3198a41a647e0f` | `AUTHORITY ALIGNED / INCLUDED IN ADOPTED H4R3 BASIS` | Reconciles completed cleanup and target checkpoints while keeping the Agent Quality proposal frozen and separate. |
+| H4R3 authority assertion correction | `ac0efb08261a7c84828acff476d217ce9286b633` | `AUTHORITY ASSERTIONS CURRENT / INCLUDED IN ADOPTED H4R3 BASIS` | Adds the exact RSID adopted SHA and explicit no-capability-selected wording without changing the historical H4/H4R results. |
+| Owner-adopted H4R3 digest basis | `80d1ac15d6c036f7d914bfe606664a7daac2378f` | `34/34 CURRENT / FRESH V2 POSTFLIGHT PASS / LOCAL ADOPTION COMPLETED` | Digest-only child of the H4R3 authority correction and exact target of the completed owner-approved local-main fast-forward. Structural evidence remains `NOT_AUTHENTICATED`; remote and Hosted state remain unobserved. |
 
 `PASS`, `V2`, `V3`, postflight, a `plan_digest`, or a recommendation remains
 structural evidence rather than independent authorization. The completed local
@@ -201,33 +211,46 @@ permission to mutate local `main` or any remote.
   AQ-R5J remain historical `HOLD` evidence. Candidate
   `53de64a1a19ec5d50849ebda54bbec619e4097a1` remains `FROZEN / NOT_ADOPTED`.
 
+### Post-H4R3 local adoption closeout
+
+- The H4R3 authority reconciliation and assertion correction were committed
+  separately from the approved-corpus refresh. Final digest commit
+  `80d1ac15d6c036f7d914bfe606664a7daac2378f` preserves the same 34-source
+  membership, order, schema, algorithm, and normalization policy.
+- Fresh schema-v3 recovery verification at that exact SHA passed Core
+  `841 passed / 10 skipped / 414 deselected`, corpus digest `34/34`, standalone
+  eval `15/15`, quality gate `8/8`, and mandatory postflight under one
+  `plan_digest`. The structural result remains `NOT_AUTHENTICATED`.
+- After exact clean branch, HEAD, local-main, and preserved-ref gates passed,
+  the owner-approved fast-forward moved local `main` from
+  `acd39a3c3e73fa05e752964a75059809e6e16f71` to the H4R3 digest commit. Fetch,
+  push, Hosted verification, release, Git GC, and cleanup were `NOT RUN`.
+
 ## NOW
 
-Current action: `POST-M02 AUTHORITY RECONCILIATION`.
+Current action: `POST-H4R3 LOCAL CLOSEOUT COMPLETE`.
 
-### Reconcile completed local checkpoints
+### Preserve clean local terminal checkpoint
 
-- Align `STATUS.md`, the capability roadmap, the handoff, and their exact
-  quality-gate assertions to the completed cleanup, Stock, RSID, Launchpad, and
-  AQ-R5K results.
+- Preserve the completed H4R3 authority, separate digest, exact-final-SHA V2,
+  postflight, and owner-approved local-main adoption as distinct checkpoints.
 - Keep the Agent Quality proposal separate from current authority. Its R5K PASS
-  is structural V2 evidence, not demonstrated prevention, provider execution,
+  remains structural evidence, not demonstrated prevention, provider execution,
   trial evidence, a baseline, promotion, or adoption.
-- This authority write does not refresh the approved-corpus digest and does not
-  mutate local `main`; those remain separate exact packages and approvals.
+- Start no additional implementation capability without a separately selected
+  need, exact work package, and fresh authority and verification gates.
 
 ## NEXT
 
-### Digest refresh and final local integration
+### Await an owner-selected need
 
-Commit the authority-only surface separately. If the approved corpus digest is
-stale, refresh it with a distinct artifact-only package and commit. At the exact
-final SHA, run the planner-required V2 or Full verification; only a separately
-approved guarded fast-forward or compare-and-swap may then move local `main`.
-Do not merge the Agent Quality proposal during this sequence. A new Harness
-package beyond reconciliation is justified only by a P0 safety or authority
-defect, an actual target blocker, the same gap in two targets, or evidence that
-a verifier produced an incorrect PASS or FAIL.
+The post-H4R3 local sequence is closed after separate authority and digest
+commits, exact-final-SHA V2 and postflight PASS, and owner-approved local-main
+adoption. No additional implementation capability is selected. A new Harness
+package is justified only by a P0 safety or authority defect, an actual target
+blocker, the same gap in two targets, or evidence that a verifier produced an
+incorrect PASS or FAIL. Remote, Hosted, release, provider, trial, calibration,
+baseline-promotion, and Agent Quality adoption remain separate owner decisions.
 
 ## HELD
 
@@ -400,14 +423,13 @@ not authenticate approval.
 
 ## Next Recommended Step
 
-Commit this post-M02 authority reconciliation as a separate authority-docs
-change. Because the roadmap and handoff are approved corpus sources, refresh a
-stale corpus digest only through a separate artifact-only package and commit.
-Then run the planner-required V2 or Full verification at the exact final SHA;
-only after PASS may a separately approved guarded local-main fast-forward or CAS
-be considered. Keep `53de64a1a19ec5d50849ebda54bbec619e4097a1`
-`FROZEN / NOT_ADOPTED`. Fetch, push, Hosted Integration Verify, provider work,
-trial, calibration, baseline promotion, release, and Git GC remain explicitly
-`NOT RUN / DEFERRED`. No tracked recommendation alone authorizes remote action,
-release/publication, runtime repair, branch deletion, worktree removal, target
-mutation, or Agent Quality adoption.
+The post-H4R3 local sequence is closed by a separately verified and locally
+adopted authority-and-digest successor. No additional implementation capability
+is selected. Keep `53de64a1a19ec5d50849ebda54bbec619e4097a1`
+`FROZEN / NOT_ADOPTED`. Later Harness work requires a demonstrated need, an
+exact package, and fresh authority and verification gates. Fetch, push, Hosted
+Integration Verify, provider work, trial, calibration, baseline promotion,
+release, and Git GC remain explicitly `NOT RUN / DEFERRED`. No tracked
+recommendation alone authorizes remote action, release/publication, runtime
+repair, branch deletion, worktree removal, target mutation, or Agent Quality
+adoption.

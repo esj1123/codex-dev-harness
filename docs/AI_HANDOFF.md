@@ -44,11 +44,15 @@ Agent Quality remains optional and `FROZEN / NOT ADOPTED`. Provider execution
 and role calibration v7 are `NOT RUN`; neither is implied by
 `CORE_HARNESS_READY`.
 
-## Post-M02 Reconciliation Checkpoint
+## Post-H4R3 Local Closeout
 
-- Harness current local authority basis is
-  `acd39a3c3e73fa05e752964a75059809e6e16f71`; physical cleanup is complete,
-  while Git GC and preservation packing remain `HOLD / NOT RUN`.
+- Harness H4R3 local adoption is complete at
+  `80d1ac15d6c036f7d914bfe606664a7daac2378f`: authority reconciliation
+  `3d54823c557317d54811b9731b3198a41a647e0f`, assertion correction
+  `ac0efb08261a7c84828acff476d217ce9286b633`, separate 34-source digest,
+  fresh exact-SHA V2/postflight PASS, and owner-approved local-main
+  fast-forward. Physical cleanup is complete, while Git GC and preservation
+  packing remain `HOLD / NOT RUN`.
 - Stock completed its target-owned verifier/evidence closeout at
   `bd434a200f4054f9b41eeea085183ff0df25c70b`.
 - RSID completed its evidence-scope pilot at local
@@ -65,10 +69,11 @@ and role calibration v7 are `NOT RUN`; neither is implied by
 - Provider/API/model execution, trial, role calibration v7, baseline/promotion,
   fetch, push, Hosted, release, and Git GC are `NOT RUN`.
 
-The next governed sequence is an authority-only commit, a separate corpus
-digest refresh if the approved-source digest is stale, exact-final-SHA planner
-verification, and a separately approved guarded local-main decision. Do not
-merge the Agent Quality proposal as part of authority reconciliation.
+The post-H4R3 local sequence is complete and no additional implementation
+capability is selected. Start a new package only for a demonstrated need under
+fresh authority and verification gates. Remote, Hosted, release, provider, and
+Agent Quality redesign or adoption remain separate owner decisions. Do not
+merge the Agent Quality proposal as an implied successor.
 
 ## Required Boundaries
 
