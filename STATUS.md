@@ -190,7 +190,7 @@ permission to mutate local `main` or any remote.
   full `350 passed`, and quality gate `19/19`. Cached remote freshness remains
   `UNKNOWN_NO_FETCH`.
 - RSID completed its evidence-scope pilot at local
-  `main@c0ffc1d5ddd40bb050d10c0f6e42f93b7d16858c`. GAP-013 owner/provenance
+  `main` at `c0ffc1d5ddd40bb050d10c0f6e42f93b7d16858c`. GAP-013 owner/provenance
   remains unresolved; optional empty-root and merged-branch hygiene is separate.
 - Launchpad adopted its acd39 rebaseline by local fast-forward at
   `main@1f9677a13044770bfb3be89ab910127674851d49`; structural V2 evidence remains

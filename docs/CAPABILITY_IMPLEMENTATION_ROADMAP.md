@@ -51,7 +51,7 @@ This roadmap does not authorize implementation or side effects.
 
 ## Current Selection
 
-No new operational capability is selected. The read-only verification
+No additional implementation capability is selected. The read-only verification
 environment diagnostic remains part of the locally adopted M01/M02 lineage,
 and the current reconciliation basis is
 `acd39a3c3e73fa05e752964a75059809e6e16f71`. Post-M02 physical cleanup and the
@@ -98,9 +98,10 @@ Each item has its own work package, commit, verification, and approval boundary.
 Harness cleanup and the target sequence completed under separately owned
 checkpoints; none inherited authority from structural package PASS. Launchpad
 remains the reference pilot and its authority rebaseline is adopted locally,
-while Office/template/runtime acceptance remains separate. Loxfs remains
-evidence-only by default. The completed target order was Stock first and RSID
-second; any new target work requires a new target-owned scope.
+while Office/template/runtime acceptance remains separate.
+Loxfs remains evidence-only by default.
+The completed target order was Stock first and RSID second; any new target work
+requires a new target-owned scope.
 
 For Agent Quality work:
 
@@ -169,8 +170,8 @@ Before selecting a capability, record:
 - rollback and cleanup;
 - completion and stop conditions.
 
-If the proposal changes public contracts, create a serial contract-freeze step
-before parallel implementation. If the proposal only addresses local behavior,
+If the proposal changes public contracts, create a serial work-package schema v3
+contract-freeze step before parallel implementation. If the proposal only addresses local behavior,
 prefer one focused implementation commit and one cumulative verification gate.
 
 ## Closeout
