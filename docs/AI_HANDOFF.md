@@ -40,40 +40,15 @@ control-plane evidence. They do not authenticate approval and must not contain
 raw prompts, transcripts, private payloads, secrets, absolute paths, or command
 logs.
 
-Agent Quality remains optional and `FROZEN / NOT ADOPTED`. Provider execution
-and role calibration v7 are `NOT RUN`; neither is implied by
-`CORE_HARNESS_READY`.
+## State And Evidence Navigation
 
-## Post-H4R3 Local Closeout
+Read `STATUS.md` for Agent Quality/provider availability, held items, and the
+next authorized sequencing decision. Core readiness and structural evidence
+do not imply provider execution, trial, calibration, baseline, or adoption.
 
-- Harness H4R3 local adoption is complete at
-  `80d1ac15d6c036f7d914bfe606664a7daac2378f`: authority reconciliation
-  `3d54823c557317d54811b9731b3198a41a647e0f`, assertion correction
-  `ac0efb08261a7c84828acff476d217ce9286b633`, separate 34-source digest,
-  fresh exact-SHA V2/postflight PASS, and owner-approved local-main
-  fast-forward. Physical cleanup is complete, while Git GC and preservation
-  packing remain `HOLD / NOT RUN`.
-- Stock completed its target-owned verifier/evidence closeout at
-  `bd434a200f4054f9b41eeea085183ff0df25c70b`.
-- RSID completed its evidence-scope pilot at local
-  `main@c0ffc1d5ddd40bb050d10c0f6e42f93b7d16858c`; GAP-013 remains unresolved.
-- Launchpad adopted its authority rebaseline by local fast-forward at
-  `main@1f9677a13044770bfb3be89ab910127674851d49`; its structural result remains
-  `NOT_AUTHENTICATED` and does not authorize Office, transfer, or release work.
-- AQ-R5K passed package-bound structural `LOCAL_INTEGRATION (V2)` for proposal
-  `53de64a1a19ec5d50849ebda54bbec619e4097a1`: static `153 passed`, Core
-  `841 passed / 10 skipped / 416 deselected`, standalone eval `15/15`, and
-  quality gate `8/8`. AQ-R5F, AQ-R5H, AQ-R5I, and AQ-R5J remain historical
-  `HOLD` results. The proposal remains `FROZEN / NOT_ADOPTED` under the
-  `REDESIGN_BEFORE_TRIAL` decision.
-- Provider/API/model execution, trial, role calibration v7, baseline/promotion,
-  fetch, push, Hosted, release, and Git GC are `NOT RUN`.
-
-The post-H4R3 local sequence is complete and no additional implementation
-capability is selected. Start a new package only for a demonstrated need under
-fresh authority and verification gates. Remote, Hosted, release, provider, and
-Agent Quality redesign or adoption remain separate owner decisions. Do not
-merge the Agent Quality proposal as an implied successor.
+Read [Historical Local Checkpoints](../ACCEPTANCE_TRACE.md#historical-local-checkpoints)
+for source-bound local closeouts, recovery results, and earlier HOLDs.
+Historical observations do not update current refs or grant successor action.
 
 ## Required Boundaries
 

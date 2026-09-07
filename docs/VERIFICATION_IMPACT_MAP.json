@@ -180,10 +180,12 @@
         "pytest.ini",
         "requirements-dev.lock",
         "requirements-dev.txt",
+        "scripts/generate_checksums.py",
         "scripts/quality_gate.py",
         "scripts/repo_path_policy.py",
         "scripts/run_local_verify.ps1",
         "scripts/verification_plan.py",
+        "scripts/work_package_conflict_check.py",
         "tests/conftest.py"
       ],
       "render_check_required": false,

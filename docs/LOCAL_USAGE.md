@@ -47,25 +47,31 @@ state.
 
 ## Recommended Local Verification
 
-Use the wrapper from the repository root:
+Choose an explicit lane from the repository root according to the purpose.
+For routine local feedback:
 
-`powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1`
+`powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1 -Lane Routine`
 
-If the normal OS temp root is unsuitable, first create a dedicated directory
-outside the repository, then pass it explicitly:
-
-`powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1 -PytestBaseTempRoot D:\Codex\_tmp\CODEX-HARNESS`
-
-
-For the official integration pytest scope, run:
+For the official integration pytest scope:
 
 `powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1 -Lane Core`
 
-`Routine` keeps the existing quick-feedback exclusions and targets five
-minutes or less. `Core` excludes centrally marked Agent Quality, Hermes/MCP, and
-Local RAG optional tests and is the default Hosted Integration scope. The
-no-argument `Full` behavior is unchanged and remains the extended regression
-superset.
+For extended regression:
+
+`powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1 -Lane Full`
+
+The no-argument command still runs `Full`. `Routine` keeps the existing exact
+quick-feedback exclusions and targets five minutes or less. Routine PASS is
+local feedback, not V2/V3, release, or promotion evidence. `Core` excludes
+centrally marked Agent Quality, Hermes/MCP, and Local RAG optional tests and
+is the default Hosted Integration scope. Full remains the extended regression
+superset. Follow `docs/VERIFICATION.md` and the cumulative impact plan for
+required integration commands and extras; selecting a lane grants no approval.
+
+If the normal OS temp root is unsuitable, use an existing dedicated directory
+outside the repository and pass it explicitly with the intended lane:
+
+`powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1 -Lane Routine -PytestBaseTempRoot D:\Codex\_tmp\CODEX-HARNESS`
 
 The directory must already exist, be absolute, remain outside the repository,
 and not be a reparse point. The wrapper creates a unique pytest child path and

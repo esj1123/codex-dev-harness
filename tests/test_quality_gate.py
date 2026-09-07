@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import shlex
 from pathlib import Path
 import subprocess
@@ -345,10 +346,11 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     usage = Path("docs/LOCAL_USAGE.md").read_text(encoding="utf-8")
     checklist = Path("docs/LOCAL_PACKAGE_CHECKLIST.md").read_text(encoding="utf-8")
     runtime = Path("docs/PYTHON_RUNTIME_POLICY.md").read_text(encoding="utf-8")
+    trace = Path("ACCEPTANCE_TRACE.md").read_text(encoding="utf-8")
     normalized_status = " ".join(status.split())
     normalized_checklist = " ".join(checklist.split())
-    held_marker = "\n## Held Or Not Authorized\n"
-    next_step_marker = "\n## Next Recommended Step\n"
+    held_marker = "\n## HELD\n"
+    next_step_marker = "\n## NEXT\n"
     assert status.count(held_marker) == 1
     assert status.count(next_step_marker) == 1
     normalized_held = " ".join(
@@ -357,98 +359,39 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     normalized_next_step = " ".join(
         status.split(next_step_marker, 1)[1].split("\n## ", 1)[0].split()
     )
-    normalized_alignment_held = " ".join(
-        status.split("\n## HELD\n", 1)[1].split("\n## ", 1)[0].split()
-    )
     assert "`CORE_HARNESS_READY`" in normalized_status
     assert (
         "Tracked release evidence regeneration until the eval-report inclusion policy "
         "and exact source basis are separately approved."
         not in normalized_held
     )
-    assert "Tag, release, signing, publication, or durable remote distribution." in normalized_held
+    assert "durable remote distribution" in normalized_held
     assert "outside the selected manual GitHub release-evidence export contract" in normalized_held
     required_status_sections = [
-        "Current Strategic Objective",
-        "Authority Basis",
-        "Completed Checkpoint",
+        "Current State",
         "NOW",
         "NEXT",
         "HELD",
+        "Operational Capability Status",
+        "Implemented Control Surface",
+        "Verification Model",
     ]
-    for section_name in required_status_sections:
-        assert status.count(f"\n## {section_name}\n") == 1
+    assert [
+        line[3:] for line in status.splitlines() if line.startswith("## ")
+    ] == required_status_sections
 
+    current_state = status.split("\n## Current State\n", 1)[1].split("\n## ", 1)[0]
     now_section = status.split("\n## NOW\n", 1)[1].split("\n## ", 1)[0]
     next_section = status.split("\n## NEXT\n", 1)[1].split("\n## ", 1)[0]
-    assert [line for line in now_section.splitlines() if line.startswith("### ")] == [
-        "### Preserve clean local terminal checkpoint"
-    ]
-    assert [line for line in next_section.splitlines() if line.startswith("### ")] == [
-        "### Await an owner-selected need"
-    ]
-
-    assert "## Completed Checkpoint" in status
-    assert "### H01-H03 and recovery history" in status
-    assert "`68b5971325a8371a259c63db081d209fba005b96`" in status
-    assert "`78100a50a1ff8013492b39023b2d6a77e8e4cbba`" in status
-    assert "`5568442d96df40a99a22862d273dfc7b005e0a97`" in status
-    assert "PROPOSED / PENDING INTEGRATION" in status
-    assert "PARTIAL / HOLD" in status
-    assert "70 bytes" in status
-    for evidence in [
-        "837 passed / 10 skipped / 414 deselected",
-        "1251 passed / 10 skipped",
-        "15/15",
-        "8/8",
-        "48` paths",
-        "34/34",
-        "stale=0",
-        "3.12.10",
-        "9.0.3",
-        "dependency lock `6/6`",
-        "pip check` `PASS",
-    ]:
-        assert evidence in normalized_status
-    assert "authorization_status=NOT_AUTHENTICATED" in status
-    assert "`965fb86de1a8a307c646874d17d44c60c5dd9cf8`" in status
-    assert "`ffc90e0f0801979bf67de4a5b32aaf8fc2745a0d`" in status
-    assert "`db748759ed1c4f1b7c5cbce84180c598eaa6cdb4`" in status
-    assert "GUARDED OLD VALUE" in status
-    assert "LOCALLY ADOPTED / EXACT-SHA CORE+FULL VERIFIED" in status
-    assert "not a self-updating assertion about the current ref" in normalized_status
-    assert "CURRENT LOCAL MAIN /" not in status
-    assert "PENDING LOCAL INTEGRATION" not in status
-    assert "`05027f899bb726e8a1717c35b1f10a712f1825e9`" in status
-    assert "H04LW recorded `Core PASS`" in status
-    assert "Full step remained" in status
-    assert "H04LR stopped with a path-length `HOLD`" in status
-    assert "H04LR2 recovered Full at the same adopted exact SHA with `Full PASS`" in status
-    assert "`7 commits/20 paths` with `GO`" in status
-    assert "`14 worktrees clean`" in status
-    assert "no rename, delete, or mode change" in status
-    assert "cached `origin` observation is not represented as live remote state" in status
-    assert "H04R Launchpad downstream pilot" in status
-    assert "`be49a668b09a85c9316da17bd6c3c40192ee68ed`" in status
-    assert "Focused verification passed `11/11`" in status
-    assert "local Full passed `130`" in status
-    assert "Hosted verification was `NOT RUN`" in status
-    assert "`DEPENDENCY_HOLD`" in status
-    assert "post-H4R3 local sequence is closed" in normalized_next_step
+    capability_section = status.split(
+        "\n## Operational Capability Status\n", 1
+    )[1].split("\n## ", 1)[0]
+    assert "completed observations, not self-updating local or remote refs" in current_state
+    assert "AQ-R5K structural `LOCAL_INTEGRATION (V2)`" in now_section
+    assert "`FROZEN / NOT_ADOPTED` under `REDESIGN_BEFORE_TRIAL`" in now_section
+    assert "Earlier HOLDs remain historical HOLDs" in now_section
+    assert "post-H4R3 local sequence is closed" in next_section
     assert "No additional implementation capability is selected" in normalized_next_step
-    assert "FROZEN / NOT_ADOPTED" in normalized_next_step
-    assert "`bd434a200f4054f9b41eeea085183ff0df25c70b`" in status
-    assert "`c0ffc1d5ddd40bb050d10c0f6e42f93b7d16858c`" in status
-    assert "`main@1f9677a13044770bfb3be89ab910127674851d49`" in status
-    assert "`80d1ac15d6c036f7d914bfe606664a7daac2378f`" in status
-    assert "AQ-R5K recovered and passed structural" in status
-    assert "IMPLEMENTED / EXACT-SHA LOCALLY VERIFIED / LOCALLY ADOPTED" in status
-    assert "`2cfb40d72eafdd40ff95e99fa35ded11b57496f6`" in status
-    assert "Focused environment tests passed `32`" in normalized_status
-    assert "Core passed `840`" in normalized_status
-    assert "Full passed `1254`" in normalized_status
-    assert "`32/34` valid with two stale approved sources" in normalized_status
-    assert "PENDING OWNER APPROVAL / NOT AUTHORIZED" in status
     for held_boundary in [
         "Remote fetch/push",
         "Hosted workflow execution",
@@ -463,10 +406,168 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
         "deployment",
         "target execution",
         "additional local-main mutation",
+        "generic command runner",
+        "inferred package fields",
+        "durable audit writer",
+        "automatic worktree prune",
+        "local-ref update",
+        "Junction repair",
+        "manifest rewrite",
+        "dependency installation",
+        "EOL normalization",
     ]:
-        assert held_boundary in normalized_alignment_held
-    assert "No additional implementation capability is selected" in normalized_alignment_held
-    assert "generic command runner" in normalized_alignment_held
+        assert held_boundary in normalized_held
+    expected_capability_states = {
+        "Core template harness": "`READY`",
+        "Renderer apply": "`READY`",
+        "Release generator code": "`HARDENED`",
+        "Tracked release bundle": "`CURRENT / LOCAL RELEASE / GITHUB-VERIFIED / TRANSIENT CI EXPORT / NOT PUBLISHED`",
+        "Manual GitHub release-evidence export": "`IMPLEMENTED / APPROVAL-GATED / COMPLETED`",
+        "External control-plane packages": "`HARDENED / EXTERNAL CONTROL-PLANE ROOT VALIDATED`",
+        "Read-only environment diagnostic": "`IMPLEMENTED / EXACT-SHA LOCALLY VERIFIED / LOCALLY ADOPTED`",
+        "Downstream target closeout": "`STOCK / RSID / LAUNCHPAD LOCAL CHECKPOINTS COMPLETE`",
+        "Agent Quality/provider": "`STRUCTURAL V2 PASS / FROZEN / NOT_ADOPTED`",
+        "Role calibration v7": "`NOT RUN`",
+        "Hermes/MCP": "`HELD`",
+        "Local RAG": "`ADVISORY / FROZEN`",
+    }
+    for surface, state in expected_capability_states.items():
+        assert f"| {surface} | {state} |" in capability_section
+
+    historical = trace.split("\n## Historical Local Checkpoints\n", 1)[1]
+    authority = historical.split("\n### Authority Basis\n", 1)[1].split(
+        "\n### Completed Checkpoint\n", 1
+    )[0]
+    completed = historical.split("\n### Completed Checkpoint\n", 1)[1].split(
+        "\n### Historical Agent Quality Evidence\n", 1
+    )[0]
+    h01_h03 = completed.split("\n#### H01-H03 and recovery history\n", 1)[1].split(
+        "\n#### H04 closeout and recovery history\n", 1
+    )[0]
+    h04 = completed.split("\n#### H04 closeout and recovery history\n", 1)[1].split(
+        "\n#### U05 whole-repository audit\n", 1
+    )[0]
+    u05 = completed.split("\n#### U05 whole-repository audit\n", 1)[1].split(
+        "\n#### H04R Launchpad downstream pilot\n", 1
+    )[0]
+    h04r = completed.split("\n#### H04R Launchpad downstream pilot\n", 1)[1].split(
+        "\n#### M00 authority alignment and M01 environment diagnostic\n", 1
+    )[0]
+    m00_m01 = completed.split(
+        "\n#### M00 authority alignment and M01 environment diagnostic\n", 1
+    )[1].split("\n#### M02 local adoption and post-adoption hardening\n", 1)[0]
+    m02 = completed.split(
+        "\n#### M02 local adoption and post-adoption hardening\n", 1
+    )[1].split("\n#### Post-M02 cleanup and target closeout\n", 1)[0]
+    post_m02 = completed.split("\n#### Post-M02 cleanup and target closeout\n", 1)[1].split(
+        "\n#### Post-H4R3 local adoption closeout\n", 1
+    )[0]
+    h4r3 = completed.split("\n#### Post-H4R3 local adoption closeout\n", 1)[1]
+    historical_aq = historical.split(
+        "\n### Historical Agent Quality Evidence\n", 1
+    )[1].split("\n### Application Pilot\n", 1)[0]
+    historical_handoff = historical.split("\n### Post-H4R3 Local Closeout\n", 1)[1]
+
+    authority = " ".join(authority.split())
+    h01_h03 = " ".join(h01_h03.split())
+    h04 = " ".join(h04.split())
+    u05 = " ".join(u05.split())
+    h04r = " ".join(h04r.split())
+    m00_m01 = " ".join(m00_m01.split())
+    m02 = " ".join(m02.split())
+    post_m02 = " ".join(post_m02.split())
+    h4r3 = " ".join(h4r3.split())
+    historical_aq = " ".join(historical_aq.split())
+    historical_handoff = " ".join(historical_handoff.split())
+
+    for evidence in [
+        "`68b5971325a8371a259c63db081d209fba005b96`",
+        "`78100a50a1ff8013492b39023b2d6a77e8e4cbba`",
+        "`5568442d96df40a99a22862d273dfc7b005e0a97`",
+        "PROPOSED / PENDING INTEGRATION",
+        "PARTIAL / HOLD",
+        "70 bytes",
+        "837 passed / 10 skipped / 414 deselected",
+        "1251 passed / 10 skipped",
+        "48` paths",
+        "authorization_status=NOT_AUTHENTICATED",
+    ]:
+        assert evidence in h01_h03
+    assert "`965fb86de1a8a307c646874d17d44c60c5dd9cf8`" in authority
+    assert "`ffc90e0f0801979bf67de4a5b32aaf8fc2745a0d`" in authority
+    assert "GUARDED OLD VALUE" in authority
+    assert "LOCALLY ADOPTED / EXACT-SHA CORE+FULL VERIFIED" in authority
+    assert "H04LW recorded `Core PASS`" in h04
+    assert "Full step remained" in h04
+    assert "H04LR stopped with a path-length `HOLD`" in h04
+    assert "H04LR2 recovered Full at the same adopted exact SHA with `Full PASS`" in h04
+    assert "`7 commits/20 paths` with `GO`" in u05
+    assert "`14 worktrees clean`" in u05
+    assert "no rename, delete, or mode change" in u05
+    assert "cached `origin` observation is not represented as live remote state" in u05
+    assert "`db748759ed1c4f1b7c5cbce84180c598eaa6cdb4`" in h04r
+    assert "`be49a668b09a85c9316da17bd6c3c40192ee68ed`" in h04r
+    assert "Focused verification passed `11/11`" in h04r
+    assert "local Full passed `130`" in h04r
+    assert "Hosted verification was `NOT RUN`" in h04r
+    assert "`DEPENDENCY_HOLD`" in h04r
+    for evidence in [
+        "`2cfb40d72eafdd40ff95e99fa35ded11b57496f6`",
+        "Focused environment tests passed",
+        "`32`",
+        "Core passed `840`",
+        "Full passed `1254`",
+        "`32/34` valid with two stale approved sources",
+        "PENDING OWNER APPROVAL / NOT AUTHORIZED",
+    ]:
+        assert evidence in m00_m01
+    for evidence in [
+        "`5393dc8ca9762fff91ffa2b9aaf9680f3c6d63e3`",
+        "original M02 package passed postflight",
+        "`BLOCKED`",
+        "`WRITE_SET_EXCEEDED`",
+        "`CONTRACT_CHANGE_REQUIRED`",
+        "`APPROVAL_REF_INVALID`",
+        "authorization_status=NOT_AUTHENTICATED",
+        "Full was `NOT RUN`",
+    ]:
+        assert evidence in m02
+    for evidence in [
+        "`bd434a200f4054f9b41eeea085183ff0df25c70b`",
+        "`c0ffc1d5ddd40bb050d10c0f6e42f93b7d16858c`",
+        "`main@1f9677a13044770bfb3be89ab910127674851d49`",
+        "`53de64a1a19ec5d50849ebda54bbec619e4097a1`",
+        "static `153 passed`",
+        "Core `841 passed / 10 skipped / 416 deselected`",
+        "AQ-R5F, AQ-R5H, AQ-R5I, and AQ-R5J remain historical",
+        "`FROZEN / NOT_ADOPTED`",
+    ]:
+        assert evidence in post_m02
+    for evidence in [
+        "`80d1ac15d6c036f7d914bfe606664a7daac2378f`",
+        "`841 passed / 10 skipped / 414 deselected`",
+        "corpus digest `34/34`",
+        "eval `15/15`",
+        "quality gate `8/8`",
+        "mandatory postflight",
+        "owner-approved fast-forward",
+        "were `NOT RUN`",
+    ]:
+        assert evidence in h4r3
+    for evidence in [
+        "19 planned trials",
+        "five replay tasks",
+        "aggregate remains `HOLD`",
+        "strict 3-trial task rate: `0.0`",
+        "strict 5-trial critical task rate: `0.0`",
+        "`17 PASS / 2 FAIL`",
+        "confirmed semantic blockers: `5`",
+        "`artifacts/agent-quality-baseline.json` was not created",
+    ]:
+        assert evidence in historical_aq
+    assert "`REDESIGN_BEFORE_TRIAL`" in historical_handoff
+    assert "Provider/API/model execution" in historical_handoff
+    assert "are `NOT RUN`" in historical_handoff
     assert "Durable audit automation | Held" in roadmap
     assert "The authoritative order is:" in roadmap
     authoritative_order = roadmap.split("The authoritative order is:", 1)[1].split(
@@ -625,6 +726,28 @@ def test_current_authority_is_manifest_driven() -> None:
         assert line in readme
     assert "GitHub Actions workflow is not installed" not in handoff
     assert "recommended next work is Phase 3" not in handoff
+    assert "## State And Evidence Navigation" in handoff
+    assert "../ACCEPTANCE_TRACE.md#historical-local-checkpoints" in handoff
+    assert re.search(r"(?<![0-9a-f])[0-9a-f]{40}(?![0-9a-f])", handoff) is None
+    assert re.search(r"\b\d+ passed\b", handoff) is None
+
+
+@pytest.mark.parametrize("stale_evidence", ["1254 passed", "3 passed"])
+def test_current_authority_rejects_stale_pass_counts(
+    monkeypatch: pytest.MonkeyPatch, stale_evidence: str
+) -> None:
+    original_read_text = Path.read_text
+
+    def read_text_with_stale_handoff(path: Path, *args, **kwargs) -> str:
+        text = original_read_text(path, *args, **kwargs)
+        if path == Path("docs/AI_HANDOFF.md"):
+            return f"{text}\n{stale_evidence}\n"
+        return text
+
+    monkeypatch.setattr(Path, "read_text", read_text_with_stale_handoff)
+
+    with pytest.raises(AssertionError):
+        test_current_authority_is_manifest_driven()
 
 
 def test_top_level_architecture_and_capability_docs_are_current_and_compact() -> None:
@@ -730,6 +853,38 @@ def test_acceptance_trace_is_historical_through_last_existing_checkpoint() -> No
     assert "| AT-281 | current checkpoint |" in text
     assert text.count("| AT-282 | current checkpoint |") == 1
     assert "| AT-283 |" not in text
+    assert text.count("\n## Historical Local Checkpoints\n") == 1
+
+    history = text.split("\n## Historical Local Checkpoints\n", 1)[1]
+    assert (
+        "at source commit "
+        "`5670eec15bd3dd18a5f67a55828ee179f99eac3b`"
+    ) in history
+    assert "This relocation adds no execution result, adoption decision, or AT-283" in history
+    assert "AT-001 through AT-282 remain unchanged" in history
+    for heading in [
+        "### Authority Basis",
+        "### Completed Checkpoint",
+        "#### H01-H03 and recovery history",
+        "#### H04 closeout and recovery history",
+        "#### U05 whole-repository audit",
+        "#### H04R Launchpad downstream pilot",
+        "#### M00 authority alignment and M01 environment diagnostic",
+        "#### M02 local adoption and post-adoption hardening",
+        "#### Post-M02 cleanup and target closeout",
+        "#### Post-H4R3 local adoption closeout",
+        "### Historical Agent Quality Evidence",
+        "### Application Pilot",
+        "### Post-H4R3 Local Closeout",
+    ]:
+        assert history.count(heading) == 1
+
+    assert history.index("### Authority Basis") < history.index(
+        "### Completed Checkpoint"
+    ) < history.index("### Historical Agent Quality Evidence") < history.index(
+        "### Application Pilot"
+    ) < history.index("### Post-H4R3 Local Closeout")
+    assert "CURRENT LOCAL MAIN /" not in history
 
 
 def test_local_verify_runs_console_eval_with_narrow_boundary() -> None:

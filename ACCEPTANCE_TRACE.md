@@ -325,3 +325,266 @@ recursive verification commit.
 - NOT RUN: verification was not executed.
 - ENVIRONMENT BLOCKED: the intended runtime command cannot execute due to the local environment.
 - FAIL: evidence contradicts the requirement.
+
+## Historical Local Checkpoints
+
+The following records are relocated from `STATUS.md` and `docs/AI_HANDOFF.md`
+at source commit `5670eec15bd3dd18a5f67a55828ee179f99eac3b`.
+They preserve the original observations, SHA bindings, verification scopes,
+HOLDs, recoveries, and adoption boundaries. Words such as "current" in these
+records refer to their recorded source context, not a newly observed ref.
+
+This relocation adds no execution result, adoption decision, or AT-283
+checkpoint. AT-001 through AT-282 remain unchanged. Current authority and
+sequencing remain in `docs/AUTHORITY_MANIFEST.json` and `STATUS.md`.
+
+### Authority Basis
+
+| Basis class | Exact ref or range | Authority state | Meaning |
+|---|---|---|---|
+| Historical pre-local-adoption guard | `965fb86de1a8a307c646874d17d44c60c5dd9cf8` | `GUARDED OLD VALUE` | The historical observed local `main` value used by the completed owner-approved local compare-and-swap. It is not a self-updating assertion about the current ref. |
+| Verified adopted implementation basis | `ffc90e0f0801979bf67de4a5b32aaf8fc2745a0d` | `LOCALLY ADOPTED / EXACT-SHA CORE+FULL VERIFIED` | Owner-approved local adoption after exact-SHA cumulative evidence; later documentation commits do not rewrite that verification claim. |
+| M00 authority-alignment commit | `845e56d81d006de07d405cbf1fe6711afd444e04` | `M01 TASK-START BASIS / LOCALLY SUPERSEDED BY APPROVED CAS` | Exact observed local-main basis at M01 start. It completed authority and priority alignment without authorizing later capability work. |
+| M01 environment-diagnostic commit | `2cfb40d72eafdd40ff95e99fa35ded11b57496f6` | `IMPLEMENTED / EXACT-SHA CORE+FULL VERIFIED / INCLUDED IN ADOPTED M01 BASIS` | Read-only environment diagnostics are implemented without installation, persistence, suite execution, or target behavior. |
+| M01 authority closeout | `3f4e5c04991c169cd4aa89f1df8ee44ae9c43c7b` | `AUTHORITY ALIGNED / INCLUDED IN ADOPTED M01 BASIS` | Synchronizes completed M00/M01 evidence and preserves later work as separate decisions. |
+| Same-34-source digest commit | `c573c1adfe92894750649ef0038663bd51ae1c43` | `34/34 CURRENT / V2 POSTFLIGHT PASS / INCLUDED IN ADOPTED M01 BASIS` | Digest-only child of the authority closeout. It changes no approved source membership, source order, schema, algorithm, or normalization policy. |
+| Owner-adopted M01 basis | `05027f899bb726e8a1717c35b1f10a712f1825e9` | `LOCAL ADOPTION COMPLETED / STATUS-ONLY SUCCESSOR` | Exact target of the completed owner-approved compare-and-swap from the M00 task-start basis. This is a completed observation, not a self-updating current-ref assertion or remote evidence. |
+| M02 authority closeout | `5393dc8ca9762fff91ffa2b9aaf9680f3c6d63e3` | `AUTHORITY ALIGNED / INCLUDED IN ADOPTED M02 BASIS` | Closes M01 local-adoption sequencing and preserves the original package PASS, final-tip BLOCKED result, and separate recovery evidence. |
+| M02 same-34-source digest commit | `2de218f0548c349c74151c0fcf8a79186f951d4c` | `34/34 CURRENT / LOCAL ADOPTION COMPLETED` | Digest-only child of the M02 authority closeout and exact target of the completed owner-approved local-main compare-and-swap. Remote and Hosted state remain unobserved. |
+| Post-adoption verification hardening | `99d4b863793042cd42a5c475f2bfb81bab0dff70` | `IMPLEMENTED / INCLUDED IN POST-M02 LOCAL BASIS` | Avoids shell hash-module autoload in Local Verify. It is an ancestor of the current `acd39a3` local basis; this does not authenticate remote or Hosted state. |
+| Post-M02 local closeout basis | `acd39a3c3e73fa05e752964a75059809e6e16f71` | `H4R3 TASK-START BASIS / LOCALLY SUPERSEDED BY APPROVED FAST-FORWARD` | Exact local-main basis from which the post-M02 authority reconciliation started. It remains historical authority evidence rather than a self-updating current-ref assertion. |
+| Post-M02 authority reconciliation | `3d54823c557317d54811b9731b3198a41a647e0f` | `AUTHORITY ALIGNED / INCLUDED IN ADOPTED H4R3 BASIS` | Reconciles completed cleanup and target checkpoints while keeping the Agent Quality proposal frozen and separate. |
+| H4R3 authority assertion correction | `ac0efb08261a7c84828acff476d217ce9286b633` | `AUTHORITY ASSERTIONS CURRENT / INCLUDED IN ADOPTED H4R3 BASIS` | Adds the exact RSID adopted SHA and explicit no-capability-selected wording without changing the historical H4/H4R results. |
+| Owner-adopted H4R3 digest basis | `80d1ac15d6c036f7d914bfe606664a7daac2378f` | `34/34 CURRENT / FRESH V2 POSTFLIGHT PASS / LOCAL ADOPTION COMPLETED` | Digest-only child of the H4R3 authority correction and exact target of the completed owner-approved local-main fast-forward. Structural evidence remains `NOT_AUTHENTICATED`; remote and Hosted state remain unobserved. |
+
+`PASS`, `V2`, `V3`, postflight, a `plan_digest`, or a recommendation remains
+structural evidence rather than independent authorization. The completed local
+adoption above required the owner decision and exact-SHA cumulative evidence;
+it does not authorize a new mutation, push, Hosted execution, release, or
+target action.
+
+### Completed Checkpoint
+
+#### H01-H03 and recovery history
+
+- H01 implementation completed at `68b5971325a8371a259c63db081d209fba005b96`
+  (`docs: define verification sequencing authority`). Its execution-time state
+  remained `PROPOSED / PENDING INTEGRATION`; completion did not adopt it.
+- H02 implementation completed at
+  `78100a50a1ff8013492b39023b2d6a77e8e4cbba` (`fix(verify): harden
+  planning and hosted evidence boundaries`). Its original cumulative result
+  remained `PARTIAL / HOLD`; implementation completion did not rewrite that
+  result as a pass.
+- H03 digest refresh completed at
+  `5568442d96df40a99a22862d273dfc7b005e0a97` (`chore(corpus): refresh
+  approved digest`) with `34/34` approved sources and `stale=0`. Its original
+  runtime-selection attempt remained `HOLD` and is not rewritten by the digest
+  commit.
+- H03R stopped at preflight because its proposed interpreter ID was 70 bytes;
+  the schema limit made that attempt `HOLD` before execution.
+- H03R2 independently recovered the cumulative sequence at exact `5568442`:
+  Core `837 passed / 10 skipped / 414 deselected`; Full `1251 passed / 10
+  skipped`; eval `15/15`; quality gates `8/8`; three dry-run renders covering
+  `48` paths; corpus `34/34` with `stale=0`; Python `3.12.10`; pytest `9.0.3`;
+  dependency lock `6/6`; and `pip check` `PASS`.
+
+H03R2 is structural local evidence with `authorization_status=NOT_AUTHENTICATED`.
+It did not itself constitute adoption, Hosted evidence, release evidence, or
+permission to mutate local `main` or any remote.
+
+#### H04 closeout and recovery history
+
+- H04LW recorded `Core PASS` at the adopted exact SHA. Its Full step remained
+  `HOLD`; that session's Core PASS must not be rewritten as a Full PASS.
+- H04LR stopped with a path-length `HOLD`; that environmental boundary remains
+  preserved as historical evidence.
+- H04LR2 recovered Full at the same adopted exact SHA with `Full PASS`.
+
+#### U05 whole-repository audit
+
+- The whole-repository audit reviewed `7 commits/20 paths` with `GO`, observed
+  `14 worktrees clean`, and found no rename, delete, or mode change.
+- Its only current-authority finding was this P1 documentation mismatch. A
+  cached `origin` observation is not represented as live remote state.
+
+#### H04R Launchpad downstream pilot
+
+- H04R completed the external control-plane alignment against Harness
+  `db748759ed1c4f1b7c5cbce84180c598eaa6cdb4` and Launchpad
+  `be49a668b09a85c9316da17bd6c3c40192ee68ed`.
+- Focused verification passed `11/11`; local Full passed `130` with one
+  reviewed dependency skip. Preflight and postflight preserved one exact
+  `plan_digest`, and both repositories ended clean at their recorded local
+  refs.
+- This is reusable local control-plane evidence only. Launchpad has no remote,
+  Hosted verification was `NOT RUN`, and artifact-tool runtime remains
+  `DEPENDENCY_HOLD` because `node_modules` is not the required Junction.
+
+#### M00 authority alignment and M01 environment diagnostic
+
+- M00 completed at `845e56d81d006de07d405cbf1fe6711afd444e04`
+  with the authority, mechanization, and downstream priority order aligned.
+- M01 completed its bounded implementation at
+  `2cfb40d72eafdd40ff95e99fa35ded11b57496f6`. Focused environment tests passed
+  `32`; focused quality-contract tests passed `84`; Core passed `840` with `10`
+  skipped and `414` deselected; Full passed `1254` with `10` skipped; eval,
+  eight quality gates, and all three render dry-runs passed.
+- The `EnvironmentOnly / Json` smoke result was `PASS` with the repo virtual
+  environment, Python `3.12.10`, pytest `9.0.3`, dependency lock `6/6`, and pip
+  check `PASS`. It installed nothing, ran no verification suite, persisted no
+  path, and reported no performed action.
+- Before the approved refresh, the read-only check was `32/34` valid with two
+  stale approved sources and no missing, malformed, unsafe, or invalid UTF-8
+  source. That historical `PENDING OWNER APPROVAL / NOT AUTHORIZED` state was
+  discharged through separate write and commit approvals.
+- The approved write used `3f4e5c04991c169cd4aa89f1df8ee44ae9c43c7b`
+  as its exact source basis and preserved all 34 source paths and their order.
+  Post-write JSON validation, safety/quality `8/8`, Full `1254 passed / 10
+  skipped`, eval `15/15`, and three render dry-runs passed.
+- Digest-only commit `c573c1adfe92894750649ef0038663bd51ae1c43`
+  passed exact-commit JSON and corpus checks at `34/34`, stale `0`, and schema-v3
+  V2 postflight with one changed path, one commit, and no rename or delete.
+- The roadmap's M01 completion conditions are structurally discharged by the
+  `3f4e5c0` authority and `c573c1a` digest evidence. `STATUS.md` remains the
+  current human sequencing source. At that M01 checkpoint, no additional
+  capability was selected.
+
+#### M02 local adoption and post-adoption hardening
+
+- M02 authority commit `5393dc8ca9762fff91ffa2b9aaf9680f3c6d63e3`
+  updated the current sequencing authority and its quality-gate assertions.
+  Digest-only child `2de218f0548c349c74151c0fcf8a79186f951d4c`
+  refreshed `artifacts/corpus-digest.json` without changing source membership,
+  order, schema, SHA-256 algorithm, or normalization policy.
+- The original M02 package passed postflight at the authority commit. Applying
+  it to the digest tip remained `BLOCKED` with `WRITE_SET_EXCEEDED` and
+  `CONTRACT_CHANGE_REQUIRED` because the generated artifact was outside its
+  three-path write set. That blocked result remains historical evidence.
+- The separate digest-only recovery package first failed structure with
+  `APPROVAL_REF_INVALID` and a null plan digest. After the owner-approved
+  one-field recovery, structure and postflight passed with
+  `authorization_status=NOT_AUTHENTICATED`; it is postflight recovery evidence,
+  not retroactive preflight authorization.
+- Final M02 evidence recorded corpus `34/34`, stale/missing/malformed/unsafe and
+  invalid UTF-8 counts of zero, JSON PASS, quality gates `8/8`, focused tests
+  `84 passed`, artifact-only digest scope, linear ancestry, and a clean tree.
+  Full was `NOT RUN` because the then-current impact plan did not require it.
+- The separately approved atomic compare-and-swap moved local `main` from
+  `05027f899bb726e8a1717c35b1f10a712f1825e9` to
+  `2de218f0548c349c74151c0fcf8a79186f951d4c`. Fetch, push, and Hosted
+  verification remained `NOT RUN`.
+- `99d4b863793042cd42a5c475f2bfb81bab0dff70` is the historical post-adoption
+  hardening implementation and is an ancestor of current local basis
+  `acd39a3c3e73fa05e752964a75059809e6e16f71`. Its earlier candidate state is
+  historical and does not imply remote or Hosted verification.
+
+#### Post-M02 cleanup and target closeout
+
+- Physical Harness cleanup completed: the approved ignored sources were
+  archived and verified, exact sources were deleted, eight detached worktrees
+  were removed, and three merged local branches were deleted. Git GC and
+  preservation packing remain `HOLD / NOT RUN`.
+- Stock completed its target-owned raw-addition verifier correction and evidence
+  closeout at `bd434a200f4054f9b41eeea085183ff0df25c70b` with focused `1 passed`,
+  full `350 passed`, and quality gate `19/19`. Cached remote freshness remains
+  `UNKNOWN_NO_FETCH`.
+- RSID completed its evidence-scope pilot at local
+  `main` at `c0ffc1d5ddd40bb050d10c0f6e42f93b7d16858c`. GAP-013 owner/provenance
+  remains unresolved; optional empty-root and merged-branch hygiene is separate.
+- Launchpad adopted its acd39 rebaseline by local fast-forward at
+  `main@1f9677a13044770bfb3be89ab910127674851d49`; structural V2 evidence remains
+  `NOT_AUTHENTICATED` and does not authorize Office, transfer, or release work.
+- AQ-R5K recovered and passed structural `LOCAL_INTEGRATION (V2)`: Agent Quality
+  static `153 passed`, Core `841 passed / 10 skipped / 416 deselected`,
+  standalone eval `15/15`, and quality gate `8/8`. AQ-R5F, AQ-R5H, AQ-R5I, and
+  AQ-R5J remain historical `HOLD` evidence. Candidate
+  `53de64a1a19ec5d50849ebda54bbec619e4097a1` remains `FROZEN / NOT_ADOPTED`.
+
+#### Post-H4R3 local adoption closeout
+
+- The H4R3 authority reconciliation and assertion correction were committed
+  separately from the approved-corpus refresh. Final digest commit
+  `80d1ac15d6c036f7d914bfe606664a7daac2378f` preserves the same 34-source
+  membership, order, schema, algorithm, and normalization policy.
+- Fresh schema-v3 recovery verification at that exact SHA passed Core
+  `841 passed / 10 skipped / 414 deselected`, corpus digest `34/34`, standalone
+  eval `15/15`, quality gate `8/8`, and mandatory postflight under one
+  `plan_digest`. The structural result remains `NOT_AUTHENTICATED`.
+- After exact clean branch, HEAD, local-main, and preserved-ref gates passed,
+  the owner-approved fast-forward moved local `main` from
+  `acd39a3c3e73fa05e752964a75059809e6e16f71` to the H4R3 digest commit. Fetch,
+  push, Hosted verification, release, Git GC, and cleanup were `NOT RUN`.
+
+### Historical Agent Quality Evidence
+
+A fixed-configuration suite previously completed all 19 planned trials across
+five replay tasks. No critical, scope, safety, postflight, or contract-reopen
+violation occurred, but the historical aggregate remains `HOLD` and is not an
+adopted baseline:
+
+- strict 3-trial task rate: `0.0`;
+- strict 5-trial critical task rate: `0.0`;
+- holdout results: `17 PASS / 2 FAIL`;
+- confirmed semantic blockers: `5`.
+
+The observed causes were two repeated malformed numeric-bound failures,
+non-encodable Unicode handling gaps in two allowed-values parser trials,
+required agent verification omitted in several otherwise owner-verified
+trials, one historical-authority rewrite, and one malformed-schema regression
+coverage gap.
+
+The tracked suite, schemas, and validation helpers remain preserved, but Agent
+Quality/provider execution is frozen and not adopted. Previous suite and run
+envelopes remain readable as historical evidence; they do not establish core
+readiness, provider isolation, or a role-profile mapping.
+
+Safe run envelopes and failure candidates remain ignored under
+`local/agent-quality/`. Raw prompts, transcripts, model output, and holdout
+fixtures are not tracked. The adoption conditions were not met, so
+`artifacts/agent-quality-baseline.json` was not created. Two large ignored
+runtime/calibration groups are physical archive candidates only; moving them
+outside the active repo does not adopt a baseline or change the tracked Agent
+Quality contract.
+
+### Application Pilot
+
+The safe alias `local-data-quality-cli` was initialized in a separately
+authorized local repository. Its governance render, modular rules/CSV lanes,
+integration, full tests, synthetic E2E matrix, fresh-install smoke, and cleanup
+completed successfully. No remote was configured, no private or live data was
+used, and no post-E2E improvement patch was required.
+
+This evidence shows that the harness can govern a small parallel application
+batch. It does not authorize a new target, a new feature, or any remote side
+effect.
+
+### Post-H4R3 Local Closeout
+
+- Harness H4R3 local adoption is complete at
+  `80d1ac15d6c036f7d914bfe606664a7daac2378f`: authority reconciliation
+  `3d54823c557317d54811b9731b3198a41a647e0f`, assertion correction
+  `ac0efb08261a7c84828acff476d217ce9286b633`, separate 34-source digest,
+  fresh exact-SHA V2/postflight PASS, and owner-approved local-main
+  fast-forward. Physical cleanup is complete, while Git GC and preservation
+  packing remain `HOLD / NOT RUN`.
+- Stock completed its target-owned verifier/evidence closeout at
+  `bd434a200f4054f9b41eeea085183ff0df25c70b`.
+- RSID completed its evidence-scope pilot at local
+  `main@c0ffc1d5ddd40bb050d10c0f6e42f93b7d16858c`; GAP-013 remains unresolved.
+- Launchpad adopted its authority rebaseline by local fast-forward at
+  `main@1f9677a13044770bfb3be89ab910127674851d49`; its structural result remains
+  `NOT_AUTHENTICATED` and does not authorize Office, transfer, or release work.
+- AQ-R5K passed package-bound structural `LOCAL_INTEGRATION (V2)` for proposal
+  `53de64a1a19ec5d50849ebda54bbec619e4097a1`: static `153 passed`, Core
+  `841 passed / 10 skipped / 416 deselected`, standalone eval `15/15`, and
+  quality gate `8/8`. AQ-R5F, AQ-R5H, AQ-R5I, and AQ-R5J remain historical
+  `HOLD` results. The proposal remains `FROZEN / NOT_ADOPTED` under the
+  `REDESIGN_BEFORE_TRIAL` decision.
+- Provider/API/model execution, trial, role calibration v7, baseline/promotion,
+  fetch, push, Hosted, release, and Git GC are `NOT RUN`.
+
+The post-H4R3 local sequence is complete and no additional implementation
+capability is selected. Start a new package only for a demonstrated need under
+fresh authority and verification gates. Remote, Hosted, release, provider, and
+Agent Quality redesign or adoption remain separate owner decisions. Do not
+merge the Agent Quality proposal as an implied successor.

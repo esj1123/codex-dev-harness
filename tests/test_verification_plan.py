@@ -184,6 +184,8 @@ def test_script_and_test_changes_require_focused_tests(tmp_path: Path, relative_
     assert result["minimum_tier"] == "V1"
     assert "scripts_and_tests" in result["matched_rule_ids"]
     assert "focused_pytest" in result["required_command_ids"]
+    assert "full_pytest" not in result["required_command_ids"]
+    assert result["integration_owner_required"] is False
 
 
 def test_renderer_change_escalates_to_v2_and_render_checks(tmp_path: Path) -> None:
@@ -407,7 +409,6 @@ def test_invalid_approved_source_set_fails_closed(tmp_path: Path) -> None:
     "relative_path",
     [
         "scripts/generate_manifest.py",
-        "scripts/generate_checksums.py",
         "scripts/generate_sbom.py",
         "scripts/generate_provenance.py",
         "scripts/run_eval.py",
@@ -428,6 +429,8 @@ def test_release_generator_change_requires_checksum_check(
     assert result["checksum_check_required"] is True
     assert "release_checksum_surface" in result["matched_rule_ids"]
     assert "checksum_verify" in result["required_command_ids"]
+    assert "full_pytest" not in result["required_command_ids"]
+    assert result["integration_owner_required"] is False
 
 
 
@@ -458,6 +461,8 @@ def test_optional_surface_adds_its_focused_command(
         "requirements-dev.lock",
         "scripts/repo_path_policy.py",
         "scripts/verification_plan.py",
+        "scripts/work_package_conflict_check.py",
+        "scripts/generate_checksums.py",
     ],
 )
 def test_pytest_infrastructure_and_common_validator_require_full_regression(
@@ -472,6 +477,30 @@ def test_pytest_infrastructure_and_common_validator_require_full_regression(
     assert "pytest_infrastructure_full_regression" in result["matched_rule_ids"]
     assert "core_pytest" in result["required_command_ids"]
     assert "full_pytest" in result["required_command_ids"]
+    assert result["integration_owner_required"] is True
+    if relative_path == "scripts/generate_checksums.py":
+        assert result["checksum_check_required"] is True
+        assert "release_checksum_surface" in result["matched_rule_ids"]
+        assert "checksum_verify" in result["required_command_ids"]
+
+
+def test_common_validators_mixed_diff_preserves_full_and_checksum(tmp_path: Path) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    commit_file(repo, "scripts/work_package_conflict_check.py", "synthetic\n")
+    commit_file(repo, "scripts/generate_checksums.py", "synthetic\n")
+
+    result = inspect(repo, base_sha)
+
+    assert result["minimum_tier"] == "V2"
+    assert result["integration_owner_required"] is True
+    assert result["checksum_check_required"] is True
+    assert result["matched_rule_ids"] == [
+        "pytest_infrastructure_full_regression",
+        "release_checksum_surface",
+    ]
+    assert {"core_pytest", "full_pytest", "checksum_verify"}.issubset(
+        result["required_command_ids"]
+    )
 
 
 def test_unknown_path_conservatively_escalates_to_v2(tmp_path: Path) -> None:
