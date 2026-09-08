@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 import subprocess
 
@@ -82,8 +83,50 @@ def inspect(repo: Path, base_sha: str, head_sha: str | None = None) -> dict[str,
     )
 
 
-def test_empty_diff_returns_v0_advisory_plan(tmp_path: Path) -> None:
-    repo, base_sha = init_repo(tmp_path)
+@pytest.fixture(scope="module")
+def planner_seed_repo(tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, str]:
+    return init_repo(tmp_path_factory.mktemp("planner-seed"))
+
+
+@pytest.fixture
+def planner_repo(tmp_path: Path, planner_seed_repo: tuple[Path, str]) -> tuple[Path, str]:
+    seed, base_sha = planner_seed_repo
+    repo = tmp_path / "repo"
+    # Copy the Git directory too: tests must not share mutable refs or config.
+    shutil.copytree(seed, repo)
+    return repo, base_sha
+
+
+def test_planner_repo_copies_isolate_commits_and_configuration(
+    tmp_path: Path,
+    planner_seed_repo: tuple[Path, str],
+    planner_repo: tuple[Path, str],
+) -> None:
+    seed, base_sha = planner_seed_repo
+    repo, copied_sha = planner_repo
+    other = tmp_path / "other-copy"
+    shutil.copytree(seed, other)
+    assert copied_sha == base_sha
+    original_map = (seed / "docs/VERIFICATION_IMPACT_MAP.json").read_bytes()
+    original_config = (seed / ".git/config").read_bytes()
+    for relative in ("docs/VERIFICATION_IMPACT_MAP.json", ".git/config"):
+        assert not (seed / relative).samefile(repo / relative)
+        assert not (seed / relative).samefile(other / relative)
+        assert not (repo / relative).samefile(other / relative)
+
+    changed_sha = commit_file(repo, "docs/VERIFICATION_IMPACT_MAP.json", "{}\n")
+    git(repo, "config", "user.name", "Changed Copy")
+
+    assert changed_sha != base_sha
+    for untouched in (seed, other):
+        assert git(untouched, "rev-parse", "HEAD").stdout.strip() == base_sha
+        assert (untouched / "docs/VERIFICATION_IMPACT_MAP.json").read_bytes() == original_map
+        assert (untouched / ".git/config").read_bytes() == original_config
+        assert git(untouched, "status", "--porcelain").stdout == ""
+
+
+def test_empty_diff_returns_v0_advisory_plan(planner_repo: tuple[Path, str]) -> None:
+    repo, base_sha = planner_repo
 
     result = inspect(repo, base_sha)
 
@@ -101,8 +144,8 @@ def test_empty_diff_returns_v0_advisory_plan(tmp_path: Path) -> None:
     )
 
 
-def test_alternate_head_uses_control_blobs_from_that_commit(tmp_path: Path) -> None:
-    repo, base_sha = init_repo(tmp_path)
+def test_alternate_head_uses_control_blobs_from_that_commit(planner_repo: tuple[Path, str]) -> None:
+    repo, base_sha = planner_repo
     selected_head = commit_file(repo, "docs/guide.md", "# Guide\n")
     commit_file(repo, "docs/VERIFICATION_IMPACT_MAP.json", "{}\n")
     write_text(repo, verification_plan.CORPUS_SOURCE_SET_PATH, "{}\n")
@@ -114,8 +157,8 @@ def test_alternate_head_uses_control_blobs_from_that_commit(tmp_path: Path) -> N
     assert result["matched_rule_ids"] == ["documentation"]
 
 
-def test_impact_map_change_is_code_bootstrapped_to_v2(tmp_path: Path) -> None:
-    repo, base_sha = init_repo(tmp_path)
+def test_impact_map_change_is_code_bootstrapped_to_v2(planner_repo: tuple[Path, str]) -> None:
+    repo, base_sha = planner_repo
     payload = json.loads(MAP_PATH.read_text(encoding="utf-8"))
     payload["rules"] = list(reversed(payload["rules"]))
     head_sha = commit_file(
@@ -134,9 +177,9 @@ def test_impact_map_change_is_code_bootstrapped_to_v2(tmp_path: Path) -> None:
 
 
 def test_impact_map_bootstrap_preserves_full_when_map_removes_its_self_path(
-    tmp_path: Path,
+    planner_repo: tuple[Path, str],
 ) -> None:
-    repo, base_sha = init_repo(tmp_path)
+    repo, base_sha = planner_repo
     payload = json.loads(MAP_PATH.read_text(encoding="utf-8"))
     full_rule = next(
         rule
@@ -160,8 +203,8 @@ def test_impact_map_bootstrap_preserves_full_when_map_removes_its_self_path(
     assert "full_pytest" in result["required_command_ids"]
 
 
-def test_document_change_returns_v1(tmp_path: Path) -> None:
-    repo, base_sha = init_repo(tmp_path)
+def test_document_change_returns_v1(planner_repo: tuple[Path, str]) -> None:
+    repo, base_sha = planner_repo
     commit_file(repo, "docs/guide.md", "# Guide\n")
 
     result = inspect(repo, base_sha)
@@ -175,8 +218,10 @@ def test_document_change_returns_v1(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize("relative_path", ["scripts/tool.py", "tests/test_tool.py"])
-def test_script_and_test_changes_require_focused_tests(tmp_path: Path, relative_path: str) -> None:
-    repo, base_sha = init_repo(tmp_path)
+def test_script_and_test_changes_require_focused_tests(
+    planner_repo: tuple[Path, str], relative_path: str
+) -> None:
+    repo, base_sha = planner_repo
     commit_file(repo, relative_path, "value = 1\n")
 
     result = inspect(repo, base_sha)
@@ -188,8 +233,8 @@ def test_script_and_test_changes_require_focused_tests(tmp_path: Path, relative_
     assert result["integration_owner_required"] is False
 
 
-def test_renderer_change_escalates_to_v2_and_render_checks(tmp_path: Path) -> None:
-    repo, base_sha = init_repo(tmp_path)
+def test_renderer_change_escalates_to_v2_and_render_checks(planner_repo: tuple[Path, str]) -> None:
+    repo, base_sha = planner_repo
     commit_file(repo, "scripts/render_template.py", "print('synthetic')\n")
 
     result = inspect(repo, base_sha)
@@ -200,8 +245,8 @@ def test_renderer_change_escalates_to_v2_and_render_checks(tmp_path: Path) -> No
     assert result["matched_rule_ids"] == ["render_surface_exact"]
 
 
-def test_authority_change_requires_integration_owner(tmp_path: Path) -> None:
-    repo, base_sha = init_repo(tmp_path)
+def test_authority_change_requires_integration_owner(planner_repo: tuple[Path, str]) -> None:
+    repo, base_sha = planner_repo
     commit_file(repo, "STATUS.md", "# Current\n")
 
     result = inspect(repo, base_sha)
@@ -223,10 +268,10 @@ def test_authority_change_requires_integration_owner(tmp_path: Path) -> None:
     ],
 )
 def test_agent_quality_surface_requires_manual_static_check(
-    tmp_path: Path,
+    planner_repo: tuple[Path, str],
     relative_path: str,
 ) -> None:
-    repo, base_sha = init_repo(tmp_path)
+    repo, base_sha = planner_repo
     commit_file(repo, relative_path, "{}\n")
 
     result = inspect(repo, base_sha)
@@ -262,10 +307,10 @@ def test_agent_quality_surface_requires_manual_static_check(
     ],
 )
 def test_work_package_prompt_contracts_require_v2_integration_owner(
-    tmp_path: Path,
+    planner_repo: tuple[Path, str],
     relative_path: str,
 ) -> None:
-    repo, base_sha = init_repo(tmp_path)
+    repo, base_sha = planner_repo
     commit_file(repo, relative_path, "# Synthetic contract\n")
 
     result = inspect(repo, base_sha)
@@ -276,8 +321,8 @@ def test_work_package_prompt_contracts_require_v2_integration_owner(
     assert "work_package_prompt_contracts" in result["matched_rule_ids"]
 
 
-def test_corpus_source_change_requires_digest_check(tmp_path: Path) -> None:
-    repo, base_sha = init_repo(tmp_path)
+def test_corpus_source_change_requires_digest_check(planner_repo: tuple[Path, str]) -> None:
+    repo, base_sha = planner_repo
     commit_file(repo, "docs/corpus-policy.md", "# Policy\n")
 
     result = inspect(repo, base_sha)
@@ -289,9 +334,9 @@ def test_corpus_source_change_requires_digest_check(tmp_path: Path) -> None:
 
 
 def test_generated_digest_membership_does_not_define_corpus_sources(
-    tmp_path: Path,
+    planner_repo: tuple[Path, str],
 ) -> None:
-    repo, base_sha = init_repo(tmp_path)
+    repo, base_sha = planner_repo
     commit_file(repo, "docs/generated-only.md", "# Generated-only member\n")
 
     result = inspect(repo, base_sha)
@@ -302,8 +347,8 @@ def test_generated_digest_membership_does_not_define_corpus_sources(
     assert "corpus_digest_check" not in result["required_command_ids"]
 
 
-def test_corpus_digest_exact_rule_overrides_artifact_prefix(tmp_path: Path) -> None:
-    repo, base_sha = init_repo(tmp_path)
+def test_corpus_digest_exact_rule_overrides_artifact_prefix(planner_repo: tuple[Path, str]) -> None:
+    repo, base_sha = planner_repo
     commit_file(repo, "artifacts/corpus-digest.json", '{"changed": true}\n')
 
     result = inspect(repo, base_sha)
@@ -327,10 +372,10 @@ def test_corpus_digest_exact_rule_overrides_artifact_prefix(tmp_path: Path) -> N
     ],
 )
 def test_known_release_artifact_requires_v2_integration_owner(
-    tmp_path: Path,
+    planner_repo: tuple[Path, str],
     relative_path: str,
 ) -> None:
-    repo, base_sha = init_repo(tmp_path)
+    repo, base_sha = planner_repo
     commit_file(repo, relative_path, "synthetic\n")
 
     result = inspect(repo, base_sha)
@@ -342,8 +387,8 @@ def test_known_release_artifact_requires_v2_integration_owner(
     assert "checksum_verify" in result["required_command_ids"]
 
 
-def test_checksum_gate_keeps_v2_integration_owner_routing(tmp_path: Path) -> None:
-    repo, base_sha = init_repo(tmp_path)
+def test_checksum_gate_keeps_v2_integration_owner_routing(planner_repo: tuple[Path, str]) -> None:
+    repo, base_sha = planner_repo
     commit_file(repo, "scripts/gates/checksum_verify_gate.py", "value = 1\n")
 
     result = inspect(repo, base_sha)
@@ -354,8 +399,10 @@ def test_checksum_gate_keeps_v2_integration_owner_routing(tmp_path: Path) -> Non
     assert result["matched_rule_ids"] == ["release_artifact_control_surface"]
 
 
-def test_unknown_artifact_fails_closed_to_v2_integration_owner(tmp_path: Path) -> None:
-    repo, base_sha = init_repo(tmp_path)
+def test_unknown_artifact_fails_closed_to_v2_integration_owner(
+    planner_repo: tuple[Path, str]
+) -> None:
+    repo, base_sha = planner_repo
     commit_file(repo, "artifacts/unexpected.json", "{}\n")
 
     result = inspect(repo, base_sha)
@@ -365,8 +412,10 @@ def test_unknown_artifact_fails_closed_to_v2_integration_owner(tmp_path: Path) -
     assert result["matched_rule_ids"] == ["central_integration_prefix"]
 
 
-def test_multiple_paths_preserve_flags_and_select_highest_tier(tmp_path: Path) -> None:
-    repo, base_sha = init_repo(tmp_path)
+def test_multiple_paths_preserve_flags_and_select_highest_tier(
+    planner_repo: tuple[Path, str]
+) -> None:
+    repo, base_sha = planner_repo
     commit_file(repo, "artifacts/corpus-digest.json", '{"changed": true}\n')
     commit_file(repo, "artifacts/unexpected.json", "{}\n")
 
@@ -384,8 +433,8 @@ def test_multiple_paths_preserve_flags_and_select_highest_tier(tmp_path: Path) -
     assert "full_pytest" not in result["required_command_ids"]
 
 
-def test_invalid_approved_source_set_fails_closed(tmp_path: Path) -> None:
-    repo, base_sha = init_repo(tmp_path)
+def test_invalid_approved_source_set_fails_closed(planner_repo: tuple[Path, str]) -> None:
+    repo, base_sha = planner_repo
     commit_file(
         repo,
         verification_plan.CORPUS_SOURCE_SET_PATH,
@@ -417,10 +466,10 @@ def test_invalid_approved_source_set_fails_closed(tmp_path: Path) -> None:
     ],
 )
 def test_release_generator_change_requires_checksum_check(
-    tmp_path: Path,
+    planner_repo: tuple[Path, str],
     relative_path: str,
 ) -> None:
-    repo, base_sha = init_repo(tmp_path)
+    repo, base_sha = planner_repo
     commit_file(repo, relative_path, "print('synthetic')\n")
 
     result = inspect(repo, base_sha)
@@ -443,9 +492,9 @@ def test_release_generator_change_requires_checksum_check(
     ],
 )
 def test_optional_surface_adds_its_focused_command(
-    tmp_path: Path, relative_path: str, command_id: str
+    planner_repo: tuple[Path, str], relative_path: str, command_id: str
 ) -> None:
-    repo, base_sha = init_repo(tmp_path)
+    repo, base_sha = planner_repo
     commit_file(repo, relative_path, "value = 1\n")
 
     result = inspect(repo, base_sha)
@@ -466,9 +515,9 @@ def test_optional_surface_adds_its_focused_command(
     ],
 )
 def test_pytest_infrastructure_and_common_validator_require_full_regression(
-    tmp_path: Path, relative_path: str
+    planner_repo: tuple[Path, str], relative_path: str
 ) -> None:
-    repo, base_sha = init_repo(tmp_path)
+    repo, base_sha = planner_repo
     commit_file(repo, relative_path, "synthetic\n")
 
     result = inspect(repo, base_sha)
@@ -484,8 +533,10 @@ def test_pytest_infrastructure_and_common_validator_require_full_regression(
         assert "checksum_verify" in result["required_command_ids"]
 
 
-def test_common_validators_mixed_diff_preserves_full_and_checksum(tmp_path: Path) -> None:
-    repo, base_sha = init_repo(tmp_path)
+def test_common_validators_mixed_diff_preserves_full_and_checksum(
+    planner_repo: tuple[Path, str]
+) -> None:
+    repo, base_sha = planner_repo
     commit_file(repo, "scripts/work_package_conflict_check.py", "synthetic\n")
     commit_file(repo, "scripts/generate_checksums.py", "synthetic\n")
 
@@ -503,8 +554,8 @@ def test_common_validators_mixed_diff_preserves_full_and_checksum(tmp_path: Path
     )
 
 
-def test_unknown_path_conservatively_escalates_to_v2(tmp_path: Path) -> None:
-    repo, base_sha = init_repo(tmp_path)
+def test_unknown_path_conservatively_escalates_to_v2(planner_repo: tuple[Path, str]) -> None:
+    repo, base_sha = planner_repo
     commit_file(repo, "config/tool.cfg", "synthetic=true\n")
 
     result = inspect(repo, base_sha)
@@ -534,8 +585,8 @@ def test_invalid_sha_fails_without_git_observation(tmp_path: Path) -> None:
     assert result["performed_actions"] == []
 
 
-def test_missing_ref_is_blocked(tmp_path: Path) -> None:
-    repo, _ = init_repo(tmp_path)
+def test_missing_ref_is_blocked(planner_repo: tuple[Path, str]) -> None:
+    repo, _ = planner_repo
 
     result = inspect(repo, "a" * 40)
 
@@ -543,14 +594,12 @@ def test_missing_ref_is_blocked(tmp_path: Path) -> None:
     assert result["reason_codes"] == ["BASE_REF_NOT_FOUND"]
 
 
-def test_non_ancestor_base_is_blocked(tmp_path: Path) -> None:
-    repo, base_sha = init_repo(tmp_path)
+def test_non_ancestor_base_is_blocked(planner_repo: tuple[Path, str]) -> None:
+    repo, base_sha = planner_repo
     git(repo, "checkout", "--orphan", "other")
     for path in list(repo.iterdir()):
         if path.name != ".git":
             if path.is_dir():
-                import shutil
-
                 shutil.rmtree(path)
             else:
                 path.unlink()
@@ -572,8 +621,10 @@ def test_not_a_repository_is_environment_blocked(tmp_path: Path) -> None:
     assert result["reason_codes"] == ["GIT_COMMAND_FAILED"]
 
 
-def test_json_cli_is_deterministic_bounded_and_action_free(tmp_path: Path, capsys) -> None:
-    repo, base_sha = init_repo(tmp_path)
+def test_json_cli_is_deterministic_bounded_and_action_free(
+    tmp_path: Path, planner_repo: tuple[Path, str], capsys
+) -> None:
+    repo, base_sha = planner_repo
     commit_file(repo, "docs/guide.md", "# Guide\n")
     args = [
         "--repo-root",
