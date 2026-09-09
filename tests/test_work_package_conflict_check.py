@@ -17,6 +17,7 @@ FIXTURE_PATH = REPO_ROOT / "docs" / "PARALLEL_WORK_PACKAGE_SYNTHETIC_FIXTURE.jso
 CHANGE_CONTROL_PATH = REPO_ROOT / "docs" / "CHANGE_CONTROL.md"
 TASK_PROMPT_PATH = REPO_ROOT / "prompts" / "task_contract" / "task_contract.md"
 CLOSEOUT_PROMPT_PATH = REPO_ROOT / "prompts" / "task_contract" / "verification_closeout.md"
+V2_REQUIRED_COMMAND_IDS = ("core_pytest", "standalone_eval", "quality_gate")
 
 
 def load_fixture() -> dict[str, object]:
@@ -34,6 +35,13 @@ def package(task_id: str, *, lane: str = "feature", suffix: str = "") -> dict[st
     payload["write_set"] = [f"scripts/output{suffix}.py", f"tests/test_output{suffix}.py"]
     if lane == "integration":
         payload["verification_tier"] = "V2"
+        payload["verification_contract"]["commands"] = [
+            {
+                "command_id": command_id,
+                "argv": ["{PYTHON}", "-m", command_id],
+            }
+            for command_id in V2_REQUIRED_COMMAND_IDS
+        ]
     return payload
 
 
@@ -467,6 +475,51 @@ def test_verification_contract_is_exact_bounded_and_path_safe(
     mutation(payload["verification_contract"])
 
     assert checker.package_issues(payload) == [reason_code]
+
+
+@pytest.mark.parametrize(
+    "missing_command_ids",
+    [
+        ["core_pytest"],
+        ["standalone_eval"],
+        ["quality_gate"],
+        ["core_pytest", "standalone_eval", "quality_gate"],
+    ],
+)
+def test_v2_requires_every_core_command_id(missing_command_ids: list[str]) -> None:
+    payload = package("integration-a", lane="integration")
+    payload["verification_contract"]["commands"] = [
+        command
+        for command in payload["verification_contract"]["commands"]
+        if command["command_id"] not in missing_command_ids
+    ]
+    if not payload["verification_contract"]["commands"]:
+        payload["verification_contract"]["commands"] = [
+            {
+                "command_id": "focused_pytest",
+                "argv": ["{PYTHON}", "-m", "pytest", "tests", "-q"],
+            }
+        ]
+
+    assert checker.package_issues(payload) == ["V2_REQUIRED_COMMANDS_MISSING"]
+
+
+def test_v2_full_pytest_does_not_replace_core_commands() -> None:
+    payload = package("integration-a", lane="integration")
+    payload["verification_contract"]["commands"] = [
+        {
+            "command_id": "full_pytest",
+            "argv": ["{PYTHON}", "-m", "pytest", "tests"],
+        }
+    ]
+
+    assert checker.package_issues(payload) == ["V2_REQUIRED_COMMANDS_MISSING"]
+
+
+def test_complete_v2_core_command_set_is_valid() -> None:
+    payload = package("integration-a", lane="integration")
+
+    assert checker.package_issues(payload) == []
 
 
 def test_generated_outputs_must_be_in_write_set() -> None:

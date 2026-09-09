@@ -12,6 +12,7 @@ from scripts import work_package_postflight as postflight
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_PATH = REPO_ROOT / "docs" / "PARALLEL_WORK_PACKAGE_SYNTHETIC_FIXTURE.json"
+V2_REQUIRED_COMMAND_IDS = ("core_pytest", "standalone_eval", "quality_gate")
 
 
 def git(repo: Path, *args: str) -> str:
@@ -60,6 +61,14 @@ def package(base_sha: str, *, task_id: str = "feature-a", lane: str = "feature")
             "verification_tier": "V2" if lane == "integration" else "V1",
         }
     )
+    if lane == "integration":
+        payload["verification_contract"]["commands"] = [
+            {
+                "command_id": command_id,
+                "argv": ["{PYTHON}", "-m", command_id],
+            }
+            for command_id in V2_REQUIRED_COMMAND_IDS
+        ]
     return payload
 
 
@@ -347,6 +356,29 @@ def test_pass_requires_exact_interpreter_and_complete_command_set(
 
     assert result["status"] == "BLOCKED"
     assert reason_code in result["reason_codes"]
+
+
+def test_postflight_inherits_v2_required_command_failure(tmp_path: Path) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    payload = package(base_sha, task_id="integration-a", lane="integration")
+    payload["verification_contract"]["commands"] = [
+        {
+            "command_id": "full_pytest",
+            "argv": ["{PYTHON}", "-m", "pytest", "tests"],
+        }
+    ]
+    package_path = write_package(repo, payload)
+    commit_file(repo, "feature.txt", "feature\n")
+
+    result = inspect(
+        repo,
+        package_path,
+        task_id="integration-a",
+        completed_command_ids=["full_pytest"],
+    )
+
+    assert result["status"] == "FAIL"
+    assert result["reason_codes"] == ["V2_REQUIRED_COMMANDS_MISSING"]
 
 
 @pytest.mark.parametrize(

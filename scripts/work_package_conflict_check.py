@@ -103,6 +103,9 @@ SAFE_ID_PATTERN = re.compile(r"^[a-z0-9](?:[a-z0-9._-]{0,62}[a-z0-9])?$")
 SHA_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 VERIFICATION_CONTRACT_KEYS = {"interpreter_id", "commands"}
 VERIFICATION_COMMAND_KEYS = {"command_id", "argv"}
+V2_REQUIRED_COMMAND_IDS = frozenset(
+    {"core_pytest", "standalone_eval", "quality_gate"}
+)
 
 
 def base_result() -> dict[str, Any]:
@@ -254,7 +257,17 @@ def package_issues(payload: Any) -> list[str]:
         issues.append("LANE_INVALID")
     if payload["verification_tier"] not in VERIFICATION_TIERS:
         issues.append("VERIFICATION_TIER_INVALID")
-    issues.extend(verification_contract_issues(payload["verification_contract"]))
+    verification_issues = verification_contract_issues(
+        payload["verification_contract"]
+    )
+    issues.extend(verification_issues)
+    if not verification_issues and payload["verification_tier"] == "V2":
+        command_ids = {
+            command["command_id"]
+            for command in payload["verification_contract"]["commands"]
+        }
+        if not V2_REQUIRED_COMMAND_IDS.issubset(command_ids):
+            issues.append("V2_REQUIRED_COMMANDS_MISSING")
     if not safe_reference(payload["approval_ref"]):
         issues.append("APPROVAL_REF_INVALID")
     if set(payload) == PROFILE_BOUND_KEYS:
