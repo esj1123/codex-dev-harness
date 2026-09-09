@@ -8,6 +8,11 @@ This template is documentation-only. It does not grant approval for side effects
 
 [Describe the concrete outcome required.]
 
+- Completion conditions: [observable conditions that end this task]
+- Decision-critical uncertainty: [only unresolved facts needed for a decision]
+- Existing evidence to reuse: [current receipts, tests, or source facts]
+- Active task: [actual task ID] / [planned, running, blocked, or complete]
+
 ## Target Repo / Path
 
 - Repository: [repo name or URL]
@@ -32,6 +37,16 @@ This template is documentation-only. It does not grant approval for side effects
 - Verification command IDs and exact argv: [command ID plus argument-list tokens]
 - Declared side effects: [classes requested by this task]
 - Approval reference: [safe reference, or none]
+
+Operational routing aid only: use an existing deterministic script for
+deterministic checks; Terra Medium for narrow research or a simple edit; Sol
+Medium for settled implementation; and Astra Medium to High for complex
+boundary judgment. This does not adopt an official role profile, establish
+provider observation, or claim performance equivalence. Keep one owner when
+that owner can finish the task; split only genuinely independent work, keep
+actual task identifiers and states visible, and limit tool output to
+decision-relevant fields or error intervals while preserving original evidence
+at its authorized location.
 
 For parallel work, save the machine-readable package under the ignored
 `local/work-packages/` directory and run:
@@ -107,6 +122,12 @@ Run when safe and available:
 - [command]
 
 If a command is not run, report `NOT RUN` or `ENVIRONMENT BLOCKED` with the reason.
+
+Keep required reading and verification. Before implementation, confirm the
+execution path with one low-cost representative case or reproduction. After
+two evidence-based corrections fail for the same cause, stop iterative repair
+and escalate diagnosis with the remaining questions, evidence, and failure
+hypothesis. Missing input or authority is not a reasoning problem.
 
 ## Side-Effect Approval Boundary
 

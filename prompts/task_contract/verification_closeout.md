@@ -7,11 +7,15 @@ This template is documentation-only. It does not run verification or approve sid
 ## Task Basis
 
 - Goal: [task goal]
+- Completion conditions/status: [conditions] / [met, unmet, or blocked]
+- Decision-critical uncertainty: [remaining item, or none]
+- Existing evidence reused: [receipts, tests, or source facts, or none]
 - Repository/path: [target path]
 - Package location class: [same-root / external-local-control-plane]
 - Basis ref or commit: [branch, tag, or commit]
 - Work mode: [read-only, documentation-only, implementation, release record, other]
 - Task ID and lane: [task ID] / [contract, feature, or integration]
+- Task execution state: [complete, blocked, or needs owner decision]
 - Contract basis SHA: [40-character commit SHA]
 - Contract frozen paths: [shared exact repo-relative paths]
 - Declared verification tier: [V0 / V1 / V2 / V3]
@@ -43,6 +47,15 @@ This template is documentation-only. It does not run verification or approve sid
 - Manual judgment points: [decisions requiring human review]
 - Local/remote baseline state: [local HEAD, reviewed remote ref, workflow head equality]
 - Residual risk: [remaining uncertainty]
+- Low-cost execution-path check: [representative case and result, or not applicable]
+- Evidence-based correction attempts: [count and same-cause outcome]
+- Diagnostic escalation: [remaining questions, evidence, and failure hypothesis, or not required]
+- Verification reused/repeated: [reused evidence and any new failure, input,
+  environment or contract change, or concrete concern that required repetition]
+- Repeated attempts: [observable count and cause]
+- User interventions: [observable count and purpose]
+- Observable consumption: [commands, tool calls, or measured durations available]
+- Token measurement: [measured value, or NOT MEASURED]
 
 If target-repository Hosted evidence was not executed and bound to the target
 head SHA, record Target Hosted status/run as `NOT RUN`; do not inherit the
@@ -127,4 +140,6 @@ They do not adopt H01, the verification UX feature basis, or any next step.
 
 ## Next Step
 
-[One concrete next step, or `None` if complete.]
+[One concrete next step, or `None` if complete.] Do not estimate token savings
+or a savings rate when tokens were not measured. After completion conditions
+are met, treat additional cleanup or polishing as separate scope.

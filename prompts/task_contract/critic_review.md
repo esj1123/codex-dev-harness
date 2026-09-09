@@ -22,9 +22,15 @@ Review-only. Do not edit files unless a separate task explicitly approves change
 
 Check:
 
+- the actual task identifier, execution state, completion conditions, and
+  decision-critical uncertainty are explicit
 - stated behavior matches implementation or documentation
 - acceptance trace evidence supports the claim
 - verification commands match the changed surface
+- a low-cost representative case or reproduction confirmed the execution path
+  before implementation when applicable
+- two evidence-based corrections failing for the same cause trigger diagnostic
+  escalation, and missing input or authority is not treated as a reasoning gap
 - PASS, FAIL, NOT RUN, and ENVIRONMENT BLOCKED are used accurately
 - historical records are not rewritten as current facts
 
@@ -54,6 +60,10 @@ Check:
 - evidence paths are listed
 - status and acceptance trace are updated when durable repo state changes
 - unresolved risks and assumptions are stated
+- review breadth matches change risk without weakening required or independent
+  review
+- completed verification is not repeated without a new failure, input,
+  environment or contract change, or concrete unresolved concern
 
 ## Completion Report Format
 
