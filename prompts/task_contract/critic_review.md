@@ -22,15 +22,19 @@ Review-only. Do not edit files unless a separate task explicitly approves change
 
 Check:
 
-- the actual task identifier, execution state, completion conditions, and
-  decision-critical uncertainty are explicit
+- distinguish package and Codex task IDs; record relevant state, completion,
+  and uncertainty
 - stated behavior matches implementation or documentation
 - acceptance trace evidence supports the claim
 - verification commands match the changed surface
-- a low-cost representative case or reproduction confirmed the execution path
-  before implementation when applicable
-- two evidence-based corrections failing for the same cause trigger diagnostic
-  escalation, and missing input or authority is not treated as a reasoning gap
+- use a representative only for uncertain environment, call path, or reproduction
+- after two evidence-based same-cause failures, diagnose with questions,
+  evidence, and hypothesis; missing input or authority is not a reasoning gap
+- bind evidence to owned execution ID/state, internal exit, and core result;
+  recover missing output, and never infer internal PASS from shell success
+- use human `result not verified / NOT DONE` for an unconfirmed execution, not
+  `NOT RUN`, `ENVIRONMENT BLOCKED`, or a JSON enum
+- control only an exactly owned process; a shared environment proves nothing
 - PASS, FAIL, NOT RUN, and ENVIRONMENT BLOCKED are used accurately
 - historical records are not rewritten as current facts
 
@@ -60,10 +64,9 @@ Check:
 - evidence paths are listed
 - status and acceptance trace are updated when durable repo state changes
 - unresolved risks and assumptions are stated
-- review breadth matches change risk without weakening required or independent
-  review
-- completed verification is not repeated without a new failure, input,
-  environment or contract change, or concrete unresolved concern
+- scale review to risk without weakening required or independent checks; repeat
+  verification only for new failure, input, environment, contract, or concern
+- combine retry records; collect usage only for explicit measurement
 
 ## Completion Report Format
 

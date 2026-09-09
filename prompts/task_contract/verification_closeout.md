@@ -7,15 +7,13 @@ This template is documentation-only. It does not run verification or approve sid
 ## Task Basis
 
 - Goal: [task goal]
-- Completion conditions/status: [conditions] / [met, unmet, or blocked]
-- Decision-critical uncertainty: [remaining item, or none]
-- Existing evidence reused: [receipts, tests, or source facts, or none]
+- Completion/decision basis: [conditions and status; uncertainty; reused evidence]
 - Repository/path: [target path]
 - Package location class: [same-root / external-local-control-plane]
 - Basis ref or commit: [branch, tag, or commit]
 - Work mode: [read-only, documentation-only, implementation, release record, other]
-- Task ID and lane: [task ID] / [contract, feature, or integration]
-- Task execution state: [complete, blocked, or needs owner decision]
+- Package task ID/lane: [package `task_id`] / [contract, feature, or integration]
+- Codex task ID/state: [actual task ID] / [complete, blocked, or needs owner decision]
 - Contract basis SHA: [40-character commit SHA]
 - Contract frozen paths: [shared exact repo-relative paths]
 - Declared verification tier: [V0 / V1 / V2 / V3]
@@ -47,15 +45,10 @@ This template is documentation-only. It does not run verification or approve sid
 - Manual judgment points: [decisions requiring human review]
 - Local/remote baseline state: [local HEAD, reviewed remote ref, workflow head equality]
 - Residual risk: [remaining uncertainty]
-- Low-cost execution-path check: [representative case and result, or not applicable]
-- Evidence-based correction attempts: [count and same-cause outcome]
-- Diagnostic escalation: [remaining questions, evidence, and failure hypothesis, or not required]
-- Verification reused/repeated: [reused evidence and any new failure, input,
-  environment or contract change, or concrete concern that required repetition]
-- Repeated attempts: [observable count and cause]
-- User interventions: [observable count and purpose]
-- Observable consumption: [commands, tool calls, or measured durations available]
-- Token measurement: [measured value, or NOT MEASURED]
+- Recovery/diagnosis/control, if applicable: [recovery, merged same-cause
+  diagnosis, exact ownership]
+- Utility measurement, if scoped: [interventions, calls, time, measured tokens;
+  otherwise NOT REQUESTED]
 
 If target-repository Hosted evidence was not executed and bound to the target
 head SHA, record Target Hosted status/run as `NOT RUN`; do not inherit the
@@ -70,14 +63,20 @@ PASS.
 
 ## Commands Run
 
-| command | result | notes |
+| command / owned execution ID | result / internal exit | core result or evidence |
 |---|---|---|
-| [command] | PASS / FAIL / NOT RUN / ENVIRONMENT BLOCKED | [evidence or reason] |
+| [command / ID] | PASS / FAIL / NOT RUN / ENVIRONMENT BLOCKED / [exit] | [result or reason] |
+
+Recover execution before rerun; missing output alone is no rerun reason and
+shell success is no internal PASS. An unconfirmed execution is human `result
+not verified / NOT DONE`, not a new JSON enum, `NOT RUN`, or `ENVIRONMENT BLOCKED`.
 
 ## Evidence Paths
 
 - [file or record path]
 - [file or record path]
+
+Reference unchanged packages and receipts; do not retranscribe them.
 
 ## Safety Checks
 
@@ -140,6 +139,5 @@ They do not adopt H01, the verification UX feature basis, or any next step.
 
 ## Next Step
 
-[One concrete next step, or `None` if complete.] Do not estimate token savings
-or a savings rate when tokens were not measured. After completion conditions
-are met, treat additional cleanup or polishing as separate scope.
+[One next step, or `None`.] In scoped measurement, mark unmeasured tokens `NOT
+MEASURED`; do not estimate savings. Stop at completion; cleanup is separate.

@@ -8,10 +8,8 @@ This template is documentation-only. It does not grant approval for side effects
 
 [Describe the concrete outcome required.]
 
-- Completion conditions: [observable conditions that end this task]
-- Decision-critical uncertainty: [only unresolved facts needed for a decision]
-- Existing evidence to reuse: [current receipts, tests, or source facts]
-- Active task: [actual task ID] / [planned, running, blocked, or complete]
+Define observable completion. When relevant, note decision-critical uncertainty,
+reusable evidence, and Codex task ID/state; keep package `task_id` distinct.
 
 ## Target Repo / Path
 
@@ -38,15 +36,11 @@ This template is documentation-only. It does not grant approval for side effects
 - Declared side effects: [classes requested by this task]
 - Approval reference: [safe reference, or none]
 
-Operational routing aid only: use an existing deterministic script for
-deterministic checks; Terra Medium for narrow research or a simple edit; Sol
-Medium for settled implementation; and Astra Medium to High for complex
-boundary judgment. This does not adopt an official role profile, establish
-provider observation, or claim performance equivalence. Keep one owner when
-that owner can finish the task; split only genuinely independent work, keep
-actual task identifiers and states visible, and limit tool output to
-decision-relevant fields or error intervals while preserving original evidence
-at its authorized location.
+Routing aid: deterministic check to script; narrow research/edit
+to Terra Medium; settled implementation to Sol Medium; boundary judgment to
+Astra Medium to High. This neither adopts roles nor proves provider behavior
+or equivalence. Keep one owner unless independent; inspect
+needed output, preserve evidence, and stop at completion. Cleanup is separate.
 
 For parallel work, save the machine-readable package under the ignored
 `local/work-packages/` directory and run:
@@ -123,11 +117,16 @@ Run when safe and available:
 
 If a command is not run, report `NOT RUN` or `ENVIRONMENT BLOCKED` with the reason.
 
-Keep required reading and verification. Before implementation, confirm the
-execution path with one low-cost representative case or reproduction. After
-two evidence-based corrections fail for the same cause, stop iterative repair
-and escalate diagnosis with the remaining questions, evidence, and failure
-hypothesis. Missing input or authority is not a reasoning problem.
+Keep required reading and verification. Use a representative only when
+environment, call path, or reproduction is uncertain. Evidence links execution
+ID/state, internal exit, and core result. Recover it before rerun; missing output
+alone is no rerun reason, and shell success is no internal PASS. An unconfirmed
+executed result is human `result not verified / NOT DONE`, not `NOT RUN`,
+`ENVIRONMENT BLOCKED`, or a new JSON enum. Control only an exactly owned
+execution; a shared virtual-environment path proves no ownership. Two
+evidence-based changes failing for the same cause trigger diagnosis with
+questions, evidence, and hypothesis. Missing input or authority is not a
+reasoning problem.
 
 ## Side-Effect Approval Boundary
 
