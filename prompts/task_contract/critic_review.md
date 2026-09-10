@@ -1,6 +1,6 @@
 # Critic Review Prompt
 
-Use for review-only analysis of a task, diff, design, or repository state.
+Review a task, diff, design or repository state.
 
 This documentation template authorizes no edits or side effects.
 

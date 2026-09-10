@@ -88,15 +88,16 @@ acceptance, defect rejection and production error-to-final-result flow, with moc
 
 Confirm:
 
-- tracked/untracked changes stayed in the declared write set/generated outputs
+- actual changed files remained within the declared write set
+- untracked files stayed within declared generated outputs
 - work-package conflicts were checked before parallel execution
-- preflight/postflight used identical package bytes, root class and `plan_digest`
+- preflight/postflight used identical package bytes and package-root class, and the same `plan_digest`
 - exact verification runtime matched and every required command ID completed
 - rename/delete and commit-count checks passed
 - frozen paths unchanged, else stop with `CONTRACT_CHANGE_REQUIRED`
 - only integration lane changed integration-only files
 - structural PASS was not treated as authenticated approval
-- no absolute repo/package-root, host, account or runtime paths in JSON evidence
+- no absolute repository, package-root, host, account or runtime paths in JSON evidence
 - no unrelated refactor
 - no secrets, private raw input, sensitive source text or live values
 - no new profile, example, CI workflow, eval code, audit logging code, RAG code, release artifact, application code, device code, or live-write behavior unless explicitly approved
@@ -119,7 +120,7 @@ Choose one:
 
 ## Next-Step Authority
 
-Default is `ADVISORY`; `PASS`, V2/V3, postflight, `plan_digest`, or a
+Default is `ADVISORY`; `PASS`, `V2`, `V3`, postflight result, `plan_digest`, or a
 recommendation neither adopts a next step nor authenticates authorization.
 
 `ADOPTED` requires recorded:
@@ -131,7 +132,7 @@ recommendation neither adopts a next step nor authenticates authorization.
 - required digest disposition; and
 - integration-owner disposition.
 
-No closeout, recommendation or branch-local `STATUS.md` adopts itself.
+A closeout, recommendation or branch-local `STATUS.md` cannot adopt itself.
 The H01 closeout itself remains `PROPOSED / PENDING INTEGRATION` and its
 next-step authority remains `ADVISORY`.
 

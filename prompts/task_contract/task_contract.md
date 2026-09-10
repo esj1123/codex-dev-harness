@@ -44,15 +44,13 @@ Before async/delegated start, choose an existing-format result location. Retain
 execution ID/state, internal exit and core result/evidence; recover empty bodies by
 receipt. Candidate/refs precede review. Collisions get a new attempt; retain receipts.
 
-For parallel work, save the machine-readable package under the ignored
-`local/work-packages/` directory and run:
+For parallel work, save packages under ignored `local/work-packages/` and run:
 
 ```text
 python scripts/work_package_conflict_check.py --repo-root . --package <PACKAGE_JSON> [--package <PACKAGE_JSON> ...] --json
 ```
 
-For an approved external control-plane package, keep each package name relative
-to that root and run:
+For approved external packages, use a name relative to the control-plane root:
 
 ```text
 python scripts/work_package_conflict_check.py --repo-root <TARGET_ROOT> --package-root <CONTROL_PLANE_ROOT> --package <PACKAGE_ROOT_RELATIVE_JSON> --json
@@ -69,7 +67,7 @@ python scripts/work_package_postflight.py --repo-root . --package <PACKAGE_JSON>
 
 Postflight uses identical `--package-root` and package-relative name. No absolute
 repo/package-root paths in packages or JSON evidence. Process exit, reason codes
-and command IDs are the verification interface; stderr is diagnostic.
+and command IDs are the verification interface; stderr wording is diagnostic only.
 
 Integration requires matching pre/postflight `plan_digest`, postflight `PASS`,
 unchanged frozen contract and separate owner/side-effect approvals. A feature
@@ -97,8 +95,8 @@ Choose one:
 - No delete/move/overwrite/force-write without separate approval.
 - CI workflow changes need separate approval.
 - Release artifacts need separate approval.
-- Do not add eval, audit logging, RAG, application, device, or live-write behavior unless separately approved.
-- Do not include secrets, private raw input, sensitive source text, equipment details, live parameters, or credentials.
+- Eval, audit logging, RAG, application, device or live-write additions need separate approval.
+- No secrets, private raw input, sensitive source text, equipment details, live parameters or credentials.
 - Feature and contract lanes must not edit integration-only authority,
   workflow, gate, golden, corpus-source-set, or artifact paths.
 
