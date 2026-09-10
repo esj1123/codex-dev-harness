@@ -1,8 +1,8 @@
 # Critic Review Prompt
 
-Use this prompt when requesting a review-only pass over a task, diff, design, or repository state.
+Use for review-only analysis of a task, diff, design, or repository state.
 
-This template is documentation-only. It does not authorize edits, side effects, or implementation work.
+This documentation template authorizes no edits or side effects.
 
 ## Goal
 
@@ -22,20 +22,20 @@ Review-only. Do not edit files unless a separate task explicitly approves change
 
 Check:
 
-- distinguish package and Codex task IDs; record relevant state, completion,
-  and uncertainty
-- stated behavior matches implementation or documentation
-- acceptance trace evidence supports the claim
-- verification commands match the changed surface
-- use a representative only for uncertain environment, call path, or reproduction
+- distinguish package/Codex task IDs and state/uncertainty
+- for feature/artifact checks, goal and actual inputs/options/path agree; expectations
+  come from requirements, templates or contracts, never output-matching adjustments
+- representatives cover uncertain environment, call path or reproduction only
+- validator/error tests accept known valid input, reject defects and trace production
+  errors to the final result; label mock/actual scope; setters/messages alone are no flow PASS
+- async/delegated work preselects a result location, binds ID/state, internal
+  exit/core result/evidence, uses receipts for empty bodies, and readies candidate/refs
 - after two evidence-based same-cause failures, diagnose with questions,
-  evidence, and hypothesis; missing input or authority is not a reasoning gap
-- bind evidence to owned execution ID/state, internal exit, and core result;
-  recover missing output, and never infer internal PASS from shell success
-- use human `result not verified / NOT DONE` for an unconfirmed execution, not
-  `NOT RUN`, `ENVIRONMENT BLOCKED`, or a JSON enum
-- control only an exactly owned process; a shared environment proves nothing
-- PASS, FAIL, NOT RUN, and ENVIRONMENT BLOCKED are used accurately
+  evidence, and hypothesis; missing input/authority is not a reasoning gap
+- recover missing output; shell success is no internal PASS; control only an
+  owned process, since a shared environment proves nothing
+- label unconfirmed execution `result not verified / NOT DONE`, not `NOT RUN`,
+  `ENVIRONMENT BLOCKED`, or a new JSON enum; use statuses accurately
 - historical records are not rewritten as current facts
 
 ## Safety Review
@@ -61,12 +61,13 @@ Check:
 Check:
 
 - verification commands were run or clearly marked NOT RUN / ENVIRONMENT BLOCKED
-- evidence paths are listed
-- status and acceptance trace are updated when durable repo state changes
+- list evidence; collisions get a new attempt, preserving receipts without
+  regeneration or conversation copy
+- update status/acceptance trace only for durable repo changes
 - unresolved risks and assumptions are stated
 - scale review to risk without weakening required or independent checks; repeat
-  verification only for new failure, input, environment, contract, or concern
-- combine retry records; collect usage only for explicit measurement
+  only for new failure, input, environment, contract or concern
+- combine retries; collect usage only when requested
 
 ## Completion Report Format
 

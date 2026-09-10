@@ -1,13 +1,13 @@
 # Verification Closeout Prompt
 
-Use this prompt to close out a completed task with evidence.
+Use to close a completed task with evidence.
 
-This template is documentation-only. It does not run verification or approve side effects by itself.
+This documentation template runs nothing and approves no side effects.
 
 ## Task Basis
 
 - Goal: [task goal]
-- Completion/decision basis: [conditions and status; uncertainty; reused evidence]
+- Completion/decision basis: [conditions/status; uncertainty; reused evidence]
 - Repository/path: [target path]
 - Package location class: [same-root / external-local-control-plane]
 - Basis ref or commit: [branch, tag, or commit]
@@ -45,8 +45,9 @@ This template is documentation-only. It does not run verification or approve sid
 - Manual judgment points: [decisions requiring human review]
 - Local/remote baseline state: [local HEAD, reviewed remote ref, workflow head equality]
 - Residual risk: [remaining uncertainty]
-- Recovery/diagnosis/control, if applicable: [recovery, merged same-cause
-  diagnosis, exact ownership]
+- Recovery/diagnosis/control, if applicable: [same-cause diagnosis; ownership;
+  preselected async result location; ID/state/internal exit/core result/evidence
+  or empty-body receipt; candidate/refs]
 - Utility measurement, if scoped: [interventions, calls, time, measured tokens;
   otherwise NOT REQUESTED]
 
@@ -76,27 +77,28 @@ not verified / NOT DONE`, not a new JSON enum, `NOT RUN`, or `ENVIRONMENT BLOCKE
 - [file or record path]
 - [file or record path]
 
-Reference unchanged packages and receipts; do not retranscribe them.
+Reference unchanged receipts. On collision use a new attempt; avoid ritual
+deletion/regeneration and transcript copies.
+
+For feature/artifact checks, link goal, actual inputs/options/path and contract-
+derived expectations. For validator/error-test changes, report known valid
+acceptance, defect rejection and production error-to-final-result flow, with mock scope.
 
 ## Safety Checks
 
 Confirm:
 
-- allowed files only
-- actual changed files remained within the declared write set
-- actual untracked files remained within declared generated outputs
+- tracked/untracked changes stayed in the declared write set/generated outputs
 - work-package conflicts were checked before parallel execution
-- preflight and postflight used the same `plan_digest`
-- preflight and postflight used identical package bytes and package-root class
+- preflight/postflight used identical package bytes, root class and `plan_digest`
 - exact verification runtime matched and every required command ID completed
 - rename/delete and commit-count checks passed
-- frozen contract paths were unchanged, or the batch stopped with `CONTRACT_CHANGE_REQUIRED`
-- integration-only files were changed only by the integration lane
+- frozen paths unchanged, else stop with `CONTRACT_CHANGE_REQUIRED`
+- only integration lane changed integration-only files
 - structural PASS was not treated as authenticated approval
-- no absolute repository, package-root, host, account, or runtime executable path was persisted in JSON evidence
+- no absolute repo/package-root, host, account or runtime paths in JSON evidence
 - no unrelated refactor
-- no secrets or private raw input
-- no sensitive source text or live values
+- no secrets, private raw input, sensitive source text or live values
 - no new profile, example, CI workflow, eval code, audit logging code, RAG code, release artifact, application code, device code, or live-write behavior unless explicitly approved
 - side effects were not performed without approval
 - `performed_actions` and actual commands agree with the closeout
@@ -117,11 +119,10 @@ Choose one:
 
 ## Next-Step Authority
 
-The default is `ADVISORY`. A `PASS`, `V2`, `V3`, postflight result,
-`plan_digest`, or recommendation does not make a next step `ADOPTED` and does
-not authenticate authorization.
+Default is `ADVISORY`; `PASS`, V2/V3, postflight, `plan_digest`, or a
+recommendation neither adopts a next step nor authenticates authorization.
 
-Use `ADOPTED` only when the closeout records all of the following:
+`ADOPTED` requires recorded:
 
 - explicit owner decision;
 - exact adopted ref/SHA;
@@ -130,12 +131,12 @@ Use `ADOPTED` only when the closeout records all of the following:
 - required digest disposition; and
 - integration-owner disposition.
 
-A closeout, recommendation, or branch-local `STATUS.md` cannot adopt itself.
+No closeout, recommendation or branch-local `STATUS.md` adopts itself.
 The H01 closeout itself remains `PROPOSED / PENDING INTEGRATION` and its
 next-step authority remains `ADVISORY`.
 
-The separately bounded H02 fields above preserve the H01 authority boundary.
-They do not adopt H01, the verification UX feature basis, or any next step.
+H02 fields preserve H01 authority; they adopt neither H01, the verification UX
+basis nor any next step.
 
 ## Next Step
 

@@ -1,15 +1,16 @@
 # Task Contract Prompt
 
-Use this prompt when requesting AI/Codex implementation, documentation, review, or verification work.
+Use for AI/Codex implementation, documentation, review, or verification.
 
-This template is documentation-only. It does not grant approval for side effects, execute automation, or override repository policy.
+This documentation template executes nothing and cannot override repo policy or approval.
 
 ## Goal
 
 [Describe the concrete outcome required.]
 
-Define observable completion. When relevant, note decision-critical uncertainty,
-reusable evidence, and Codex task ID/state; keep package `task_id` distinct.
+Define observable completion; keep Codex and package IDs distinct. For feature/
+artifact checks, map the goal to actual inputs/options/path. Derive expectations
+from requirements, templates or contracts; never adjust them just to pass output.
 
 ## Target Repo / Path
 
@@ -36,11 +37,12 @@ reusable evidence, and Codex task ID/state; keep package `task_id` distinct.
 - Declared side effects: [classes requested by this task]
 - Approval reference: [safe reference, or none]
 
-Routing aid: deterministic check to script; narrow research/edit
-to Terra Medium; settled implementation to Sol Medium; boundary judgment to
-Astra Medium to High. This neither adopts roles nor proves provider behavior
-or equivalence. Keep one owner unless independent; inspect
-needed output, preserve evidence, and stop at completion. Cleanup is separate.
+Routing: script for deterministic checks, Terra Medium for narrow edits,
+Sol Medium for settled implementation, Astra Medium/High for boundaries.
+This adopts no roles and proves no provider equivalence. Keep one owner unless independent.
+Before async/delegated start, choose an existing-format result location. Retain
+execution ID/state, internal exit and core result/evidence; recover empty bodies by
+receipt. Candidate/refs precede review. Collisions get a new attempt; retain receipts.
 
 For parallel work, save the machine-readable package under the ignored
 `local/work-packages/` directory and run:
@@ -56,29 +58,23 @@ to that root and run:
 python scripts/work_package_conflict_check.py --repo-root <TARGET_ROOT> --package-root <CONTROL_PLANE_ROOT> --package <PACKAGE_ROOT_RELATIVE_JSON> --json
 ```
 
-The package describes scope and conflicts. It does not grant approval.
-`authorization_status=NOT_AUTHENTICATED` remains fixed even when structural
-validation passes.
+Packages describe scope, not approval; structural PASS keeps
+`authorization_status=NOT_AUTHENTICATED`.
 
-Record the returned `plan_digest`. After the lane has one coherent commit and
-its focused verification is complete, run:
+Record `plan_digest`. After one coherent lane commit and focused verification, run:
 
 ```text
 python scripts/work_package_postflight.py --repo-root . --package <PACKAGE_JSON> [--package <PACKAGE_JSON> ...] --task-id <TASK_ID> --verification-status PASS --verification-interpreter-id <INTERPRETER_ID> --completed-command-id <COMMAND_ID> --json
 ```
 
-Use the identical `--package-root` and package-relative name at postflight.
-Never copy repository or package-root absolute paths into the package or JSON
-evidence. Treat process exit status, reason codes, and command IDs as the
-verification interface; stderr wording is diagnostic only.
+Postflight uses identical `--package-root` and package-relative name. No absolute
+repo/package-root paths in packages or JSON evidence. Process exit, reason codes
+and command IDs are the verification interface; stderr is diagnostic.
 
-Do not integrate the lane unless preflight and postflight use the same
-`plan_digest`, postflight reports `PASS`, the frozen contract is unchanged, and
-the required owner/side-effect approvals exist outside the package. Stop with
-`CONTRACT_CHANGE_REQUIRED` and create a new contract basis when a feature lane
-needs to change a frozen path. Do not report `PASS` when the agent omitted a
-required command, selected a different runtime, or only the owner reran the
-command afterward.
+Integration requires matching pre/postflight `plan_digest`, postflight `PASS`,
+unchanged frozen contract and separate owner/side-effect approvals. A feature
+change to frozen paths stops with `CONTRACT_CHANGE_REQUIRED` for a new basis.
+No `PASS` for an omitted command, different runtime or owner-only rerun.
 
 ## Write Scope
 
@@ -96,11 +92,11 @@ Choose one:
 
 ## Forbidden Files / Actions
 
-- Do not edit files outside the allowed list.
-- Do not perform unrelated refactors.
-- Do not delete, move, overwrite, or force-write files unless separately approved.
-- Do not create or modify CI workflows unless separately approved.
-- Do not generate release artifacts unless separately approved.
+- Edit only allowed files.
+- No unrelated refactors.
+- No delete/move/overwrite/force-write without separate approval.
+- CI workflow changes need separate approval.
+- Release artifacts need separate approval.
 - Do not add eval, audit logging, RAG, application, device, or live-write behavior unless separately approved.
 - Do not include secrets, private raw input, sensitive source text, equipment details, live parameters, or credentials.
 - Feature and contract lanes must not edit integration-only authority,
@@ -117,16 +113,16 @@ Run when safe and available:
 
 If a command is not run, report `NOT RUN` or `ENVIRONMENT BLOCKED` with the reason.
 
-Keep required reading and verification. Use a representative only when
-environment, call path, or reproduction is uncertain. Evidence links execution
-ID/state, internal exit, and core result. Recover it before rerun; missing output
-alone is no rerun reason, and shell success is no internal PASS. An unconfirmed
-executed result is human `result not verified / NOT DONE`, not `NOT RUN`,
-`ENVIRONMENT BLOCKED`, or a new JSON enum. Control only an exactly owned
-execution; a shared virtual-environment path proves no ownership. Two
-evidence-based changes failing for the same cause trigger diagnosis with
-questions, evidence, and hypothesis. Missing input or authority is not a
-reasoning problem.
+Keep required reading and verification. Representatives are only for uncertain
+environment, call path or reproduction. For validator/error-test changes, check
+known valid acceptance and defect rejection; trace production errors through the
+final result. Setters/messages alone are no flow PASS; state mock/actual scope.
+Bind execution ID/state, internal exit, core result. Recover before rerun:
+missing output is no rerun reason, nor shell success internal PASS. Unconfirmed
+execution is `result not verified / NOT DONE`, not `NOT RUN`, `ENVIRONMENT
+BLOCKED`, or a new JSON enum. Control only an exactly owned run; shared env proves no
+ownership. Two evidence-based same-cause failures trigger diagnosis with
+questions, evidence, hypothesis; missing input/authority is no reasoning gap.
 
 ## Side-Effect Approval Boundary
 
