@@ -18,6 +18,12 @@ Review [target] and report correctness, safety, scope, and evidence gaps.
 
 Review-only. Do not edit files unless a separate task explicitly approves changes.
 
+Independent review inspects the actual change and required original evidence.
+Coordination review starts from candidate, verification, independent-review and
+authority linkage plus remaining decisions. Follow-up review covers corrected
+findings and their impact; expand to relevant originals for mismatches, gaps,
+stale candidates or new concerns. A compact summary preserves these checks.
+
 ## Correctness Review
 
 Check:
@@ -71,7 +77,7 @@ Check:
 
 ## Completion Report Format
 
-1. Findings ordered by severity
+1. Candidate/ref, scoped verdict and findings ordered by severity
 2. Missing or weak evidence
 3. Scope and safety assessment
 4. Verification reviewed

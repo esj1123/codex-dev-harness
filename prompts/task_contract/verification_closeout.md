@@ -4,6 +4,10 @@ Use to close a completed task with evidence.
 
 This documentation template runs nothing and approves no side effects.
 
+Lead with the candidate, changed behavior, verification scope/result, unresolved
+items, next action and evidence locations. Link detailed logs and unchanged
+records while retaining the required basis and safety fields below.
+
 ## Task Basis
 
 - Goal: [task goal]
@@ -48,8 +52,15 @@ This documentation template runs nothing and approves no side effects.
 - Recovery/diagnosis/control, if applicable: [same-cause diagnosis; ownership;
   preselected async result location; ID/state/internal exit/core result/evidence
   or empty-body receipt; candidate/refs]
-- Utility measurement, if scoped: [interventions, calls, time, measured tokens;
+- Utility measurement, if scoped: [first-pass result, defects/rework/interventions;
+  participant/phase coverage including coordination, implementation, review and
+  handoff; input/cached-input/output tokens, calls, time, cutoff and gaps;
   otherwise NOT REQUESTED]
+
+Keep scoped quality and usage in this closeout. Cached input and reasoning
+output are subsets, not additional totals. Mark missing coverage as unmeasured.
+Make no savings claim without comparable work; do not create measurement-only
+cases or systems.
 
 If target-repository Hosted evidence was not executed and bound to the target
 head SHA, record Target Hosted status/run as `NOT RUN`; do not inherit the

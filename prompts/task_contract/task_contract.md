@@ -12,6 +12,10 @@ Define observable completion; keep Codex and package IDs distinct. For feature/
 artifact checks, map the goal to actual inputs/options/path. Derive expectations
 from requirements, templates or contracts; never adjust them just to pass output.
 
+Lead dispatch with the goal, current candidate, write/no-touch scope, required
+reading, reusable evidence, unresolved issues and next action. Link long
+background to exact existing records; retain the required package fields below.
+
 ## Target Repo / Path
 
 - Repository: [repo name or URL]
@@ -43,6 +47,11 @@ This adopts no roles and proves no provider equivalence. Keep one owner unless i
 Before async/delegated start, choose an existing-format result location. Retain
 execution ID/state, internal exit and core result/evidence; recover empty bodies by
 receipt. Candidate/refs precede review. Collisions get a new attempt; retain receipts.
+
+After required reading, inspect the current entrypoints and changed areas first.
+Select tool output before returning it: inspected scope, verdict, mismatches or
+failures, and evidence locations. Retain necessary originals; expand relevant
+source reads for contradictions, missing evidence, stale candidates or new failures.
 
 For parallel work, save packages under ignored `local/work-packages/` and run:
 
