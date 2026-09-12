@@ -40,6 +40,7 @@ records while retaining the required basis and safety fields below.
 - Target verification executor/status: [local / github] / [PASS / FAIL / NOT RUN / ENVIRONMENT BLOCKED]
 - Target Hosted status/run: [PASS / FAIL / NOT RUN] / [workflow name and safe run ID, or reason]
 - Verification scope: [focused / integration / extended]
+- Reviewed coverage: [object/phase/ref and scoped verdict; unreviewed next inputs/commands or acceptance steps]
 - Exact-SHA binding: [BOUND / NOT BOUND / not applicable]
 - Setup/pytest/overall duration: [seconds] / [seconds] / [seconds]
 - Artifact upload status: [NOT RUN / NONE / TRANSIENT EXPORT]
@@ -52,15 +53,26 @@ records while retaining the required basis and safety fields below.
 - Recovery/diagnosis/control, if applicable: [same-cause diagnosis; ownership;
   preselected async result location; ID/state/internal exit/core result/evidence
   or empty-body receipt; candidate/refs]
-- Utility measurement, if scoped: [first-pass result, defects/rework/interventions;
+- Utility measurement, if scoped: [owner and existing milestone records;
+  first-pass result by stage, defects/rework/interventions;
   participant/phase coverage including coordination, implementation, review and
   handoff; input/cached-input/output tokens, calls, time, cutoff and gaps;
   otherwise NOT REQUESTED]
 
-Keep scoped quality and usage in this closeout. Cached input and reasoning
-output are subsets, not additional totals. Mark missing coverage as unmeasured.
+Keep scoped quality and usage in this closeout; link original evidence instead
+of copying logs. Identify the original usage source, unique event key, participant/
+phase coverage and cutoff. Sum non-overlapping response usage once, or use explicit
+cumulative deltas for the same counter and non-overlapping coverage; never add
+cumulative snapshots as increments or mix both methods over the same usage.
+Cached input and reasoning output are subsets, not additional totals. Preserve
+unexplained discrepancies and mark missing or later coverage as unmeasured; carry
+it to the next actual milestone without inventing a measurement-only step.
 Make no savings claim without comparable work; do not create measurement-only
 cases or systems.
+
+Bind each verdict to the reviewed object/phase. Plan/code review or hash/reference
+linkage does not establish review of a later execution input/command or required
+acceptance. Keep remaining review, evidence and authority visible in Next Step.
 
 If target-repository Hosted evidence was not executed and bound to the target
 head SHA, record Target Hosted status/run as `NOT RUN`; do not inherit the

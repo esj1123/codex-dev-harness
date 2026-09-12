@@ -12,6 +12,8 @@ Review [target] and report correctness, safety, scope, and evidence gaps.
 
 - Repository/path: [target path]
 - Basis ref or diff: [branch, commit, PR, or local diff]
+- Reviewed object/phase: [object, phase and exact ref covered by this review]
+- Remaining coverage: [unreviewed next inputs/commands or acceptance steps; required evidence]
 - Relevant documents or files: [list]
 
 ## Review Mode
@@ -43,6 +45,9 @@ Check:
 - label unconfirmed execution `result not verified / NOT DONE`, not `NOT RUN`,
   `ENVIRONMENT BLOCKED`, or a new JSON enum; use statuses accurately
 - historical records are not rewritten as current facts
+- bind each verdict to its reviewed object/phase; a code hash/reference does not
+  establish review of a later execution input/command, and plan or qualification
+  review does not establish candidate or publication acceptance
 
 ## Safety Review
 
@@ -73,12 +78,15 @@ Check:
 - unresolved risks and assumptions are stated
 - scale review to risk without weakening required or independent checks; repeat
   only for new failure, input, environment, contract or concern
-- combine retries; collect usage only when requested
+- when measurement is requested, check the named owner, actual milestone records,
+  participant/phase coverage including this review, and source/key/cutoff and
+  interval-versus-cumulative accounting from `verification_closeout.md`; include
+  all retries and retain unexplained discrepancies
 
 ## Completion Report Format
 
-1. Candidate/ref, scoped verdict and findings ordered by severity
+1. Reviewed object/phase and candidate/ref, scoped verdict and findings ordered by severity
 2. Missing or weak evidence
 3. Scope and safety assessment
 4. Verification reviewed
-5. Recommended next action
+5. Recommended next action and its remaining review/evidence requirements

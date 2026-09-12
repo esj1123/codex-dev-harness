@@ -48,6 +48,13 @@ Before async/delegated start, choose an existing-format result location. Retain
 execution ID/state, internal exit and core result/evidence; recover empty bodies by
 receipt. Candidate/refs precede review. Collisions get a new attempt; retain receipts.
 
+When measurement is requested for this work scope, including resumed or delegated
+phases, name one measurement owner and the existing record before work starts.
+Update it at actual start, verification, independent review, rework and closeout
+transitions, covering coordination and handoff as well. Do not create stages solely
+to measure them. Use `verification_closeout.md` for source, deduplication, cutoff
+and coverage rules.
+
 After required reading, inspect the current entrypoints and changed areas first.
 Select tool output before returning it: inspected scope, verdict, mismatches or
 failures, and evidence locations. Retain necessary originals; expand relevant
