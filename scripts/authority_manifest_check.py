@@ -249,6 +249,10 @@ def validate_manifest(payload: Any, *, repo_root: Path) -> dict[str, Any]:
         issues.add("HISTORICAL_OR_MATRIX_IN_DEFAULT_READ_ORDER")
     if conditional_read_order != EXPECTED_CONDITIONAL_READ_ORDER:
         issues.add("CONDITIONAL_READ_ORDER_INVALID")
+    if not set(conditional_read_order["product_scope"]).issubset(
+        set(classifications["current_authority"])
+    ):
+        issues.add("PRODUCT_SCOPE_OUTSIDE_CURRENT_AUTHORITY")
     conditional_paths = [
         path for paths in conditional_read_order.values() for path in paths
     ]

@@ -148,6 +148,21 @@ def test_safety_policy_cannot_be_removed_from_default_reads() -> None:
 
 
 @pytest.mark.parametrize("relative_path", ["PRODUCT.md", "MVP.md"])
+@pytest.mark.parametrize("classification", ["durable_policy", "historical_evidence"])
+def test_conditional_product_scope_must_remain_current_authority(
+    relative_path: str, classification: str
+) -> None:
+    payload = load_manifest()
+    payload["current_authority"].remove(relative_path)
+    payload[classification].append(relative_path)
+
+    result = checker.validate_manifest(payload, repo_root=REPO_ROOT)
+
+    assert result["status"] == "FAIL"
+    assert result["reason_codes"] == ["PRODUCT_SCOPE_OUTSIDE_CURRENT_AUTHORITY"]
+
+
+@pytest.mark.parametrize("relative_path", ["PRODUCT.md", "MVP.md"])
 def test_conditional_product_documents_must_still_exist(
     tmp_path: Path, relative_path: str
 ) -> None:
