@@ -8,14 +8,16 @@ This file defines the operating rules for AI/Codex work in this repository.
 
 1. AGENTS.md
 2. docs/AUTHORITY_MANIFEST.json
-3. PRODUCT.md
-4. MVP.md
-5. STATUS.md
-6. docs/SAFETY_POLICY.md
+3. STATUS.md
+4. docs/SAFETY_POLICY.md
 
 Conditional read groups are defined only in
-`docs/AUTHORITY_MANIFEST.json`: verification, capability selection, and
-handoff context must be loaded when the task requires them.
+`docs/AUTHORITY_MANIFEST.json`. Load product scope for initial product
+orientation or decisions about goals, scope, acceptance, capability selection,
+or adoption. Load verification, capability selection, and handoff context
+when the task requires them. Conditional reading does not remove required
+checks; expand to original evidence for gaps, contradictions, stale candidates,
+or new failures.
 
 ## Current Phase Rule
 

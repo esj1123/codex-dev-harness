@@ -694,10 +694,11 @@ def test_current_authority_is_manifest_driven() -> None:
     assert manifest["default_read_order"] == [
         "AGENTS.md",
         docs_gate.MANIFEST_PATH,
-        "PRODUCT.md",
-        "MVP.md",
         "STATUS.md",
         "docs/SAFETY_POLICY.md",
+    ]
+    assert manifest["conditional_read_order"]["product_scope"] == [
+        "PRODUCT.md", "MVP.md"
     ]
     assert manifest["conditional_read_order"]["handoff"] == [
         "docs/AI_HANDOFF.md"

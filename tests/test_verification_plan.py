@@ -303,6 +303,7 @@ def test_agent_quality_surface_requires_manual_static_check(
     "relative_path",
     [
         "prompts/task_contract/task_contract.md",
+        "prompts/task_contract/critic_review.md",
         "prompts/task_contract/verification_closeout.md",
     ],
 )
@@ -315,10 +316,124 @@ def test_work_package_prompt_contracts_require_v2_integration_owner(
 
     result = inspect(repo, base_sha)
 
+    assert result["status"] == "PASS"
     assert result["minimum_tier"] == "V2"
     assert result["integration_owner_required"] is True
     assert result["reason_codes"] == []
+    assert result["matched_rule_ids"] == ["work_package_prompt_contracts"]
+    assert {"core_pytest", "standalone_eval", "quality_gate"}.issubset(
+        result["required_command_ids"]
+    )
+    assert "full_pytest" not in result["required_command_ids"]
+
+
+def test_three_prompt_contracts_share_v2_without_unknown_escalation(
+    planner_repo: tuple[Path, str],
+) -> None:
+    repo, base_sha = planner_repo
+    for name in ("task_contract", "critic_review", "verification_closeout"):
+        write_text(repo, f"prompts/task_contract/{name}.md", "# Contract\n")
+    git(repo, "add", "prompts/task_contract")
+    git(repo, "commit", "-m", "three prompt contracts")
+
+    result = inspect(repo, base_sha)
+
+    assert result["status"] == "PASS"
+    assert result["minimum_tier"] == "V2"
+    assert result["integration_owner_required"] is True
+    assert result["reason_codes"] == []
+    assert result["matched_rule_ids"] == ["work_package_prompt_contracts"]
+    assert {"core_pytest", "standalone_eval", "quality_gate"}.issubset(
+        result["required_command_ids"]
+    )
+    assert "full_pytest" not in result["required_command_ids"]
+
+
+@pytest.mark.parametrize(
+    ("relative_path", "extra_command", "flag", "unknown"),
+    [
+        ("prompts/task_contract/unclassified.md", "full_pytest", None, True),
+        ("config/tool.cfg", "full_pytest", None, True),
+        ("scripts/work_package_conflict_check.py", "full_pytest", None, False),
+        ("pytest.ini", "full_pytest", None, False),
+        ("docs/corpus-policy.md", "corpus_digest_check", "digest_check_required", False),
+        ("scripts/render_template.py", "render_dry_runs", "render_check_required", False),
+        ("artifacts/release-manifest.json", "checksum_verify", "checksum_check_required", False),
+        ("scripts/hermes_sidecar.py", "hermes_mcp_static_check", None, False),
+        ("scripts/local_rag_retriever.py", "local_rag_static_check", None, False),
+    ],
+)
+def test_critic_review_mixed_changes_retain_other_path_requirements(
+    planner_repo: tuple[Path, str], relative_path: str, extra_command: str,
+    flag: str | None, unknown: bool,
+) -> None:
+    repo, base_sha = planner_repo
+    commit_file(repo, "prompts/task_contract/critic_review.md", "# Review\n")
+    commit_file(repo, relative_path, "synthetic\n")
+
+    result = inspect(repo, base_sha)
+
+    assert result["status"] == "PASS"
+    assert result["minimum_tier"] == "V2"
+    assert result["integration_owner_required"] is True
     assert "work_package_prompt_contracts" in result["matched_rule_ids"]
+    assert {"core_pytest", "standalone_eval", "quality_gate", extra_command}.issubset(
+        result["required_command_ids"]
+    )
+    assert result["reason_codes"] == (["UNKNOWN_PATH_ESCALATED"] if unknown else [])
+    if flag:
+        assert result[flag] is True
+    if extra_command != "full_pytest":
+        assert "full_pytest" not in result["required_command_ids"]
+
+
+def test_critic_review_and_map_change_preserve_code_bootstrapped_full(
+    planner_repo: tuple[Path, str],
+) -> None:
+    repo, base_sha = planner_repo
+    commit_file(repo, "prompts/task_contract/critic_review.md", "# Review\n")
+    payload = json.loads(MAP_PATH.read_text(encoding="utf-8"))
+    full_rule = next(
+        rule for rule in payload["rules"]
+        if rule["rule_id"] == "pytest_infrastructure_full_regression"
+    )
+    full_rule["patterns"].remove(verification_plan.MAP_PATH)
+    commit_file(repo, verification_plan.MAP_PATH, json.dumps(payload) + "\n")
+
+    result = inspect(repo, base_sha)
+
+    assert result["status"] == "PASS"
+    assert result["minimum_tier"] == "V2"
+    assert result["integration_owner_required"] is True
+    assert result["reason_codes"] == []
+    assert result["matched_rule_ids"] == [
+        "verification_impact_map_bootstrap", "work_package_prompt_contracts"
+    ]
+    assert {"core_pytest", "standalone_eval", "quality_gate", "full_pytest"}.issubset(
+        result["required_command_ids"]
+    )
+
+
+def test_critic_review_classification_uses_selected_head_not_later_or_dirty_map(
+    planner_repo: tuple[Path, str],
+) -> None:
+    repo, base_sha = planner_repo
+    selected_head = commit_file(repo, "prompts/task_contract/critic_review.md", "# Review\n")
+    commit_file(repo, verification_plan.MAP_PATH, "{}\n")
+    write_text(repo, verification_plan.MAP_PATH, "not json\n")
+    write_text(repo, verification_plan.CORPUS_SOURCE_SET_PATH, "{}\n")
+
+    result = inspect(repo, base_sha, selected_head)
+
+    assert result["status"] == "PASS"
+    assert result["minimum_tier"] == "V2"
+    assert result["integration_owner_required"] is True
+    assert result["reason_codes"] == []
+    assert result["matched_rule_ids"] == ["work_package_prompt_contracts"]
+    assert {"core_pytest", "standalone_eval", "quality_gate"}.issubset(
+        result["required_command_ids"]
+    )
+    assert "full_pytest" not in result["required_command_ids"]
 
 
 def test_corpus_source_change_requires_digest_check(planner_repo: tuple[Path, str]) -> None:

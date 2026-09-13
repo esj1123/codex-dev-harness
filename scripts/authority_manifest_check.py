@@ -59,14 +59,13 @@ ALLOWED_CURRENT_STATES = {
 EXPECTED_DEFAULT_READ_ORDER = [
     "AGENTS.md",
     MANIFEST_PATH,
-    "PRODUCT.md",
-    "MVP.md",
     "STATUS.md",
     "docs/SAFETY_POLICY.md",
 ]
 EXPECTED_CONDITIONAL_READ_ORDER = {
     "capability_selection": ["docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md"],
     "handoff": ["docs/AI_HANDOFF.md"],
+    "product_scope": ["PRODUCT.md", "MVP.md"],
     "verification": ["docs/VERIFICATION.md", "docs/CI_POLICY.md"],
 }
 EXPECTED_INTEGRATION_ONLY_EXACT = {

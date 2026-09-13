@@ -58,8 +58,8 @@ def test_current_tree_manifest_passes_with_exact_required_doc_coverage() -> None
     assert result["current_state"] == "CORE_HARNESS_READY"
     assert result["manifest_summary"]["required_doc_count"] == len(BASELINE_REQUIRED_DOCS) == 78
     assert result["manifest_summary"]["classified_required_doc_count"] == 78
-    assert result["manifest_summary"]["default_read_order_count"] == 6
-    assert result["manifest_summary"]["conditional_read_order_count"] == 4
+    assert result["manifest_summary"]["default_read_order_count"] == 4
+    assert result["manifest_summary"]["conditional_read_order_count"] == 6
     assert result["manifest_summary"]["namespace_authority_count"] == 4
     assert result["manifest_summary"]["operational_input_count"] == 6
     assert result["performed_actions"] == []
@@ -91,11 +91,21 @@ def test_classification_gaps_and_duplicates_fail(mutation, reason_code: str) -> 
 def test_default_read_order_is_exact_ordered_current_authority_subset() -> None:
     payload = load_manifest()
 
-    assert payload["default_read_order"] == checker.EXPECTED_DEFAULT_READ_ORDER
+    assert payload["default_read_order"] == [
+        "AGENTS.md",
+        "docs/AUTHORITY_MANIFEST.json",
+        "STATUS.md",
+        "docs/SAFETY_POLICY.md",
+    ]
     assert set(payload["default_read_order"]).issubset(set(payload["current_authority"]))
     assert "ACCEPTANCE_TRACE.md" not in payload["default_read_order"]
     assert "docs/PROFILE_MATRIX.md" not in payload["default_read_order"]
-    assert payload["conditional_read_order"] == checker.EXPECTED_CONDITIONAL_READ_ORDER
+    assert payload["conditional_read_order"] == {
+        "capability_selection": ["docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md"],
+        "handoff": ["docs/AI_HANDOFF.md"],
+        "product_scope": ["PRODUCT.md", "MVP.md"],
+        "verification": ["docs/VERIFICATION.md", "docs/CI_POLICY.md"],
+    }
     assert (
         payload["unlisted_document_policy"]
         == "non_authoritative_reference_only_except_declared_operational_inputs"
@@ -106,6 +116,49 @@ def test_default_read_order_is_exact_ordered_current_authority_subset() -> None:
     result = checker.validate_manifest(changed, repo_root=REPO_ROOT)
     assert result["status"] == "FAIL"
     assert "DEFAULT_READ_ORDER_INVALID" in result["reason_codes"]
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        lambda payload: payload["conditional_read_order"].pop("product_scope"),
+        lambda payload: payload["conditional_read_order"]["product_scope"].remove("MVP.md"),
+        lambda payload: payload["conditional_read_order"]["product_scope"].reverse(),
+        lambda payload: payload["conditional_read_order"]["verification"].clear(),
+    ],
+)
+def test_conditional_reading_cannot_drop_or_reorder_required_context(mutation) -> None:
+    payload = load_manifest()
+    mutation(payload)
+
+    result = checker.validate_manifest(payload, repo_root=REPO_ROOT)
+
+    assert result["status"] == "FAIL"
+    assert "CONDITIONAL_READ_ORDER_INVALID" in result["reason_codes"]
+
+
+def test_safety_policy_cannot_be_removed_from_default_reads() -> None:
+    payload = load_manifest()
+    payload["default_read_order"].remove("docs/SAFETY_POLICY.md")
+
+    result = checker.validate_manifest(payload, repo_root=REPO_ROOT)
+
+    assert result["status"] == "FAIL"
+    assert "DEFAULT_READ_ORDER_INVALID" in result["reason_codes"]
+
+
+@pytest.mark.parametrize("relative_path", ["PRODUCT.md", "MVP.md"])
+def test_conditional_product_documents_must_still_exist(
+    tmp_path: Path, relative_path: str
+) -> None:
+    payload = load_manifest()
+    repo = materialize_manifest_repo(tmp_path, payload)
+    (repo / relative_path).unlink()
+
+    result = checker.inspect_manifest(repo_root=repo)
+
+    assert result["status"] == "FAIL"
+    assert result["reason_codes"] == ["DECLARED_FILE_MISSING_OR_NOT_REGULAR"]
 
 
 def test_namespace_authority_is_exact_and_points_to_declared_authority() -> None:

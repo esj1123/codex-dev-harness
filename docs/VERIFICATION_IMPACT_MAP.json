@@ -348,6 +348,7 @@
       "minimum_tier": "V2",
       "patterns": [
         "prompts/task_contract/task_contract.md",
+        "prompts/task_contract/critic_review.md",
         "prompts/task_contract/verification_closeout.md"
       ],
       "render_check_required": false,

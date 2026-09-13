@@ -52,16 +52,19 @@ Those items are no longer described as current absence. Render script, quality g
 
 1. AGENTS.md
 2. docs/AUTHORITY_MANIFEST.json
-3. PRODUCT.md
-4. MVP.md
-5. STATUS.md
-6. docs/SAFETY_POLICY.md
+3. STATUS.md
+4. docs/SAFETY_POLICY.md
 
 Load the manifest's conditional groups only when needed:
 
+- product scope: `PRODUCT.md`, `MVP.md` for initial product orientation or
+  decisions about goals, scope, acceptance, capability selection, or adoption
 - verification: `docs/VERIFICATION.md`, `docs/CI_POLICY.md`
 - capability selection: `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md`
 - handoff: `docs/AI_HANDOFF.md`
+
+Conditional reading does not remove required checks; expand to original
+evidence for gaps, contradictions, stale candidates, or new failures.
 
 The manifest also lists bounded operational inputs used by specific tools.
 Other unlisted documents are non-authoritative reference material.
