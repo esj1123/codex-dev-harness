@@ -77,6 +77,11 @@ After required reading, inspect the current entrypoints and changed areas first.
 Select tool output before returning it: inspected scope, verdict, mismatches or
 failures, and evidence locations. Retain necessary originals; expand relevant
 source reads for contradictions, missing evidence, stale candidates or new failures.
+When the selected commands are the two standalone Harness checkers, apply the
+sole caller example in [Standalone checker JSON results](../../docs/LOCAL_USAGE.md#standalone-checker-json-results)
+and start with the candidate, actual and reported exits, checked JSON decision
+and raw stdout/stderr evidence references. The task and impact policy still
+select the required verification tier and independent review.
 
 For parallel work, save packages under ignored `local/work-packages/` and run:
 

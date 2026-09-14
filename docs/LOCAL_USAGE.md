@@ -171,6 +171,150 @@ modes are unchanged when `--json` is absent. `report_written: false` means that
 this mode creates no eval report; existing checker-internal temporary validation
 activity is preserved. It does not claim zero filesystem activity.
 
+For an actual task decision, set the three parameters below to the bound
+repository, approved Python runtime and an existing, approved fresh evidence
+directory outside the repository, then run this standard-library example. It
+executes only the two commands printed above. The four fixed evidence names must
+not exist; the collision check happens before either checker runs, the directory
+is not created automatically, and each stream is opened exclusively. Record the
+actual argument arrays plus candidate, source and runtime bindings in the task
+closeout.
+
+```python
+from pathlib import Path
+import json, re, subprocess
+
+REPO = Path(r"D:\path\to\bound\CODEX HARNESS")
+PYTHON = Path(r"D:\path\to\approved\python.exe")
+EVIDENCE_DIR = Path(r"D:\approved\fresh\external-evidence")
+CHECKS = (
+    ("quality_gate", ("scripts/quality_gate.py", "--json"), "quality-gate"),
+    ("local_eval", ("scripts/run_eval.py", "--json"), "standalone-eval"),
+)
+# PASS contract from scripts/quality_gate.py:GATE_INVENTORY.
+QUALITY_GATE_IDS = (
+    "docs_gate", "repo_hygiene_gate", "template_schema_gate", "example_gate",
+    "example_render_drift_gate", "rendered_golden_content_gate",
+    "secret_scan_gate", "json_evidence_gate",
+)
+
+if not REPO.is_dir() or not PYTHON.is_file() or not EVIDENCE_DIR.is_dir():
+    raise SystemExit("Set REPO, PYTHON, and an existing EVIDENCE_DIR first.")
+paths = [
+    EVIDENCE_DIR / f"{stem}.{stream}"
+    for _, _, stem in CHECKS for stream in ("stdout.json", "stderr.txt")
+]
+collisions = [path.name for path in paths if path.exists()]
+if collisions:
+    print(json.dumps({"decision": "FAIL", "reason_codes": ["EVIDENCE_COLLISION"],
+                      "evidence": collisions}, sort_keys=True, separators=(",", ":")))
+    raise SystemExit(1)
+
+is_uint = lambda value: type(value) is int and value >= 0
+safe_id = re.compile(r"(?:[a-z][a-z0-9_]*|case_[0-9]{4})").fullmatch
+safe_reason = re.compile(r"[A-Z][A-Z0-9_]*").fullmatch
+decisions = []
+for expected_id, command_tail, stem in CHECKS:
+    stdout_path = EVIDENCE_DIR / f"{stem}.stdout.json"
+    stderr_path = EVIDENCE_DIR / f"{stem}.stderr.txt"
+    process = None
+    with stdout_path.open("xb") as stdout_file, stderr_path.open("xb") as stderr_file:
+        try:
+            process = subprocess.run([str(PYTHON), *command_tail], cwd=REPO,
+                                     stdout=stdout_file, stderr=stderr_file, check=False)
+        except OSError as exc:
+            stderr_file.write(f"Process launch error: {exc}\n".encode("utf-8"))
+
+    invalid = [] if process is not None else ["PROCESS_LAUNCH_FAILED"]
+    try:
+        result = json.loads(stdout_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        result = None
+        invalid.append("RESULT_JSON_INVALID")
+
+    counts = result.get("counts") if isinstance(result, dict) else None
+    rows = result.get("results") if isinstance(result, dict) else None
+    reasons = result.get("reason_codes") if isinstance(result, dict) else None
+    omitted = result.get("omitted_result_count") if isinstance(result, dict) else None
+    reported_exit = result.get("exit_code") if isinstance(result, dict) else None
+    process_exit = process.returncode if process is not None else None
+    counts_ok = isinstance(counts, dict) and all(
+        is_uint(counts.get(key)) for key in ("total", "passed", "failed"))
+    rows_ok = isinstance(rows, list) and all(
+        isinstance(row, dict) and isinstance(row.get("check_id"), str)
+        and safe_id(row["check_id"]) and row.get("status") in ("PASS", "FAIL")
+        and is_uint(row.get("message_count")) for row in rows)
+    reasons_ok = isinstance(reasons, list) and all(
+        isinstance(reason, str) and safe_reason(reason) for reason in reasons)
+    contract_ok = (
+        isinstance(result, dict) and result.get("schema_version") == "1"
+        and result.get("checker_id") == expected_id
+        and result.get("status") in ("PASS", "FAIL") and is_uint(reported_exit)
+        and result.get("report_written") is False and counts_ok and rows_ok
+        and reasons_ok and is_uint(omitted)
+    )
+    if not contract_ok:
+        invalid.append("RESULT_CONTRACT_INVALID")
+    else:
+        projected = min(counts["total"], 100)
+        projected_failed = min(counts["failed"], projected)
+        statuses = ["FAIL"] * projected_failed + ["PASS"] * (projected - projected_failed)
+        coherent = (
+            counts["total"] == counts["passed"] + counts["failed"]
+            and len(rows) == projected and omitted == counts["total"] - projected
+            and [row["status"] for row in rows] == statuses
+            and len({row["check_id"] for row in rows}) == len(rows)
+            and process_exit == reported_exit
+            and reported_exit == (0 if result["status"] == "PASS" else 1)
+            and (result["status"] == "FAIL" and bool(reasons)
+                 or result["status"] == "PASS" and counts["total"] > 0
+                 and counts["failed"] == 0 and reasons == [])
+        )
+        if not coherent:
+            invalid.append("RESULT_CONTRADICTION")
+        if result["status"] == "PASS":
+            expected_pass_ids = list(QUALITY_GATE_IDS) if expected_id == "quality_gate" else [
+                f"case_{position:04d}" for position in range(1, projected + 1)]
+            if ([row["check_id"] for row in rows] != expected_pass_ids
+                    or expected_id == "quality_gate" and counts["total"] != len(QUALITY_GATE_IDS)):
+                invalid.append("RESULT_CHECK_IDS_INVALID")
+
+    failed_rows = [] if not rows_ok else [
+        {"check_id": row["check_id"], "message_count": row["message_count"]}
+        for row in rows if row["status"] == "FAIL"
+    ]
+    decision = "PASS" if not invalid and result["status"] == "PASS" else "FAIL"
+    decisions.append({
+        "checker_id": expected_id, "decision": decision,
+        "process_exit": process_exit,
+        "reported_exit": reported_exit if is_uint(reported_exit) else None,
+        "counts": {key: counts[key] for key in ("total", "passed", "failed")}
+                  if counts_ok else None,
+        "reason_codes": [*invalid, *reasons] if reasons_ok else invalid,
+        "failed_rows": failed_rows,
+        "omitted_result_count": omitted if is_uint(omitted) else None,
+        "evidence": {"stdout": stdout_path.name, "stderr": stderr_path.name},
+    })
+    if decision == "FAIL":
+        break
+
+overall = "PASS" if len(decisions) == len(CHECKS) and all(
+    row["decision"] == "PASS" for row in decisions) else "FAIL"
+print(json.dumps({"decision": overall, "results": decisions},
+                 sort_keys=True, separators=(",", ":")))
+raise SystemExit(0 if overall == "PASS" else 1)
+```
+
+The printed object selects verdicts, native and reported exits, aggregate counts,
+checker/consumer reason codes, failed rows, omission counts and safe evidence
+names. Its process exit is nonzero whenever the final decision is `FAIL`. It does
+not repeat PASS rows or standard error. On the first process, JSON, contract,
+identity/count or checker failure, the object reports `FAIL` and later checkers
+are not run; the original stdout and stderr files remain available for diagnosis.
+Missing, malformed, contradictory or unknown results therefore cannot become
+PASS. This is a task-local caller example, not a public schema or reusable
+runner.
+
 These are local checker decisions. The invocation, candidate, required
 verification scope and independent review still belong in the task closeout.
 

@@ -8,6 +8,13 @@ Lead with the candidate, changed behavior, verification scope/result, unresolved
 items, next action and evidence locations. Link detailed logs and unchanged
 records while retaining the required basis and safety fields below.
 
+For the two standalone Harness checkers, apply the sole caller example in
+[Standalone checker JSON results](../../docs/LOCAL_USAGE.md#standalone-checker-json-results)
+and lead their evidence with actual and reported exits, the checked JSON decision
+and raw stdout/stderr references. Expand original source or output for gaps,
+failures, contradictions or staleness. The task and impact policy still select
+the required verification tier and independent review.
+
 ## Task Basis
 
 - Goal: [task goal]
