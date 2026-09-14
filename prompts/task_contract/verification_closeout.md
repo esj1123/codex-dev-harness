@@ -28,6 +28,10 @@ records while retaining the required basis and safety fields below.
 - Postflight status: [PASS / BLOCKED / FAIL / ENVIRONMENT BLOCKED / not applicable]
 - Authorization status: [NOT_AUTHENTICATED plus separate approval evidence]
 - Next-step authority: [ADVISORY / ADOPTED] (default: `ADVISORY`)
+- Dispatch role: [coordination / retrieval / implementation / verification / review / integration]
+- Requested model/reasoning effort/task-fit reason: [exact model] / [exact effort] / [one line]
+- Actual model/reasoning effort and evidence: [original runtime evidence at start, resumption or settings change; otherwise unverified]
+- Routing mismatch disposition: [none / corrected at safe boundary / unresolved, with preserved useful output/tests]
 
 
 ## Verification Execution
@@ -54,9 +58,10 @@ records while retaining the required basis and safety fields below.
   preselected async result location; ID/state/internal exit/core result/evidence
   or empty-body receipt; candidate/refs]
 - Utility measurement, if scoped: [owner and existing milestone records;
-  first-pass result by stage, defects/rework/interventions;
-  participant/phase coverage including coordination, implementation, review and
-  handoff; input/cached-input/output tokens, calls, time, cutoff and gaps;
+  first-pass result and quality by stage, defects/rework/interventions;
+  participant/phase coverage including coordination, implementation, review, fix
+  and handoff, with requested/actual routing and mismatch disposition;
+  input/cached-input/output tokens, calls, time, cutoff and gaps;
   otherwise NOT REQUESTED]
 
 Keep scoped quality and usage in this closeout; link original evidence instead
@@ -67,8 +72,9 @@ cumulative snapshots as increments or mix both methods over the same usage.
 Cached input and reasoning output are subsets, not additional totals. Preserve
 unexplained discrepancies and mark missing or later coverage as unmeasured; carry
 it to the next actual milestone without inventing a measurement-only step.
-Make no savings claim without comparable work; do not create measurement-only
-cases or systems.
+Make no savings claim or savings percentage without a defined comparator; expected
+reductions in rework or total token use remain hypotheses to observe. Do not create
+measurement-only cases, systems or model-occupancy tasks.
 
 Bind each verdict to the reviewed object/phase. Plan/code review or hash/reference
 linkage does not establish review of a later execution input/command or required

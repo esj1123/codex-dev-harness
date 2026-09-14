@@ -49,6 +49,24 @@ Check:
   establish review of a later execution input/command, and plan or qualification
   review does not establish candidate or publication acceptance
 
+## Routing Review
+
+Check the task contract's dispatch metadata against original runtime evidence:
+
+- requested and actual model/reasoning effort are both recorded, with unavailable
+  actual evidence marked unverified rather than inferred from self-report
+- role, model, effort and one-line reason fit the task under the global `AGENTS.md`
+  model-routing policy, including any task-specific exception reason
+- a resumed same-role/same-scope choice was preserved unless an authorized,
+  supported change was deliberate
+- mismatches were recorded and corrected at the next safe boundary before scope
+  expanded, while useful prior output/tests were preserved and no rerun merely
+  relabeled earlier work
+- permission or environment blocks received the actual remedy rather than a model
+  escalation
+
+Report routing defects separately from product, implementation and evidence findings.
+
 ## Safety Review
 
 Check:
@@ -79,14 +97,15 @@ Check:
 - scale review to risk without weakening required or independent checks; repeat
   only for new failure, input, environment, contract or concern
 - when measurement is requested, check the named owner, actual milestone records,
-  participant/phase coverage including this review, and source/key/cutoff and
-  interval-versus-cumulative accounting from `verification_closeout.md`; include
-  all retries and retain unexplained discrepancies
+  participant/phase coverage from coordination through implementation, review,
+  fix and handoff, and source/key/cutoff and interval-versus-cumulative accounting
+  from `verification_closeout.md`; include all retries, routing settings and
+  mismatches, first-pass quality, defects/rework, and unexplained discrepancies
 
 ## Completion Report Format
 
-1. Reviewed object/phase and candidate/ref, scoped verdict and findings ordered by severity
+1. Reviewed object/phase and candidate/ref, scoped verdict and product findings ordered by severity
 2. Missing or weak evidence
-3. Scope and safety assessment
+3. Routing assessment and routing defects, separate from product findings
 4. Verification reviewed
 5. Recommended next action and its remaining review/evidence requirements

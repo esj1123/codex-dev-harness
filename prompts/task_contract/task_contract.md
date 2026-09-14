@@ -41,9 +41,26 @@ background to exact existing records; retain the required package fields below.
 - Declared side effects: [classes requested by this task]
 - Approval reference: [safe reference, or none]
 
-Routing: script for deterministic checks, Terra Medium for narrow edits,
-Sol Medium for settled implementation, Astra Medium/High for boundaries.
-This adopts no roles and proves no provider equivalence. Keep one owner unless independent.
+## Dispatch Metadata
+
+These Markdown fields are task coordination metadata, not work-package schema v3:
+
+- Role: [coordination / retrieval / implementation / verification / review / integration]
+- Requested model: [exact model name]
+- Requested reasoning effort: [exact effort]
+- Task-fit reason: [one line]
+- Actual model/effort and evidence: [original runtime evidence, or unverified]
+- Routing mismatch disposition: [none / correction and next safe boundary / unresolved]
+
+Apply the global `AGENTS.md` model-routing policy. Preserve an agreed choice when
+the same role and scope resume, even when a later message omits the model name.
+Keep primary-task configuration separate from explicit delegation arguments.
+Record original runtime evidence once at start, resumption or settings change;
+self-report is not evidence. Correct a mismatch before expanding work while
+preserving useful output and tests; do not rerun solely to relabel. Remedy
+permission or environment blocks directly. Dispatch settings grant no authority.
+
+Keep one owner unless independent review is required.
 Before async/delegated start, choose an existing-format result location. Retain
 execution ID/state, internal exit and core result/evidence; recover empty bodies by
 receipt. Candidate/refs precede review. Collisions get a new attempt; retain receipts.
