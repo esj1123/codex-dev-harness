@@ -38,6 +38,8 @@ CASE_DIR = REPO_ROOT / "evals" / "cases"
 CASE_PATTERN = "*.yml"
 ARTIFACTS_ROOT = "artifacts"
 REPORT_SCHEMA_VERSION = "1"
+JSON_CHECKER_ID = "local_eval"
+JSON_RESULT_LIMIT = 100
 
 SECRET_PATTERNS = [
     re.compile(r"-----BEGIN (?:RSA |OPENSSH |EC |DSA )?PRIVATE KEY-----"),
@@ -525,6 +527,66 @@ def summary_to_report(summary: EvalSummary, generated_at_utc: str | None = None)
     }
 
 
+def summary_to_json_result(summary: EvalSummary) -> dict[str, Any]:
+    total = len(summary.results)
+    passed = sum(1 for result in summary.results if result.passed is True)
+    failed = total - passed
+    computed_pass = total > 0 and failed == 0
+    reason_codes: list[str] = []
+    if total == 0:
+        reason_codes.append("NO_RESULTS")
+    if (
+        total == 1
+        and summary.results[0].name == "eval_case_inventory"
+        and summary.results[0].messages == ["no eval cases discovered"]
+    ):
+        reason_codes.append("NO_CASES")
+    if failed:
+        reason_codes.append("RESULT_FAILED")
+    if summary.passed is not computed_pass:
+        reason_codes.append("SUMMARY_INCONSISTENT")
+
+    status = "PASS" if computed_pass and summary.passed is True else "FAIL"
+    exit_code = 0 if status == "PASS" else 1
+    indexed_results = list(enumerate(summary.results, start=1))
+    projected = (
+        [item for item in indexed_results if item[1].passed is not True]
+        + [item for item in indexed_results if item[1].passed is True]
+    )[:JSON_RESULT_LIMIT]
+    return {
+        "schema_version": "1",
+        "checker_id": JSON_CHECKER_ID,
+        "status": status,
+        "exit_code": exit_code,
+        "counts": {"total": total, "passed": passed, "failed": failed},
+        "results": [
+            {
+                "check_id": f"case_{original_index:04d}",
+                "status": "PASS" if result.passed is True else "FAIL",
+                "message_count": len(result.messages),
+            }
+            for original_index, result in projected
+        ],
+        "omitted_result_count": total - len(projected),
+        "reason_codes": reason_codes,
+        "report_written": False,
+    }
+
+
+def exception_to_json_result() -> dict[str, Any]:
+    return {
+        "schema_version": "1",
+        "checker_id": JSON_CHECKER_ID,
+        "status": "FAIL",
+        "exit_code": 1,
+        "counts": {"total": 0, "passed": 0, "failed": 0},
+        "results": [],
+        "omitted_result_count": 0,
+        "reason_codes": ["EXECUTION_ERROR"],
+        "report_written": False,
+    }
+
+
 def case_result_record(result: EvalResult) -> dict[str, Any]:
     return {
         "name": result.name,
@@ -583,13 +645,14 @@ def resolve_report_path(repo_root: Path, report_arg: str, option_name: str = "--
     return report_path
 
 
-def print_summary(summary: EvalSummary) -> None:
+def print_summary(summary: EvalSummary, stream: Any = None) -> None:
+    output = sys.stdout if stream is None else stream
     for result in summary.results:
         status = "PASS" if result.passed else "FAIL"
-        print(f"[{status}] {result.name}")
+        print(f"[{status}] {result.name}", file=output)
         for message in result.messages:
-            print(f"  - {message}")
-    print("Local evals passed." if summary.passed else "Local evals failed.")
+            print(f"  - {message}", file=output)
+    print("Local evals passed." if summary.passed else "Local evals failed.", file=output)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -611,12 +674,22 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Optional repo-internal relative split cases JSONL report path under artifacts/",
     )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Emit one safe non-reporting JSON result object to stdout",
+    )
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
+    if args.json and any(
+        value is not None
+        for value in (args.report, args.summary_report, args.cases_report)
+    ):
+        parser.error("--json cannot be combined with report flags")
     repo_root = Path(args.repo_root).resolve()
     case_paths = [Path(path).resolve() for path in args.case] if args.case else None
     report_path = None
@@ -640,7 +713,22 @@ def main(argv: list[str] | None = None) -> int:
         if report_path and report_path in {summary_report_path, cases_report_path}:
             parser.error("--report, --summary-report, and --cases-report must name distinct files")
 
-    summary = run_all(repo_root, case_paths)
+    try:
+        summary = run_all(repo_root, case_paths)
+    except Exception as exc:  # noqa: BLE001 - JSON mode must fail closed with safe output.
+        if not args.json:
+            raise
+        print(f"Local eval execution error: {exc}", file=sys.stderr)
+        payload = exception_to_json_result()
+        print(json.dumps(payload, sort_keys=True, separators=(",", ":")))
+        return payload["exit_code"]
+
+    if args.json:
+        print_summary(summary, stream=sys.stderr)
+        payload = summary_to_json_result(summary)
+        print(json.dumps(payload, sort_keys=True, separators=(",", ":")))
+        return payload["exit_code"]
+
     print_summary(summary)
 
     if report_path:

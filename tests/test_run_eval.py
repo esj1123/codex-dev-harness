@@ -453,6 +453,202 @@ def test_empty_discovered_eval_inventory_makes_cli_exit_one(
     assert not (tmp_path / "artifacts").exists()
 
 
+def test_json_cli_success_is_safe_non_reporting_and_uses_indexed_ids(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    unsafe_name = "private-case-C:/Users/example-secret"
+    case_path = write_passing_eval_case(tmp_path, name=unsafe_name)
+
+    exit_code = run_eval.main(
+        ["--repo-root", str(tmp_path), "--case", str(case_path), "--json"]
+    )
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 0
+    assert payload == {
+        "schema_version": "1",
+        "checker_id": "local_eval",
+        "status": "PASS",
+        "exit_code": 0,
+        "counts": {"total": 1, "passed": 1, "failed": 0},
+        "results": [{"check_id": "case_0001", "status": "PASS", "message_count": 1}],
+        "omitted_result_count": 0,
+        "reason_codes": [],
+        "report_written": False,
+    }
+    assert unsafe_name not in captured.out
+    assert "validated phrase targets" not in captured.out
+    assert unsafe_name in captured.err
+    assert not (tmp_path / "artifacts").exists()
+
+
+def test_json_cli_failure_and_case_filtering_preserve_invocation_order(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    passing = write_passing_eval_case(tmp_path, name="unsafe-pass-name")
+    failing = tmp_path / "evals/cases/failing.yml"
+    write(failing, json.dumps({"name": "unsafe-fail-name", "eval": "unknown"}) + "\n")
+
+    exit_code = run_eval.main(
+        [
+            "--repo-root",
+            str(tmp_path),
+            "--case",
+            str(failing),
+            "--case",
+            str(passing),
+            "--json",
+        ]
+    )
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 1
+    assert payload["status"] == "FAIL"
+    assert payload["counts"] == {"total": 2, "passed": 1, "failed": 1}
+    assert payload["results"] == [
+        {"check_id": "case_0001", "status": "FAIL", "message_count": 1},
+        {"check_id": "case_0002", "status": "PASS", "message_count": 1},
+    ]
+    assert payload["reason_codes"] == ["RESULT_FAILED"]
+    assert "unsafe-fail-name" not in captured.out
+    assert "unsafe-pass-name" not in captured.out
+
+
+def test_json_cli_no_cases_fails_closed(tmp_path: Path, capsys) -> None:
+    exit_code = run_eval.main(["--repo-root", str(tmp_path), "--json"])
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 1
+    assert payload["status"] == "FAIL"
+    assert payload["counts"] == {"total": 1, "passed": 0, "failed": 1}
+    assert payload["reason_codes"] == ["NO_CASES", "RESULT_FAILED"]
+    assert payload["report_written"] is False
+    assert not (tmp_path / "artifacts").exists()
+
+
+def test_json_cli_invalid_case_emits_one_safe_failure_object(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    invalid_case = tmp_path / "evals/cases/invalid.yml"
+    write(invalid_case, "not json\n")
+
+    exit_code = run_eval.main(
+        ["--repo-root", str(tmp_path), "--case", str(invalid_case), "--json"]
+    )
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 1
+    assert payload["status"] == "FAIL"
+    assert payload["counts"] == {"total": 0, "passed": 0, "failed": 0}
+    assert payload["results"] == []
+    assert payload["reason_codes"] == ["EXECUTION_ERROR"]
+    assert str(invalid_case) not in captured.out
+    assert str(invalid_case) in captured.err
+
+
+def test_json_projection_is_bounded_but_counts_use_all_results() -> None:
+    results = [
+        run_eval.EvalResult(f"unsafe-{index}", index != 104, ["message"])
+        for index in range(105)
+    ]
+
+    payload = run_eval.summary_to_json_result(run_eval.EvalSummary(False, results))
+
+    assert payload["counts"] == {"total": 105, "passed": 104, "failed": 1}
+    assert len(payload["results"]) == 100
+    assert payload["results"][0] == {
+        "check_id": "case_0105",
+        "status": "FAIL",
+        "message_count": 1,
+    }
+    assert payload["results"][-1]["check_id"] == "case_0099"
+    assert payload["omitted_result_count"] == 5
+    assert payload["status"] == "FAIL"
+    assert payload["reason_codes"] == ["RESULT_FAILED"]
+    assert "unsafe-" not in json.dumps(payload)
+
+
+@pytest.mark.parametrize(
+    ("summary", "reason_codes"),
+    [
+        (run_eval.EvalSummary(True, []), ["NO_RESULTS", "SUMMARY_INCONSISTENT"]),
+        (
+            run_eval.EvalSummary(False, [run_eval.EvalResult("unsafe", True, [])]),
+            ["SUMMARY_INCONSISTENT"],
+        ),
+        (
+            run_eval.EvalSummary(True, [run_eval.EvalResult("unsafe", False, [])]),
+            ["RESULT_FAILED", "SUMMARY_INCONSISTENT"],
+        ),
+    ],
+)
+def test_json_empty_or_inconsistent_summary_never_passes(
+    summary: run_eval.EvalSummary,
+    reason_codes: list[str],
+) -> None:
+    payload = run_eval.summary_to_json_result(summary)
+
+    assert payload["status"] == "FAIL"
+    assert payload["exit_code"] == 1
+    assert payload["reason_codes"] == reason_codes
+
+
+def test_json_cli_catches_execution_exception(monkeypatch, capsys) -> None:
+    def fail_run(*_args, **_kwargs):
+        raise RuntimeError("unsafe-exception-detail")
+
+    monkeypatch.setattr(run_eval, "run_all", fail_run)
+
+    exit_code = run_eval.main(["--json"])
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 1
+    assert payload["reason_codes"] == ["EXECUTION_ERROR"]
+    assert "unsafe-exception-detail" not in captured.out
+    assert "unsafe-exception-detail" in captured.err
+
+
+@pytest.mark.parametrize(
+    "report_flags",
+    [
+        ["--report", "artifacts/eval.json"],
+        ["--summary-report", "artifacts/summary.json"],
+        ["--cases-report", "artifacts/cases.jsonl"],
+        ["--report="],
+        ["--summary-report="],
+        ["--cases-report="],
+    ],
+)
+def test_json_rejects_report_flags_before_eval_or_write(
+    tmp_path: Path,
+    monkeypatch,
+    report_flags: list[str],
+) -> None:
+    called = False
+
+    def record_run(*_args, **_kwargs):
+        nonlocal called
+        called = True
+        return run_eval.EvalSummary(True, [])
+
+    monkeypatch.setattr(run_eval, "run_all", record_run)
+
+    with pytest.raises(SystemExit) as exc_info:
+        run_eval.main(["--repo-root", str(tmp_path), "--json", *report_flags])
+
+    assert exc_info.value.code == 2
+    assert called is False
+    assert not (tmp_path / "artifacts").exists()
+
+
 def test_summary_report_shape_is_safe_and_stable() -> None:
     summary = run_eval.EvalSummary(
         False,

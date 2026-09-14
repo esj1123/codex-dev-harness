@@ -132,6 +132,48 @@ verification tier by itself. Parameter-binding errors and abrupt process
 termination may produce no JSON result; missing or incomplete output must not
 be treated as success.
 
+### Standalone checker JSON results
+
+For a direct quality-gate or eval decision without a report-file write, use:
+
+```powershell
+python scripts/quality_gate.py --json
+python scripts/run_eval.py --json
+```
+
+These options run the same selected checks. Standard output is one compact JSON
+object; the existing human-readable diagnostics go to standard error. Retain
+the process exit code and capture the streams separately. The default text mode
+remains available, and the outer `run_local_verify.ps1 -Json` step contract is
+unchanged.
+
+Both results contain `schema_version`, `checker_id`, `status`, `exit_code`,
+`counts` (`total`, `passed`, `failed`), `results`, `omitted_result_count`,
+`reason_codes`, and `report_written: false`. Each result row contains a safe
+`check_id`, its status, and a message count. Quality-gate IDs identify the fixed
+core gates. Eval IDs such as `case_0001` identify the one-based selected execution
+order within that invocation; they are not stable cross-invocation case names.
+Retain the chosen case selection when correlating eval rows with diagnostics.
+
+The JSON excludes arbitrary case names, raw messages, local absolute paths and
+timestamps. At most 100 result rows are included, with an explicit omitted
+count. Failed rows are selected first; execution order is retained within the
+failed and passed groups, and IDs retain their original check positions. Counts
+and the aggregate verdict always cover every result, including omitted rows. A failure, no results, an inconsistent summary or a caught checker
+exception cannot produce PASS. Detailed diagnostics remain available on stderr
+when a failure or omitted row needs inspection. Invalid command-line arguments
+may fail without a result object; missing JSON is never success.
+
+`run_eval.py --json` accepts the existing `--case` selection but cannot be
+combined with `--report`, `--summary-report` or `--cases-report`. Such a combination
+is rejected before evaluation or report writing. The existing explicit report
+modes are unchanged when `--json` is absent. `report_written: false` means that
+this mode creates no eval report; existing checker-internal temporary validation
+activity is preserved. It does not claim zero filesystem activity.
+
+These are local checker decisions. The invocation, candidate, required
+verification scope and independent review still belong in the task closeout.
+
 ## Manual Render Dry-Run Checks
 
 Run:

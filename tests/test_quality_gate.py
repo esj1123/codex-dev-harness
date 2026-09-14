@@ -21,7 +21,8 @@ from scripts.gates import (
     secret_scan_gate,
     template_schema_gate,
 )
-from scripts.quality_gate import run_quality_gate
+from scripts import quality_gate
+from scripts.quality_gate import GateSummary, run_quality_gate
 from scripts.render_template import TemplateConfig
 
 
@@ -2324,6 +2325,167 @@ def test_quality_gate_passes_minimal_repo(tmp_path: Path) -> None:
     assert summary.passed is True
     assert len(summary.results) == 8
     assert summary.results[-1].name == "json_evidence_gate"
+
+
+def _run_quality_gate_cli(repo_root: Path, *extra: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [
+            sys.executable,
+            "scripts/quality_gate.py",
+            "--repo-root",
+            str(repo_root),
+            *extra,
+        ],
+        capture_output=True,
+        text=True,
+        timeout=60,
+        check=False,
+    )
+
+
+def test_quality_gate_json_cli_passes_with_fixed_safe_inventory(tmp_path: Path) -> None:
+    minimal_repo(tmp_path)
+    for example_name, profile in example_gate.REQUIRED_EXAMPLES.items():
+        write_valid_example(tmp_path, example_name, profile)
+
+    result = _run_quality_gate_cli(tmp_path, "--json")
+
+    report = json.loads(result.stdout)
+    assert result.returncode == report["exit_code"] == 0
+    assert report == {
+        "schema_version": "1",
+        "checker_id": "quality_gate",
+        "status": "PASS",
+        "exit_code": 0,
+        "counts": {"total": 8, "passed": 8, "failed": 0},
+        "results": [
+            {"check_id": check_id, "status": "PASS", "message_count": row["message_count"]}
+            for (check_id, _, _), row in zip(
+                quality_gate.GATE_INVENTORY, report["results"], strict=True
+            )
+        ],
+        "omitted_result_count": 0,
+        "reason_codes": [],
+        "report_written": False,
+    }
+    assert len(result.stdout.splitlines()) == 1
+    assert str(tmp_path) not in result.stdout
+    assert "[PASS] docs_gate" in result.stderr
+
+
+def test_quality_gate_json_cli_failure_keeps_unsafe_diagnostics_out_of_stdout(
+    tmp_path: Path,
+) -> None:
+    minimal_repo(tmp_path)
+    unsafe_name = "private-raw-customer-token.txt"
+    manifest_path = tmp_path / docs_gate.MANIFEST_PATH
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["current_authority"].append(unsafe_name)
+    write(manifest_path, json.dumps(manifest))
+
+    result = _run_quality_gate_cli(tmp_path, "--json")
+
+    report = json.loads(result.stdout)
+    assert result.returncode == report["exit_code"] == 1
+    assert report["status"] == "FAIL"
+    assert report["counts"]["total"] == 8
+    assert report["counts"]["failed"] >= 1
+    assert "GATE_FAILED" in report["reason_codes"]
+    assert unsafe_name not in result.stdout
+    assert str(tmp_path) not in result.stdout
+    assert unsafe_name in result.stderr
+    assert report["report_written"] is False
+
+
+def _quality_results(count: int = 8) -> list[SimpleNamespace]:
+    results = []
+    for index in range(count):
+        name = (
+            quality_gate.GATE_INVENTORY[index][0]
+            if index < len(quality_gate.GATE_INVENTORY)
+            else "unsafe-arbitrary-extra-name"
+        )
+        results.append(SimpleNamespace(name=name, passed=True, messages=["raw diagnostic"]))
+    return results
+
+
+@pytest.mark.parametrize(
+    ("summary", "reason_code"),
+    [
+        (GateSummary(False, []), "GATE_RESULTS_EMPTY"),
+        (GateSummary(True, _quality_results(7)), "GATE_RESULT_COUNT_MISMATCH"),
+        (GateSummary(False, _quality_results()), "GATE_SUMMARY_INCONSISTENT"),
+    ],
+)
+def test_quality_gate_json_rejects_empty_incomplete_or_inconsistent_summary(
+    summary: GateSummary, reason_code: str
+) -> None:
+    report = quality_gate.json_summary(summary)
+
+    assert report["status"] == "FAIL" and report["exit_code"] == 1
+    assert reason_code in report["reason_codes"]
+
+
+def test_quality_gate_json_projection_is_bounded_and_aggregate_uses_all_results() -> None:
+    report = quality_gate.json_summary(GateSummary(True, _quality_results(101)))
+
+    assert report["status"] == "FAIL" and report["exit_code"] == 1
+    assert report["counts"] == {"total": 101, "passed": 101, "failed": 0}
+    assert len(report["results"]) <= 100
+    assert report["omitted_result_count"] == 101 - len(report["results"])
+    assert "unsafe-arbitrary-extra-name" not in json.dumps(report)
+
+
+def test_quality_gate_json_projects_failures_first_with_stable_group_order() -> None:
+    results = _quality_results()
+    results[1].passed = False
+    results[5].passed = False
+
+    report = quality_gate.json_summary(GateSummary(False, results))
+
+    assert [row["check_id"] for row in report["results"]] == [
+        "repo_hygiene_gate",
+        "rendered_golden_content_gate",
+        "docs_gate",
+        "template_schema_gate",
+        "example_gate",
+        "example_render_drift_gate",
+        "secret_scan_gate",
+        "json_evidence_gate",
+    ]
+    assert report["counts"] == {"total": 8, "passed": 6, "failed": 2}
+    assert report["status"] == "FAIL" and report["exit_code"] == 1
+
+
+def test_quality_gate_json_rejects_result_id_mismatch_without_exposing_it() -> None:
+    results = _quality_results()
+    results[3].name = "private-customer-gate-name"
+
+    report = quality_gate.json_summary(GateSummary(True, results))
+
+    assert report["status"] == "FAIL" and report["exit_code"] == 1
+    assert "GATE_RESULT_INVALID" in report["reason_codes"]
+    assert "private-customer-gate-name" not in json.dumps(report)
+
+
+def test_quality_gate_json_caught_execution_error_is_a_safe_fail(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    unsafe_detail = "C:\\private\\customer\\input.txt"
+
+    def fail_run(_repo_root: Path) -> GateSummary:
+        raise RuntimeError(unsafe_detail)
+
+    monkeypatch.setattr(quality_gate, "run_quality_gate", fail_run)
+
+    exit_code = quality_gate.main(["--json"])
+
+    captured = capsys.readouterr()
+    report = json.loads(captured.out)
+    assert exit_code == report["exit_code"] == 1
+    assert report["reason_codes"] == ["GATE_EXECUTION_ERROR"]
+    assert unsafe_detail not in captured.out
+    assert unsafe_detail in captured.err
 
 
 def test_core_quality_gate_ignores_optional_release_and_agent_quality_defects(
