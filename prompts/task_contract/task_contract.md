@@ -60,7 +60,8 @@ self-report is not evidence. Correct a mismatch before expanding work while
 preserving useful output and tests; do not rerun solely to relabel. Remedy
 permission or environment blocks directly. Dispatch settings grant no authority.
 
-Keep one owner unless independent review is required.
+Keep one responsible owner for each write scope. Delegate independent outputs
+or independent review when needed, using the smallest relevant context.
 Before async/delegated start, choose an existing-format result location. Retain
 execution ID/state, internal exit and core result/evidence; recover empty bodies by
 receipt. Candidate/refs precede review. Collisions get a new attempt; retain receipts.
