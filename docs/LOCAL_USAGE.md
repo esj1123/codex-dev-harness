@@ -91,6 +91,47 @@ It disables pytest's cache provider. Tests may still create runner-side
 temporary files, so read-only verification is not a zero-filesystem-write
 claim.
 
+### Structured execution result
+
+Add `-Json` to a verification run when a caller needs to consume its result:
+
+`powershell -NoProfile -File scripts/run_local_verify.ps1 -Lane Core -Json`
+
+This runs the same checks as the selected lane. Standard output contains one
+JSON result; detailed child output and diagnostics go to standard error.
+Capture the streams separately to retain the detailed evidence without parsing
+it as JSON. The wrapper does not create a report file or a persistent log.
+The default text mode and `-EnvironmentOnly -Json` diagnostic remain available.
+
+The result identifies the lane, overall status and exit code, and all seven
+ordered verification steps. Each step records its command ID, `PASS`, `FAIL`,
+or `NOT RUN`, and its observed child exit code. A child failure stops later
+steps and preserves that child's nonzero code as the wrapper exit code.
+Native standard-error output alone does not indicate failure. A launch failure
+or missing child exit observation fails with wrapper exit code `1` and a null
+child exit code. Setup failures leave all steps `NOT RUN`.
+The aggregate verdict is computed from the fixed required step IDs and order;
+missing, duplicate, unstarted or unsuccessful records cannot produce `PASS`.
+This lets callers consume the verdict directly and inspect detailed logs only
+for failures, contradictions or missing evidence.
+
+Executed steps include `safe_argv` and `invocation_sha256`; unstarted steps have
+null invocation fields. The safe argument list replaces the selected executable
+with `{PYTHON}` or `{PY_LAUNCHER}`, retains the launcher's `-3.12`, and replaces
+the generated pytest directory with `{PYTEST_BASETEMP}`. The hash uses the
+actual invocation tokens at the call boundary, joined with NUL separators,
+encoded as UTF-8 without a trailing separator. It correlates that invocation;
+it is not a capture of native process arguments, resolved executable identity,
+or proof of literal equality with a work-package command.
+
+`wrapper_sha256` identifies only the wrapper file bytes observed during setup
+(`source_binding_scope: "wrapper_only"`). The caller must still bind the
+repository candidate, runtime and work package to this execution. The result
+does not authenticate approval, replace independent review, or establish a
+verification tier by itself. Parameter-binding errors and abrupt process
+termination may produce no JSON result; missing or incomplete output must not
+be treated as success.
+
 ## Manual Render Dry-Run Checks
 
 Run:

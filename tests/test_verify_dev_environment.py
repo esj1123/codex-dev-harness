@@ -291,8 +291,8 @@ def test_local_wrapper_gates_candidates_and_environment_before_pytest() -> None:
 
 def test_local_wrapper_clears_ambient_test_controls_before_python_selection() -> None:
     text = Path("scripts/run_local_verify.ps1").read_text(encoding="utf-8")
-    clear_call = "\nSet-HermeticVerificationEnvironment\n"
-    select_call = "\n$PythonCommand = Find-Python\n"
+    clear_call = "\n    Set-HermeticVerificationEnvironment\n"
+    select_call = "\n    $PythonCommand = Find-Python\n"
 
     for name in [
         "PYTEST_ADDOPTS",
@@ -648,13 +648,14 @@ def test_release_wrapper_reuses_one_fully_validated_python() -> None:
 
 
 def test_python_launcher_fallback_is_minor_version_scoped() -> None:
-    for script in [
-        Path("scripts/run_local_verify.ps1"),
-        Path("scripts/run_release_verify.ps1"),
-    ]:
-        text = script.read_text(encoding="utf-8")
-        assert text.count("& py -3.12") == 2
-        assert "& py -3 " not in text
+    local = Path("scripts/run_local_verify.ps1").read_text(encoding="utf-8")
+    release = Path("scripts/run_release_verify.ps1").read_text(encoding="utf-8")
+
+    assert local.count("& py -3.12") == 1
+    assert '@([string]$PythonCommand, "-3.12")' in local
+    assert release.count("& py -3.12") == 2
+    assert "& py -3 " not in local
+    assert "& py -3 " not in release
 
 
 def test_local_wrapper_shell_hash_does_not_require_powershell_module_autoload() -> None:

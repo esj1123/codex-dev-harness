@@ -11,12 +11,117 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-if ($Json -and -not $EnvironmentOnly) {
-    throw "Json output is available only with EnvironmentOnly."
+$ExpectedCommandIds = @(
+    "development_environment",
+    ("{0}_pytest" -f $Lane.ToLowerInvariant()),
+    "standalone_eval",
+    "quality_gate",
+    "render_python_cli_minimal",
+    "render_csharp_desktop_minimal",
+    "render_plc_tool_minimal"
+)
+$stepRecords = foreach ($commandId in $ExpectedCommandIds) {
+    [ordered]@{
+        command_id = $commandId
+        status = "NOT RUN"
+        exit_code = $null
+        safe_argv = $null
+        invocation_sha256 = $null
+        reason_codes = @()
+    }
+}
+$RunResult = [ordered]@{
+    schema_version = "1"
+    checker_id = "local_verify_run"
+    lane = $Lane
+    status = "FAIL"
+    exit_code = 1
+    wrapper_sha256 = $null
+    source_binding_scope = "wrapper_only"
+    reason_codes = @()
+    steps = @($stepRecords)
+}
+$RepoRoot = Split-Path -Parent $PSScriptRoot
+
+function Add-RunReasonCode {
+    param([Parameter(Mandatory = $true)][string]$ReasonCode)
+
+    $RunResult.reason_codes = @(
+        @($RunResult.reason_codes + $ReasonCode) | Sort-Object -Unique
+    )
 }
 
-$RepoRoot = Split-Path -Parent $PSScriptRoot
-Set-Location -LiteralPath $RepoRoot
+function Get-RunAssessment {
+    $reasonCodes = New-Object System.Collections.Generic.List[string]
+    $steps = @($RunResult.steps)
+    if ($steps.Count -ne $ExpectedCommandIds.Count) {
+        $reasonCodes.Add("STEP_RECORD_COUNT_INVALID")
+    } else {
+        for ($index = 0; $index -lt $ExpectedCommandIds.Count; $index++) {
+            $step = $steps[$index]
+            if ($step.command_id -cne $ExpectedCommandIds[$index]) {
+                $reasonCodes.Add("STEP_RECORD_ORDER_INVALID")
+            }
+            if ($step.status -cne "PASS") {
+                $reasonCodes.Add("REQUIRED_STEP_NOT_PASS")
+            }
+            if ($null -eq $step.exit_code -or [int]$step.exit_code -ne 0) {
+                $reasonCodes.Add("REQUIRED_STEP_EXIT_NOT_SUCCESS")
+            }
+            if (
+                $null -eq $step.safe_argv -or
+                $null -eq $step.invocation_sha256
+            ) {
+                $reasonCodes.Add("REQUIRED_STEP_EVIDENCE_MISSING")
+            }
+        }
+    }
+    return @($reasonCodes | Sort-Object -Unique)
+}
+
+function Complete-ExecutionResult {
+    param([Parameter(Mandatory = $true)][int]$ExitCode)
+
+    $existingReasons = @($RunResult.reason_codes)
+    $assessmentReasons = @(Get-RunAssessment)
+    $RunResult.reason_codes = @(
+        @($existingReasons + $assessmentReasons) | Sort-Object -Unique
+    )
+    $effectiveExitCode = $ExitCode
+    if (
+        $ExitCode -eq 0 -and
+        ($existingReasons.Count -ne 0 -or $assessmentReasons.Count -ne 0)
+    ) {
+        $effectiveExitCode = 1
+    }
+    $RunResult.exit_code = $effectiveExitCode
+    if (
+        $existingReasons.Count -eq 0 -and
+        $assessmentReasons.Count -eq 0 -and
+        $effectiveExitCode -eq 0
+    ) {
+        $RunResult.status = "PASS"
+    } else {
+        $RunResult.status = "FAIL"
+    }
+    [Console]::Out.WriteLine(
+        ($RunResult | ConvertTo-Json -Compress -Depth 6)
+    )
+    exit $effectiveExitCode
+}
+
+function Stop-SetupFailure {
+    param(
+        [Parameter(Mandatory = $true)][string]$ReasonCode,
+        [Parameter(Mandatory = $true)][string]$TextMessage
+    )
+
+    if ($Json -and -not $EnvironmentOnly) {
+        Add-RunReasonCode -ReasonCode $ReasonCode
+        Complete-ExecutionResult -ExitCode 1
+    }
+    throw $TextMessage
+}
 
 function Get-Sha256Hex {
     param(
@@ -40,6 +145,25 @@ function Get-Sha256Hex {
         if ($null -ne $stream) {
             $stream.Dispose()
         }
+    }
+}
+
+function Get-InvocationSha256Hex {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string[]]$Tokens
+    )
+
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $joined = [string]::Join([char]0, $Tokens)
+        $bytes = [System.Text.UTF8Encoding]::new($false).GetBytes($joined)
+        $hashBytes = $sha256.ComputeHash($bytes)
+        return (
+            [System.BitConverter]::ToString($hashBytes) -replace "-", ""
+        ).ToLowerInvariant()
+    } finally {
+        $sha256.Dispose()
     }
 }
 
@@ -89,6 +213,20 @@ function New-PytestBaseTempPath {
     return $runLeaf
 }
 
+if ($Json -and -not $EnvironmentOnly) {
+    try {
+        $RunResult.wrapper_sha256 = Get-Sha256Hex -LiteralPath $PSCommandPath
+    } catch {
+        Stop-SetupFailure -ReasonCode "WRAPPER_HASH_UNAVAILABLE" -TextMessage $_.Exception.Message
+    }
+}
+
+try {
+    Set-Location -LiteralPath $RepoRoot
+} catch {
+    Stop-SetupFailure -ReasonCode "REPOSITORY_SETUP_FAILED" -TextMessage $_.Exception.Message
+}
+
 $PytestBaseTempPath = $null
 $PytestBaseTempReadiness = "OS_DEFAULT_UNVERIFIED"
 $PytestBaseTempReason = $null
@@ -98,7 +236,7 @@ if ($PSBoundParameters.ContainsKey("PytestBaseTempRoot")) {
         $PytestBaseTempReadiness = "READY"
     } catch {
         if (-not $EnvironmentOnly) {
-            throw
+            Stop-SetupFailure -ReasonCode "PYTEST_BASETEMP_ROOT_INVALID" -TextMessage $_.Exception.Message
         }
         $PytestBaseTempReadiness = "BLOCKED"
         $PytestBaseTempReason = "PYTEST_BASETEMP_ROOT_INVALID"
@@ -178,7 +316,11 @@ function Set-HermeticVerificationEnvironment {
     }
 }
 
-Set-HermeticVerificationEnvironment
+try {
+    Set-HermeticVerificationEnvironment
+} catch {
+    Stop-SetupFailure -ReasonCode "HEREMETIC_ENVIRONMENT_SETUP_FAILED" -TextMessage $_.Exception.Message
+}
 
 function Find-Python {
     param([switch]$Diagnostic)
@@ -214,12 +356,14 @@ function Find-Python {
     for ($index = 0; $index -lt $candidates.Count; $index++) {
         $candidate = $candidates[$index]
         try {
+            $global:LASTEXITCODE = $null
             if ($candidate -eq "py") {
                 $checkerOutput = & py -3.12 scripts/verify_dev_environment.py --expected-version-file .python-version --lock requirements-dev.lock --json @identityArgs 2>$null
             } else {
                 $checkerOutput = & $candidate scripts/verify_dev_environment.py --expected-version-file .python-version --lock requirements-dev.lock --json @identityArgs 2>$null
             }
-            if ($LASTEXITCODE -eq 0) {
+            $checkerExitCode = $global:LASTEXITCODE
+            if ($null -ne $checkerExitCode -and [int]$checkerExitCode -eq 0) {
                 if ($Diagnostic) {
                     try {
                         $checker = ($checkerOutput -join "`n") | ConvertFrom-Json
@@ -366,7 +510,11 @@ if ($EnvironmentOnly) {
     exit 1
 }
 
-$PythonCommand = Find-Python
+try {
+    $PythonCommand = Find-Python
+} catch {
+    Stop-SetupFailure -ReasonCode "PYTHON_SELECTION_FAILED" -TextMessage $_.Exception.Message
+}
 
 function Invoke-PythonStep {
     param(
@@ -374,17 +522,106 @@ function Invoke-PythonStep {
         [Parameter(Mandatory = $true)][string[]]$PythonArgs
     )
 
-    Write-Host "==> $Label"
-    if ($PythonCommand -eq "py") {
-        & py -3.12 @PythonArgs
+    $step = $RunResult.steps[$script:NextStepIndex]
+    $actualInvocation = if ($PythonCommand -eq "py") {
+        @([string]$PythonCommand, "-3.12") + @($PythonArgs)
     } else {
-        & $PythonCommand @PythonArgs
+        @([string]$PythonCommand) + @($PythonArgs)
+    }
+    $safeInvocation = if ($PythonCommand -eq "py") {
+        @("{PY_LAUNCHER}", "-3.12") + @($PythonArgs)
+    } else {
+        @("{PYTHON}") + @($PythonArgs)
+    }
+    if ($null -ne $PytestBaseTempPath) {
+        $safeInvocation = @(
+            $safeInvocation | ForEach-Object {
+                if ([string]$_ -ceq $PytestBaseTempPath) {
+                    "{PYTEST_BASETEMP}"
+                } else {
+                    [string]$_
+                }
+            }
+        )
     }
 
-    if ($LASTEXITCODE -ne 0) {
-        Write-Error "$Label failed with exit code $LASTEXITCODE"
-        exit $LASTEXITCODE
+    try {
+        $invocationHash = Get-InvocationSha256Hex -Tokens $actualInvocation
+    } catch {
+        $step.status = "FAIL"
+        $step.reason_codes = @("INVOCATION_EVIDENCE_FAILED")
+        Add-RunReasonCode -ReasonCode "INVOCATION_EVIDENCE_FAILED"
+        if ($Json) {
+            Complete-ExecutionResult -ExitCode 1
+        }
+        [Console]::Error.WriteLine("$Label failed before invocation.")
+        exit 1
     }
+    $step.safe_argv = @($safeInvocation)
+    $step.invocation_sha256 = $invocationHash
+
+    if (-not $Json) {
+        Write-Host "==> $Label"
+    }
+    $executable = $actualInvocation[0]
+    $arguments = @($actualInvocation[1..($actualInvocation.Count - 1)])
+    $observedExitCode = $null
+    $launchFailed = $false
+    $priorErrorActionPreference = $ErrorActionPreference
+    $global:LASTEXITCODE = $null
+    try {
+        if ($Json) {
+            $ErrorActionPreference = "Continue"
+            & $executable @arguments 2>&1 | ForEach-Object {
+                [Console]::Error.WriteLine([string]$_)
+            }
+        } else {
+            & $executable @arguments
+        }
+        $observedExitCode = $global:LASTEXITCODE
+    } catch {
+        $launchFailed = $true
+    } finally {
+        $ErrorActionPreference = $priorErrorActionPreference
+    }
+
+    if ($launchFailed) {
+        $step.status = "FAIL"
+        $step.reason_codes = @("STEP_LAUNCH_FAILED")
+        Add-RunReasonCode -ReasonCode "STEP_LAUNCH_FAILED"
+        if ($Json) {
+            Complete-ExecutionResult -ExitCode 1
+        }
+        [Console]::Error.WriteLine("$Label failed to launch.")
+        exit 1
+    }
+    if ($null -eq $observedExitCode) {
+        $step.status = "FAIL"
+        $step.reason_codes = @("STEP_EXIT_CODE_UNAVAILABLE")
+        Add-RunReasonCode -ReasonCode "STEP_EXIT_CODE_UNAVAILABLE"
+        if ($Json) {
+            Complete-ExecutionResult -ExitCode 1
+        }
+        [Console]::Error.WriteLine("$Label did not report an exit code.")
+        exit 1
+    }
+
+    $step.exit_code = [int]$observedExitCode
+    if ([int]$observedExitCode -ne 0) {
+        $step.status = "FAIL"
+        $step.reason_codes = @("CHILD_EXIT_NONZERO")
+        Add-RunReasonCode -ReasonCode "CHILD_EXIT_NONZERO"
+        if ($Json) {
+            Complete-ExecutionResult -ExitCode ([int]$observedExitCode)
+        }
+        [Console]::Error.WriteLine(
+            "$Label failed with exit code $observedExitCode"
+        )
+        exit ([int]$observedExitCode)
+    }
+
+    $step.status = "PASS"
+    $script:NextStepIndex++
 }
 
 $RoutineHeldTestFiles = @(
@@ -427,7 +664,7 @@ if ($Lane -eq "Routine") {
     foreach ($heldTestFile in $RoutineHeldTestFiles) {
         $heldTestPath = Join-Path $RepoRoot $heldTestFile
         if (-not (Test-Path -LiteralPath $heldTestPath -PathType Leaf)) {
-            throw "Routine held test file is missing: $heldTestFile"
+            Stop-SetupFailure -ReasonCode "ROUTINE_INVENTORY_INVALID" -TextMessage "Routine held test file is missing: $heldTestFile"
         }
         $PytestArgs += @("--ignore", $heldTestFile)
     }
@@ -439,10 +676,13 @@ elseif ($Lane -eq "Core") {
     )
 }
 
-Write-Host "Local verification lane: $Lane"
-if ($null -ne $PytestBaseTempPath) {
-    Write-Host "Pytest basetemp: $PytestBaseTempPath"
+if (-not $Json) {
+    Write-Host "Local verification lane: $Lane"
+    if ($null -ne $PytestBaseTempPath) {
+        Write-Host "Pytest basetemp: $PytestBaseTempPath"
+    }
 }
+$script:NextStepIndex = 0
 Invoke-PythonStep "development environment" @("scripts/verify_dev_environment.py", "--expected-version-file", ".python-version", "--lock", "requirements-dev.lock", "--json")
 Invoke-PythonStep "pytest" $PytestArgs
 Invoke-PythonStep "standalone eval" @("scripts/run_eval.py")
@@ -451,4 +691,7 @@ Invoke-PythonStep "python_cli_minimal render dry-run" @("scripts/render_template
 Invoke-PythonStep "csharp_desktop_minimal render dry-run" @("scripts/render_template.py", "--config", "examples/csharp_desktop_minimal/template.config.yml", "--target", "examples/csharp_desktop_minimal", "--dry-run")
 Invoke-PythonStep "plc_tool_minimal render dry-run" @("scripts/render_template.py", "--config", "examples/plc_tool_minimal/template.config.yml", "--target", "examples/plc_tool_minimal", "--dry-run")
 
+if ($Json) {
+    Complete-ExecutionResult -ExitCode 0
+}
 Write-Host "Local verification passed ($Lane)."

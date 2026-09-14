@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import re
@@ -2351,3 +2352,189 @@ def test_core_quality_gate_ignores_optional_release_and_agent_quality_defects(
         checksums_path,
     )
     assert passed is False
+
+
+# Compare the public wrapper's report with independently observed child calls.
+def _run_local_json_probe(tmp_path: Path, *, lane: str = "Core", mode: str = "success",
+                          basetemp: bool = False, invalid_root: bool = False):
+    log, marker = tmp_path / "observed-arguments.txt", tmp_path / "selected.txt"
+    probe = tmp_path / "python probe.cmd"
+    if mode in {"missing_exit", "launch_failure"}:
+        probe = tmp_path / "python probe.ps1"
+        withdraw = (
+            '  $r = [IO.Path]::GetFullPath($env:CODEX_TEST_PROBE_ROOT)\n'
+            '  $s = [IO.Path]::GetFullPath($PSCommandPath)\n'
+            '  $d = [IO.Path]::Combine($r, "withdrawn-probe.ps1")\n'
+            '  if ([IO.Path]::GetDirectoryName($s) -ne $r -or [IO.Path]::GetDirectoryName($d) -ne $r) { throw "fixture scope" }\n'
+            '  Move-Item -LiteralPath $s -Destination $d\n'
+        ) if mode == "launch_failure" else ""
+        probe.write_text(
+            'Add-Content -LiteralPath $env:CODEX_TEST_ARGUMENT_LOG -Value ($args -join " ")\n'
+            'if (-not (Test-Path -LiteralPath $env:CODEX_TEST_SELECTION_MARKER)) {\n'
+            '  Set-Content -LiteralPath $env:CODEX_TEST_SELECTION_MARKER -Value selected\n'
+            + withdraw + '  $global:LASTEXITCODE = 0\n  return\n}\n'
+            'Write-Output "probe without native exit"\n', encoding="utf-8")
+    else:
+        probe.write_text(
+            '@echo off\r\n>>"%CODEX_TEST_ARGUMENT_LOG%" echo %*\r\n'
+            'if not exist "%CODEX_TEST_SELECTION_MARKER%" (\r\n'
+            '  type nul > "%CODEX_TEST_SELECTION_MARKER%"\r\n  exit /b 0\r\n)\r\n'
+            'echo observed-child-stdout\r\necho observed-child-stderr 1>&2\r\n'
+            'if "%CODEX_TEST_JSON_MODE%"=="pytest_failure" if "%~1"=="-m" exit /b 37\r\n'
+            'if "%CODEX_TEST_JSON_MODE%"=="quality_failure" if "%~1"=="scripts/quality_gate.py" exit /b 23\r\n'
+            'exit /b 0\r\n', encoding="utf-8")
+    env = os.environ.copy()
+    env.update(PYTHON=str(probe), CODEX_TEST_ARGUMENT_LOG=str(log),
+               CODEX_TEST_SELECTION_MARKER=str(marker), CODEX_TEST_JSON_MODE=mode,
+               CODEX_TEST_PROBE_ROOT=str(tmp_path.resolve()))
+    command = ["powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
+               "scripts/run_local_verify.ps1", "-Lane", lane, "-Json"]
+    temp_root = tmp_path / "pytest root with spaces"
+    if basetemp:
+        temp_root.mkdir(); command.extend(["-PytestBaseTempRoot", str(temp_root)])
+    elif invalid_root:
+        command.extend(["-PytestBaseTempRoot", "relative-invalid-root"])
+    result = subprocess.run(command, env=env, capture_output=True, text=True, timeout=60, check=False)
+    calls = []
+    if log.exists():
+        for line in log.read_text(encoding="utf-8-sig").splitlines():
+            calls.append([t[1:-1] if t.startswith('"') and t.endswith('"') else t
+                          for t in shlex.split(line, posix=False)])
+    return result, calls, probe, temp_root
+
+
+def _local_json_step_ids(lane: str) -> list[str]:
+    return ["development_environment", f"{lane.lower()}_pytest", "standalone_eval", "quality_gate",
+            "render_python_cli_minimal", "render_csharp_desktop_minimal", "render_plc_tool_minimal"]
+
+
+@pytest.mark.skipif(os.name != "nt", reason="PowerShell child probes require Windows")
+@pytest.mark.parametrize("lane", ["Core", "Full", "Routine"])
+def test_local_json_verdict_matches_observed_success_and_arguments(tmp_path: Path, lane: str) -> None:
+    result, calls, probe, temp_root = _run_local_json_probe(tmp_path, lane=lane, basetemp=True)
+    assert result.returncode == 0, result.stderr
+    report = json.loads(result.stdout)
+    assert report["checker_id"] == "local_verify_run" and report["schema_version"] == "1"
+    assert report["lane"] == lane and report["status"] == "PASS" and report["exit_code"] == 0
+    assert report["source_binding_scope"] == "wrapper_only" and report["reason_codes"] == []
+    assert report["wrapper_sha256"] == hashlib.sha256(Path("scripts/run_local_verify.ps1").read_bytes()).hexdigest()
+    steps = report["steps"]
+    assert [x["command_id"] for x in steps] == _local_json_step_ids(lane)
+    assert len(calls) == 8  # selection probe, then seven verification stages
+    assert calls[0] == calls[1] == ["scripts/verify_dev_environment.py", "--expected-version-file",
+                                  ".python-version", "--lock", "requirements-dev.lock", "--json"]
+    for step, args in zip(steps, calls[1:], strict=True):
+        assert step["status"] == "PASS" and step["exit_code"] == 0 and step["reason_codes"] == []
+        projected = ["{PYTHON}", *args]
+        if "--basetemp" in args:
+            operand = args.index("--basetemp") + 1
+            assert Path(args[operand]).parent == temp_root and not Path(args[operand]).exists()
+            projected[operand + 1] = "{PYTEST_BASETEMP}"
+        assert step["safe_argv"] == projected
+        assert step["invocation_sha256"] == hashlib.sha256("\0".join([str(probe), *args]).encode("utf-8")).hexdigest()
+    assert calls[2][:7] == ["-m", "pytest", "tests", "--durations=50", "-rs", "-p", "no:cacheprovider"]
+    if lane == "Core":
+        assert calls[2][-2:] == ["-m", "not optional_agent_quality and not optional_hermes_mcp and not optional_local_rag"]
+    if lane == "Routine":
+        assert calls[2].count("--ignore") == 29
+    assert calls[3] == ["scripts/run_eval.py"] and calls[4] == ["scripts/quality_gate.py"]
+    for call, profile in zip(calls[5:], ["python_cli_minimal", "csharp_desktop_minimal", "plc_tool_minimal"], strict=True):
+        assert call == ["scripts/render_template.py", "--config", f"examples/{profile}/template.config.yml",
+                        "--target", f"examples/{profile}", "--dry-run"]
+    assert result.stderr.count("observed-child-stdout") == result.stderr.count("observed-child-stderr") == 7
+    assert str(tmp_path) not in result.stdout and "observed-child" not in result.stdout
+
+
+@pytest.mark.skipif(os.name != "nt", reason="PowerShell child probes require Windows")
+@pytest.mark.parametrize(("mode", "failed_index", "exit_code"), [("pytest_failure", 1, 37), ("quality_failure", 3, 23)])
+def test_local_json_failure_preserves_code_and_never_runs_later_steps(tmp_path: Path, mode: str, failed_index: int, exit_code: int) -> None:
+    result, calls, _, _ = _run_local_json_probe(tmp_path, mode=mode)
+    report = json.loads(result.stdout)
+    assert result.returncode == report["exit_code"] == exit_code
+    assert report["status"] == "FAIL" and report["reason_codes"]
+    assert len(calls) == failed_index + 2
+    steps = report["steps"]
+    assert [x["command_id"] for x in steps] == _local_json_step_ids("Core")
+    assert all(x["status"] == "PASS" for x in steps[:failed_index])
+    assert steps[failed_index]["status"] == "FAIL" and steps[failed_index]["exit_code"] == exit_code
+    for step in steps[failed_index + 1:]:
+        assert step["status"] == "NOT RUN" and step["exit_code"] is None
+        assert step["safe_argv"] is None and step["invocation_sha256"] is None
+    assert "observed-child-stdout" in result.stderr and "observed-child-stderr" in result.stderr
+
+
+@pytest.mark.skipif(os.name != "nt", reason="PowerShell child probes require Windows")
+@pytest.mark.parametrize("mode", ["missing_exit", "launch_failure"])
+def test_local_json_missing_native_exit_cannot_reuse_selection_success(tmp_path: Path, mode: str) -> None:
+    result, calls, _, _ = _run_local_json_probe(tmp_path, mode=mode)
+    report = json.loads(result.stdout)
+    assert result.returncode == report["exit_code"] == 1
+    assert report["status"] == "FAIL" and report["reason_codes"]
+    assert report["steps"][0]["status"] == "FAIL" and report["steps"][0]["exit_code"] is None
+    assert all(x["status"] == "NOT RUN" for x in report["steps"][1:])
+    assert len(calls) == (1 if mode == "launch_failure" else 2)
+
+
+@pytest.mark.skipif(os.name != "nt", reason="PowerShell child probes require Windows")
+def test_local_json_invalid_setup_reports_all_not_run_and_invokes_nothing(tmp_path: Path) -> None:
+    result, calls, _, _ = _run_local_json_probe(tmp_path, invalid_root=True)
+    report = json.loads(result.stdout)
+    assert result.returncode == report["exit_code"] == 1
+    assert report["status"] == "FAIL" and report["reason_codes"]
+    assert [x["command_id"] for x in report["steps"]] == _local_json_step_ids("Core")
+    assert all(x["status"] == "NOT RUN" and x["exit_code"] is None for x in report["steps"])
+    assert calls == [] and "relative-invalid-root" not in result.stdout
+
+
+@pytest.mark.skipif(os.name != "nt", reason="PowerShell assessment process requires Windows")
+@pytest.mark.parametrize("case", ["valid", "missing", "duplicate", "order", "unstarted",
+                                  "missing_exit", "missing_evidence", "recorded_error"])
+def test_local_json_assessment_rejects_incomplete_or_contradictory_records(tmp_path: Path, case: str) -> None:
+    ids = _local_json_step_ids("Core")
+    report = {"status": "FAIL", "exit_code": 1, "reason_codes": [], "steps": [
+        {"command_id": command_id, "status": "PASS", "exit_code": 0,
+         "safe_argv": ["{PYTHON}", "fixture"], "invocation_sha256": "a" * 64,
+         "reason_codes": []} for command_id in ids]}
+    if case == "missing":
+        report["steps"].pop()
+    elif case == "duplicate":
+        report["steps"][1]["command_id"] = ids[0]
+    elif case == "order":
+        report["steps"][0], report["steps"][1] = report["steps"][1], report["steps"][0]
+    elif case == "unstarted":
+        report["steps"][4]["status"] = "NOT RUN"
+    elif case == "missing_exit":
+        report["steps"][2]["exit_code"] = None
+    elif case == "missing_evidence":
+        report["steps"][3]["invocation_sha256"] = None
+    elif case == "recorded_error":
+        report["reason_codes"] = ["FIXTURE_RECORDED_ERROR"]
+    # Load the two original decision functions without running the verifier.
+    # Cases are derived from the acceptance rules, not the implementation.
+    driver = tmp_path / "assess.ps1"
+    driver.write_text(
+        '$ErrorActionPreference = "Stop"\n'
+        '$tokens = $null; $errors = $null\n'
+        '$ast = [System.Management.Automation.Language.Parser]::ParseFile('
+        '$env:CODEX_TEST_WRAPPER_SOURCE, [ref]$tokens, [ref]$errors)\n'
+        'if ($errors.Count -ne 0) { throw "wrapper parse" }\n'
+        '$selected = @($ast.FindAll({ param($n) '
+        '$n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and '
+        '$n.Name -in @("Get-RunAssessment", "Complete-ExecutionResult") }, $true))\n'
+        'if ($selected.Count -ne 2) { throw "decision entrypoints" }\n'
+        'foreach ($node in $selected) { . ([ScriptBlock]::Create($node.Extent.Text)) }\n'
+        '$ExpectedCommandIds = $env:CODEX_TEST_EXPECTED_IDS | ConvertFrom-Json\n'
+        '$RunResult = $env:CODEX_TEST_ASSESSMENT_INPUT | ConvertFrom-Json\n'
+        'Complete-ExecutionResult -ExitCode 0\n', encoding="utf-8")
+    env = os.environ.copy()
+    env.update(CODEX_TEST_WRAPPER_SOURCE=str(Path("scripts/run_local_verify.ps1").resolve()),
+               CODEX_TEST_EXPECTED_IDS=json.dumps(ids), CODEX_TEST_ASSESSMENT_INPUT=json.dumps(report))
+    observed = subprocess.run(["powershell.exe", "-NoProfile", "-File", str(driver)],
+                              env=env, capture_output=True, text=True, timeout=30, check=False)
+    verdict = json.loads(observed.stdout)
+    if case == "valid":
+        assert observed.returncode == verdict["exit_code"] == 0
+        assert verdict["status"] == "PASS" and verdict["reason_codes"] == []
+    else:
+        assert observed.returncode == verdict["exit_code"] == 1
+        assert verdict["status"] == "FAIL" and verdict["reason_codes"]
