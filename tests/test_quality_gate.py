@@ -2700,3 +2700,159 @@ def test_local_json_assessment_rejects_incomplete_or_contradictory_records(tmp_p
     else:
         assert observed.returncode == verdict["exit_code"] == 1
         assert verdict["status"] == "FAIL" and verdict["reason_codes"]
+
+
+def _run_parent_junction_probe(
+    tmp_path: Path, *, diagnostic: bool, into_repo: bool,
+) -> tuple[subprocess.CompletedProcess[str], Path, Path, Path]:
+    # Only synthetic directories are targeted. The original wrapper is copied
+    # unchanged and child invocations go to a benign argument-recording shim.
+    repo = tmp_path / "r"
+    wrapper = repo / "scripts" / "run_local_verify.ps1"
+    write(wrapper, Path("scripts/run_local_verify.ps1").read_text(encoding="utf-8"))
+    target = repo if into_repo else tmp_path / "outside"
+    child = target / "child"
+    child.mkdir(parents=True)
+    log = tmp_path / "calls.txt"
+    shim = tmp_path / "probe.cmd"
+    checker = {
+        "environment": {
+            "expected_python_version": "3.12.10",
+            "observed_python_version": "3.12.10",
+            "lock_package_count": 1,
+            "matched_lock_package_count": 1,
+            "pip_check": "PASS",
+        },
+        "runtime_identity": {
+            "executable_sha256": "a" * 64,
+            "pytest_version": "9.0.3",
+        },
+    }
+    shim.write_bytes((
+        '@echo off\r\n>>"%CODEX_TEST_PARENT_JUNCTION_LOG%" echo %*\r\n'
+        + "echo " + json.dumps(checker, separators=(",", ":"))
+        + "\r\nexit /b 0\r\n"
+    ).encode("ascii"))
+    environment = os.environ.copy()
+    environment.update(PYTHON=str(shim), CODEX_TEST_PARENT_JUNCTION_LOG=str(log))
+    alias = tmp_path / "alias"
+    create_directory_link(alias, target)
+    candidate = alias / "child"
+    command = [
+        "powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass",
+        "-File", str(wrapper), "-PytestBaseTempRoot", str(candidate),
+    ]
+    if diagnostic:
+        command.extend(["-EnvironmentOnly", "-Json"])
+    try:
+        assert candidate.is_dir()
+        assert not candidate.is_symlink()
+        assert not getattr(candidate, "is_junction", lambda: False)()
+        result = subprocess.run(
+            command, cwd=repo, env=environment, capture_output=True,
+            text=True, timeout=60, check=False,
+        )
+    finally:
+        remove_directory_link(alias)
+    return result, log, child, candidate
+
+
+@pytest.mark.parametrize("into_repo", [False, True])
+def test_parent_junction_basetemp_is_rejected_before_python(
+    tmp_path: Path, into_repo: bool,
+) -> None:
+    result, log, child, _ = _run_parent_junction_probe(
+        tmp_path, diagnostic=False, into_repo=into_repo
+    )
+
+    assert result.returncode != 0
+    assert "reparse-point ancestors" in result.stdout + result.stderr
+    assert not log.exists()
+    assert list(child.iterdir()) == []
+
+
+def test_parent_junction_environment_diagnostic_is_blocked_without_writes(
+    tmp_path: Path,
+) -> None:
+    result, log, child, candidate = _run_parent_junction_probe(
+        tmp_path, diagnostic=True, into_repo=True
+    )
+    report = json.loads(result.stdout)
+
+    assert result.returncode == 1
+    assert report["status"] == "FAIL"
+    assert report["basetemp_readiness"] == "BLOCKED"
+    assert "PYTEST_BASETEMP_ROOT_INVALID" in report["reason_codes"]
+    assert report["candidate_class"] == "explicit_env"
+    assert report["performed_actions"] == []
+    assert str(candidate) not in result.stdout and str(tmp_path) not in result.stdout
+    calls = log.read_text(encoding="utf-8").splitlines()
+    assert len(calls) == 1
+    assert calls[0].startswith("scripts/verify_dev_environment.py ")
+    assert "--runtime-identity" in calls[0]
+    assert list(child.iterdir()) == []
+
+
+def _run_skip_policy_probe(
+    tmp_path: Path, filename: str, source: str,
+) -> subprocess.CompletedProcess[str]:
+    root = tmp_path / "sp"
+    tests = root / "tests"
+    write(root / "pytest.ini", "[pytest]\n")
+    write(tests / "conftest.py", (Path(__file__).parent / "conftest.py").read_text(encoding="utf-8"))
+    write(tests / "test_passing.py", "def test_passing():\n    assert True\n")
+    write(tests / filename, source)
+    environment = os.environ.copy()
+    for name in ("PYTEST_ADDOPTS", "PYTEST_PLUGINS", "PYTHONPATH"):
+        environment.pop(name, None)
+    environment["PYTEST_DISABLE_PLUGIN_AUTOLOAD"] = "1"
+    environment["PYTHONDONTWRITEBYTECODE"] = "1"
+    return subprocess.run(
+        [
+            sys.executable, "-B", "-m", "pytest", "-c", str(root / "pytest.ini"),
+            "--rootdir", str(root), "--confcutdir", str(root), "tests",
+            "-q", "-rs", "-p", "no:cacheprovider",
+            "--basetemp", str(tmp_path / "pt"),
+        ],
+        cwd=root, env=environment, capture_output=True, text=True,
+        check=False, timeout=60,
+    )
+
+
+@pytest.mark.parametrize(
+    "skip_source",
+    [
+        "import pytest\npytest.skip('synthetic collection skip', allow_module_level=True)\n",
+        "import pytest\npytest.importorskip('codex_harness_collection_probe_missing_71892')\n",
+    ],
+)
+def test_collection_skip_fails_with_other_passing_test(
+    tmp_path: Path, skip_source: str,
+) -> None:
+    result = _run_skip_policy_probe(tmp_path, "test_dropped.py", skip_source)
+
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "1 passed" in result.stdout
+    assert "collection skip is not permitted" in result.stdout
+    assert "tests/test_dropped.py" in result.stdout.replace("\\", "/")
+
+
+@pytest.mark.parametrize("correct_reason", [False, True])
+def test_runtime_skip_preserves_exact_existing_exception(
+    tmp_path: Path, correct_reason: bool,
+) -> None:
+    if os.name == "nt":
+        name = "test_render_force_preserves_mode_under_restrictive_umask"
+        reason = "POSIX mode regression"
+    else:
+        name = "test_render_rejects_junction_target_parent"
+        reason = "Windows junction regression"
+    if not correct_reason:
+        reason = "unreviewed runtime skip"
+    source = f"import pytest\ndef {name}():\n    pytest.skip({reason!r})\n"
+    result = _run_skip_policy_probe(tmp_path, "test_render_template.py", source)
+
+    assert result.returncode == (0 if correct_reason else 1), result.stdout + result.stderr
+    assert "1 passed" in result.stdout and "1 skipped" in result.stdout
+    assert ("unexpected platform skips" in result.stdout) is (not correct_reason)
+    assert "collection skip is not permitted" not in result.stdout

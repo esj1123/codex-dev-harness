@@ -196,9 +196,19 @@ function New-PytestBaseTempPath {
         throw "PytestBaseTempRoot must be an existing directory."
     }
 
-    $rootItem = Get-Item -LiteralPath $resolvedRoot -Force
-    if (($rootItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
-        throw "PytestBaseTempRoot must not be a reparse point."
+    # A normal leaf below a Junction is still an aliased location. Inspect
+    # the lexical ancestor chain without creating or repairing any directory.
+    $currentPath = $resolvedRoot
+    while ($true) {
+        $rootItem = Get-Item -LiteralPath $currentPath -Force
+        if (($rootItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+            throw "PytestBaseTempRoot must not be a reparse point or have reparse-point ancestors."
+        }
+        $parentDirectory = [System.IO.Directory]::GetParent($currentPath)
+        if ($null -eq $parentDirectory) {
+            break
+        }
+        $currentPath = $parentDirectory.FullName
     }
 
     $runLeaf = Join-Path $resolvedRoot (

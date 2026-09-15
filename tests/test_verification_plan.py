@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 from pathlib import Path
 import subprocess
+import sys
 
 import pytest
 
@@ -290,10 +292,12 @@ def test_agent_quality_surface_requires_manual_static_check(
         "-m",
         "pytest",
         "tests/test_agent_quality_contracts.py",
+        "tests/test_agent_quality_capture.py",
         "tests/test_agent_quality_trial_validation.py",
         "tests/test_agent_quality_aggregation.py",
         "tests/test_agent_quality_semantic_failure.py",
         "tests/test_agent_quality_cli.py",
+        "tests/test_agent_role_profiles.py",
         "tests/test_json_evidence_gate.py",
         "-q",
     ]
@@ -645,6 +649,7 @@ def test_pytest_infrastructure_and_common_validator_require_full_regression(
     if relative_path == "scripts/generate_checksums.py":
         assert result["checksum_check_required"] is True
         assert "release_checksum_surface" in result["matched_rule_ids"]
+
         assert "checksum_verify" in result["required_command_ids"]
 
 
@@ -784,3 +789,75 @@ def test_map_and_runtime_are_bounded_read_only_contracts() -> None:
     assert "Popen(" not in source
     assert "write_text(" not in source
     assert "write_bytes(" not in source
+
+
+@pytest.mark.parametrize(
+    "relative_path",
+    ["tests/test_agent_quality_capture.py", "tests/test_agent_role_profiles.py"],
+)
+def test_changed_aq_module_is_in_its_required_static_command(
+    planner_repo: tuple[Path, str], relative_path: str,
+) -> None:
+    repo, base_sha = planner_repo
+    commit_file(repo, relative_path, "def test_regression():\n    assert False\n")
+
+    result = inspect(repo, base_sha)
+    contract = next(
+        item for item in result["required_command_contracts"]
+        if item["command_id"] == "agent_quality_static_check"
+    )
+
+    assert result["status"] == "PASS"
+    assert result["minimum_tier"] == "V2"
+    assert result["matched_rule_ids"] == ["agent_quality_test_surface"]
+    assert relative_path in contract["argv"]
+    assert "full_pytest" not in result["required_command_ids"]
+    assert contract["argv"][:3] == ["python", "-m", "pytest"]
+    assert contract["argv"][3:].count("-m") == 0
+
+
+def _collect_aq_selection(pytest_args: list[str]) -> set[str]:
+    environment = os.environ.copy()
+    for name in ("PYTEST_ADDOPTS", "PYTEST_PLUGINS", "PYTHONPATH"):
+        environment.pop(name, None)
+    environment["PYTEST_DISABLE_PLUGIN_AUTOLOAD"] = "1"
+    environment["PYTHONDONTWRITEBYTECODE"] = "1"
+    completed = subprocess.run(
+        [
+            sys.executable, "-B", "-m", "pytest", *pytest_args,
+            "--collect-only", "-p", "no:cacheprovider",
+        ],
+        cwd=REPO_ROOT,
+        env=environment,
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=120,
+    )
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    return {
+        line.replace("\\", "/")
+        for line in completed.stdout.splitlines()
+        if line.startswith(("tests/", "tests\\")) and "::" in line
+    }
+
+
+def test_aq_static_command_collects_every_marker_and_impact_test() -> None:
+    impact_map = json.loads(MAP_PATH.read_text(encoding="utf-8"))
+    static_argv = impact_map["command_contracts"]["agent_quality_static_check"]["argv"]
+    impact_tests = set(next(
+        rule["patterns"] for rule in impact_map["rules"]
+        if rule["rule_id"] == "agent_quality_test_surface"
+    ))
+    assert static_argv[:3] == ["python", "-m", "pytest"]
+
+    marked_nodes = _collect_aq_selection(["tests", "-m", "optional_agent_quality", "-q"])
+    selected_nodes = _collect_aq_selection(static_argv[3:])
+    marked_files = {node.split("::", 1)[0] for node in marked_nodes}
+
+    assert marked_nodes
+    assert marked_files == impact_tests
+    assert {
+        "tests/test_agent_quality_capture.py", "tests/test_agent_role_profiles.py"
+    } <= marked_files
+    assert marked_nodes <= selected_nodes

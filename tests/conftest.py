@@ -65,9 +65,10 @@ _AMBIENT_GIT_KEYS = (
 )
 
 _SKIPPED_REPORTS: list[pytest.TestReport] = []
+_SKIPPED_COLLECTION_REPORTS: list[pytest.CollectReport] = []
 
 
-def _skip_reason(report: pytest.TestReport) -> str:
+def _skip_reason(report: pytest.TestReport | pytest.CollectReport) -> str:
     longrepr = report.longrepr
     if isinstance(longrepr, tuple) and len(longrepr) >= 3:
         reason = str(longrepr[2])
@@ -141,6 +142,12 @@ def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
 
 def pytest_sessionstart(session: pytest.Session) -> None:
     _SKIPPED_REPORTS.clear()
+    _SKIPPED_COLLECTION_REPORTS.clear()
+
+
+def pytest_collectreport(report: pytest.CollectReport) -> None:
+    if report.skipped:
+        _SKIPPED_COLLECTION_REPORTS.append(report)
 
 
 def pytest_runtest_logreport(report: pytest.TestReport) -> None:
@@ -151,6 +158,12 @@ def pytest_runtest_logreport(report: pytest.TestReport) -> None:
 def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     reporter = session.config.pluginmanager.get_plugin("terminalreporter")
     findings = _unexpected_skips(list(_SKIPPED_REPORTS))
+    # Existing exceptions authorize individual runtime nodes, never a module
+    # skipped before its tests can be collected and checked against that list.
+    findings.extend(
+        f"{report.nodeid}: collection skip is not permitted: {_skip_reason(report)!r}"
+        for report in _SKIPPED_COLLECTION_REPORTS
+    )
     if not findings:
         return
     if reporter is not None:

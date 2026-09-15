@@ -235,6 +235,19 @@ def integration_only(path: str) -> bool:
     return canonical in exact or any(canonical == prefix or canonical.startswith(f"{prefix}/") for prefix in prefixes)
 
 
+def integration_scope_overlaps(path: str) -> bool:
+    """Check declared ownership, including ancestors of protected paths.
+
+    Keep integration_only() for classifying actual files; an owner directory
+    additionally claims its descendants and needs a bidirectional check.
+    """
+    protected = [
+        *INTEGRATION_ONLY_EXACT,
+        *(prefix.rstrip("/") for prefix in INTEGRATION_ONLY_PREFIXES),
+    ]
+    return any(paths_overlap(path, protected_path) for protected_path in protected)
+
+
 def package_issues(payload: Any) -> list[str]:
     if not isinstance(payload, dict):
         return ["PACKAGE_NOT_OBJECT"]
@@ -345,7 +358,7 @@ def package_issues(payload: Any) -> list[str]:
         issues.append("INTEGRATION_VERIFICATION_TIER_INVALID")
     if lane != "integration" and REMOTE_SIDE_EFFECTS.intersection(payload["declared_side_effects"]):
         issues.append("REMOTE_SIDE_EFFECT_REQUIRES_INTEGRATION")
-    if lane != "integration" and any(integration_only(path) for path in payload["write_set"]):
+    if lane != "integration" and any(integration_scope_overlaps(path) for path in payload["write_set"]):
         issues.append("INTEGRATION_ONLY_PATH")
     return sorted(set(issues))
 

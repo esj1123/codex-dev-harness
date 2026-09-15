@@ -27,10 +27,24 @@ sys.dont_write_bytecode = True
 
 try:
     from ai_readiness_scanner import scan_target
-    from render_template import iter_templates, load_config, render_templates, template_destination
+    from render_template import (
+        _validate_destination_boundary,
+        _write_destination_text,
+        iter_templates,
+        load_config,
+        render_templates,
+        template_destination,
+    )
 except ModuleNotFoundError:
     from scripts.ai_readiness_scanner import scan_target
-    from scripts.render_template import iter_templates, load_config, render_templates, template_destination
+    from scripts.render_template import (
+        _validate_destination_boundary,
+        _write_destination_text,
+        iter_templates,
+        load_config,
+        render_templates,
+        template_destination,
+    )
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -635,14 +649,44 @@ def resolve_report_path(repo_root: Path, report_arg: str, option_name: str = "--
         raise ValueError(f"{option_name} must be under artifacts/")
 
     resolved_root = repo_root.resolve()
-    report_path = (resolved_root / raw_path).resolve()
+    artifacts_root = resolved_root / ARTIFACTS_ROOT
+    # Do not resolve away links before inspecting every existing parent/leaf.
+    # Reuse the renderer's regular-file, single-link and reparse-point checks.
+    _, report_path = _validate_destination_boundary(
+        resolved_root / raw_path, target=artifacts_root
+    )
     try:
-        report_path.relative_to(resolved_root)
+        report_path.resolve().relative_to(artifacts_root)
     except ValueError as exc:
-        raise ValueError(f"{option_name} must resolve inside the repository") from exc
-    if report_path == resolved_root:
+        raise ValueError(f"{option_name} must resolve under artifacts/") from exc
+    if report_path == artifacts_root:
         raise ValueError(f"{option_name} must name a report file")
     return report_path
+
+
+def validate_distinct_report_paths(
+    report_path: Path | None,
+    summary_report_path: Path | None,
+    cases_report_path: Path | None,
+) -> None:
+    """Compare resolved keys without changing safety-checked lexical paths."""
+    report_key, summary_key, cases_key = (
+        path.resolve() if path is not None else None
+        for path in (report_path, summary_report_path, cases_report_path)
+    )
+    if summary_key is not None and summary_key == cases_key:
+        raise ValueError("--summary-report and --cases-report must name different files")
+    if report_key is not None and report_key in {summary_key, cases_key}:
+        raise ValueError("--report, --summary-report, and --cases-report must name distinct files")
+
+
+def write_report_text(repo_root: Path, report_path: Path, text: str) -> None:
+    """Replace one explicitly requested report without following output links."""
+    root = repo_root.resolve()
+    checked_path = resolve_report_path(root, relpath(report_path, root))
+    _write_destination_text(
+        checked_path, text, target=root / ARTIFACTS_ROOT, force=True
+    )
 
 
 def print_summary(summary: EvalSummary, stream: Any = None) -> None:
@@ -708,10 +752,10 @@ def main(argv: list[str] | None = None) -> int:
             cases_report_path = resolve_report_path(repo_root, args.cases_report, "--cases-report")
         except ValueError as exc:
             parser.error(str(exc))
-        if summary_report_path == cases_report_path:
-            parser.error("--summary-report and --cases-report must name different files")
-        if report_path and report_path in {summary_report_path, cases_report_path}:
-            parser.error("--report, --summary-report, and --cases-report must name distinct files")
+    try:
+        validate_distinct_report_paths(report_path, summary_report_path, cases_report_path)
+    except ValueError as exc:
+        parser.error(str(exc))
 
     try:
         summary = run_all(repo_root, case_paths)
@@ -729,25 +773,33 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(payload, sort_keys=True, separators=(",", ":")))
         return payload["exit_code"]
 
+    # Evaluation may take time. Recheck the complete output set before the
+    # first write; each individual publication also rechecks its boundary.
+    for candidate in (report_path, summary_report_path, cases_report_path):
+        if candidate is not None:
+            resolve_report_path(repo_root, relpath(candidate, repo_root))
+    validate_distinct_report_paths(report_path, summary_report_path, cases_report_path)
+
     print_summary(summary)
 
     if report_path:
-        report_path.parent.mkdir(parents=True, exist_ok=True)
-        report_path.write_text(json.dumps(summary_to_report(summary), indent=2) + "\n", encoding="utf-8")
+        write_report_text(
+            repo_root, report_path, json.dumps(summary_to_report(summary), indent=2) + "\n"
+        )
         print(f"Wrote eval report: {relpath(report_path, repo_root)}")
     if summary_report_path and cases_report_path:
         cases_bytes = cases_report_bytes(summary)
         cases_sha256 = hashlib.sha256(cases_bytes).hexdigest()
-        cases_report_path.parent.mkdir(parents=True, exist_ok=True)
-        cases_report_path.write_bytes(cases_bytes)
+        write_report_text(repo_root, cases_report_path, cases_bytes.decode("utf-8"))
 
-        summary_report_path.parent.mkdir(parents=True, exist_ok=True)
         summary_report = summary_to_split_report(
             summary,
             relpath(cases_report_path, repo_root),
             cases_sha256,
         )
-        summary_report_path.write_text(json.dumps(summary_report, indent=2) + "\n", encoding="utf-8")
+        write_report_text(
+            repo_root, summary_report_path, json.dumps(summary_report, indent=2) + "\n"
+        )
         print(f"Wrote eval summary report: {relpath(summary_report_path, repo_root)}")
         print(f"Wrote eval cases report: {relpath(cases_report_path, repo_root)}")
 

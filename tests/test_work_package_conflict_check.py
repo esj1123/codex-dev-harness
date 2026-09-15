@@ -737,3 +737,85 @@ def test_external_package_metadata_drift_is_rejected(
     )
 
     assert result["reason_codes"] == ["PACKAGE_IDENTITY_DRIFT"]
+
+
+@pytest.mark.parametrize("lane", ["feature", "contract"])
+@pytest.mark.parametrize(
+    "scope",
+    [
+        "scripts", "SCRIPTS", "docs", ".github", "evals", "artifacts",
+        "scripts/gates", "scripts/gates/nested/output.py", "STATUS.md", "status.md",
+    ],
+)
+def test_nonintegration_scope_rejects_protected_ancestors_and_descendants(
+    lane: str, scope: str,
+) -> None:
+    payload = package("scope-check", lane=lane)
+    payload["contract_frozen_paths"] = ["contracts/INTERFACE.md"]
+    payload["read_set"] = ["contracts/INTERFACE.md"]
+    payload["write_set"] = [scope]
+    payload["generated_outputs"] = []
+
+    result = checker.inspect_payloads([payload])
+
+    assert result["status"] == "FAIL"
+    assert result["reason_codes"] == ["INTEGRATION_ONLY_PATH"]
+    assert result["parallelizable"] is False
+    assert result["authorization_status"] == "NOT_AUTHENTICATED"
+
+
+@pytest.mark.parametrize("lane", ["feature", "contract"])
+@pytest.mark.parametrize(
+    "scope",
+    [
+        "scripts/tool.py", "scripts/gates_extra", "docs/guide.md",
+        ".github/ISSUE_TEMPLATE", "evals/cases", "artifacts_extra",
+    ],
+)
+def test_nonintegration_scope_preserves_unprotected_siblings(
+    lane: str, scope: str,
+) -> None:
+    payload = package("scope-check", lane=lane)
+    payload["contract_frozen_paths"] = ["contracts/INTERFACE.md"]
+    payload["read_set"] = ["contracts/INTERFACE.md"]
+    payload["write_set"] = [scope]
+    payload["generated_outputs"] = []
+
+    result = checker.inspect_payloads([payload])
+
+    assert result["status"] == "PASS"
+    assert result["reason_codes"] == []
+
+
+def test_integration_scope_preserves_broad_owner_declarations() -> None:
+    payload = package("integration-scope", lane="integration")
+    payload["contract_frozen_paths"] = ["contracts/INTERFACE.md"]
+    payload["read_set"] = ["contracts/INTERFACE.md"]
+    payload["write_set"] = ["scripts", "docs", ".github", "evals", "artifacts"]
+    payload["generated_outputs"] = []
+
+    result = checker.inspect_payloads([payload])
+
+    assert result["status"] == "PASS"
+    assert result["authorization_status"] == "NOT_AUTHENTICATED"
+    assert checker.integration_only("scripts") is False
+    assert checker.integration_scope_overlaps("scripts") is True
+
+
+def test_parent_owned_central_generated_output_fails_preflight_cli(
+    tmp_path: Path, capsys,
+) -> None:
+    payload = package("feature-a")
+    payload["write_set"] = ["scripts"]
+    payload["generated_outputs"] = ["scripts/gates/new_review_fixture.py"]
+    write_json(tmp_path / "package.json", payload)
+
+    exit_code = checker.main(
+        ["--repo-root", str(tmp_path), "--package", "package.json", "--json"]
+    )
+    report = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 1
+    assert report["status"] == "FAIL"
+    assert "INTEGRATION_ONLY_PATH" in report["reason_codes"]
+    assert report["performed_actions"] == []

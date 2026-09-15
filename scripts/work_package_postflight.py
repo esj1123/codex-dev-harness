@@ -297,7 +297,11 @@ def inspect_postflight(
         "rename_count": observed["rename_count"],
         "delete_count": observed["delete_count"],
     }
-    central_changed = any(preflight.integration_only(path) for path in observed["changed_paths"])
+    # Generated files must not evade central ownership by remaining untracked.
+    central_changed = any(
+        preflight.integration_only(path)
+        for path in [*observed["changed_paths"], *observed["untracked_paths"]]
+    )
     result["central_authority_changed"] = central_changed
 
     reasons: set[str] = set()
@@ -414,7 +418,10 @@ def main(argv: list[str] | None = None) -> int:
         package_root=Path(args.package_root) if args.package_root else None,
     )
     if args.json:
-        sys.stdout.buffer.write(safe_output_bytes(result))
+        payload = safe_output_bytes(result)
+        sys.stdout.buffer.write(payload)
+        # The emitted envelope, including a size-limit fallback, owns the exit.
+        return 0 if json.loads(payload)["status"] == "PASS" else 1
     else:
         print(text_summary(result))
     return 0 if result["status"] == "PASS" else 1

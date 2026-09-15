@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 
 import pytest
 
@@ -957,3 +958,358 @@ def test_jsonl_shape_rejects_unapproved_provenance_profile(tmp_path: Path) -> No
 
     assert result.passed is False
     assert any("profile is not approved" in message for message in result.messages)
+
+
+def _report_options() -> dict[str, str]:
+    return {
+        "--report": "artifacts/legacy.json",
+        "--summary-report": "artifacts/summary.json",
+        "--cases-report": "artifacts/cases.jsonl",
+    }
+
+
+def _report_flags(options: dict[str, str]) -> list[str]:
+    return [token for option, relative in options.items() for token in (option, relative)]
+
+
+@pytest.mark.parametrize("slot", ["--report", "--summary-report", "--cases-report"])
+@pytest.mark.parametrize("inside_repo", [False, True])
+def test_report_hardlink_is_rejected_before_any_output(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, slot: str, inside_repo: bool,
+) -> None:
+    repo = tmp_path / "repo"
+    case = write_passing_eval_case(repo)
+    options = _report_options()
+    protected = repo / "STATUS.md" if inside_repo else tmp_path / "outside.txt"
+    protected.write_bytes(b"preserve protected content\n")
+    for option, relative in options.items():
+        destination = repo / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        if option == slot:
+            os.link(protected, destination)
+        else:
+            destination.write_bytes(b"preserve companion report\n")
+    before = {relative: (repo / relative).read_bytes() for relative in options.values()}
+    monkeypatch.setattr(
+        run_eval, "run_all", lambda *_args: pytest.fail("unsafe output must stop before eval")
+    )
+
+    with pytest.raises(SystemExit) as error:
+        run_eval.main(["--repo-root", str(repo), "--case", str(case), *_report_flags(options)])
+
+    assert error.value.code == 2
+    assert protected.read_bytes() == b"preserve protected content\n"
+    assert {relative: (repo / relative).read_bytes() for relative in options.values()} == before
+    assert not list((repo / "artifacts").glob(".*.codex-*.tmp"))
+
+
+@pytest.mark.parametrize("slot", ["--report", "--summary-report", "--cases-report"])
+@pytest.mark.parametrize("inside_repo", [False, True])
+def test_report_parent_link_cannot_redirect_within_or_outside_repo(
+    tmp_path: Path, slot: str, inside_repo: bool,
+) -> None:
+    repo = tmp_path / "repo"
+    case = write_passing_eval_case(repo)
+    options = _report_options()
+    target = repo / "docs" if inside_repo else tmp_path / "outside"
+    target.mkdir()
+    protected = target / "payload.json"
+    protected.write_bytes(b"preserve redirected content\n")
+    (repo / "artifacts").mkdir()
+    link = repo / "artifacts" / "redirect"
+    create_directory_link(link, target)
+    options[slot] = "artifacts/redirect/payload.json"
+    try:
+        with pytest.raises(SystemExit) as error:
+            run_eval.main(["--repo-root", str(repo), "--case", str(case), *_report_flags(options)])
+        assert error.value.code == 2
+        assert protected.read_bytes() == b"preserve redirected content\n"
+        assert all(
+            not (repo / relative).exists()
+            for option, relative in options.items() if option != slot
+        )
+    finally:
+        remove_directory_link(link)
+
+
+def test_artifacts_root_link_is_rejected(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    case = write_passing_eval_case(repo)
+    target = repo / "docs"
+    target.mkdir()
+    protected = target / "legacy.json"
+    protected.write_bytes(b"preserve root-link target\n")
+    link = repo / "artifacts"
+    create_directory_link(link, target)
+    try:
+        with pytest.raises(SystemExit) as error:
+            run_eval.main([
+                "--repo-root", str(repo), "--case", str(case),
+                "--report", "artifacts/legacy.json",
+            ])
+        assert error.value.code == 2
+        assert protected.read_bytes() == b"preserve root-link target\n"
+        assert sorted(path.name for path in target.iterdir()) == ["legacy.json"]
+    finally:
+        remove_directory_link(link)
+
+
+def test_all_report_paths_are_rechecked_after_eval_before_first_write(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo = tmp_path / "repo"
+    case = write_passing_eval_case(repo)
+    options = _report_options()
+    (repo / "artifacts").mkdir()
+    outside = tmp_path / "outside.txt"
+    outside.write_bytes(b"preserve late-linked target\n")
+    legacy = repo / options["--report"]
+    legacy.write_bytes(b"preserve previous legacy\n")
+    called = []
+
+    def evaluate_then_link(*_args):
+        called.append(True)
+        os.link(outside, repo / options["--cases-report"])
+        return run_eval.EvalSummary(True, [run_eval.EvalResult("synthetic", True, ["ok"])])
+
+    monkeypatch.setattr(run_eval, "run_all", evaluate_then_link)
+    with pytest.raises(ValueError):
+        run_eval.main(["--repo-root", str(repo), "--case", str(case), *_report_flags(options)])
+
+    assert called == [True]
+    assert outside.read_bytes() == b"preserve late-linked target\n"
+    assert legacy.read_bytes() == b"preserve previous legacy\n"
+    assert not (repo / options["--summary-report"]).exists()
+    assert not list((repo / "artifacts").glob(".*.codex-*.tmp"))
+
+
+def test_report_writer_rejects_link_added_after_path_validation(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    (repo / "artifacts").mkdir(parents=True)
+    destination = run_eval.resolve_report_path(repo, "artifacts/report.json")
+    outside = tmp_path / "outside.txt"
+    outside.write_bytes(b"preserve write-time target\n")
+    os.link(outside, destination)
+
+    with pytest.raises(ValueError):
+        run_eval.write_report_text(repo, destination, "replacement\n")
+
+    assert outside.read_bytes() == b"preserve write-time target\n"
+    assert destination.read_bytes() == outside.read_bytes()
+
+
+@pytest.mark.parametrize("passing", [False, True])
+def test_regular_report_replacements_preserve_legacy_and_split_contracts(
+    tmp_path: Path, passing: bool,
+) -> None:
+    case = write_passing_eval_case(tmp_path)
+    if not passing:
+        write(tmp_path / "AGENTS.md", "missing required phrase\n")
+    options = _report_options()
+    for relative in options.values():
+        write(tmp_path / relative, "old report\n")
+
+    exit_code = run_eval.main([
+        "--repo-root", str(tmp_path), "--case", str(case), *_report_flags(options)
+    ])
+
+    legacy = json.loads((tmp_path / options["--report"]).read_text(encoding="utf-8"))
+    summary = json.loads((tmp_path / options["--summary-report"]).read_text(encoding="utf-8"))
+    cases_bytes = (tmp_path / options["--cases-report"]).read_bytes()
+    cases = [json.loads(line) for line in cases_bytes.splitlines()]
+    assert exit_code == (0 if passing else 1)
+    assert legacy["schema_version"] == summary["schema_version"] == "1"
+    assert legacy["passed"] is passing and summary["passed"] is passing
+    assert legacy["cases"] == cases
+    assert summary["cases_ref"] == options["--cases-report"]
+    assert summary["cases_sha256"] == hashlib.sha256(cases_bytes).hexdigest()
+    assert all((tmp_path / relative).stat().st_nlink == 1 for relative in options.values())
+    assert not list((tmp_path / "artifacts").glob(".*.codex-*.tmp"))
+
+
+_REPORT_COLLISION_CASES = [
+    pytest.param("--summary-report", "--cases-report", False, id="split-only"),
+    pytest.param("--summary-report", "--cases-report", True, id="split-with-legacy"),
+    pytest.param("--report", "--summary-report", True, id="legacy-summary"),
+    pytest.param("--report", "--cases-report", True, id="legacy-cases"),
+]
+
+
+def _report_file_snapshot(repo: Path) -> dict[str, bytes]:
+    return {
+        path.relative_to(repo).as_posix(): path.read_bytes()
+        for path in repo.rglob("*") if path.is_file()
+    }
+
+
+def _report_collision_fixture(
+    tmp_path: Path, left_slot: str, right_slot: str, with_legacy: bool,
+    *, alias_spelling: bool = True, destination_exists: bool = True,
+) -> tuple[Path, Path, dict[str, str], Path, Path]:
+    repo = tmp_path.resolve() / "r"
+    case = write_passing_eval_case(repo)
+    options = _report_options()
+    for relative in options.values():
+        write(repo / relative, f"preserve companion {relative}\n")
+    if not with_legacy:
+        options.pop("--report")
+    canonical = repo / "artifacts/canonical/result.json"
+    alias = repo / "artifacts/alias/result.json"
+    for path in (canonical, alias):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if destination_exists:
+            path.write_bytes(f"preserve {path.parent.name}\n".encode("ascii"))
+    options[left_slot] = canonical.relative_to(repo).as_posix()
+    options[right_slot] = (alias if alias_spelling else canonical).relative_to(repo).as_posix()
+    return repo, case, options, canonical, alias
+
+
+def _report_collision_message(left_slot: str) -> str:
+    if left_slot == "--summary-report":
+        return "--summary-report and --cases-report must name different files"
+    return "--report, --summary-report, and --cases-report must name distinct files"
+
+
+@pytest.mark.parametrize(("left_slot", "right_slot", "with_legacy"), _REPORT_COLLISION_CASES)
+@pytest.mark.parametrize("alias_spelling", [False, True], ids=["same-spelling", "simulated-alias"])
+@pytest.mark.parametrize("destination_exists", [False, True], ids=["new-leaf", "existing-leaf"])
+def test_report_destination_collision_cli_fails_before_eval_or_write(
+    tmp_path: Path, left_slot: str, right_slot: str, with_legacy: bool,
+    alias_spelling: bool, destination_exists: bool,
+) -> None:
+    repo, case, options, _, _ = _report_collision_fixture(
+        tmp_path, left_slot, right_slot, with_legacy,
+        alias_spelling=alias_spelling, destination_exists=destination_exists,
+    )
+    before = _report_file_snapshot(repo)
+    # Simulate only one Path.resolve() OS result. These fixture directories
+    # are physically separate; this is NOT a native Windows 8.3 reproduction.
+    # The real CLI/parser and link checks run in a native child process.
+    driver = (
+        "import sys\n"
+        "from pathlib import Path\n"
+        "from unittest.mock import patch\n"
+        "from scripts import run_eval\n"
+        "root = Path(sys.argv[1])\n"
+        "alias = root / 'artifacts/alias/result.json'\n"
+        "canonical = root / 'artifacts/canonical/result.json'\n"
+        "original_resolve = Path.resolve\n"
+        "def resolve_alias(path, *args, **kwargs):\n"
+        "    return original_resolve(canonical if path == alias else path, *args, **kwargs)\n"
+        "def record_eval(*args, **kwargs):\n"
+        "    (root / 'eval-called.txt').write_text('called', encoding='utf-8')\n"
+        "    raise AssertionError('report collision reached eval')\n"
+        "with patch.object(Path, 'resolve', resolve_alias), patch.object(run_eval, 'run_all', record_eval):\n"
+        "    raise SystemExit(run_eval.main(sys.argv[2:]))\n"
+    )
+    environment = os.environ.copy()
+    environment.pop("PYTHONPATH", None)
+    environment["PYTHONDONTWRITEBYTECODE"] = "1"
+    completed = subprocess.run(
+        [
+            sys.executable, "-B", "-c", driver, str(repo),
+            "--repo-root", str(repo), "--case", str(case), *_report_flags(options),
+        ],
+        cwd=run_eval.REPO_ROOT, env=environment, capture_output=True,
+        text=True, check=False, timeout=30,
+    )
+
+    assert completed.returncode == 2, completed.stdout + completed.stderr
+    assert _report_collision_message(left_slot) in completed.stderr
+    assert "Traceback" not in completed.stderr
+    assert completed.stdout == ""
+    assert not (repo / "eval-called.txt").exists()
+    assert _report_file_snapshot(repo) == before
+
+
+@pytest.mark.parametrize(("left_slot", "right_slot", "with_legacy"), _REPORT_COLLISION_CASES)
+def test_report_alias_collision_after_eval_stops_before_first_write(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys,
+    left_slot: str, right_slot: str, with_legacy: bool,
+) -> None:
+    repo, case, options, canonical, alias = _report_collision_fixture(
+        tmp_path, left_slot, right_slot, with_legacy
+    )
+    before = _report_file_snapshot(repo)
+    aliases: dict[Path, Path] = {}
+    original_resolve = Path.resolve
+    original_run_all = run_eval.run_all
+    eval_calls = []
+
+    def resolve_alias(path, *args, **kwargs):
+        return original_resolve(aliases.get(path, path), *args, **kwargs)
+
+    def evaluate_then_alias(*args, **kwargs):
+        summary = original_run_all(*args, **kwargs)
+        eval_calls.append(summary.passed)
+        # Inject a changed OS resolution only after the real synthetic eval.
+        aliases[alias] = canonical
+        return summary
+
+    monkeypatch.setattr(Path, "resolve", resolve_alias)
+    monkeypatch.setattr(run_eval, "run_all", evaluate_then_alias)
+    with pytest.raises(ValueError) as error:
+        run_eval.main([
+            "--repo-root", str(repo), "--case", str(case), *_report_flags(options)
+        ])
+
+    assert str(error.value) == _report_collision_message(left_slot)
+    assert eval_calls == [True]
+    assert capsys.readouterr().out == ""
+    assert _report_file_snapshot(repo) == before
+
+
+@pytest.mark.parametrize("slot", ["--report", "--summary-report", "--cases-report"])
+def test_distinct_resolved_report_keys_keep_lexical_safety_and_writes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, slot: str,
+) -> None:
+    repo = tmp_path.resolve() / "r"
+    case = write_passing_eval_case(repo)
+    options = _report_options()
+    alias = repo / "artifacts/alias/result.json"
+    canonical = repo / "artifacts/canonical/result.json"
+    write(alias, "replace lexical file\n")
+    write(canonical, "preserve canonical sentinel\n")
+    canonical_before = canonical.read_bytes()
+    options[slot] = alias.relative_to(repo).as_posix()
+    original_resolve = Path.resolve
+    original_boundary = run_eval._validate_destination_boundary
+    original_writer = run_eval._write_destination_text
+    checked_paths = []
+    written_paths = []
+
+    def resolve_alias(path, *args, **kwargs):
+        return original_resolve(canonical if path == alias else path, *args, **kwargs)
+
+    def record_boundary(destination, **kwargs):
+        checked_paths.append(destination)
+        return original_boundary(destination, **kwargs)
+
+    def record_writer(destination, text, **kwargs):
+        written_paths.append(destination)
+        return original_writer(destination, text, **kwargs)
+
+    monkeypatch.setattr(Path, "resolve", resolve_alias)
+    monkeypatch.setattr(run_eval, "_validate_destination_boundary", record_boundary)
+    monkeypatch.setattr(run_eval, "_write_destination_text", record_writer)
+    exit_code = run_eval.main([
+        "--repo-root", str(repo), "--case", str(case), *_report_flags(options)
+    ])
+
+    assert exit_code == 0
+    assert alias in checked_paths and canonical not in checked_paths
+    assert written_paths == [
+        repo / options[option]
+        for option in ("--report", "--cases-report", "--summary-report")
+    ]
+    # With our resolve-only simulation these remain separate real files.
+    # Their bytes prove that the writer received lexical, not resolved, paths.
+    assert canonical.read_bytes() == canonical_before
+    legacy = json.loads((repo / options["--report"]).read_text(encoding="utf-8"))
+    summary = json.loads((repo / options["--summary-report"]).read_text(encoding="utf-8"))
+    cases_bytes = (repo / options["--cases-report"]).read_bytes()
+    assert legacy["cases"] == [json.loads(line) for line in cases_bytes.splitlines()]
+    assert summary["cases_ref"] == options["--cases-report"]
+    assert summary["cases_sha256"] == hashlib.sha256(cases_bytes).hexdigest()
+    assert all(path.stat().st_nlink == 1 for path in written_paths)
+    assert not list((repo / "artifacts").rglob(".*.codex-*.tmp"))

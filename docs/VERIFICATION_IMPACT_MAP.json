@@ -6,10 +6,12 @@
         "-m",
         "pytest",
         "tests/test_agent_quality_contracts.py",
+        "tests/test_agent_quality_capture.py",
         "tests/test_agent_quality_trial_validation.py",
         "tests/test_agent_quality_aggregation.py",
         "tests/test_agent_quality_semantic_failure.py",
         "tests/test_agent_quality_cli.py",
+        "tests/test_agent_role_profiles.py",
         "tests/test_json_evidence_gate.py",
         "-q"
       ],

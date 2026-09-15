@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 import subprocess
+import sys
 
 import pytest
 
@@ -588,3 +589,111 @@ def test_external_package_root_cli_is_deterministic_and_path_safe(
     assert str(repo) not in first
     assert str(control) not in first
     assert json.loads(first)["status"] == "PASS"
+
+
+@pytest.mark.parametrize("oversized", [False, True])
+def test_native_json_exit_matches_pass_origin_envelope(oversized: bool) -> None:
+    # Stub only the observation boundary. Exercise the real CLI, serializer,
+    # stdout bytes and native process exit, not just safe_output_bytes().
+    count = 2000 if oversized else 1
+    driver = (
+        "from scripts import work_package_postflight as checker\n"
+        "result = checker.base_result()\n"
+        "result['status'] = 'PASS'\n"
+        f"result['actual_surface']['changed_paths'] = [f'generated/{{i:04d}}.txt' for i in range({count})]\n"
+        "checker.inspect_postflight = lambda *args, **kwargs: result\n"
+        "raise SystemExit(checker.main([\n"
+        "    '--package', 'synthetic.json', '--task-id', 'synthetic',\n"
+        "    '--verification-status', 'PASS',\n"
+        "    '--verification-interpreter-id', 'synthetic-python', '--json'\n"
+        "]))\n"
+    )
+    completed = subprocess.run(
+        [sys.executable, "-B", "-c", driver],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        check=False,
+        timeout=30,
+    )
+    report = json.loads(completed.stdout)
+
+    assert len(completed.stdout) <= postflight.MAX_OUTPUT_BYTES
+    assert len(completed.stdout.splitlines()) == 1
+    assert report["authorization_status"] == "NOT_AUTHENTICATED"
+    assert report["performed_actions"] == []
+    if oversized:
+        assert report["status"] == "FAIL"
+        assert report["reason_codes"] == ["OUTPUT_TOO_LARGE"]
+        assert report["actual_surface"]["changed_paths"] == []
+        assert completed.returncode == 1
+    else:
+        assert report["status"] == "PASS"
+        assert report["reason_codes"] == []
+        assert report["actual_surface"]["changed_paths"] == ["generated/0000.txt"]
+        assert completed.returncode == 0
+
+
+@pytest.mark.parametrize(
+    ("lane", "relative"),
+    [
+        ("feature", "STATUS.md"),
+        ("contract", "scripts/gates/new_review_fixture.py"),
+    ],
+)
+def test_untracked_central_path_is_reported_and_blocked(
+    tmp_path: Path, lane: str, relative: str,
+) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    package_path = write_package(repo, package(base_sha, lane=lane))
+    commit_file(repo, "feature.txt", "feature\n")
+    write_text(repo, relative, "synthetic\n")
+
+    result = inspect(repo, package_path)
+
+    assert result["status"] == "BLOCKED"
+    assert result["actual_surface"]["changed_paths"] == ["feature.txt"]
+    assert result["actual_surface"]["untracked_paths"] == [relative]
+    assert result["central_authority_changed"] is True
+    assert "INTEGRATION_ONLY_PATH" in result["reason_codes"]
+    assert "GENERATED_OUTPUT_SET_EXCEEDED" in result["reason_codes"]
+
+
+@pytest.mark.parametrize("lane", ["feature", "contract", "integration"])
+def test_declared_untracked_central_output_requires_integration(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, lane: str,
+) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    payload = package(base_sha, lane=lane)
+    relative = "scripts/gates/new_review_fixture.py"
+    payload["write_set"] = ["feature.txt", "scripts"]
+    payload["generated_outputs"] = [relative]
+    package_path = write_package(repo, payload)
+    commit_file(repo, "feature.txt", "feature\n")
+    write_text(repo, relative, "synthetic\n")
+
+    if lane != "integration":
+        preflight_result = preflight.inspect_payloads([payload])
+        assert preflight_result["status"] == "FAIL"
+        assert "INTEGRATION_ONLY_PATH" in preflight_result["reason_codes"]
+        # Keep postflight independently protective even if a prior/alternate
+        # preflight accepted the broad declaration. Git observation is real.
+        monkeypatch.setattr(
+            postflight,
+            "load_payloads",
+            lambda *_args, **_kwargs: (
+                [payload], {"plan_digest": preflight.plan_digest([payload])}
+            ),
+        )
+
+    result = inspect(repo, package_path)
+
+    assert result["central_authority_changed"] is True
+    assert result["actual_surface"]["untracked_paths"] == [relative]
+    assert "GENERATED_OUTPUT_SET_EXCEEDED" not in result["reason_codes"]
+    assert result["authorization_status"] == "NOT_AUTHENTICATED"
+    if lane == "integration":
+        assert result["status"] == "PASS"
+        assert result["reason_codes"] == []
+    else:
+        assert result["status"] == "BLOCKED"
+        assert result["reason_codes"] == ["INTEGRATION_ONLY_PATH"]
