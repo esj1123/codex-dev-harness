@@ -14,6 +14,12 @@ verification, recovery, and adoption records are preserved in
 [Historical Local Checkpoints](ACCEPTANCE_TRACE.md#historical-local-checkpoints).
 Those records are completed observations, not self-updating local or remote refs.
 
+The owner-approved Harness boundary-fix fast-forward was observed at
+`81fbc855c9db1db364ca22ef71ebc6211380b416` with a clean local `main` and all
+11 implementation/test files matching the verified candidate. This is a
+source-bound local adoption observation, not a self-updating assertion that a
+later working tree, ref, remote, or Hosted run still has that value.
+
 ## NOW
 
 Current action: `POST-H4R3 LOCAL CLOSEOUT COMPLETE`.
@@ -22,6 +28,16 @@ Preserve the completed authority reconciliation, separate digest refresh,
 exact-final-SHA V2 verification, postflight, and owner-approved local adoption
 as distinct checkpoints. Physical Harness cleanup and the Stock, RSID, and
 Launchpad local checkpoints are complete. Their evidence grants no new action.
+
+A separately authorized boundary-fix package is locally adopted at
+`81fbc855c9db1db364ca22ef71ebc6211380b416`. Its final source-bound local
+evidence recorded focused `96 passed`; Core `1008 passed / 10 skipped / 414
+deselected`; Full `1422 passed / 10 skipped`; standalone eval `PASS`; quality
+gate `8/8`; checksum verification `5/5`; all three profile render dry-runs
+`PASS`; cumulative impact planning at V2 plus Full/checksum; package postflight
+`PASS`; and exact Git blob binding `11/11`. Independent follow-up review closed
+F1-R1 as resolved with no additional actionable finding. This documentation
+checkpoint does not rerun those commands or convert them into Hosted evidence.
 
 Agent Quality capability-v2 has AQ-R5K structural `LOCAL_INTEGRATION (V2)`
 evidence and remains `FROZEN / NOT_ADOPTED` under `REDESIGN_BEFORE_TRIAL`.
@@ -37,6 +53,12 @@ an actual target blocker, the same gap in two targets, or evidence that a
 verifier produced an incorrect PASS or FAIL. Select an exact work package under
 fresh authority and verification gates before additional implementation.
 
+For the adopted boundary-fix checkpoint only, the owner has separately approved
+one push and the existing exact-SHA Hosted verification follow-up. Both actions
+are still `PENDING / NOT RUN` at this documentation checkpoint and must be
+recorded separately against the exact pushed SHA if they execute. This scoped
+authority does not relax the default HOLD for later remote or Hosted actions.
+
 Remote, Hosted, release, provider, trial, calibration, baseline promotion,
 and Agent Quality redesign or adoption remain separate owner decisions.
 No tracked recommendation alone authorizes remote action, release/publication,
@@ -44,11 +66,14 @@ runtime repair, branch deletion, worktree removal, target mutation, or adoption.
 
 ## HELD
 
-- Remote fetch/push, Harness or target Hosted workflow execution, export, tag,
-  release, checksum, SBOM, provenance, signing, publication, deployment,
-  durable remote distribution, target execution, and additional local-main
-  mutation require exact repo-owned checkpoints. Remote and Hosted actions
-  remain `HOLD / DEFERRED`; no completed checkpoint supplies inherited authority.
+- Except for the owner-approved boundary-fix push and existing exact-SHA Hosted
+  verification follow-up recorded in `NEXT`, Remote fetch/push, Harness or
+  target Hosted workflow execution, export, tag, release, checksum, SBOM,
+  provenance, signing, publication, deployment, durable remote distribution,
+  target execution, and additional local-main mutation require exact repo-owned
+  checkpoints. The two approved follow-up actions are `PENDING / NOT RUN` here;
+  all other Remote and Hosted actions remain `HOLD / DEFERRED`, and no completed
+  checkpoint supplies inherited authority.
 - Agent Quality/provider/API/model execution, demonstrated-prevention trial,
   role calibration v7 or review batches, baseline creation/promotion/adoption,
   release, Git GC, and preservation packing remain held or `NOT RUN / DEFERRED`.
