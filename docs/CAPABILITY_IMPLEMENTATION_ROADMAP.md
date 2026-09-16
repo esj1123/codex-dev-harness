@@ -63,8 +63,11 @@ local checkpoints are complete. AQ-R5K supplies structural V2 evidence for
 proposal
 `53de64a1a19ec5d50849ebda54bbec619e4097a1`, while the proposal remains
 `FROZEN / NOT_ADOPTED`; all earlier AQ HOLD/FAIL evidence remains historical.
-Remote reconciliation, push, Hosted verification, release, and Git GC are
-explicitly deferred.
+The later boundary-fix sequence is also complete: owner-approved local adoption was
+observed at `81fbc855c9db1db364ca22ef71ebc6211380b416`, followed by the separately approved
+normal push and `HOSTED_EXACT_SHA (V3)` PASS at `bac6a13ef77e20554f67b38398fa65499828fba0`.
+That approval is consumed; earlier remote/Hosted `NOT RUN / DEFERRED` records remain
+historical, and any successor remote/Hosted action requires fresh authority. Git GC remains deferred.
 
 The authoritative order is:
 
@@ -80,8 +83,8 @@ The authoritative order is:
    `3d54823c557317d54811b9731b3198a41a647e0f`, assertion correction at
    `ac0efb08261a7c84828acff476d217ce9286b633`, and separate digest/local adoption
    at `80d1ac15d6c036f7d914bfe606664a7daac2378f`;
-5. record remote reconciliation, push, and Hosted exact-SHA verification as
-   `NOT RUN / DEFERRED` rather than blocking local cleanup or target work;
+5. preserve earlier remote/Hosted `NOT RUN / DEFERRED` as historical, record the later
+   approved push and Hosted exact-SHA V3 at `bac6a13ef77e20554f67b38398fa65499828fba0`, and keep successors on fresh-authority HOLD;
 6. keep the dirty-worktree checkpoint deferred until a real target demonstrates
    at least one prevented error;
 7. preserve the completed ignored-evidence archive, exact source deletion,
