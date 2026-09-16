@@ -22,12 +22,14 @@ later working tree, ref, remote, or Hosted run still has that value.
 
 ## NOW
 
-Current action: `POST-H4R3 LOCAL CLOSEOUT COMPLETE`.
+Current action: `BOUNDARY-FIX ADOPTION AND HOSTED V3 CLOSEOUT COMPLETE`.
 
-Preserve the completed authority reconciliation, separate digest refresh,
-exact-final-SHA V2 verification, postflight, and owner-approved local adoption
-as distinct checkpoints. Physical Harness cleanup and the Stock, RSID, and
-Launchpad local checkpoints are complete. Their evidence grants no new action.
+The earlier `POST-H4R3 LOCAL CLOSEOUT COMPLETE` state remains historical
+checkpoint context. Preserve the completed authority reconciliation, separate
+digest refresh, exact-final-SHA V2 verification, postflight, and owner-approved
+local adoption as distinct checkpoints. Physical Harness cleanup and the Stock,
+RSID, and Launchpad local checkpoints are complete. Their evidence grants no
+new action.
 
 A separately authorized boundary-fix package is locally adopted at
 `81fbc855c9db1db364ca22ef71ebc6211380b416`. Its final source-bound local
@@ -36,8 +38,18 @@ deselected`; Full `1422 passed / 10 skipped`; standalone eval `PASS`; quality
 gate `8/8`; checksum verification `5/5`; all three profile render dry-runs
 `PASS`; cumulative impact planning at V2 plus Full/checksum; package postflight
 `PASS`; and exact Git blob binding `11/11`. Independent follow-up review closed
-F1-R1 as resolved with no additional actionable finding. This documentation
-checkpoint does not rerun those commands or convert them into Hosted evidence.
+F1-R1 as resolved with no additional actionable finding.
+
+The separately approved normal push and existing exact-SHA Hosted verification
+then completed at `bac6a13ef77e20554f67b38398fa65499828fba0`.
+That exact SHA is the completed `HOSTED_EXACT_SHA (V3)` evidence basis: Hosted
+Core passed `1017 passed / 1 skipped / 414 deselected`, the exact Python
+`3.12.10` / pytest `9.0.3` dependency-locked runtime passed, and hosted eval,
+quality gate, and all three render dry-runs passed. The push and Hosted approval
+used for that checkpoint is consumed. This STATUS edit is a later local
+documentation change; its eventual commit is not covered by the V3 result at
+`bac6a13ef77e20554f67b38398fa65499828fba0` and is not itself claimed as pushed
+or Hosted-verified here.
 
 Agent Quality capability-v2 has AQ-R5K structural `LOCAL_INTEGRATION (V2)`
 evidence and remains `FROZEN / NOT_ADOPTED` under `REDESIGN_BEFORE_TRIAL`.
@@ -47,17 +59,18 @@ promotion, or adoption. Do not merge the proposal as an implied successor.
 
 ## NEXT
 
-The post-H4R3 local sequence is closed. No additional implementation capability
-is selected. A new Harness package requires a P0 safety or authority defect,
-an actual target blocker, the same gap in two targets, or evidence that a
-verifier produced an incorrect PASS or FAIL. Select an exact work package under
-fresh authority and verification gates before additional implementation.
+The post-H4R3 local sequence is closed. The boundary-fix adoption/push/Hosted
+sequence is also closed. No additional implementation capability is selected.
+A new Harness package requires a P0 safety or authority defect, an actual target
+blocker, the same gap in two targets, or evidence that a verifier produced an
+incorrect PASS or FAIL. Select an exact work package under fresh authority and
+verification gates before additional implementation.
 
-For the adopted boundary-fix checkpoint only, the owner has separately approved
-one push and the existing exact-SHA Hosted verification follow-up. Both actions
-are still `PENDING / NOT RUN` at this documentation checkpoint and must be
-recorded separately against the exact pushed SHA if they execute. This scoped
-authority does not relax the default HOLD for later remote or Hosted actions.
+The one approved boundary-fix push and exact-SHA Hosted verification have been
+used for the completed `bac6a13ef77e20554f67b38398fa65499828fba0`
+checkpoint. Any later push, workflow dispatch, Hosted verification, remote
+mutation, or remote policy change requires separate fresh authority; the prior
+approval does not carry forward.
 
 Remote, Hosted, release, provider, trial, calibration, baseline promotion,
 and Agent Quality redesign or adoption remain separate owner decisions.
@@ -66,14 +79,14 @@ runtime repair, branch deletion, worktree removal, target mutation, or adoption.
 
 ## HELD
 
-- Except for the owner-approved boundary-fix push and existing exact-SHA Hosted
-  verification follow-up recorded in `NEXT`, Remote fetch/push, Harness or
-  target Hosted workflow execution, export, tag, release, checksum, SBOM,
-  provenance, signing, publication, deployment, durable remote distribution,
-  target execution, and additional local-main mutation require exact repo-owned
-  checkpoints. The two approved follow-up actions are `PENDING / NOT RUN` here;
-  all other Remote and Hosted actions remain `HOLD / DEFERRED`, and no completed
-  checkpoint supplies inherited authority.
+- Future Remote fetch/push, Harness or target Hosted workflow execution, export,
+  tag, release, checksum, SBOM, provenance, signing, publication, deployment,
+  durable remote distribution, target execution, and additional local-main
+  mutation require exact repo-owned checkpoints and separate fresh authority.
+  The completed normal push and exact-SHA Hosted V3 result at
+  `bac6a13ef77e20554f67b38398fa65499828fba0` do not authorize a successor
+  remote or Hosted action; future Remote and Hosted actions remain
+  `HOLD / DEFERRED` by default.
 - Agent Quality/provider/API/model execution, demonstrated-prevention trial,
   role calibration v7 or review batches, baseline creation/promotion/adoption,
   release, Git GC, and preservation packing remain held or `NOT RUN / DEFERRED`.
