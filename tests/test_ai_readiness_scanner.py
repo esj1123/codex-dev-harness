@@ -1,5 +1,9 @@
 import json
+import os
 from pathlib import Path
+import subprocess
+
+import pytest
 
 from scripts import ai_readiness_scanner as scanner
 
@@ -158,3 +162,51 @@ def test_profile_policy_docs_count_as_equivalent_safety_and_verification(tmp_pat
     assert verification.status == "PARTIAL"
     assert "SAFETY_POLICY.profile.md" in result.inspected_paths
     assert "VERIFICATION.profile.md" in result.inspected_paths
+
+
+def test_policy_read_does_not_follow_parent_link(tmp_path: Path) -> None:
+    target = tmp_path / "target"
+    outside = tmp_path / "outside"
+    target.mkdir()
+    outside.mkdir()
+    write(outside / "SAFETY_POLICY.md", "read-only side effect private data synthetic marker\n")
+    link = target / "docs"
+    if os.name == "nt":
+        command = (
+            "New-Item -ItemType Junction "
+            "-Path $env:HARNESS_TEST_JUNCTION_LINK "
+            "-Target $env:HARNESS_TEST_JUNCTION_TARGET "
+            "-ErrorAction Stop | Out-Null"
+        )
+        created = subprocess.run(
+            ["powershell", "-NoProfile", "-Command", command],
+            capture_output=True,
+            text=True,
+            check=False,
+            env={
+                **os.environ,
+                "HARNESS_TEST_JUNCTION_LINK": str(link),
+                "HARNESS_TEST_JUNCTION_TARGET": str(outside),
+            },
+        )
+        if created.returncode != 0:
+            pytest.fail("Windows junction creation unavailable")
+        assert link.is_junction()
+    else:
+        os.symlink(outside, link, target_is_directory=True)
+        assert link.is_symlink()
+
+    try:
+        assert scanner.has_file(target, "docs/SAFETY_POLICY.md") is False
+        assert scanner.safe_read_text(target, "docs/SAFETY_POLICY.md") == ""
+        result = scanner.scan_target(target)
+        safety = next(item for item in result.dimensions if item.name == "Safety boundary")
+        assert safety.status == "INSUFFICIENT_EVIDENCE"
+        assert "docs/SAFETY_POLICY.md" not in result.inspected_paths
+        assert any(item.startswith("docs:") for item in result.skipped_paths)
+    finally:
+        if os.name == "nt":
+            link.rmdir()
+        else:
+            link.unlink()
+    assert (outside / "SAFETY_POLICY.md").is_file()

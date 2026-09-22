@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 from dataclasses import asdict, dataclass
 import json
+import stat
 from pathlib import Path
 import sys
 from typing import Iterable
@@ -118,9 +119,32 @@ def normalize_path_text(path: Path, root: Path) -> str:
     return value.lower().replace("\\", "/")
 
 
+def _is_link_or_reparse(path: Path) -> bool:
+    info = path.lstat()
+    return stat.S_ISLNK(info.st_mode) or bool(
+        getattr(info, "st_file_attributes", 0)
+        & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)
+    )
+
+
+def _safe_child(root: Path, relative: str) -> Path | None:
+    child = Path(relative)
+    if child.is_absolute() or not child.parts or ".." in child.parts:
+        return None
+    current = root
+    for part in child.parts:
+        current = current / part
+        try:
+            if _is_link_or_reparse(current):
+                return None
+        except OSError:
+            return None
+    return current
+
+
 def safe_read_text(root: Path, relative: str) -> str:
-    path = root / relative
-    if not path.is_file() or path.is_symlink():
+    path = _safe_child(root, relative)
+    if path is None or not path.is_file():
         return ""
     try:
         return path.read_text(encoding="utf-8", errors="ignore")
@@ -152,8 +176,12 @@ def iter_repo_paths(root: Path) -> tuple[list[Path], list[str]]:
             paths.append(child)
             name_lower = child.name.lower()
 
-            if child.is_symlink():
-                skipped.append(f"{relative}: symlink skipped")
+            try:
+                if _is_link_or_reparse(child):
+                    skipped.append(f"{relative}: link or reparse skipped")
+                    continue
+            except OSError:
+                skipped.append(f"{relative}: unavailable skipped")
                 continue
 
             if child.is_dir():
@@ -166,13 +194,13 @@ def iter_repo_paths(root: Path) -> tuple[list[Path], list[str]]:
 
 
 def has_file(root: Path, relative: str) -> bool:
-    path = root / relative
-    return path.is_file() and not path.is_symlink()
+    path = _safe_child(root, relative)
+    return path is not None and path.is_file()
 
 
 def has_dir(root: Path, relative: str) -> bool:
-    path = root / relative
-    return path.is_dir() and not path.is_symlink()
+    path = _safe_child(root, relative)
+    return path is not None and path.is_dir()
 
 
 def score_purpose(root: Path) -> ScoreDimension:
@@ -395,7 +423,7 @@ def result_to_markdown(result: ScanResult) -> str:
 
     lines.extend(["", "## 확인 필요 항목", ""])
     if result.skipped_paths:
-        lines.append(f"- 기본 제외 또는 symlink skip 경로: {len(result.skipped_paths)}개")
+        lines.append(f"- 기본 제외 또는 link/reparse skip 경로: {len(result.skipped_paths)}개")
     else:
         lines.append("- 추가 확인 필요 항목 없음")
 
