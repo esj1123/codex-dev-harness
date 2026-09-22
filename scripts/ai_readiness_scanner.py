@@ -157,7 +157,10 @@ def contains_any(text: str, keywords: Iterable[str]) -> bool:
     return any(keyword in lowered for keyword in keywords)
 
 
-def iter_repo_paths(root: Path) -> tuple[list[Path], list[str]]:
+def iter_repo_paths(
+    root: Path, *, observed_paths: list[Path] | None = None
+) -> tuple[list[Path], list[str]]:
+    """Return accepted evidence paths; keep optional name-only risk observations separate."""
     paths: list[Path] = []
     skipped: list[str] = []
     if not root.exists() or not root.is_dir():
@@ -173,7 +176,8 @@ def iter_repo_paths(root: Path) -> tuple[list[Path], list[str]]:
 
         for child in children:
             relative = relpath(child, root)
-            paths.append(child)
+            if observed_paths is not None:
+                observed_paths.append(child)
             name_lower = child.name.lower()
 
             try:
@@ -184,6 +188,8 @@ def iter_repo_paths(root: Path) -> tuple[list[Path], list[str]]:
                 skipped.append(f"{relative}: unavailable skipped")
                 continue
 
+            # Rejected entries must never reach score or inspected-path consumers.
+            paths.append(child)
             if child.is_dir():
                 if name_lower in SKIPPED_DIR_NAMES:
                     skipped.append(f"{relative}: skipped directory")
@@ -317,7 +323,8 @@ def collect_risk_flags(root: Path, paths: list[Path]) -> list[RiskFlag]:
 
 def scan_target(target: Path) -> ScanResult:
     root = target.resolve()
-    paths, skipped = iter_repo_paths(root)
+    observed_paths: list[Path] = []
+    paths, skipped = iter_repo_paths(root, observed_paths=observed_paths)
     path_texts = sorted(relpath(path, root) for path in paths if path.exists())
     inspected_paths = sorted(path for path in path_texts if path in SAFE_TEXT_FILES or Path(path).name in QUALITY_GATE_NAMES)
 
@@ -345,7 +352,8 @@ def scan_target(target: Path) -> ScanResult:
         score_next_action(root),
     ]
     score = sum(dimension.score for dimension in dimensions)
-    risk_flags = collect_risk_flags(root, paths)
+    # Risk flags use observed names only, never as accepted score evidence.
+    risk_flags = collect_risk_flags(root, observed_paths)
     findings = [f"{dimension.name}: {dimension.status}" for dimension in dimensions if dimension.status != "PASS"]
     findings.extend(f"domain risk flag: {flag.name}" for flag in risk_flags)
 
