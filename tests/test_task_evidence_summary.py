@@ -62,6 +62,67 @@ def change_state(root: Path, spec: dict, fn) -> None:
     spec["state"]["sha256"] = write_json(root / "state.json", state)
 
 
+@pytest.mark.parametrize("field", ["state", "history"])
+@pytest.mark.parametrize("value", [None, 17, [], {}])
+def test_nested_path_type_is_a_bounded_failure(fixture, field, value) -> None:
+    root, spec = fixture
+    (spec["state"] if field == "state" else spec["history"][0])["path"] = value
+    result = inspect(root, spec)
+    assert result["status"] == "FAIL"
+    assert result["reason_codes"] == [
+        "INPUT_PATH_INVALID" if field == "state" else "HISTORY_OUTSIDE_EVIDENCE"]
+    assert "state" not in result and result["performed_actions"] == []
+
+
+@pytest.mark.parametrize("field", ["state", "history"])
+@pytest.mark.parametrize("json_mode", [False, True])
+def test_native_cli_invalid_nested_path_has_no_traceback(fixture, field, json_mode) -> None:
+    root, spec = fixture
+    (spec["state"] if field == "state" else spec["history"][0])["path"] = None
+    write_json(root / "spec.json", spec)
+    args = [sys.executable, "-B", str(Path(summary.__file__)), "--spec", "spec.json",
+            "--spec-root", str(root), "--input-root", str(root)]
+    if json_mode:
+        args.append("--json")
+    completed = subprocess.run(args, capture_output=True, check=False, timeout=30)
+    assert completed.returncode == 1 and not completed.stderr
+    assert PRIVATE.encode() not in completed.stdout and str(root).encode() not in completed.stdout
+    assert len(completed.stdout) <= summary.MAX_OUTPUT
+    code = "INPUT_PATH_INVALID" if field == "state" else "HISTORY_OUTSIDE_EVIDENCE"
+    if json_mode:
+        report = json.loads(completed.stdout)
+        assert report["status"] == "FAIL" and report["reason_codes"] == [code]
+        assert "state" not in report
+    else:
+        assert b"status=FAIL" in completed.stdout and code.encode() in completed.stdout
+
+
+def test_history_json_reread_rejects_between_read_content_drift(fixture, monkeypatch) -> None:
+    root, spec = fixture
+    artifact_sha = write_json(root / "evidence/artifact.json", {"previous": "PASS", "private": PRIVATE})
+    receipt_sha = write_json(root / "evidence/receipt.json", {"sha": artifact_sha, "private": PRIVATE})
+    change_state(root, spec, lambda state: state["current"].update(evidence=[
+        {"path": "artifact.json", "sha256": artifact_sha},
+        {"path": "receipt.json", "sha256": receipt_sha}]))
+    spec["candidate"]["sha256"] = artifact_sha
+    spec["history"][0].update(path="evidence/artifact.json", pointer=["previous"])
+    original = summary.Inputs.read
+    changed = False
+
+    def read(inputs, relative, *, document=False, limit=None):
+        nonlocal changed
+        if relative == "evidence/artifact.json" and document and not changed:
+            changed = True
+            write_json(root / relative, {"previous": "NOT_RUN", "private": PRIVATE})
+        return original(inputs, relative, document=document, limit=limit)
+
+    monkeypatch.setattr(summary.Inputs, "read", read)
+    result = inspect(root, spec)
+    assert changed and result["status"] == "FAIL"
+    assert result["reason_codes"] == ["INPUT_IDENTITY_DRIFT"]
+    assert "state" not in result and result["performed_actions"] == []
+
+
 def test_bound_candidate_and_current_scope_are_complete(fixture) -> None:
     root, spec = fixture
     result = inspect(root, spec)

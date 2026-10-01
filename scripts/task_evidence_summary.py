@@ -96,6 +96,7 @@ class Inputs:
     def read(self, relative: str, *, document: bool = False,
              limit: int | None = None) -> tuple[Any, str]:
         maximum = limit if limit is not None else (MAX_JSON if document else MAX_FILE)
+        require(paths.safe_repo_path(relative), "INPUT_PATH_INVALID")
         key = relative.lower()
         if key not in self.cache:
             candidate, info = safe_file(self.root, relative, maximum)
@@ -124,7 +125,9 @@ class Inputs:
         if document and data is None:
             # A hash-only read cannot later turn into an unbounded JSON parse.
             del self.cache[key]
-            return self.read(relative, document=True, limit=maximum)
+            parsed, reread_sha = self.read(relative, document=True, limit=maximum)
+            require(reread_sha == sha_hex, "INPUT_IDENTITY_DRIFT")
+            return parsed, reread_sha
         return (parse_json(data) if document else None), sha_hex
 
 
@@ -218,7 +221,8 @@ def inspect_state(spec: dict[str, Any], inputs: Inputs) -> dict[str, Any]:
         require(set(item) == {"id", "path", "pointer", "states", "gate"}, "HISTORY_INVALID")
         key = identifier(item["id"])
         require(item["gate"] in gates, "HISTORY_GATE_INVALID")
-        require(item["path"] == declaration["path"] or item["path"].lower() in hashes,
+        require(isinstance(item["path"], str) and
+                (item["path"] == declaration["path"] or item["path"].lower() in hashes),
                 "HISTORY_OUTSIDE_EVIDENCE")
         history, _ = inputs.read(item["path"], document=True)
         previous = classify(select(history, item["pointer"]), item["states"])

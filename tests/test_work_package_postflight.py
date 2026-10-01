@@ -183,6 +183,8 @@ def test_opt_in_closeout_invokes_summary_and_retains_pending_target_state(tmp_pa
     ("PASS", "TARGET_OWNER_REVIEW_COMPLETION", 0),
     ("UNKNOWN", "TARGET_OWNER_RESOLVE_UNKNOWN_GATES", 0),
     ("mismatch", "RESOLVE_EVIDENCE_MISMATCHES", 1),
+    ("invalid_state", "INPUT_PATH_INVALID", 1),
+    ("invalid_history", "HISTORY_OUTSIDE_EVIDENCE", 1),
 ])
 def test_native_closeout_hook_projects_actual_state_without_runtime(
     tmp_path: Path, json_mode: bool, gate_state: str, next_action: str, exit_code: int,
@@ -206,6 +208,11 @@ def test_native_closeout_hook_projects_actual_state_without_runtime(
         "gates": [{"id": "build", "pointer": ["gates", "build"],
             "states": {"completed": ["PASS"], "pending": ["HOLD"], "unknown": ["UNKNOWN"]},
             "proofs": ["evidence/artifact.json"]}], "history": [], "runtime": []}
+    if gate_state == "invalid_state":
+        spec["state"]["path"] = None
+    elif gate_state == "invalid_history":
+        spec["history"] = [{"id": "initial", "path": None, "pointer": [],
+                            "states": spec["gates"][0]["states"], "gate": "build"}]
     write_text(repo, "local/state-spec.json", json.dumps(spec))
     before = {str(p.relative_to(target)): p.read_bytes() for p in target.rglob("*") if p.is_file()}
     args = [sys.executable, "-B", str(Path(postflight.__file__)), "--repo-root", str(repo),
@@ -229,14 +236,21 @@ def test_native_closeout_hook_projects_actual_state_without_runtime(
         evidence = report["task_evidence"]
         assert report["status"] == ("BLOCKED" if exit_code else "PASS")
         assert report["authorization_status"] == evidence["authorization_status"] == "NOT_AUTHENTICATED"
-        assert evidence["state"]["next_action"] == next_action
-        assert evidence["state"]["completion"] is (gate_state == "PASS")
-        assert evidence["usage"] == [] and evidence["usage_totals"] is None
+        if gate_state.startswith("invalid_"):
+            assert evidence["status"] == "FAIL" and evidence["reason_codes"] == [next_action]
+            assert "state" not in evidence
+        else:
+            assert evidence["state"]["next_action"] == next_action
+            assert evidence["state"]["completion"] is (gate_state == "PASS")
+            assert evidence["usage"] == [] and evidence["usage_totals"] is None
         assert evidence["performed_actions"] == []
     else:
         assert len(completed.stdout.splitlines()) == 2
-        assert f"next_action={next_action}".encode() in completed.stdout
-        assert f"completion={gate_state == 'PASS'}".encode() in completed.stdout
+        if gate_state.startswith("invalid_"):
+            assert b"task_evidence status=FAIL" in completed.stdout and next_action.encode() in completed.stdout
+        else:
+            assert f"next_action={next_action}".encode() in completed.stdout
+            assert f"completion={gate_state == 'PASS'}".encode() in completed.stdout
         if gate_state == "UNKNOWN":
             assert b"unknown=build unknown_omitted=0" in completed.stdout
         assert b"usage" not in completed.stdout and b"tokens" not in completed.stdout
