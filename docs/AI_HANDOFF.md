@@ -70,16 +70,16 @@ Historical observations do not update current refs or grant successor action.
 
 ## Task Handoff
 
-The authorized local closeout integration reuses reviewed candidate
-`faecf51be5febce1d12f5a2ca6126b87d36e7363`. Its cumulative main-base scope,
-source integration commit, digest-only commit, exact final SHA, independent
+The authorized local closeout integration's reviewed candidate, cumulative
+main-base scope, source integration and repair commits, digest-only commit,
+exact final SHA, independent
 review, new V2/Full results and package postflights are linked in
 `local/checkpoints/evidence-closeout-main-20261001/closeout.json`.
 The same 34 digest sources retain a clean committed source basis; membership
 is unchanged. Read the receipt's result before claiming local verification.
 
-Launchpad adoption is target-owned. Preserve its checkout at
-`0435ee7dc6699c5dbfd77e7d0b29390a08985924` until the target owner authorizes
+Launchpad adoption is target-owned. Preserve its existing pinned checkout,
+whose exact identity is in that receipt, until the target owner authorizes
 an exact successor pin/caller change and revalidates the target's current
 acceptance inputs. The saved state probe retained 11 completed, zero pending
 and one UNKNOWN gate, with `TARGET_OWNER_RESOLVE_UNKNOWN_GATES` as its next
