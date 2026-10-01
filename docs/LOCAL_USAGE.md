@@ -318,6 +318,116 @@ runner.
 These are local checker decisions. The invocation, candidate, required
 verification scope and independent review still belong in the task closeout.
 
+## Bounded Closeout State And Usage
+
+The selected local `scripts/task_evidence_summary.py` reader projects exact
+current-state inputs. Original Codex numeric usage metadata is an optional
+evaluation input, not a requirement for inspection or task completion. Target
+adapters own state meaning and approval. No discovery, recursive repository or
+conversation search, timestamp-based latest-file selection, target command,
+watcher, background service, input repair or evidence writer is provided.
+The default is read-only stdout; approved callers may retain its safe output
+in their existing task-owned evidence record.
+
+At actual task start, declare one fixed spec and its physical input/runtime
+roots in task coordination metadata. The existing postflight closeout/handoff
+invocation then performs both inspections in process:
+
+```text
+python scripts/work_package_postflight.py --repo-root <REPO_ROOT> --package <PACKAGE_JSON> --task-id <TASK_ID> --verification-status PASS --verification-interpreter-id <INTERPRETER_ID> --completed-command-id <COMMAND_ID> --task-evidence-spec <SPEC_JSON> --task-evidence-input-root <TARGET_ROOT> --task-evidence-runtime-root <RUNTIME_ROOT> --json
+```
+
+For ordinary state/evidence inspection, declare `"runtime": []` and omit
+`--task-evidence-runtime-root`. No runtime source is read. Select usage only
+when an improvement evaluation needs it; do not add accounting work to every
+task or make unavailable usage block an otherwise valid state-only inspection.
+
+Repeat the completed command IDs as required. Spec location is relative to the
+same package root; the normal `--package-root` option supports an external
+local control-plane root. Omit the runtime-root flag when no runtime source is
+declared. Existing invocations without these new flags retain their output
+and decisions. The optional `task_evidence` result is separate from structural
+postflight and from work-package schema v3. A bad projection blocks an otherwise
+passing postflight; a valid projection of pending work does not declare target
+completion or authenticate approval. For a bounded initial probe, the same
+reader can run standalone with `--spec`, `--spec-root`, `--input-root`, optional
+`--runtime-root`, and `--json`. Closeout callers use the postflight hook.
+Omit `--json` for a bounded decision summary. With the hook selected, postflight
+also includes that evidence summary; its no-hook text remains unchanged. Keep
+detailed JSON in the existing approved evidence record and expand it for a
+specific mismatch, uncertainty or changed input instead of returning all
+unchanged evidence and per-turn details to the model on each handoff.
+
+The local spec is JSON with exactly the following keys. It is a selected input
+declaration, not a command language or a new work-package namespace:
+
+| Key | Input contract |
+| --- | --- |
+| `schema_version` | Literal `"1"`. |
+| `state` | `path`, exact raw-byte `sha256`, and `pointer` selecting current JSON. |
+| `identities` | Up to 8 `{id,pointer,expected}` records; expected is a 40/64hex SHA. |
+| `candidate` | Exact `path` and `sha256`; null SHA means unbound, never complete. |
+| `evidence` | Fixed `root` and `pointer` to at most 64 `{path,sha256}` rows in current state. |
+| `links` | Up to 64 `{receipt,pointer,target}` scalar SHA links within named evidence. |
+| `gates` | Up to 32 `{id,pointer,states,proofs}` records; completed gates require named proofs. |
+| `history` | Up to 16 `{id,path,pointer,states,gate}` historical claims from state or named evidence. |
+| `runtime` | Up to 8 `{id,path,session_id,turns,cutoff}` original sources; one source per session/counter. |
+
+Pointers are lists of at most 8 bounded JSON object keys. Every `states` map
+has `completed`, `pending` and `unknown` lists of disjoint literal uppercase
+status codes, booleans or null. Unmatched input becomes UNKNOWN; source prose
+is never printed. IDs are safe local aliases. Named paths are Windows-safe
+root-relative paths; UNC, traversal, symlink/reparse ancestry, hard links and
+non-regular files fail. SHA comparison accepts uppercase hex but preserves
+raw-byte hashes. UTF-8 JSON with an optional native producer BOM is decoded
+without rewriting input. The spec limit is 64 KiB, receipt/current JSON 4 MiB,
+individual hash input 64 MiB, runtime source 512 MiB, metadata line 2 MiB,
+unique usage events 100,000 and output 16 KiB. Excess output becomes a small
+failure envelope and a nonzero exit, including through postflight.
+
+Output selects consistency, exact identities, COMPLETED/PENDING/UNKNOWN gates,
+superseded claims, candidate binding and a mechanical next-action code. A
+missing or unbound candidate cannot complete. A mismatch or malformed input
+does not become PASS; exception strings, source body, raw tool output, paths
+and private payload are not reflected. `authorization_status` remains
+`NOT_AUTHENTICATED`; mappings, exact linkage and completion counters do not
+grant qualification, adoption, runtime execution, technical authority or release.
+Next actions distinguish inconsistent evidence, missing or unbound candidates,
+pending gates and unknown gates. An unknown gate remains incomplete; it is not
+silently converted into a pending task or PASS. Gate selection belongs to the
+target's acceptance contract. Keep historical uncertainty in its source record,
+and explicitly decide whether it blocks the current outcome before selecting
+that task's required gates. Never remove a required gate merely to obtain PASS.
+
+Reuse an existing verification only after matching its candidate and input
+identities, command/runtime basis, acceptance scope and original result. Expand
+to affected checks for drift, missing coverage, contradictions or new findings.
+The current task's required integration and independent checks still apply;
+this reader validates linkage and does not authenticate or rerun those checks.
+Target adapters own domain-specific environment checks such as Office readiness.
+
+Runtime accounting uses the previous snapshot of the same cumulative counter,
+including an unselected predecessor. Only a verified initial zero boundary
+(first cumulative snapshot equals last usage) includes the complete first
+response. Duplicate event keys and unchanged snapshots contribute zero; reset,
+missing/corrupt metadata and missing selected turns remain explicit coverage
+gaps. Snapshot keys use session identity, timestamp and the cumulative tuple.
+Repeated turn contexts do not create calls, and actual model/effort stays with
+each observed group. Cached input and reasoning output are subsets; total is
+input plus output. Inconsistent advisory last-usage or interval subset values
+are flagged without discarding valid cumulative counter increments. A captured
+runtime prefix is hashed twice to reject drift while permitting later append;
+it is never copied or followed indefinitely. Large known message/body records
+are skipped; oversized unrecognized records leave coverage PARTIAL.
+
+Usage totals cover only the explicit distinct sessions and selected turns up
+to each cutoff. Missing session identity prevents a combined total. API/model
+calls and app turn durations are UNKNOWN; usage event timestamps do not measure
+active labor. Record provider/reviewer/coordination/repair/handoff gaps, failed
+attempts and preparation/review overhead in the existing measurement ledger.
+Bytes and compact output are not token savings. Savings remains NOT_MEASURED
+without a comparable accepted outcome and original usage/billing coverage.
+
 ## Manual Render Dry-Run Checks
 
 Run:

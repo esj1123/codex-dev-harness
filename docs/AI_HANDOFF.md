@@ -22,6 +22,9 @@ default operating context.
   `scripts/work_package_conflict_check.py`
 - Actual-diff postflight:
   `scripts/work_package_postflight.py`
+- Optional bounded state/evidence closeout:
+  `scripts/task_evidence_summary.py`; target-owned exact selectors and bindings
+  supply meaning. See `docs/LOCAL_USAGE.md#bounded-closeout-state-and-usage`.
 - Verification impact planning:
   `scripts/verification_plan.py`
 - Agent Quality validation and aggregation:
@@ -66,6 +69,24 @@ Historical observations do not update current refs or grant successor action.
 - Tracked authority does not store workflow run IDs.
 
 ## Task Handoff
+
+The authorized local closeout integration reuses reviewed candidate
+`faecf51be5febce1d12f5a2ca6126b87d36e7363`. Its cumulative main-base scope,
+source integration commit, digest-only commit, exact final SHA, independent
+review, new V2/Full results and package postflights are linked in
+`local/checkpoints/evidence-closeout-main-20261001/closeout.json`.
+The same 34 digest sources retain a clean committed source basis; membership
+is unchanged. Read the receipt's result before claiming local verification.
+
+Launchpad adoption is target-owned. Preserve its checkout at
+`0435ee7dc6699c5dbfd77e7d0b29390a08985924` until the target owner authorizes
+an exact successor pin/caller change and revalidates the target's current
+acceptance inputs. The saved state probe retained 11 completed, zero pending
+and one UNKNOWN gate, with `TARGET_OWNER_RESOLVE_UNKNOWN_GATES` as its next
+action. `v5_option_restoration` stays UNKNOWN; this is no new target execution
+or blanket reversal of the earlier document acceptance. Office, protected
+inputs, remote, Hosted and release remain outside this local handoff.
+Usage evaluation was not selected; token savings is NOT_MEASURED.
 
 Use the manifest's `handoff` conditional group for this file. Before continuing,
 re-read `STATUS.md`, run the verification plan for the intended diff, and

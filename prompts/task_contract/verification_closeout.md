@@ -4,6 +4,27 @@ Use to close a completed task with evidence.
 
 This documentation template runs nothing and approves no side effects.
 
+When the task contract selects closeout mechanization, use the existing
+postflight's `--task-evidence-spec` hook with the start-declared input/runtime
+roots. The hook reads only fixed inputs and supplies selected state,
+candidate/receipt consistency and superseded claims. Use `runtime: []` and
+omit the runtime root unless usage evaluation was explicitly selected; missing
+usage is not a state/evidence or task-completion failure. Lead with the concise
+decision output and retain process exit, spec/state SHA, scope and reason codes
+in the existing task record. Link detailed JSON for mismatches or follow-up
+inspection instead of repeatedly returning the entire result.
+Target completion and mechanical consistency are separate results. Keep past
+unresolved observations visible without silently changing them to PASS. The
+target owner declares which gates are required for this task's acceptance;
+the reader does not grant approval or decide that historical risks can be ignored.
+For selected usage evaluation only, retain prefix SHA, cutoff and coverage;
+do not repeat manual full-log selection or counter subtraction.
+Call counts and app durations remain
+UNKNOWN unless independent original evidence supplies them. Never treat
+token events, usage timestamp spans or selected bytes as calls, active labor
+or token savings. See
+[Bounded closeout state and usage](../../docs/LOCAL_USAGE.md#bounded-closeout-state-and-usage).
+
 Lead with the candidate, changed behavior, verification scope/result, unresolved
 items, next action and evidence locations. Link detailed logs and unchanged
 records while retaining the required basis and safety fields below.
@@ -71,7 +92,7 @@ the required verification tier and independent review.
   input/cached-input/output tokens, calls, time, cutoff and gaps;
   otherwise NOT REQUESTED]
 
-Keep scoped quality and usage in this closeout; link original evidence instead
+When evaluation is requested, keep selected quality and usage measures in this closeout; link original evidence instead
 of copying logs. Identify the original usage source, unique event key, participant/
 phase coverage and cutoff. Sum non-overlapping response usage once, or use explicit
 cumulative deltas for the same counter and non-overlapping coverage; never add
@@ -86,6 +107,10 @@ measurement-only cases, systems or model-occupancy tasks.
 Bind each verdict to the reviewed object/phase. Plan/code review or hash/reference
 linkage does not establish review of a later execution input/command or required
 acceptance. Keep remaining review, evidence and authority visible in Next Step.
+For reused verification, link its original result and state the matching
+candidate/input identities, command/runtime basis and acceptance scope.
+Recheck affected dependencies when they change; never inherit PASS across a
+different execution input or omit the cumulative checks required by policy.
 
 If target-repository Hosted evidence was not executed and bound to the target
 head SHA, record Target Hosted status/run as `NOT RUN`; do not inherit the

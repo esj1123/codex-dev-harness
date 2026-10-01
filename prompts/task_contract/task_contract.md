@@ -45,6 +45,17 @@ background to exact existing records; retain the required package fields below.
 
 These Markdown fields are task coordination metadata, not work-package schema v3:
 
+When this task selects closeout mechanization, also record the exact
+package-root-relative evidence spec, physical target input root and optional
+runtime root at actual start. Use an empty `runtime` list and omit the runtime
+root unless usage evaluation is requested. Accounting is not a prerequisite
+for state/evidence inspection, task execution or completion. The target owner supplies selectors, state
+mappings, candidate SHA and receipt links. See
+[Bounded closeout state and usage](../../docs/LOCAL_USAGE.md#bounded-closeout-state-and-usage).
+Pass these declared inputs to the existing postflight invocation at each
+selected closeout/handoff milestone; its optional in-process hook performs
+the projection and counter aggregation. Do not discover logs or infer gates.
+
 - Role: [coordination / retrieval / implementation / verification / review / integration]
 - Requested model: [exact model name]
 - Requested reasoning effort: [exact effort]
@@ -68,6 +79,8 @@ receipt. Candidate/refs precede review. Collisions get a new attempt; retain rec
 
 When measurement is requested for this work scope, including resumed or delegated
 phases, name one measurement owner and the existing record before work starts.
+Select measures for the actual improvement question; usage accounting is optional,
+not a mandatory Harness feature, default output or completion gate.
 Update it at actual start, verification, independent review, rework and closeout
 transitions, covering coordination and handoff as well. Do not create stages solely
 to measure them. Use `verification_closeout.md` for source, deduplication, cutoff
@@ -77,6 +90,12 @@ After required reading, inspect the current entrypoints and changed areas first.
 Select tool output before returning it: inspected scope, verdict, mismatches or
 failures, and evidence locations. Retain necessary originals; expand relevant
 source reads for contradictions, missing evidence, stale candidates or new failures.
+Reuse a completed verification only for its recorded candidate/input identities,
+command and runtime basis, acceptance scope and original result. Confirm that
+these dependencies still match before reuse. A changed dependency, incomplete
+scope or new finding requires the affected checks; a new cumulative integration
+candidate still needs the checks selected by the verification policy. A hash
+match or summary alone cannot replace required native or independent review.
 When the selected commands are the two standalone Harness checkers, apply the
 sole caller example in [Standalone checker JSON results](../../docs/LOCAL_USAGE.md#standalone-checker-json-results)
 and start with the candidate, actual and reported exits, checked JSON decision
@@ -107,6 +126,15 @@ python scripts/work_package_postflight.py --repo-root . --package <PACKAGE_JSON>
 Postflight uses identical `--package-root` and package-relative name. No absolute
 repo/package-root paths in packages or JSON evidence. Process exit, reason codes
 and command IDs are the verification interface; stderr wording is diagnostic only.
+
+For the selected mechanized path, append `--task-evidence-spec <SPEC_JSON>`
+and `--task-evidence-input-root <TARGET_ROOT>`, plus
+`--task-evidence-runtime-root <RUNTIME_ROOT>` when the spec names runtime
+sources. Spec location follows the same package root. This is a fixed reader,
+not execution of commands from a package. A valid pending target remains
+pending even when structural postflight passes; an invalid projection blocks
+an otherwise passing postflight. Store only the selected safe JSON in the
+existing task-owned evidence record when that write is approved.
 
 Integration requires matching pre/postflight `plan_digest`, postflight `PASS`,
 unchanged frozen contract and separate owner/side-effect approvals. A feature

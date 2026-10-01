@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 import subprocess
@@ -142,6 +143,111 @@ def test_clean_single_commit_passes_and_matches_preflight_digest(tmp_path: Path)
     assert result["central_authority_changed"] is False
     assert result["authorization_status"] == "NOT_AUTHENTICATED"
     assert result["performed_actions"] == []
+    assert "task_evidence" not in result
+    assert postflight.text_summary(result) == (
+        "status=PASS task=feature-a changed=1 untracked=0 commits=1 reasons=NONE"
+    )
+
+
+@pytest.mark.parametrize("summary_status", ["PASS", "FAIL"])
+def test_opt_in_closeout_invokes_summary_and_retains_pending_target_state(tmp_path: Path, monkeypatch, summary_status) -> None:
+    from scripts import task_evidence_summary
+    repo, base_sha = init_repo(tmp_path)
+    payload = package(base_sha)
+    package_path = write_package(repo, payload)
+    commit_file(repo, "feature.txt", "feature\n")
+    calls = []
+    def inspect_summary(spec, **kwargs):
+        calls.append((spec, kwargs))
+        return {"status": summary_status, "state": {"completion": False,
+            "candidate_binding": "BOUND", "counts": {"completed": 0, "pending": 1, "unknown": 1},
+            "gates": {"build": "PENDING", "review": "UNKNOWN"},
+            "next_action": "TARGET_OWNER_COMPLETE_PENDING_GATES"}, "performed_actions": []}
+    monkeypatch.setattr(task_evidence_summary, "inspect_summary", inspect_summary)
+    result = postflight.inspect_postflight([package_path], task_id="feature-a",
+        verification_status="PASS", verification_interpreter_id=payload["verification_contract"]["interpreter_id"],
+        completed_command_ids=["focused_pytest"], repo_root=repo,
+        task_evidence_spec="local/state-spec.json", task_evidence_input_root=tmp_path / "target")
+    assert calls == [("local/state-spec.json", {"spec_root": repo, "input_root": tmp_path / "target", "runtime_root": None})]
+    assert result["status"] == ("PASS" if summary_status == "PASS" else "BLOCKED")
+    assert result["task_evidence"]["state"]["completion"] is False
+    assert ("TASK_EVIDENCE_INVALID" in result["reason_codes"]) == (summary_status != "PASS")
+    text = postflight.text_summary(result)
+    assert text.splitlines()[1] == "task_evidence " + task_evidence_summary.text_summary(result["task_evidence"])
+    assert "pending=build pending_omitted=0 unknown=review unknown_omitted=0" in text
+    assert str(tmp_path) not in text
+
+
+@pytest.mark.parametrize("json_mode", [False, True])
+@pytest.mark.parametrize(("gate_state", "next_action", "exit_code"), [
+    ("PASS", "TARGET_OWNER_REVIEW_COMPLETION", 0),
+    ("UNKNOWN", "TARGET_OWNER_RESOLVE_UNKNOWN_GATES", 0),
+    ("mismatch", "RESOLVE_EVIDENCE_MISMATCHES", 1),
+])
+def test_native_closeout_hook_projects_actual_state_without_runtime(
+    tmp_path: Path, json_mode: bool, gate_state: str, next_action: str, exit_code: int,
+) -> None:
+    repo, base_sha = init_repo(tmp_path)
+    payload = package(base_sha)
+    package_path = write_package(repo, payload)
+    commit_file(repo, "feature.txt", "feature\n")
+    target = tmp_path / "target"
+    target.mkdir()
+    private = "PRIVATE_BODY_MUST_NOT_APPEAR"
+    write_text(target, "evidence/artifact.json", json.dumps({"private": private}))
+    artifact_sha = hashlib.sha256((target / "evidence/artifact.json").read_bytes()).hexdigest()
+    state = {"gates": {"build": "UNKNOWN" if gate_state == "UNKNOWN" else "PASS"},
+             "evidence": [{"path": "artifact.json", "sha256": artifact_sha}], "private": private}
+    write_text(target, "state.json", json.dumps(state))
+    state_sha = hashlib.sha256((target / "state.json").read_bytes()).hexdigest()
+    spec = {"schema_version": "1", "state": {"path": "state.json", "sha256": state_sha, "pointer": []},
+        "evidence": {"root": "evidence", "pointer": ["evidence"]}, "identities": [], "links": [],
+        "candidate": {"path": "evidence/artifact.json", "sha256": "b" * 64 if gate_state == "mismatch" else artifact_sha},
+        "gates": [{"id": "build", "pointer": ["gates", "build"],
+            "states": {"completed": ["PASS"], "pending": ["HOLD"], "unknown": ["UNKNOWN"]},
+            "proofs": ["evidence/artifact.json"]}], "history": [], "runtime": []}
+    write_text(repo, "local/state-spec.json", json.dumps(spec))
+    before = {str(p.relative_to(target)): p.read_bytes() for p in target.rglob("*") if p.is_file()}
+    args = [sys.executable, "-B", str(Path(postflight.__file__)), "--repo-root", str(repo),
+        "--package", package_path, "--task-id", "feature-a", "--verification-status", "PASS",
+        "--verification-interpreter-id", payload["verification_contract"]["interpreter_id"],
+        "--completed-command-id", "focused_pytest"]
+    if gate_state == "PASS" and not json_mode:
+        legacy = subprocess.run(args, capture_output=True, check=False, timeout=30)
+        assert legacy.returncode == 0 and not legacy.stderr
+        assert legacy.stdout.decode().splitlines() == [
+            "status=PASS task=feature-a changed=1 untracked=0 commits=1 reasons=NONE"]
+    args += ["--task-evidence-spec", "local/state-spec.json", "--task-evidence-input-root", str(target)]
+    if json_mode:
+        args.append("--json")
+    completed = subprocess.run(args, capture_output=True, check=False, timeout=30)
+    assert completed.returncode == exit_code and not completed.stderr
+    assert private.encode() not in completed.stdout and str(tmp_path).encode() not in completed.stdout
+    assert len(completed.stdout) <= postflight.MAX_OUTPUT_BYTES
+    if json_mode:
+        report = json.loads(completed.stdout)
+        evidence = report["task_evidence"]
+        assert report["status"] == ("BLOCKED" if exit_code else "PASS")
+        assert report["authorization_status"] == evidence["authorization_status"] == "NOT_AUTHENTICATED"
+        assert evidence["state"]["next_action"] == next_action
+        assert evidence["state"]["completion"] is (gate_state == "PASS")
+        assert evidence["usage"] == [] and evidence["usage_totals"] is None
+        assert evidence["performed_actions"] == []
+    else:
+        assert len(completed.stdout.splitlines()) == 2
+        assert f"next_action={next_action}".encode() in completed.stdout
+        assert f"completion={gate_state == 'PASS'}".encode() in completed.stdout
+        if gate_state == "UNKNOWN":
+            assert b"unknown=build unknown_omitted=0" in completed.stdout
+        assert b"usage" not in completed.stdout and b"tokens" not in completed.stdout
+    assert before == {str(p.relative_to(target)): p.read_bytes() for p in target.rglob("*") if p.is_file()}
+
+
+def test_incomplete_closeout_arguments_fail_before_observation(monkeypatch) -> None:
+    monkeypatch.setattr(postflight, "observe_repository", lambda *a: pytest.fail("unexpected observation"))
+    result = postflight.inspect_postflight([], task_id="feature-a", verification_status="PASS",
+        verification_interpreter_id="synthetic", completed_command_ids=[], task_evidence_spec="state.json")
+    assert result["reason_codes"] == ["TASK_EVIDENCE_ARGUMENTS_INVALID"]
 
 
 def test_changed_path_outside_write_set_is_blocked(tmp_path: Path) -> None:
@@ -631,6 +737,45 @@ def test_native_json_exit_matches_pass_origin_envelope(oversized: bool) -> None:
         assert report["reason_codes"] == []
         assert report["actual_surface"]["changed_paths"] == ["generated/0000.txt"]
         assert completed.returncode == 0
+
+
+@pytest.mark.parametrize("json_mode", [False, True])
+@pytest.mark.parametrize("oversized", [False, True])
+def test_native_closeout_size_limit_owns_text_and_json_exit(json_mode: bool, oversized: bool) -> None:
+    count = 2000 if oversized else 1
+    driver = (
+        "from scripts import work_package_postflight as checker\n"
+        "result = checker.base_result()\n"
+        "result['status'] = 'PASS'\n"
+        "result['task_evidence'] = {'status': 'PASS', 'state': {'candidate_binding': 'BOUND', "
+        "'completion': True, 'counts': {'completed': 1, 'pending': 0, 'unknown': 0}, "
+        "'gates': {'build': 'COMPLETED'}, 'next_action': 'TARGET_OWNER_REVIEW_COMPLETION'}, "
+        f"'usage': ['PRIVATE_BODY_MUST_NOT_APPEAR' * {count}]}}\n"
+        "checker.inspect_postflight = lambda *args, **kwargs: result\n"
+        "args = ['--package', 'synthetic.json', '--task-id', 'synthetic', "
+        "'--verification-status', 'PASS', '--verification-interpreter-id', 'synthetic-python']\n"
+        f"args += {['--json'] if json_mode else []!r}\n"
+        "raise SystemExit(checker.main(args))\n"
+    )
+    completed = subprocess.run([sys.executable, "-B", "-c", driver], cwd=REPO_ROOT,
+                               capture_output=True, check=False, timeout=30)
+    assert not completed.stderr and len(completed.stdout) <= postflight.MAX_OUTPUT_BYTES
+    assert completed.returncode == (1 if oversized else 0)
+    if json_mode:
+        report = json.loads(completed.stdout)
+        assert report["status"] == ("FAIL" if oversized else "PASS")
+        if oversized:
+            assert report["reason_codes"] == ["OUTPUT_TOO_LARGE"]
+            assert "task_evidence" not in report
+    else:
+        assert b"PRIVATE_BODY_MUST_NOT_APPEAR" not in completed.stdout
+        assert b"status=FAIL" in completed.stdout if oversized else b"status=PASS" in completed.stdout
+        if oversized:
+            assert b"reasons=OUTPUT_TOO_LARGE" in completed.stdout
+            assert len(completed.stdout.splitlines()) == 1
+        else:
+            assert b"task_evidence status=PASS candidate_binding=BOUND completion=True" in completed.stdout
+            assert len(completed.stdout.splitlines()) == 2
 
 
 @pytest.mark.parametrize(

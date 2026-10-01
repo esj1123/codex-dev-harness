@@ -22,7 +22,43 @@ later working tree, ref, remote, or Hosted run still has that value.
 
 ## NOW
 
-Current action: `BOUNDARY-FIX ADOPTION AND HOSTED V3 CLOSEOUT COMPLETE`.
+Current action: `LOCAL CLOSEOUT INTEGRATION AND DIGEST RECONCILIATION`.
+
+The owner-authorized local integration reuses reviewed candidate
+`faecf51be5febce1d12f5a2ca6126b87d36e7363` from local main base
+`4adb251ef42ab6edfbd49bb971cc05f2ac498cc3`, including its predecessor changes.
+It preserves the user's matching AGENTS policy and aligns current operation
+and handoff documentation. Source integration and the same 34-source corpus
+digest refresh are separate local commits. Exact final SHA, independent review,
+new cumulative V2 and Full results, source-basis metadata, preservation checks
+and postflights are recorded in
+`local/checkpoints/evidence-closeout-main-20261001/closeout.json`.
+Until that receipt records PASS, the integration verification remains pending.
+This local checkpoint has no successor remote, Hosted, release or target scope.
+
+The selected follow-up improves concise state/evidence decisions and
+keeps usage accounting optional for improvement evaluation. It distinguishes
+missing/unbound candidates, pending gates and unknown gates without changing
+completion or authority boundaries. Existing verification may be reused only
+within matching candidate/input, runtime/command and acceptance scope; required
+cumulative integration checks remain mandatory. No accounting collector,
+automatic execution, background service or target-domain behavior is added.
+
+The integration owner has selected bounded read-only state/evidence projection
+and optional streaming runtime usage accounting for Launchpad's observed repeated
+evidence selection and manual counter-subtraction blocker. The target owner
+reconciles current inputs before Harness implementation. The scoped executable
+is `scripts/task_evidence_summary.py`; an explicitly supplied closeout spec
+connects it to `scripts/work_package_postflight.py`. Target adapters supply
+state meaning, exact inputs and candidate/receipt bindings. Inspection PASS
+means evidence consistency; it does not grant target completion, authorization,
+Harness adoption, Office execution or release. Candidate, independent review,
+local integration and exact-SHA handoff evidence stay in the
+selected task's ignored checkpoint. Measurement remains NOT_MEASURED unless
+separately selected for evaluation. Use
+`docs/LOCAL_USAGE.md#bounded-closeout-state-and-usage` for compatibility and
+the opt-in call contract. Existing callers and work-package schema v3 remain
+unchanged. The completed boundary-fix/Hosted sequence below remains historical.
 
 The earlier `POST-H4R3 LOCAL CLOSEOUT COMPLETE` state remains historical
 checkpoint context. Preserve the completed authority reconciliation, separate
@@ -60,7 +96,14 @@ promotion, or adoption. Do not merge the proposal as an implied successor.
 ## NEXT
 
 The post-H4R3 local sequence is closed. The boundary-fix adoption/push/Hosted
-sequence is also closed. No additional implementation capability is selected.
+sequence is also closed. The separately requested local closeout mechanization
+package above is selected for the demonstrated Launchpad blocker. Its exact candidate must
+complete independent review and cumulative local verification before the
+target owner evaluates compatibility and changes its pin/caller. Target
+adoption and actual REQ completion remain separately owned checkpoints.
+The bounded follow-up above addresses the observed ambiguous next-action
+guidance and repeated detailed-output inspection. No additional implementation
+capability is selected beyond this bounded package.
 A new Harness package requires a P0 safety or authority defect, an actual target
 blocker, the same gap in two targets, or evidence that a verifier produced an
 incorrect PASS or FAIL. Select an exact work package under fresh authority and

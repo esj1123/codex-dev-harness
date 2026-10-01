@@ -208,8 +208,15 @@ def inspect_postflight(
     completed_command_ids: list[str],
     repo_root: Path = REPO_ROOT,
     package_root: Path | None = None,
+    task_evidence_spec: str | None = None,
+    task_evidence_input_root: Path | None = None,
+    task_evidence_runtime_root: Path | None = None,
 ) -> dict[str, Any]:
     result = base_result()
+    if (bool(task_evidence_spec) != (task_evidence_input_root is not None)
+            or task_evidence_runtime_root is not None and not task_evidence_spec):
+        result["reason_codes"] = ["TASK_EVIDENCE_ARGUMENTS_INVALID"]
+        return result
     result["verification"]["status"] = verification_status
     if verification_status not in VERIFICATION_STATUSES:
         result["reason_codes"] = ["VERIFICATION_STATUS_INVALID"]
@@ -354,6 +361,20 @@ def inspect_postflight(
     else:
         result["status"] = "PASS"
     result["reason_codes"] = sorted(reasons)
+    if task_evidence_spec is not None:
+        try:
+            from scripts.task_evidence_summary import inspect_summary
+        except ImportError:  # direct script execution
+            from task_evidence_summary import inspect_summary
+        summary = inspect_summary(task_evidence_spec,
+            spec_root=package_root if package_root is not None else repo_root,
+            input_root=task_evidence_input_root,
+            runtime_root=task_evidence_runtime_root)
+        result["task_evidence"] = summary
+        if summary["status"] != "PASS":
+            result["reason_codes"] = sorted({*result["reason_codes"], "TASK_EVIDENCE_INVALID"})
+            if result["status"] == "PASS":
+                result["status"] = "BLOCKED"
     return result
 
 
@@ -378,11 +399,18 @@ def safe_output_bytes(result: dict[str, Any]) -> bytes:
 def text_summary(result: dict[str, Any]) -> str:
     reasons = ",".join(result["reason_codes"]) or "NONE"
     actual = result["actual_surface"]
-    return (
+    text = (
         f"status={result['status']} task={result['task_id'] or 'NONE'} "
         f"changed={len(actual['changed_paths'])} untracked={len(actual['untracked_paths'])} "
         f"commits={actual['commit_count']} reasons={reasons}"
     )
+    if "task_evidence" in result:
+        try:
+            from scripts.task_evidence_summary import text_summary as evidence_text_summary
+        except ImportError:  # direct script execution
+            from task_evidence_summary import text_summary as evidence_text_summary
+        text += "\ntask_evidence " + evidence_text_summary(result["task_evidence"])
+    return text
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -403,6 +431,9 @@ def build_parser() -> argparse.ArgumentParser:
         help="Completed verification command ID; repeat for each command",
     )
     parser.add_argument("--json", action="store_true", help="Emit bounded deterministic JSON")
+    parser.add_argument("--task-evidence-spec", help="Package-root-relative closeout input spec")
+    parser.add_argument("--task-evidence-input-root", help="Explicit physical target evidence root")
+    parser.add_argument("--task-evidence-runtime-root", help="Explicit physical runtime log root")
     return parser
 
 
@@ -416,6 +447,9 @@ def main(argv: list[str] | None = None) -> int:
         completed_command_ids=args.completed_command_id,
         repo_root=Path(args.repo_root),
         package_root=Path(args.package_root) if args.package_root else None,
+        task_evidence_spec=args.task_evidence_spec,
+        task_evidence_input_root=Path(args.task_evidence_input_root) if args.task_evidence_input_root else None,
+        task_evidence_runtime_root=Path(args.task_evidence_runtime_root) if args.task_evidence_runtime_root else None,
     )
     if args.json:
         payload = safe_output_bytes(result)
@@ -423,6 +457,8 @@ def main(argv: list[str] | None = None) -> int:
         # The emitted envelope, including a size-limit fallback, owns the exit.
         return 0 if json.loads(payload)["status"] == "PASS" else 1
     else:
+        if "task_evidence" in result:
+            result = json.loads(safe_output_bytes(result))
         print(text_summary(result))
     return 0 if result["status"] == "PASS" else 1
 
