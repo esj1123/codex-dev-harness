@@ -25,13 +25,13 @@ def make_ready_repo(root: Path) -> None:
     write(root / ".gitignore", ".env\n")
 
 
-def test_ready_repo_scores_ready(tmp_path: Path) -> None:
+def test_fully_recognized_repo_reports_coverage(tmp_path: Path) -> None:
     make_ready_repo(tmp_path)
 
     result = scanner.scan_target(tmp_path)
 
     assert result.score == 16
-    assert result.result == "READY_FOR_AI_ASSISTED_WORK"
+    assert result.result == "RECOGNIZED_EVIDENCE_COMPLETE"
     assert not [dimension for dimension in result.dimensions if dimension.status == "INSUFFICIENT_EVIDENCE"]
 
 
@@ -44,7 +44,7 @@ def test_missing_agents_reports_insufficient_evidence(tmp_path: Path) -> None:
     ai_rules = next(dimension for dimension in result.dimensions if dimension.name == "AI operating rules")
     assert ai_rules.score == 0
     assert ai_rules.status == "INSUFFICIENT_EVIDENCE"
-    assert any("AGENTS.md missing" in item for item in ai_rules.evidence)
+    assert any("AGENTS.md not recognized in inspected paths" in item for item in ai_rules.evidence)
 
 
 def test_missing_safety_policy_reports_insufficient_evidence(tmp_path: Path) -> None:
@@ -56,7 +56,7 @@ def test_missing_safety_policy_reports_insufficient_evidence(tmp_path: Path) -> 
     safety = next(dimension for dimension in result.dimensions if dimension.name == "Safety boundary")
     assert safety.score == 0
     assert safety.status == "INSUFFICIENT_EVIDENCE"
-    assert "safety policy missing" in safety.evidence
+    assert "safety policy not recognized in inspected paths" in safety.evidence
 
 
 def test_high_risk_domain_path_names_are_flagged(tmp_path: Path) -> None:
@@ -101,7 +101,7 @@ def test_json_output_is_valid(tmp_path: Path) -> None:
 
     assert payload[0]["target"] == str(tmp_path.resolve())
     assert payload[0]["score"] == 16
-    assert payload[0]["result"] == "READY_FOR_AI_ASSISTED_WORK"
+    assert payload[0]["result"] == "RECOGNIZED_EVIDENCE_COMPLETE"
 
 
 def test_markdown_output_contains_korean_report_sections(tmp_path: Path) -> None:
@@ -286,7 +286,7 @@ def test_blocked_links_are_not_score_or_inspected_evidence(
         tests = dimensions["Tests or smoke checks"]
         verification = dimensions["Verification script"]
         assert (tests.score, tests.status) == (0, "INSUFFICIENT_EVIDENCE")
-        assert tests.evidence == ["tests or smoke checks missing"]
+        assert tests.evidence == ["tests or smoke checks not recognized in inspected paths"]
         assert (verification.score, verification.status) == (1, "PARTIAL")
         assert verification.evidence == ["verification doc present"]
         assert dimensions["Safety boundary"].status == "INSUFFICIENT_EVIDENCE"
@@ -341,7 +341,7 @@ def test_normal_empty_tests_directory_and_policy_evidence_are_preserved(tmp_path
     assert scanner.has_dir(tmp_path, "tests") is True
     assert skipped == result.skipped_paths == []
     assert result.score == 16
-    assert result.result == "READY_FOR_AI_ASSISTED_WORK"
+    assert result.result == "RECOGNIZED_EVIDENCE_COMPLETE"
     assert all(item.status == "PASS" for item in result.dimensions)
     assert result.inspected_paths == sorted([
         "README.md", "AGENTS.md", "STATUS.md", "ACCEPTANCE_TRACE.md",
@@ -384,3 +384,45 @@ def test_unavailable_entries_are_not_score_or_inspected_evidence(
             dimensions["Verification script"].status) == (1, "PARTIAL")
     assert result.inspected_paths == ["docs/VERIFICATION.md"]
     assert _synthetic_tree_snapshot(target) == before
+
+
+@pytest.mark.parametrize("score,status,expected", [
+    (16, "PASS", "RECOGNIZED_EVIDENCE_COMPLETE"),
+    (8, "PARTIAL", "RECOGNIZED_EVIDENCE_PARTIAL"),
+    (0, "INSUFFICIENT_EVIDENCE", "INSUFFICIENT_EVIDENCE"),
+])
+def test_aggregate_reports_coverage_not_permission(score, status, expected) -> None:
+    dimensions = [scanner.ScoreDimension(str(i), score // 8, status, []) for i in range(8)]
+    assert scanner.interpret_score(score, dimensions) == expected
+
+
+def test_high_score_does_not_hide_unrecognized_dimension(tmp_path: Path) -> None:
+    make_ready_repo(tmp_path)
+    (tmp_path / "AGENTS.md").rename(tmp_path / "WORKING_RULES.md")
+    result = scanner.scan_target(tmp_path)
+    assert result.score == 14
+    assert result.result == "INSUFFICIENT_EVIDENCE"
+
+
+def test_equivalent_documents_under_other_names_are_unconfirmed_not_deficient(tmp_path: Path) -> None:
+    make_ready_repo(tmp_path)
+    for source, destination in [
+        ("AGENTS.md", "WORKING_RULES.md"),
+        ("docs/SAFETY_POLICY.md", "docs/SAFETY_BOUNDARY.md"),
+        ("ACCEPTANCE_TRACE.md", "acceptance-record.md"),
+        ("scripts/quality_gate.py", "scripts/repo.ps1"),
+    ]:
+        (tmp_path / source).rename(tmp_path / destination)
+
+    result = scanner.scan_target(tmp_path)
+    markdown = scanner.result_to_markdown(result)
+    payload = json.loads(scanner.results_to_json([result]))[0]
+
+    assert result.score < 16
+    assert result.result == payload["result"] == "INSUFFICIENT_EVIDENCE"
+    assert "미인식은 결핍을 뜻하지 않으며" in markdown
+    assert "부족 항목을 문서" not in markdown
+    for verdict in ("NEEDS_DOCUMENTATION_OR_HARNESS_IMPROVEMENT", "HOLD_BEFORE_AI_ASSISTED_WORK",
+                    "LIMITED_AI_ASSISTED_WORK_ALLOWED", "READY_FOR_AI_ASSISTED_WORK"):
+        assert verdict not in markdown
+        assert verdict not in scanner.results_to_json([result])

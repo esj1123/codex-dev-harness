@@ -351,12 +351,13 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
     trace = Path("ACCEPTANCE_TRACE.md").read_text(encoding="utf-8")
     normalized_status = " ".join(status.split())
     normalized_checklist = " ".join(checklist.split())
-    held_marker = "\n## HELD\n"
+    safety = Path("docs/SAFETY_POLICY.md").read_text(encoding="utf-8")
+    held_marker = "\n## Harness Maintenance Boundaries\n"
     next_step_marker = "\n## NEXT\n"
-    assert status.count(held_marker) == 1
+    assert safety.count(held_marker) == 1
     assert status.count(next_step_marker) == 1
     normalized_held = " ".join(
-        status.split(held_marker, 1)[1].split("\n## ", 1)[0].split()
+        safety.split(held_marker, 1)[1].split("\n## ", 1)[0].split()
     )
     normalized_next_step = " ".join(
         status.split(next_step_marker, 1)[1].split("\n## ", 1)[0].split()
@@ -373,10 +374,7 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
         "Current State",
         "NOW",
         "NEXT",
-        "HELD",
         "Operational Capability Status",
-        "Implemented Control Surface",
-        "Verification Model",
     ]
     assert [
         line[3:] for line in status.splitlines() if line.startswith("## ")
@@ -389,11 +387,13 @@ def test_operational_docs_match_current_core_and_release_state() -> None:
         "\n## Operational Capability Status\n", 1
     )[1].split("\n## ", 1)[0]
     assert "completed observations, not self-updating local or remote refs" in current_state
-    assert "AQ-R5K structural `LOCAL_INTEGRATION (V2)`" in now_section
-    assert "`FROZEN / NOT_ADOPTED` under `REDESIGN_BEFORE_TRIAL`" in now_section
-    assert "Earlier HOLDs remain historical HOLDs" in now_section
-    assert "post-H4R3 local sequence is closed" in next_section
-    assert "No additional implementation capability is selected" in normalized_next_step
+    workflow_history = trace.split("### Workflow Guidance And Local Verification Checkpoints (2026-10-05)", 1)[1]
+    assert "AQ-R5K structural `LOCAL_INTEGRATION (V2)`" in workflow_history
+    assert "`FROZEN / NOT_ADOPTED` under `REDESIGN_BEFORE_TRIAL`" in workflow_history
+    assert "Earlier HOLDs remain historical HOLDs" in workflow_history
+    assert now_section.strip()
+    assert next_section.strip()
+    assert "A progress edit cannot change authority" in current_state
     for held_boundary in [
         "Remote fetch/push",
         "Hosted workflow execution",

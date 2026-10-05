@@ -211,7 +211,7 @@ def has_dir(root: Path, relative: str) -> bool:
 
 def score_purpose(root: Path) -> ScoreDimension:
     if not has_file(root, "README.md"):
-        return ScoreDimension("Purpose clarity", 0, "INSUFFICIENT_EVIDENCE", ["README.md missing"])
+        return ScoreDimension("Purpose clarity", 0, "INSUFFICIENT_EVIDENCE", ["README.md not recognized in inspected paths"])
     text = safe_read_text(root, "README.md")
     if contains_any(text, ("purpose", "goal", "overview", "current state", "project")):
         return ScoreDimension("Purpose clarity", 2, "PASS", ["README.md present with purpose-like language"])
@@ -220,7 +220,7 @@ def score_purpose(root: Path) -> ScoreDimension:
 
 def score_ai_rules(root: Path) -> ScoreDimension:
     if not has_file(root, "AGENTS.md"):
-        return ScoreDimension("AI operating rules", 0, "INSUFFICIENT_EVIDENCE", ["AGENTS.md missing"])
+        return ScoreDimension("AI operating rules", 0, "INSUFFICIENT_EVIDENCE", ["AGENTS.md not recognized in inspected paths"])
     text = safe_read_text(root, "AGENTS.md")
     if contains_any(text, ("read-only", "side effect", "scope", "verification", "no-touch")):
         return ScoreDimension("AI operating rules", 2, "PASS", ["AGENTS.md present with operating-boundary language"])
@@ -231,7 +231,7 @@ def score_safety(root: Path) -> ScoreDimension:
     candidates = ["docs/SAFETY_POLICY.md", "SAFETY_POLICY.md", "SAFETY_POLICY.profile.md"]
     present = [path for path in candidates if has_file(root, path)]
     if not present:
-        return ScoreDimension("Safety boundary", 0, "INSUFFICIENT_EVIDENCE", ["safety policy missing"])
+        return ScoreDimension("Safety boundary", 0, "INSUFFICIENT_EVIDENCE", ["safety policy not recognized in inspected paths"])
     text = "\n".join(safe_read_text(root, path) for path in present)
     if contains_any(text, ("side effect", "read-only", "private data", "secret", "live target", "prohibited")):
         return ScoreDimension("Safety boundary", 2, "PASS", [f"{present[0]} present with safety-boundary language"])
@@ -254,7 +254,7 @@ def score_verification(root: Path, path_texts: list[str]) -> ScoreDimension:
     if has_verification_doc or script_hits:
         evidence = "verification doc present" if has_verification_doc else "local verification script name present"
         return ScoreDimension("Verification script", 1, "PARTIAL", [evidence])
-    return ScoreDimension("Verification script", 0, "INSUFFICIENT_EVIDENCE", ["verification surface missing"])
+    return ScoreDimension("Verification script", 0, "INSUFFICIENT_EVIDENCE", ["verification surface not recognized in inspected paths"])
 
 
 def score_tests(path_texts: list[str]) -> ScoreDimension:
@@ -264,7 +264,7 @@ def score_tests(path_texts: list[str]) -> ScoreDimension:
             return ScoreDimension("Tests or smoke checks", 2, "PASS", ["tests or smoke check paths present"])
     if hits:
         return ScoreDimension("Tests or smoke checks", 1, "PARTIAL", ["test or smoke indicator present"])
-    return ScoreDimension("Tests or smoke checks", 0, "INSUFFICIENT_EVIDENCE", ["tests or smoke checks missing"])
+    return ScoreDimension("Tests or smoke checks", 0, "INSUFFICIENT_EVIDENCE", ["tests or smoke checks not recognized in inspected paths"])
 
 
 def score_private_data(root: Path) -> ScoreDimension:
@@ -273,7 +273,7 @@ def score_private_data(root: Path) -> ScoreDimension:
         return ScoreDimension("Private data protection", 2, "PASS", ["private-data protection language present"])
     if has_file(root, ".gitignore"):
         return ScoreDimension("Private data protection", 1, "PARTIAL", [".gitignore present"])
-    return ScoreDimension("Private data protection", 0, "INSUFFICIENT_EVIDENCE", ["private-data protection evidence missing"])
+    return ScoreDimension("Private data protection", 0, "INSUFFICIENT_EVIDENCE", ["private-data protection evidence not recognized in inspected text"])
 
 
 def score_acceptance(root: Path) -> ScoreDimension:
@@ -282,14 +282,14 @@ def score_acceptance(root: Path) -> ScoreDimension:
         if contains_any(text, ("evidence", "pass", "fail", "not run", "acceptance")):
             return ScoreDimension("Acceptance trace or evidence discipline", 2, "PASS", ["ACCEPTANCE_TRACE.md present with evidence language"])
         return ScoreDimension("Acceptance trace or evidence discipline", 1, "PARTIAL", ["ACCEPTANCE_TRACE.md present"])
-    return ScoreDimension("Acceptance trace or evidence discipline", 0, "INSUFFICIENT_EVIDENCE", ["acceptance trace missing"])
+    return ScoreDimension("Acceptance trace or evidence discipline", 0, "INSUFFICIENT_EVIDENCE", ["acceptance trace not recognized in inspected paths"])
 
 
 def score_next_action(root: Path) -> ScoreDimension:
     candidates = ["STATUS.md", "docs/AI_HANDOFF.md", "AI_HANDOFF.md"]
     present = [path for path in candidates if has_file(root, path)]
     if not present:
-        return ScoreDimension("Next action clarity", 0, "INSUFFICIENT_EVIDENCE", ["status or handoff document missing"])
+        return ScoreDimension("Next action clarity", 0, "INSUFFICIENT_EVIDENCE", ["status or handoff document not recognized in inspected paths"])
     text = "\n".join(safe_read_text(root, path) for path in present)
     if contains_any(text, ("next", "current phase", "current state", "recommended", "todo")):
         return ScoreDimension("Next action clarity", 2, "PASS", ["status or handoff document includes next-action language"])
@@ -297,15 +297,13 @@ def score_next_action(root: Path) -> ScoreDimension:
 
 
 def interpret_score(score: int, dimensions: list[ScoreDimension]) -> str:
-    if any(dimension.status == "INSUFFICIENT_EVIDENCE" for dimension in dimensions) and score == 0:
+    # Fixed names/keywords can miss equivalent project evidence. Coverage is
+    # observable here; deficiency, readiness and work permission are not.
+    if not dimensions or any(d.status == "INSUFFICIENT_EVIDENCE" for d in dimensions):
         return "INSUFFICIENT_EVIDENCE"
-    if score >= 13:
-        return "READY_FOR_AI_ASSISTED_WORK"
-    if score >= 9:
-        return "LIMITED_AI_ASSISTED_WORK_ALLOWED"
-    if score >= 5:
-        return "NEEDS_DOCUMENTATION_OR_HARNESS_IMPROVEMENT"
-    return "HOLD_BEFORE_AI_ASSISTED_WORK"
+    if score == 16 and all(d.status == "PASS" for d in dimensions):
+        return "RECOGNIZED_EVIDENCE_COMPLETE"
+    return "RECOGNIZED_EVIDENCE_PARTIAL"
 
 
 def collect_risk_flags(root: Path, paths: list[Path]) -> list[RiskFlag]:
@@ -377,8 +375,9 @@ def result_to_markdown(result: ScanResult) -> str:
         "## 결론",
         "",
         f"- 대상: `{result.target}`",
-        f"- 판정: `{result.result}`",
-        f"- 총점: {result.score}/16",
+        f"- 근거 인식 상태: `{result.result}`",
+        f"- 인식 점수: {result.score}/16",
+        "- 고정 파일명·키워드로 인식한 범위입니다. 미인식은 결핍을 뜻하지 않으며, 이 결과는 작업 허용·보류 판정이 아닙니다.",
         "",
         "## 근거",
         "",
@@ -413,7 +412,7 @@ def result_to_markdown(result: ScanResult) -> str:
         evidence = "; ".join(dimension.evidence)
         lines.append(f"| {dimension.name} | {dimension.score}/2 | {evidence} | {dimension.status} |")
 
-    lines.extend(["", "## 부족 항목", ""])
+    lines.extend(["", "## 미확인 또는 부분 인식 항목", ""])
     if result.findings:
         for finding in result.findings:
             lines.append(f"- {finding}")
@@ -423,9 +422,9 @@ def result_to_markdown(result: ScanResult) -> str:
     lines.extend(["", "## 다음 작업 우선순위", ""])
     lines.extend(
         [
-            "1. 부족 항목을 문서 또는 로컬 검증 표면으로 보강합니다.",
-            "2. 도메인 리스크 플래그가 있으면 승인 경계와 no-touch 영역을 명확히 합니다.",
-            "3. AI-assisted work 전에 작은 배치의 읽기 전용 계획을 먼저 작성합니다.",
+            "1. 미인식 항목은 프로젝트의 기존 문서·검증 경로에서 먼저 확인합니다.",
+            "2. 인식 점수만으로 문서를 새로 만들거나 작업을 허용·보류하지 않습니다.",
+            "3. 실제 결핍이나 위험이 확인된 경우에만 해당 프로젝트 규칙에 따라 처리합니다.",
         ]
     )
 

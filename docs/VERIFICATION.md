@@ -26,11 +26,52 @@ label, or absence of runtime-code changes waives a required check. Reuse prior
 results only within their recorded candidate, input, command, runtime, and
 acceptance scope; run the required cumulative checks for a new candidate.
 
+### Completion Reports And Change Impact
+
+Reporting form and verification level are separate decisions. Use this table
+for the report; choose the checks from the actual change impact below it.
+
+| Work form | Completion report |
+|---|---|
+| Read-only discussion or review | Answer with relevant evidence and uncertainty; no receipt file or tests solely for discussion. |
+| Uncommitted document or skill edit | Report changed files, checks performed and unresolved items in the answer; no closeout JSON or postflight. |
+| Committed integration | Retain the applicable integration/package and cumulative verification procedure. |
+| Deployment or release | Retain the separately authorized deployment/release procedure. |
+
+An uncommitted policy edit can still require V2; a lightweight report does not
+lower its checks. A single-writer maintenance task may use an existing short
+Markdown record when continuity is useful, without creating a JSON package,
+postflight or duplicate receipts just to report completion. Existing selected
+package contracts still apply; this does not change their schema or checker.
+
+Existing skill bodies/references and STATUS progress-only updates use V1
+focused checks. For prose, inspect the changed content and applicable links;
+pytest is only needed for affected executable behavior or a relevant gate.
+The Routine wrapper is optional broader feedback, not a prerequisite for V1.
+New or removed skill entrypoints (including renames), skill registration and
+central policy changes require V2 integration. Changes to authority, safety or
+verification contracts remain V2 even when they are Markdown or uncommitted.
+The path planner is advisory: a policy change disguised as progress or ordinary
+guidance must be placed in its policy owner and evaluated at V2.
+
+STATUS contains current observations and next work only. Its machine state is
+checked against the manifest; approval/hold meaning belongs in AGENTS, the
+manifest or SAFETY_POLICY, and verification meaning in this document. These
+owners remain V2 paths. No content classifier guesses whether a STATUS sentence
+grants permission.
+
+Independent review of Harness maintenance is the default for changes to scripts,
+gates, schemas or authority meaning, and whenever the user or project requires
+it. These are examples, not a closed risk list: consider consequence, affected
+interfaces and unresolved uncertainty. A stage label alone neither requires
+nor exempts a review. Ordinary progress and skill prose edits use author
+self-checks unless their actual risk calls for independent review.
+
 ### Tier Contract
 
 | Machine ID | Semantic name | Required evidence |
 |---|---|---|
-| `V0` | `CONTRACT_SCOPE` | Work-package validation, base-SHA and allowed-file review, and `git diff --check`. |
+| `V0` | `CONTRACT_SCOPE` | Applicable work-package validation, base-SHA and allowed-file review, and `git diff --check` (package validation applies only when a package is required). |
 | `V1` | `FOCUSED_FEATURE` | `CONTRACT_SCOPE (V0)` plus focused verification for the declared change. |
 | `V2` | `LOCAL_INTEGRATION` | Core pytest, no-report standalone eval, all core quality gates, and every impact-required extra. |
 | `V3` | `HOSTED_EXACT_SHA` | One approved push and one successful GitHub `verify` run bound to the final exact SHA. |
@@ -40,6 +81,12 @@ Machine-readable work packages continue to use only `V0`, `V1`, `V2`, or
 they do not replace or migrate those enum values. Work-package schema versions,
 release provenance schemas, and Agent Quality run schemas are separate
 namespaces and do not imply a verification tier.
+
+Planner command IDs describe the package command contract. Without an applicable
+package, `work_package_preflight` is not applicable; do not create a package to
+execute that placeholder. Retain scope/base review, diff checks and the
+impact-selected content or executable checks. Selected package checks remain
+mandatory for their own contract.
 
 The tier identifier is not a product-version sequence. Verification work has
 four independent attributes: scope (`focused`, `integration`, or `extended`),
@@ -361,8 +408,9 @@ Quality gate:
 The scanner is standalone and local read-only. It is not wired into
 `scripts/quality_gate.py`, does not create generated reports by default, does
 not run target repository commands, and must not be used to authorize writes.
-Scanner output is a readiness signal, not proof that secrets, private data, or
-live configuration are absent. Domain risk flags are conservative path-level
+Scanner output describes recognized evidence only; it is neither a deficiency
+judgment nor work permission, and does not prove secrets, private data or live
+configuration are absent. Domain risk flags are conservative path-level
 indicators that require review.
 
 ## Local Eval Flow
@@ -553,5 +601,11 @@ they affect executable behavior or generated artifact content. A local commit is
 not a push, tag, release, publication, artifact upload, or deployment.
 
 ## NOT RUN Principle
+
+- `NOT RUN`: the command or side effect was intentionally not executed.
+- `ENVIRONMENT BLOCKED`: the required runtime or filesystem environment was
+  unavailable.
+- `NOT DONE`: required work remains incomplete and must not be reported as
+  complete.
 
 If a check was not executed, mark it as NOT RUN with a reason. Do not imply success for checks that were not run.

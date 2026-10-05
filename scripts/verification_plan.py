@@ -167,7 +167,7 @@ def observe_changed_paths(repo_root: Path, base_sha: str, head_sha: str) -> tupl
     if ancestor.returncode != 0:
         raise GitObservationError("GIT_ANCESTRY_CHECK_FAILED")
 
-    diff = run_git(repo_root, "diff", "--name-only", f"{base_sha}..{head_sha}")
+    diff = run_git(repo_root, "diff", "--name-only", "--no-renames", f"{base_sha}..{head_sha}")
     paths = sorted(set(line for line in diff.stdout.splitlines() if line))
     if len(paths) > MAX_CHANGED_PATHS:
         raise GitObservationError("CHANGED_PATH_LIMIT_EXCEEDED")
@@ -439,6 +439,8 @@ def build_plan(
     head_sha: str,
     changed_paths: list[str],
     impact_map: dict[str, Any],
+    *,
+    skill_lifecycle_paths: list[str] | None = None,
 ) -> dict[str, Any]:
     result = base_result()
     result["status"] = "PASS"
@@ -448,9 +450,20 @@ def build_plan(
     matched_paths: set[str] = set()
     additional_commands: set[str] = set()
 
+    # A skill added, removed or renamed changes the selectable surface. Existing
+    # bodies/references remain ordinary documentation; registration is already V2.
+    lifecycle_rules = []
+    if skill_lifecycle_paths:
+        lifecycle_rules.append({
+            **IMPACT_MAP_BOOTSTRAP_RULE,
+            "rule_id": "workflow_skill_lifecycle",
+            "patterns": skill_lifecycle_paths,
+            "command_ids": [],
+        })
+
     rule_matches: list[tuple[dict[str, Any], set[str]]] = []
     best_specificity: dict[str, int] = {}
-    for rule in [IMPACT_MAP_BOOTSTRAP_RULE, *impact_map["rules"]]:
+    for rule in [IMPACT_MAP_BOOTSTRAP_RULE, *lifecycle_rules, *impact_map["rules"]]:
         matches = matching_paths(
             changed_paths, rule, repo_root=repo_root, head_sha=head_sha
         )
@@ -547,7 +560,23 @@ def inspect_plan(
             result["reason_codes"] = [ancestry_issue]
             return result
         impact_map = load_impact_map(root, resolved_head)
-        return build_plan(root, resolved_head, changed_paths, impact_map)
+        skill_lifecycle_paths: list[str] = []
+        skill_paths = {
+            path for path in changed_paths
+            if path.startswith("docs/workflows/") and path.endswith("/SKILL.md")
+        }
+        if skill_paths:
+            # --no-renames makes moves visible as deletion/addition too. Observe
+            # actual Git change kinds, not guessed semantics from file contents.
+            lifecycle = run_git(
+                root, "diff", "--name-only", "--no-renames", "--diff-filter=AD",
+                f"{resolved_base}..{resolved_head}", "--", "docs/workflows/",
+            )
+            skill_lifecycle_paths = sorted(skill_paths.intersection(lifecycle.stdout.splitlines()))
+        return build_plan(
+            root, resolved_head, changed_paths, impact_map,
+            skill_lifecycle_paths=skill_lifecycle_paths,
+        )
     except GitObservationError as exc:
         result["status"] = "ENVIRONMENT BLOCKED"
         result["reason_codes"] = [str(exc)]

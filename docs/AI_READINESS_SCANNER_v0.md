@@ -3,7 +3,7 @@
 ## Purpose
 
 `AI_Readiness_Scanner_v0` is a standalone local-first scanner for checking
-whether a repository is ready for AI-assisted work.
+which expected governance evidence its fixed names and keywords recognize.
 
 The scanner is intended to support future onboarding and review of repositories
 such as:
@@ -14,9 +14,9 @@ such as:
 - `outlook-history-view`
 - `stock`
 
-The v0 scanner is read-only by design. Its job is to summarize readiness,
-risks, missing governance surfaces, and next actions before an AI/Codex worker
-starts implementation work.
+The v0 scanner is read-only by design. It summarizes recognized evidence,
+unconfirmed surfaces and path-level risk indicators. It cannot decide whether
+a repository is deficient or whether an AI/Codex worker may start work.
 
 Stage 5B may use scanner thinking for target-repo selection, but this document
 does not execute a sibling-repository scan. The current Stage 5B handoff selects
@@ -132,17 +132,20 @@ The v0 score is a 16-point model. Unknown evidence must be reported as
 | Acceptance trace or evidence discipline | 0-2 |
 | Next action clarity | 0-2 |
 
-Score interpretation:
+Evidence coverage interpretation (not a readiness or permission judgment):
 
-| score | result |
-|---:|---|
-| 13-16 | `READY_FOR_AI_ASSISTED_WORK` |
-| 9-12 | `LIMITED_AI_ASSISTED_WORK_ALLOWED` |
-| 5-8 | `NEEDS_DOCUMENTATION_OR_HARNESS_IMPROVEMENT` |
-| 0-4 | `HOLD_BEFORE_AI_ASSISTED_WORK` |
+| recognized evidence | result |
+|---|---|
+| Any dimension unrecognized, or no dimensions available | `INSUFFICIENT_EVIDENCE` |
+| All eight dimensions recognized at full score | `RECOGNIZED_EVIDENCE_COMPLETE` |
+| All dimensions have some evidence, but some are partial | `RECOGNIZED_EVIDENCE_PARTIAL` |
 
-Scoring should explain the evidence for each dimension. Missing or ambiguous
-evidence should reduce confidence rather than be treated as a pass.
+The numeric score is retained as a summary of fixed-name/keyword recognition.
+A low score does not establish a project deficiency; a high score does not grant
+work permission or demonstrate content quality. Equivalent project documents,
+registries or checks outside the recognized names remain unconfirmed, not absent.
+Check existing project evidence before proposing additions. Recognition paths,
+keywords, traversal and safety controls are unchanged.
 
 ## Domain risk flags
 
@@ -209,7 +212,7 @@ template:
 | acceptance trace / evidence discipline | 0-2 |  |  |
 | 다음 작업 명확성 | 0-2 |  |  |
 
-## 부족 항목
+## 미확인 또는 부분 인식 항목
 
 - 
 

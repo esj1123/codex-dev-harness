@@ -364,3 +364,9 @@ def test_operational_input_drift_fails_closed(mutation, reason_code: str) -> Non
 
     assert result["status"] == "FAIL"
     assert reason_code in result["reason_codes"]
+
+
+def test_status_remains_a_checked_progress_summary_not_an_integration_only_path() -> None:
+    payload = json.loads(Path("docs/AUTHORITY_MANIFEST.json").read_text(encoding="utf-8"))
+    assert "STATUS.md" in payload["default_read_order"]
+    assert "STATUS.md" not in payload["integration_only_exact"]

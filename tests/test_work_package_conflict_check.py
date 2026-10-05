@@ -241,7 +241,7 @@ def test_package_group_failures_are_blocked(mutator, reason_code: str) -> None:
 
 def test_feature_lane_cannot_claim_integration_only_path() -> None:
     payload = package("feature-a")
-    payload["write_set"] = ["STATUS.md"]
+    payload["write_set"] = ["README.md"]
 
     assert checker.package_issues(payload) == ["INTEGRATION_ONLY_PATH"]
 
@@ -361,7 +361,7 @@ def test_case_variant_duplicates_are_rejected_within_path_sets() -> None:
 
 def test_case_variant_integration_only_path_is_blocked() -> None:
     payload = package("feature-a")
-    payload["write_set"] = ["status.md"]
+    payload["write_set"] = ["readme.md"]
 
     assert checker.package_issues(payload) == ["INTEGRATION_ONLY_PATH"]
 
@@ -744,7 +744,7 @@ def test_external_package_metadata_drift_is_rejected(
     "scope",
     [
         "scripts", "SCRIPTS", "docs", ".github", "evals", "artifacts",
-        "scripts/gates", "scripts/gates/nested/output.py", "STATUS.md", "status.md",
+        "scripts/gates", "scripts/gates/nested/output.py", "README.md", "readme.md",
     ],
 )
 def test_nonintegration_scope_rejects_protected_ancestors_and_descendants(
@@ -819,3 +819,9 @@ def test_parent_owned_central_generated_output_fails_preflight_cli(
     assert report["status"] == "FAIL"
     assert "INTEGRATION_ONLY_PATH" in report["reason_codes"]
     assert report["performed_actions"] == []
+
+
+def test_feature_lane_can_update_status_progress() -> None:
+    payload = package("feature-status")
+    payload["write_set"] = ["STATUS.md"]
+    assert checker.package_issues(payload) == []

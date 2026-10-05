@@ -219,6 +219,70 @@ def test_document_change_returns_v1(planner_repo: tuple[Path, str]) -> None:
     assert result["integration_owner_required"] is False
 
 
+
+@pytest.mark.parametrize("relative_path", [
+    "docs/workflows/harness-engineering-documents/SKILL.md",
+    "docs/workflows/harness-engineering-diagrams/SKILL.md",
+    "docs/workflows/harness-engineering-review/SKILL.md",
+    "docs/workflows/harness-engineering-documents/references/design-derivation.md",
+])
+def test_existing_skill_guidance_edit_stays_v1(planner_repo, relative_path) -> None:
+    repo, _ = planner_repo
+    base_sha = commit_file(repo, relative_path, "# Existing guidance\n")
+    commit_file(repo, relative_path, "# Clearer existing guidance\n")
+
+    result = inspect(repo, base_sha)
+
+    assert result["minimum_tier"] == "V1"
+    assert result["integration_owner_required"] is False
+    assert "core_pytest" not in result["required_command_ids"]
+
+
+def test_status_progress_update_stays_v1(planner_repo) -> None:
+    repo, _ = planner_repo
+    base_sha = commit_file(repo, "STATUS.md", "# STATUS\nNext: focused checks.\n")
+    commit_file(repo, "STATUS.md", "# STATUS\nNext: report completed checks.\n")
+
+    result = inspect(repo, base_sha)
+
+    assert result["minimum_tier"] == "V1"
+    assert result["integration_owner_required"] is False
+    assert "core_pytest" not in result["required_command_ids"]
+
+
+@pytest.mark.parametrize("register", [False, True])
+def test_new_skill_requires_integration_even_before_registration(planner_repo, register) -> None:
+    repo, base_sha = planner_repo
+    commit_file(repo, "docs/workflows/harness-new/SKILL.md", "# New selectable skill\n")
+    if register:
+        commit_file(repo, "docs/AUTHORITY_MANIFEST.json", '{"durable_policy": []}\n')
+
+    result = inspect(repo, base_sha)
+
+    assert result["minimum_tier"] == "V2"
+    assert result["integration_owner_required"] is True
+    assert "workflow_skill_lifecycle" in result["matched_rule_ids"]
+    assert {"core_pytest", "standalone_eval", "quality_gate"}.issubset(result["required_command_ids"])
+    assert "full_pytest" not in result["required_command_ids"]
+
+
+@pytest.mark.parametrize("rename", [False, True])
+def test_skill_removal_or_rename_requires_integration(planner_repo, rename) -> None:
+    repo, _ = planner_repo
+    relative = "docs/workflows/harness-existing/SKILL.md"
+    base_sha = commit_file(repo, relative, "# Existing skill\n")
+    if rename:
+        git(repo, "mv", relative, "docs/workflows/harness-existing/REFERENCE.md")
+    else:
+        git(repo, "rm", relative)
+    git(repo, "commit", "-m", "remove selectable entrypoint")
+
+    result = inspect(repo, base_sha)
+
+    assert result["minimum_tier"] == "V2"
+    assert "workflow_skill_lifecycle" in result["matched_rule_ids"]
+
+
 @pytest.mark.parametrize("relative_path", ["scripts/tool.py", "tests/test_tool.py"])
 def test_script_and_test_changes_require_focused_tests(
     planner_repo: tuple[Path, str], relative_path: str
@@ -247,9 +311,16 @@ def test_renderer_change_escalates_to_v2_and_render_checks(planner_repo: tuple[P
     assert result["matched_rule_ids"] == ["render_surface_exact"]
 
 
-def test_authority_change_requires_integration_owner(planner_repo: tuple[Path, str]) -> None:
+@pytest.mark.parametrize("relative_path", [
+    "AGENTS.md", "docs/AUTHORITY_MANIFEST.json", "docs/SAFETY_POLICY.md",
+    "docs/VERIFICATION.md", "docs/CHANGE_CONTROL.md", "docs/CI_POLICY.md",
+    "docs/HUMAN_APPROVALS.md", "SECURITY.md",
+])
+def test_authority_change_requires_integration_owner(
+    planner_repo: tuple[Path, str], relative_path: str,
+) -> None:
     repo, base_sha = planner_repo
-    commit_file(repo, "STATUS.md", "# Current\n")
+    commit_file(repo, relative_path, "# Changed policy contract\n")
 
     result = inspect(repo, base_sha)
 

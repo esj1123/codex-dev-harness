@@ -81,7 +81,6 @@ PROFILE_BOUND_KEYS = EXPECTED_KEYS | {"agent_profile_id", "agent_profile_hash"}
 INTEGRATION_ONLY_EXACT = {
     "AGENTS.md",
     "README.md",
-    "STATUS.md",
     "ACCEPTANCE_TRACE.md",
     "docs/AUTHORITY_MANIFEST.json",
     "docs/AI_HANDOFF.md",

@@ -7,7 +7,9 @@
       "path": "docs/VERIFICATION.md",
       "phrases": [
         "NOT RUN",
-        "Do not imply success for checks that were not run"
+        "Do not imply success for checks that were not run",
+        "ENVIRONMENT BLOCKED",
+        "NOT DONE"
       ]
     },
     {
@@ -15,13 +17,6 @@
       "phrases": [
         "PASS / FAIL / NOT RUN / ENVIRONMENT BLOCKED",
         "Unresolved Risks"
-      ]
-    },
-    {
-      "path": "STATUS.md",
-      "phrases": [
-        "ENVIRONMENT BLOCKED",
-        "NOT DONE"
       ]
     }
   ]

@@ -810,8 +810,8 @@ def test_render_tier_contract_records_scenarios_and_readiness_thresholds() -> No
         "broken Read\nOrder references as a hard failure",
         "Reference closure applies to every base-only and profiled fixture",
         "thresholds below apply to a selected-profile fixture",
-        "at least `LIMITED_AI_ASSISTED_WORK_ALLOWED`",
-        "scanner verdict is `READY_FOR_AI_ASSISTED_WORK`",
+        "recognized-evidence score is at least 9/16",
+        "recognized-evidence score is at least 13/16",
     ]:
         assert required_phrase in text
 
@@ -1482,13 +1482,10 @@ def test_profiled_tier_meets_readiness_target(
 
     result = scanner.scan_target(target)
 
-    if tier == "minimal":
-        assert result.result in {
-            "LIMITED_AI_ASSISTED_WORK_ALLOWED",
-            "READY_FOR_AI_ASSISTED_WORK",
-        }
-    else:
-        assert result.result == "READY_FOR_AI_ASSISTED_WORK"
+    # Preserve the old 9/13 thresholds without treating aggregate coverage
+    # labels as permission to work. Minimal intentionally omits some evidence.
+    assert result.score >= (9 if tier == "minimal" else 13)
+
 
 
 @pytest.mark.parametrize("tier", VALID_RENDER_TIERS)

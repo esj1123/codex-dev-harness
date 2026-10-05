@@ -183,7 +183,9 @@ def run_rendered_readiness(repo_root: Path, case: dict[str, Any]) -> EvalResult:
         config_relative = str(render_case["config"])
         config_path = repo_root / config_relative
         min_score = int(render_case.get("min_score", 13))
-        allowed_results = set(render_case.get("allowed_results", ["READY_FOR_AI_ASSISTED_WORK"]))
+        # Numeric thresholds describe this known synthetic fixture. Coverage
+        # enums no longer express work permission or a minimum quality tier.
+        allowed_results = set(render_case.get("allowed_results", []))
 
         if not config_path.is_file():
             findings.append(f"{render_name}: missing render config: {config_relative}")

@@ -36,9 +36,11 @@ checks; this Harness repository's maintenance process is not inherited merely
 by using the guidance.
 
 Durable Harness edits still require the change record below and verification
-selected under `VERIFICATION.md`. JSON packages are required for parallel
-repository work and whenever the selected integration or target contract
-requires them. Preserve every declared package, command, approval, and frozen
+selected under `VERIFICATION.md`. The record may be the task answer or an
+existing short Markdown note; its completion-report table owns the form.
+JSON packages are required for parallel repository write lanes and whenever the
+selected integration or target contract requires them. A single writer with a
+read-only independent reviewer is not a parallel write-lane package batch. Preserve every declared package, command, approval, and frozen
 surface requirement once applicable. These conditions do not change schema v3,
 preflight/postflight behavior, or their authority boundaries.
 
@@ -210,7 +212,6 @@ Contract and feature lanes must not write integration-only surfaces:
 
 - `AGENTS.md`
 - `README.md`
-- `STATUS.md`
 - `ACCEPTANCE_TRACE.md`
 - `docs/AUTHORITY_MANIFEST.json`
 - `docs/AI_HANDOFF.md`
@@ -224,7 +225,10 @@ Contract and feature lanes must not write integration-only surfaces:
 - `docs/APPROVED_CORPUS_SOURCE_SET.v2.json`
 - `docs/VERIFICATION_IMPACT_MAP.json`
 
-The integration lane alone may merge feature work, update current authority,
+STATUS progress-only updates are not integration-only; policy or hold changes
+belong in their authority owner, not STATUS.
+
+The integration lane alone may merge feature work, update policy authority,
 refresh approved artifacts after separate approval, run full verification,
 push a cumulative tip, or dispatch the existing Local Verify workflow.
 

@@ -123,11 +123,13 @@ still pass reference closure and receive per-dimension review.
 
 | tier | required selected-profile synthetic fixture result |
 | --- | --- |
-| `minimal` | Reference closure passes and scanner verdict is at least `LIMITED_AI_ASSISTED_WORK_ALLOWED`. |
-| `standard` | Reference closure passes and scanner verdict is `READY_FOR_AI_ASSISTED_WORK`. |
-| `full` | Reference closure passes and scanner verdict is `READY_FOR_AI_ASSISTED_WORK`. |
+| `minimal` | Reference closure passes and recognized-evidence score is at least 9/16. |
+| `standard` | Reference closure passes and recognized-evidence score is at least 13/16. |
+| `full` | Reference closure passes and recognized-evidence score is at least 13/16. |
 
-These thresholds evaluate the generated fixture, not whether an arbitrary real
+Aggregate coverage labels can be INSUFFICIENT_EVIDENCE where a tier intentionally
+omits a dimension. They are not permission or readiness verdicts.
+These unchanged numeric thresholds evaluate the generated fixture, not whether an arbitrary real
 repository follows the scanner's preferred filenames. A real target with a low
 aggregate score requires dimension review; it does not by itself invalidate the
 tier contract.

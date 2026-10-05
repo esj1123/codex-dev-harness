@@ -29,7 +29,9 @@ for its current human summary.
 
 `docs/AUTHORITY_MANIFEST.json` separates current authority, durable policy, and
 historical evidence. `STATUS.md` is the current implementation sequencing
-source of truth; `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` is consulted only
+summary only: it cannot change policy, authorize work, or lift a hold. The state
+label must match the manifest; approval and hold boundaries live in
+`docs/SAFETY_POLICY.md`, and verification rules in `docs/VERIFICATION.md`; `docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md` is consulted only
 when selecting a capability. The manifest also declares bounded operational
 inputs and the sole owner document for each protocol namespace without making
 operational inputs current authority. A

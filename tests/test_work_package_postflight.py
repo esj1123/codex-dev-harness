@@ -378,7 +378,7 @@ def test_base_that_is_not_an_ancestor_is_blocked(tmp_path: Path) -> None:
 def test_feature_lane_cannot_change_integration_only_path(tmp_path: Path) -> None:
     repo, base_sha = init_repo(tmp_path)
     package_path = write_package(repo, package(base_sha))
-    commit_file(repo, "STATUS.md", "status\n")
+    commit_file(repo, "README.md", "policy\n")
 
     result = inspect(repo, package_path)
 
@@ -795,7 +795,7 @@ def test_native_closeout_size_limit_owns_text_and_json_exit(json_mode: bool, ove
 @pytest.mark.parametrize(
     ("lane", "relative"),
     [
-        ("feature", "STATUS.md"),
+        ("feature", "README.md"),
         ("contract", "scripts/gates/new_review_fixture.py"),
     ],
 )

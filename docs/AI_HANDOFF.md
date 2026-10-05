@@ -9,9 +9,9 @@ Provide a compact handoff index without duplicating current authority.
 Read `docs/AUTHORITY_MANIFEST.json` for the machine-readable current state,
 default Read Order, conditional read groups, document classifications, and the
 sole normative owner of each protocol namespace.
-Read `STATUS.md` for the current human summary, held items, and next
-recommended action. Those two files are authoritative when older phase or run
-records differ.
+Read `STATUS.md` for the current human summary and next recommended action.
+It reports state, not permission. AGENTS, the manifest and `SAFETY_POLICY.md`
+own policy and hold boundaries when older phase or run records differ.
 
 `ACCEPTANCE_TRACE.md` and phase-specific closeouts are historical evidence, not
 default operating context.
@@ -60,7 +60,7 @@ logs.
 ## State And Evidence Navigation
 
 Read `STATUS.md` for Agent Quality/provider availability, held items, and the
-next authorized sequencing decision. Core readiness and structural evidence
+next sequencing recommendation; policy holds remain in `SAFETY_POLICY.md`. Core readiness and structural evidence
 do not imply provider execution, trial, calibration, baseline, or adoption.
 
 Read [Historical Local Checkpoints](../ACCEPTANCE_TRACE.md#historical-local-checkpoints)

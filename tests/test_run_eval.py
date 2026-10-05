@@ -159,7 +159,6 @@ def rendered_readiness_case(min_score: int = 13) -> dict[str, object]:
                 "name": "demo_render",
                 "config": "examples/demo/template.config.yml",
                 "min_score": min_score,
-                "allowed_results": ["READY_FOR_AI_ASSISTED_WORK"],
             }
         ],
     }
@@ -1313,3 +1312,12 @@ def test_distinct_resolved_report_keys_keep_lexical_safety_and_writes(
     assert summary["cases_sha256"] == hashlib.sha256(cases_bytes).hexdigest()
     assert all(path.stat().st_nlink == 1 for path in written_paths)
     assert not list((repo / "artifacts").rglob(".*.codex-*.tmp"))
+
+
+def test_rendered_readiness_honors_explicit_coverage_result_filter(tmp_path: Path) -> None:
+    rendered_readiness_repo(tmp_path)
+    case = rendered_readiness_case()
+    case["renders"][0]["allowed_results"] = ["RECOGNIZED_EVIDENCE_COMPLETE"]
+    result = run_eval.run_rendered_readiness(tmp_path, case)
+    assert result.passed is False
+    assert any("not in allowed results" in finding for finding in result.messages)
