@@ -6,14 +6,104 @@ Provide reusable prompt patterns for Codex work requests as clear task contracts
 
 These patterns are documentation-only. They do not execute tasks, grant side-effect approval, create runtime code, or bypass project safety policies.
 
+## Choose The Requested Result
+
+Infer the workflow from the request; do not ask users to classify routine work.
+Use the short patterns below first. Read the target's applicable instructions
+and resolve facts from existing evidence before asking about missing decisions
+that would materially change the output.
+
+| Work | Default output and checks |
+|---|---|
+| Inspection or explanation | Answer the question with relevant evidence and uncertainty; no new file, package, or tests merely to supply an answer. |
+| Document authoring or revision | Use the existing format, sources, and user decisions; check content, format, source support, and current open items. |
+| Coding or automation | Make the scoped change in existing modules; verify affected behavior and required integration conditions. |
+
+Common guidance is goal, scope, source protection, existing approval, necessary
+checks, and a concise result. Reuse decisions for the same target, action, and
+scope. Keep current acceptance separate from later finalization; missing
+required approval or evidence remains a current blocker. Mixed tasks use the
+checks relevant to each changed surface. Do not turn document production into
+authoring-system, schema, or converter development without that scope.
+
+Target rules still apply. Durable edits to the Harness itself use
+`CHANGE_CONTROL.md` and `VERIFICATION.md`, including required integration checks.
+The short patterns do not waive those rules or inherited global instructions.
+
+## Optional Workflow Skills
+
+Select a specialization from the requested output, without making the user name
+a workflow. Common inspection/document/coding guidance stays the entrypoint.
+Use only the specialization relevant to the changed surface; a mixed document
+and drawing task may use both. Select document family, design perspective,
+stage and format details only as needed. Review-only work uses the review role;
+authorized review-and-correction continues into authoring within the existing
+scope. Author self-checks and independent review are distinct. A skill adds
+judgment guidance, not another
+mandatory task form, approval loop, receipt, or verification tier.
+
+| Work type | Boundary and current implementation |
+|---|---|
+| Engineering documents | [harness-engineering-documents](workflows/harness-engineering-documents/SKILL.md): author engineering documents, derive/select/allocate designs and update related outputs; preserve project formats, IDs, sources and provisional decisions. Families include requirements, hardware/software design, interfaces, lists/calculations, tests and operations. |
+| Engineering diagrams | [harness-engineering-diagrams](workflows/harness-engineering-diagrams/SKILL.md): objects, dimensions, layout, connectivity, frames/symbols and native editability; CAD guidance is conditional. Distinguish design, visual and native checks. |
+| Engineering review | [harness-engineering-review](workflows/harness-engineering-review/SKILL.md): inspect original inputs, project criteria and actual candidates using relevant perspectives; scope findings, missing coverage and corrections. Review-only grants no writes; optional sibling references are not prerequisites. |
+| Education and knowledge content | Design only: start from the learner outcome and existing teaching format; preserve authority-source/derived-preview direction, learner blanks, assessment/rubric contracts, and module scope. Authoring quality and learner acceptance are separate. Implement only when a target owner selects a bounded need. |
+| Legacy system and logic analysis | Design only: answer the bounded behavior or dependency question from identity-bound source evidence; distinguish observed behavior, inferred logic, and missing native/runtime evidence. Preserve originals and unresolved mappings; do not turn analysis into rewrite or live control. Implement only when a target owner selects a bounded need. |
+
+Ordinary meeting notes, weekly reports, simple prose edits, and coding use their
+existing short patterns. Skill descriptions carry these trigger boundaries;
+automatic discovery remains enabled. Neither deferred type has an empty skill
+folder or an automatic trial requirement.
+
+### Installation And Use
+
+The repository directories above are the shared source. With installation
+authorization, copy each selected directory's `SKILL.md` and all of its current
+`references/*.md` files byte-for-byte into the personal locations selected for this local setup,
+preserving relative paths:
+
+- Codex: `~/.codex/skills/<skill-name>/`
+- Claude Code: `~/.claude/skills/<skill-name>/`
+
+These locations are local installation choices; on another installation, resolve
+its configured discovery roots before copying. Inspect the exact destination first.
+Reuse an identical copy. An authorized update may replace a file matching its
+previous recorded installation; preserve other different or unrecognized contents
+and resolve that installation separately. Check new reference destinations too.
+Do not overwrite unrelated skills, add symlinks/hooks, or change
+global AGENTS/CLAUDE settings. Later updates require an explicitly scoped copy
+and comparison; there is no automatic sync or installer service.
+
+In a fresh session, request the engineering task naturally or name the skill:
+`$harness-engineering-documents`, `$harness-engineering-diagrams` or
+`$harness-engineering-review` in Codex, with the corresponding `/` name in Claude.
+Confirm discovery and actual skill reading through the tool's runtime evidence;
+installation hashes alone do not prove loading. A synthetic read-only smoke
+demonstrates loading in that invocation, not automatic selection for every future
+request, native application behavior, or adoption by existing project sessions.
+
+This setup distributes the three engineering skills together with sibling relative
+references. Review remains usable without optional sibling references: use the
+core review method and project sources, and state only the actual evidence gap.
+Check installation hashes, actual loading and synthetic behavior separately in
+the current STATUS closeout; none establishes real document acceptance.
+
+Keep the catalog here and detailed role rules in the three SKILL.md files.
+References are conditional guidance with synthetic examples and no project
+technical authority. The manifest classifies
+the skill rules without expanding the common Read Order or protocol namespaces.
+
 ## Reusable Prompt Template Files
 
 Use these files as copy-ready prompt contracts when a task needs more structure
-than the short patterns below:
+than the short patterns below. Copy only applicable sections, retaining every
+field required by the selected contract; do not print empty or NOT APPLICABLE
+rows for unselected workflows. A separate receipt file is required only when
+the task or applicable policy requires one:
 
 | template | use when |
 |---|---|
-| `prompts/task_contract/task_contract.md` | requesting scoped implementation, documentation, review, or verification work |
+| `prompts/task_contract/task_contract.md` | a task needs a detailed scope; package and execution sections apply only under their stated conditions |
 | `prompts/task_contract/critic_review.md` | requesting review-only correctness, safety, scope, and evidence review |
 | `prompts/task_contract/verification_closeout.md` | recording changed files, commands, evidence, safety checks, risks, and next step |
 | `prompts/task_contract/release_summary.md` | summarizing release state without creating tags, moving tags, publishing, or generating artifacts |
@@ -41,8 +131,8 @@ A well-scoped Codex task should state:
 - read-only vs write scope
 - allowed files
 - forbidden files or actions
-- verification commands
-- completion report format
+- necessary content or behavior checks; executable commands only when applicable
+- the useful result and remaining decisions
 - side-effect approval boundary
 
 ## Coding Simplicity Clause
@@ -99,7 +189,9 @@ Completion report:
 
 ## Pattern: Review-Only Task
 
-Use when no files should be changed.
+Use for explanations, investigations, comparisons, and reviews without edits.
+Answer the requested question first; a formal verdict is needed only when the
+request calls for one.
 
 ```text
 Goal:
@@ -115,43 +207,43 @@ Review criteria:
 - correctness
 - safety
 - source-use compliance
-- missing tests or evidence
+- evidence gaps relevant to the requested judgment; tests only where applicable
 
 Completion report:
-1. PASS/PARTIAL/BLOCKED summary
-2. findings
-3. risks
-4. recommended next steps
+1. answer or scoped verdict
+2. supporting findings and uncertainty
+3. remaining decision or next action, if any
 ```
 
 ## Pattern: Documentation-Only Task
 
-Use when only Markdown or policy records should change.
+Use for a requested document or revision, including an existing Word or other
+project-owned format. Harness policy edits remain repository maintenance and
+retain their required checks.
 
 ```text
 Goal:
-Document [decision/plan/record].
+Write or revise [document and requested result] using [existing format/source].
 
-Allowed files:
-- docs/[file].md
-- STATUS.md
-- ACCEPTANCE_TRACE.md
+Scope:
+[Requested document or sections; protected originals and content to preserve.]
 
-Forbidden files/actions:
-- no runtime code
-- no render/gate/example integration
-- no workflow creation
+Decisions:
+[Applicable user decisions; genuinely missing decisions affecting this output.]
 
-Verification:
-- documentation presence check
-- quality gate if available
+Checks:
+- requested content and format
+- source support and consistency with applicable decisions
+- current unresolved items, separately from later finalization
+- additional checks required by the target policy or changed automation
 
-Completion report:
-1. created/updated files
-2. summary
-3. verification result
-4. remaining decisions
+Result:
+Deliver the document, a concise change summary, checks, and remaining decisions.
 ```
+
+Do not add STATUS, acceptance records, JSON packages, executable tests, or a new
+authoring pipeline solely because the task produces a document. Create or
+update those only when the requested scope or applicable policy requires them.
 
 ## Pattern: Downstream Feedback Capture
 
@@ -299,7 +391,7 @@ Do not include:
 - Write scope is explicit.
 - Allowed files are narrow.
 - Forbidden actions are explicit.
-- Verification commands are listed.
+- Necessary checks are identified; executable commands are listed only when applicable.
 - Completion report format is specified.
 - Side effects require explicit approval.
 - Prompt templates do not authorize side effects; they only make the requested

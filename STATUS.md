@@ -22,43 +22,68 @@ later working tree, ref, remote, or Hosted run still has that value.
 
 ## NOW
 
-Current action: `LOCAL CLOSEOUT INTEGRATION AND DIGEST RECONCILIATION`.
+Current work: `ENGINEERING AUTHORING, DIAGRAM AND REVIEW WORKFLOWS`.
 
-The owner-authorized local integration reuses reviewed candidate
-`faecf51be5febce1d12f5a2ca6126b87d36e7363` from local main base
-`4adb251ef42ab6edfbd49bb971cc05f2ac498cc3`, including its predecessor changes.
-It preserves the user's matching AGENTS policy and aligns current operation
-and handoff documentation. Source integration and the same 34-source corpus
-digest refresh are separate local commits. Exact final SHA, independent review,
-new cumulative V2 and Full results, source-basis metadata, preservation checks
-and postflights are recorded in
-`local/checkpoints/evidence-closeout-main-20261001/closeout.json`.
-Until that receipt records PASS, the integration verification remains pending.
-This local checkpoint has no successor remote, Hosted, release or target scope.
+The owner selected expansion of the existing authoring and diagram skills plus
+one general engineering review skill. Document families, review perspectives,
+design stages and file formats select conditional guidance; electrical/I/O and
+CAD are specific contexts, not the overall scope. Authoring includes derivation
+and coordinated changes; review checks original criteria and actual candidates
+without implying writes or imposing all perspectives on every task.
 
-The selected follow-up improves concise state/evidence decisions and
-keeps usage accounting optional for improvement evaluation. It distinguishes
-missing/unbound candidates, pending gates and unknown gates without changing
-completion or authority boundaries. Existing verification may be reused only
-within matching candidate/input, runtime/command and acceptance scope; required
-cumulative integration checks remain mandatory. No accounting collector,
-automatic execution, background service or target-domain behavior is added.
+Implementation, synthetic behavior, independent review, required verification,
+preservation and personal Codex/Claude installation/loading are recorded in
+`local/checkpoints/engineering-workflows-20261005/closeout.json`. Consult each
+recorded result before claiming completion. No real document/CAD pilot, native
+application execution, global setting change, new executable interface, commit,
+remote or release is included. Target utility remains NOT_MEASURED.
 
-The integration owner has selected bounded read-only state/evidence projection
-and optional streaming runtime usage accounting for Launchpad's observed repeated
-evidence selection and manual counter-subtraction blocker. The target owner
-reconciles current inputs before Harness implementation. The scoped executable
-is `scripts/task_evidence_summary.py`; an explicitly supplied closeout spec
-connects it to `scripts/work_package_postflight.py`. Target adapters supply
-state meaning, exact inputs and candidate/receipt bindings. Inspection PASS
-means evidence consistency; it does not grant target completion, authorization,
-Harness adoption, Office execution or release. Candidate, independent review,
-local integration and exact-SHA handoff evidence stay in the
-selected task's ignored checkpoint. Measurement remains NOT_MEASURED unless
-separately selected for evaluation. Use
-`docs/LOCAL_USAGE.md#bounded-closeout-state-and-usage` for compatibility and
-the opt-in call contract. Existing callers and work-package schema v3 remain
-unchanged. The completed boundary-fix/Hosted sequence below remains historical.
+### Previous Local Closeouts
+
+Previous work: `ENGINEERING DOCUMENT AND DIAGRAM WORKFLOW SKILLS`.
+
+The owner selected two optional workflow skills with a shared repository source
+and byte-identical personal Codex/Claude copies. Engineering documents preserve
+existing forms, IDs, source evidence, and current approved provisional decisions.
+Engineering diagrams preserve identities, connectivity, visual conventions, and
+requested native editability. Education/knowledge and legacy analysis remain
+design-only entries in `docs/PROMPT_PATTERNS.md`.
+
+The exact local candidate, focused independent review, required verification,
+installation hashes, and separate runtime-loading observations are recorded in
+`local/checkpoints/workflow-skills-20261005/closeout.json`. Read each result before
+claiming completion. No target document/pin, global AGENTS/CLAUDE setting, schema,
+renderer, or protocol namespace is changed by this task. Native application use,
+real target acceptance, commit, remote, Hosted, and release remain separate.
+Target utility remains NOT_MEASURED.
+
+Previous work: `TASK WORKFLOW GUIDANCE AND BASE TEMPLATE UPDATE`.
+
+The owner-selected local change separates inspection, document, and coding
+workflows from Harness maintenance. Existing prompt paths carry a common task
+core and conditional package, execution, and measurement details. Base AGENTS
+and README templates carry the same guidance to newly initialized projects.
+Current paths, required Read Orders, profiles, render tiers, schemas, CLIs,
+optional-feature holds, and existing downstream pins are preserved.
+
+That local worktree candidate, exact file hashes, verification, independent
+review, and remaining limitations are recorded in
+`local/checkpoints/task-workflows-20261005/closeout.json`.
+Read that result before claiming completion. This is not a commit, remote,
+Hosted, release, corpus-refresh, or downstream-adoption claim. Actual target
+utility remains NOT_MEASURED. The preceding three-prompt acceptance-scope
+candidate and its evidence are preserved as the starting point, not verification
+of the expanded change.
+
+The earlier state/evidence-reader integration and same-source corpus digest
+reconciliation completed locally at
+`1b8a93e1586ccade18cf65b6ed99935cc5cdd149`. Its PASS receipt is
+`local/checkpoints/evidence-closeout-main-20261001/closeout.json`, with distinct
+source, repair, and digest commits, final-SHA Core checks, hash-bound Full checks,
+independent review, and postflights. Those checks do not verify later edits.
+The reader remains opt-in under
+`docs/LOCAL_USAGE.md#bounded-closeout-state-and-usage`; consistency does not grant
+target acceptance, approval, adoption, Office execution, or release.
 
 The earlier `POST-H4R3 LOCAL CLOSEOUT COMPLETE` state remains historical
 checkpoint context. Preserve the completed authority reconciliation, separate
@@ -95,15 +120,17 @@ promotion, or adoption. Do not merge the proposal as an implied successor.
 
 ## NEXT
 
-The post-H4R3 local sequence is closed. The boundary-fix adoption/push/Hosted
-sequence is also closed. The separately requested local closeout mechanization
-package above is selected for the demonstrated Launchpad blocker. Its exact candidate must
-complete independent review and cumulative local verification before the
-target owner evaluates compatibility and changes its pin/caller. Target
-adoption and actual REQ completion remain separately owned checkpoints.
-The bounded follow-up above addresses the observed ambiguous next-action
-guidance and repeated detailed-output inspection. No additional implementation
-capability is selected beyond this bounded package.
+The post-H4R3 local sequence is closed. No additional implementation capability
+is selected for executable infrastructure; the selected additions are three
+optional engineering workflow skills and personal Codex/Claude copies.
+
+Use the current local candidate's closeout to resolve any remaining mandatory
+verification or review findings. Once complete, hand off the scoped result.
+Existing target files and pins remain unchanged. A target owner may select the
+new guidance for the next actual task; do not rerun completed document work as
+a trial or claim utility before observing it. Physical reorganization, new
+capabilities, and changes to inherited global rules are separate work.
+
 A new Harness package requires a P0 safety or authority defect, an actual target
 blocker, the same gap in two targets, or evidence that a verifier produced an
 incorrect PASS or FAIL. Select an exact work package under fresh authority and

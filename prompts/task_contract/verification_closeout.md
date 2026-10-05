@@ -1,45 +1,107 @@
 # Verification Closeout Prompt
 
-Use to close a completed task with evidence.
+Lead with the requested result, changes, checks and their scope, and remaining
+decisions. Use only applicable sections; do not print empty package, Hosted,
+routing, or measurement rows for unselected workflows. Create a separate receipt
+file only when the task or governing policy requires one. Required checks and
+inherited global instructions still apply.
 
 This documentation template runs nothing and approves no side effects.
 
-When the task contract selects closeout mechanization, use the existing
-postflight's `--task-evidence-spec` hook with the start-declared input/runtime
-roots. The hook reads only fixed inputs and supplies selected state,
-candidate/receipt consistency and superseded claims. Use `runtime: []` and
-omit the runtime root unless usage evaluation was explicitly selected; missing
-usage is not a state/evidence or task-completion failure. Lead with the concise
-decision output and retain process exit, spec/state SHA, scope and reason codes
-in the existing task record. Link detailed JSON for mismatches or follow-up
-inspection instead of repeatedly returning the entire result.
-Target completion and mechanical consistency are separate results. Keep past
-unresolved observations visible without silently changing them to PASS. The
-target owner declares which gates are required for this task's acceptance;
-the reader does not grant approval or decide that historical risks can be ignored.
-For selected usage evaluation only, retain prefix SHA, cutoff and coverage;
-do not repeat manual full-log selection or counter subtraction.
-Call counts and app durations remain
-UNKNOWN unless independent original evidence supplies them. Never treat
-token events, usage timestamp spans or selected bytes as calls, active labor
-or token savings. See
-[Bounded closeout state and usage](../../docs/LOCAL_USAGE.md#bounded-closeout-state-and-usage).
-
-Lead with the candidate, changed behavior, verification scope/result, unresolved
-items, next action and evidence locations. Link detailed logs and unchanged
-records while retaining the required basis and safety fields below.
-
-For the two standalone Harness checkers, apply the sole caller example in
-[Standalone checker JSON results](../../docs/LOCAL_USAGE.md#standalone-checker-json-results)
-and lead their evidence with actual and reported exits, the checked JSON decision
-and raw stdout/stderr references. Expand original source or output for gaps,
-failures, contradictions or staleness. The task and impact policy still select
-the required verification tier and independent review.
+Judge the current task against its declared phase and acceptance conditions.
+Before requesting reapproval or rerun, check whether the latest explicit
+user/owner decision applies to the same target, action and scope; retain its
+evidence and the earlier record. A broader aggregate `completion=false`, past
+status label or mechanical next-action code alone does not establish a current
+blocker. Keep later finalization separate unless it is required for current
+acceptance. Missing required approval, UNKNOWN required gates and candidate/
+evidence mismatches remain unresolved; calling them future/deferred cannot
+make them PASS. The reader's approval status and completion calculation stay
+unchanged.
 
 ## Task Basis
 
 - Goal: [task goal]
 - Completion/decision basis: [conditions/status; uncertainty; reused evidence]
+- Current task verdict/blockers: [phase and scoped result; unmet required conditions,
+  or none; link each blocker to the acceptance condition]
+- Applicable owner decision: [latest explicit decision and same-scope evidence;
+  retained interim decisions/limits; none or unverified if unavailable]
+- Later finalization: [open items, phase/owner and dependency on current acceptance]
+
+## Changed Files
+
+| file | change type | notes |
+|---|---|---|
+| [path] | ADDED / UPDATED / REMOVED | [summary] |
+
+## Commands Run
+
+Use this section for checks actually selected; document content checks may be
+reported in prose without inventing executable commands.
+
+| command / owned execution ID | result / internal exit | core result or evidence |
+|---|---|---|
+| [command / ID] | PASS / FAIL / NOT RUN / ENVIRONMENT BLOCKED / [exit] | [result or reason] |
+
+Recover execution before rerun; missing output alone is no rerun reason and
+shell success is no internal PASS. An unconfirmed execution is human `result
+not verified / NOT DONE`, not a new JSON enum, `NOT RUN`, or `ENVIRONMENT BLOCKED`.
+
+## Evidence Paths
+
+- [file or record path]
+- [file or record path]
+
+Reference unchanged receipts. On collision use a new attempt; avoid ritual
+deletion/regeneration and transcript copies.
+
+For feature/artifact checks, link goal, actual inputs/options/path and contract-
+derived expectations. For validator/error-test changes, report known valid
+acceptance, defect rejection and production error-to-final-result flow, with mock scope.
+
+## Safety Checks
+
+Confirm:
+
+- actual changed files remained within the declared write set
+- no unrelated refactor
+- no secrets, private raw input, sensitive source text or live values
+- no new profile, example, CI workflow, eval code, audit logging code, RAG code, release artifact, application code, device code, or live-write behavior unless explicitly approved
+- side effects were not performed without approval
+- `performed_actions` and actual commands agree with the closeout
+
+## Unresolved Risks
+
+- [risk or assumption]
+- [risk or assumption]
+
+## Closeout Result
+
+Use a formal verdict when requested or required by the active contract.
+
+Choose one:
+
+- PASS
+- PARTIAL
+- BLOCKED
+- NEEDS OWNER DECISION
+
+## Next Step
+
+[One next step, or `None`.] In scoped measurement, mark unmeasured tokens `NOT
+MEASURED`; do not estimate savings. Stop at completion; cleanup is separate.
+
+## Conditional Details
+
+Use the following only for the selected package, execution, evidence-reader,
+measurement, or adoption scope. Preserve every field required by that contract;
+omitting unselected sections does not waive required evidence.
+
+## Package And Workflow Basis
+
+- Mechanical consistency: [candidate/input/receipt linkage result and aggregate
+  selection scope; preserve reported completion and reason codes]
 - Repository/path: [target path]
 - Package location class: [same-root / external-local-control-plane]
 - Basis ref or commit: [branch, tag, or commit]
@@ -61,8 +123,10 @@ the required verification tier and independent review.
 - Actual model/reasoning effort and evidence: [original runtime evidence at start, resumption or settings change; otherwise unverified]
 - Routing mismatch disposition: [none / corrected at safe boundary / unresolved, with preserved useful output/tests]
 
-
 ## Verification Execution
+
+Apply each field only to the selected execution. Hosted, timing, and utility
+fields do not make those activities prerequisites for ordinary document work.
 
 - Target repository safe alias: [redacted safe alias; no absolute path]
 - Workflow repository identity: [safe owner/repository identity; no credentials]
@@ -117,39 +181,10 @@ head SHA, record Target Hosted status/run as `NOT RUN`; do not inherit the
 Harness result. Harness Hosted PASS does not establish target-repository Hosted
 PASS.
 
-## Changed Files
+## Package Safety Checks
 
-| file | change type | notes |
-|---|---|---|
-| [path] | ADDED / UPDATED / REMOVED | [summary] |
+For work using a package, confirm:
 
-## Commands Run
-
-| command / owned execution ID | result / internal exit | core result or evidence |
-|---|---|---|
-| [command / ID] | PASS / FAIL / NOT RUN / ENVIRONMENT BLOCKED / [exit] | [result or reason] |
-
-Recover execution before rerun; missing output alone is no rerun reason and
-shell success is no internal PASS. An unconfirmed execution is human `result
-not verified / NOT DONE`, not a new JSON enum, `NOT RUN`, or `ENVIRONMENT BLOCKED`.
-
-## Evidence Paths
-
-- [file or record path]
-- [file or record path]
-
-Reference unchanged receipts. On collision use a new attempt; avoid ritual
-deletion/regeneration and transcript copies.
-
-For feature/artifact checks, link goal, actual inputs/options/path and contract-
-derived expectations. For validator/error-test changes, report known valid
-acceptance, defect rejection and production error-to-final-result flow, with mock scope.
-
-## Safety Checks
-
-Confirm:
-
-- actual changed files remained within the declared write set
 - untracked files stayed within declared generated outputs
 - work-package conflicts were checked before parallel execution
 - preflight/postflight used identical package bytes and package-root class, and the same `plan_digest`
@@ -159,25 +194,36 @@ Confirm:
 - only integration lane changed integration-only files
 - structural PASS was not treated as authenticated approval
 - no absolute repository, package-root, host, account or runtime paths in JSON evidence
-- no unrelated refactor
-- no secrets, private raw input, sensitive source text or live values
-- no new profile, example, CI workflow, eval code, audit logging code, RAG code, release artifact, application code, device code, or live-write behavior unless explicitly approved
-- side effects were not performed without approval
-- `performed_actions` and actual commands agree with the closeout
 
-## Unresolved Risks
+## Optional Evidence Reader
 
-- [risk or assumption]
-- [risk or assumption]
+When the task contract selects closeout mechanization, use the existing
+postflight's `--task-evidence-spec` hook with the start-declared input/runtime
+roots. The hook reads only fixed inputs and supplies selected state,
+candidate/receipt consistency and superseded claims. Use `runtime: []` and
+omit the runtime root unless usage evaluation was explicitly selected; missing
+usage is not a state/evidence or task-completion failure. Lead with the concise
+decision output and retain process exit, spec/state SHA, scope and reason codes
+in the existing task record. Link detailed JSON for mismatches or follow-up
+inspection instead of repeatedly returning the entire result.
+Target completion and mechanical consistency are separate results. Keep past
+unresolved observations visible without silently changing them to PASS. The
+target owner declares which gates are required for this task's acceptance;
+the reader does not grant approval or decide that historical risks can be ignored.
+For selected usage evaluation only, retain prefix SHA, cutoff and coverage;
+do not repeat manual full-log selection or counter subtraction.
+Call counts and app durations remain
+UNKNOWN unless independent original evidence supplies them. Never treat
+token events, usage timestamp spans or selected bytes as calls, active labor
+or token savings. See
+[Bounded closeout state and usage](../../docs/LOCAL_USAGE.md#bounded-closeout-state-and-usage).
 
-## Closeout Result
-
-Choose one:
-
-- PASS
-- PARTIAL
-- BLOCKED
-- NEEDS OWNER DECISION
+For the two standalone Harness checkers, apply the sole caller example in
+[Standalone checker JSON results](../../docs/LOCAL_USAGE.md#standalone-checker-json-results)
+and lead their evidence with actual and reported exits, the checked JSON decision
+and raw stdout/stderr references. Expand original source or output for gaps,
+failures, contradictions or staleness. The task and impact policy still select
+the required verification tier and independent review.
 
 ## Next-Step Authority
 
@@ -194,13 +240,9 @@ recommendation neither adopts a next step nor authenticates authorization.
 - integration-owner disposition.
 
 A closeout, recommendation or branch-local `STATUS.md` cannot adopt itself.
+Historical H01/H02 note, relevant only when those records are referenced:
 The H01 closeout itself remains `PROPOSED / PENDING INTEGRATION` and its
 next-step authority remains `ADVISORY`.
 
 H02 fields preserve H01 authority; they adopt neither H01, the verification UX
 basis nor any next step.
-
-## Next Step
-
-[One next step, or `None`.] In scoped measurement, mark unmeasured tokens `NOT
-MEASURED`; do not estimate savings. Stop at completion; cleanup is separate.

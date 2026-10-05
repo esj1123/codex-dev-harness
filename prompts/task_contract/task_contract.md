@@ -1,8 +1,14 @@
 # Task Contract Prompt
 
-Use for AI/Codex implementation, documentation, review, or verification.
+Use the short workflow in `docs/PROMPT_PATTERNS.md` first. Use this detailed
+contract when the requested task needs it; select only applicable sections.
+Shared fields describe the outcome, scope, necessary checks, and result.
+Package, execution, and measurement details below apply only when selected or
+required by the governing policy. Do not create packages, tests, or receipt
+files merely to fill this template, or ask the user to complete it for you.
 
-This documentation template executes nothing and cannot override repo policy or approval.
+This documentation template executes nothing and cannot override repo policy
+or approval. Required Harness maintenance and target-project rules still apply.
 
 ## Goal
 
@@ -14,17 +20,97 @@ from requirements, templates or contracts; never adjust them just to pass output
 
 Lead dispatch with the goal, current candidate, write/no-touch scope, required
 reading, reusable evidence, unresolved issues and next action. Link long
-background to exact existing records; retain the required package fields below.
+background to exact existing records; retain package fields when a package is required.
+Resolve available facts first and ask only about missing decisions that materially
+change the output. Keep document production separate from authoring-system changes.
+
+Record this task's acceptance scope as Markdown coordination metadata, not new
+work-package schema fields:
+
+- Current phase/completion conditions: [phase, required gates and observable done]
+- Already approved scope/evidence: [latest explicit user/owner decision, action,
+  target and applicable scope; none or unverified if unavailable]
+- Interim decisions to retain: [decision, approved limits and evidence; or none]
+- Later finalization: [open item, responsible phase/owner and any current dependency]
+- Current blockers: [unmet condition required for this task's acceptance; or none]
 
 ## Target Repo / Path
 
 - Repository: [repo name or URL]
 - Local path: [absolute or repo-relative path]
-- Package root: [same as repository / separate local control-plane root]
 - Basis ref or commit, if relevant: [branch, tag, or commit]
+
+## Write Scope
+
+Choose one:
+
+- Read-only. Do not edit files.
+- Documentation-only writes.
+- Code/test writes within the allowed files below.
+- Other: [describe and require explicit approval]
+
+## Allowed Files
+
+- [file or directory]
+- [file or directory]
+
+## Forbidden Files / Actions
+
+- Edit only allowed files.
+- No unrelated refactors.
+- No deletion, moving, destructive replacement, or force-write beyond explicit approval.
+- CI workflow changes need separate approval.
+- Release artifacts need separate approval.
+- Eval, audit logging, RAG, application, device or live-write additions need separate approval.
+- No secrets, private raw input, sensitive source text, equipment details, live parameters or credentials.
+- Feature and contract lanes must not edit integration-only authority,
+  workflow, gate, golden, corpus-source-set, or artifact paths.
+
+## Verification Commands
+
+Select checks from the requested result and applicable policy:
+
+- Inspection: answer supported by relevant evidence, with uncertainty identified.
+- Document work: content, existing format, sources, decisions, and current open items.
+- Coding: affected behavior and dependencies, plus required integration checks.
+- Harness maintenance: the tier and cumulative checks required by `VERIFICATION.md`.
+
+Declare executable commands only when applicable. For selected commands that
+were not run, report `NOT RUN` or `ENVIRONMENT BLOCKED` with the reason.
+Mixed work uses the relevant checks for each affected surface.
+
+## Side-Effect Approval Boundary
+
+The following actions require explicit human approval before execution. Reuse
+existing approval for the same target, action, and scope; do not ask again solely
+because the task resumed. Requested edits within scope are not a new approval step:
+
+- external sends, messages, notifications, or publication
+- deletion, move, destructive replacement, force, or broad filesystem changes
+- dependency installation or environment mutation outside the requested scope
+- tag creation, tag movement, release publication, manifest/checksum/SBOM/provenance generation
+- workflow installation or external service changes
+- database mutation, live target mutation, PLC/device write, start, stop, reset, or mode change
+
+## Completion Report Format
+
+1. Requested result and relevant file changes
+2. Checks and their scope, including any unmet required condition
+3. Remaining decisions, risks, and next action, if any
+
+Keep the report concise; link existing evidence and omit unselected workflow fields.
+
+## Conditional Details
+
+The following sections preserve the detailed contracts for work that needs them.
+Applicability does not waive fields or checks required by an active contract.
 
 ## Work Package
 
+Use for parallel work or a selected contract that requires a machine package.
+Ordinary inspection and document work do not select this section by themselves.
+
+- Package root: [same as repository / separate local control-plane root]
 - Task ID: [safe task identifier]
 - Schema version: [3]
 - Lane: [contract / feature / integration]
@@ -41,66 +127,7 @@ background to exact existing records; retain the required package fields below.
 - Declared side effects: [classes requested by this task]
 - Approval reference: [safe reference, or none]
 
-## Dispatch Metadata
-
-These Markdown fields are task coordination metadata, not work-package schema v3:
-
-When this task selects closeout mechanization, also record the exact
-package-root-relative evidence spec, physical target input root and optional
-runtime root at actual start. Use an empty `runtime` list and omit the runtime
-root unless usage evaluation is requested. Accounting is not a prerequisite
-for state/evidence inspection, task execution or completion. The target owner supplies selectors, state
-mappings, candidate SHA and receipt links. See
-[Bounded closeout state and usage](../../docs/LOCAL_USAGE.md#bounded-closeout-state-and-usage).
-Pass these declared inputs to the existing postflight invocation at each
-selected closeout/handoff milestone; its optional in-process hook performs
-the projection and counter aggregation. Do not discover logs or infer gates.
-
-- Role: [coordination / retrieval / implementation / verification / review / integration]
-- Requested model: [exact model name]
-- Requested reasoning effort: [exact effort]
-- Task-fit reason: [one line]
-- Actual model/effort and evidence: [original runtime evidence, or unverified]
-- Routing mismatch disposition: [none / correction and next safe boundary / unresolved]
-
-Apply the global `AGENTS.md` model-routing policy. Preserve an agreed choice when
-the same role and scope resume, even when a later message omits the model name.
-Keep primary-task configuration separate from explicit delegation arguments.
-Record original runtime evidence once at start, resumption or settings change;
-self-report is not evidence. Correct a mismatch before expanding work while
-preserving useful output and tests; do not rerun solely to relabel. Remedy
-permission or environment blocks directly. Dispatch settings grant no authority.
-
-Keep one responsible owner for each write scope. Delegate independent outputs
-or independent review when needed, using the smallest relevant context.
-Before async/delegated start, choose an existing-format result location. Retain
-execution ID/state, internal exit and core result/evidence; recover empty bodies by
-receipt. Candidate/refs precede review. Collisions get a new attempt; retain receipts.
-
-When measurement is requested for this work scope, including resumed or delegated
-phases, name one measurement owner and the existing record before work starts.
-Select measures for the actual improvement question; usage accounting is optional,
-not a mandatory Harness feature, default output or completion gate.
-Update it at actual start, verification, independent review, rework and closeout
-transitions, covering coordination and handoff as well. Do not create stages solely
-to measure them. Use `verification_closeout.md` for source, deduplication, cutoff
-and coverage rules.
-
-After required reading, inspect the current entrypoints and changed areas first.
-Select tool output before returning it: inspected scope, verdict, mismatches or
-failures, and evidence locations. Retain necessary originals; expand relevant
-source reads for contradictions, missing evidence, stale candidates or new failures.
-Reuse a completed verification only for its recorded candidate/input identities,
-command and runtime basis, acceptance scope and original result. Confirm that
-these dependencies still match before reuse. A changed dependency, incomplete
-scope or new finding requires the affected checks; a new cumulative integration
-candidate still needs the checks selected by the verification policy. A hash
-match or summary alone cannot replace required native or independent review.
-When the selected commands are the two standalone Harness checkers, apply the
-sole caller example in [Standalone checker JSON results](../../docs/LOCAL_USAGE.md#standalone-checker-json-results)
-and start with the candidate, actual and reported exits, checked JSON decision
-and raw stdout/stderr evidence references. The task and impact policy still
-select the required verification tier and independent review.
+## Package Execution
 
 For parallel work, save packages under ignored `local/work-packages/` and run:
 
@@ -141,42 +168,51 @@ unchanged frozen contract and separate owner/side-effect approvals. A feature
 change to frozen paths stops with `CONTRACT_CHANGE_REQUIRED` for a new basis.
 No `PASS` for an omitted command, different runtime or owner-only rerun.
 
-## Write Scope
+## Dispatch Metadata
 
-Choose one:
+Routing records remain required where inherited global instructions require them.
+They need not be repeated in every user-facing report.
 
-- Read-only. Do not edit files.
-- Documentation-only writes.
-- Code/test writes within the allowed files below.
-- Other: [describe and require explicit approval]
+- Role: [coordination / retrieval / implementation / verification / review / integration]
+- Requested model: [exact model name]
+- Requested reasoning effort: [exact effort]
+- Task-fit reason: [one line]
+- Actual model/effort and evidence: [original runtime evidence, or unverified]
+- Routing mismatch disposition: [none / correction and next safe boundary / unresolved]
 
-## Allowed Files
+Apply the global `AGENTS.md` model-routing policy. Preserve an agreed choice when
+the same role and scope resume, even when a later message omits the model name.
+Keep primary-task configuration separate from explicit delegation arguments.
+Record original runtime evidence once at start, resumption or settings change;
+self-report is not evidence. Correct a mismatch before expanding work while
+preserving useful output and tests; do not rerun solely to relabel. Remedy
+permission or environment blocks directly. Dispatch settings grant no authority.
 
-- [file or directory]
-- [file or directory]
+Keep one responsible owner for each write scope. Delegate independent outputs
+or independent review when needed, using the smallest relevant context.
+Before async/delegated start, choose an existing-format result location. Retain
+execution ID/state, internal exit and core result/evidence; recover empty bodies by
+receipt. Candidate/refs precede review. Collisions get a new attempt; retain receipts.
 
-## Forbidden Files / Actions
+## Evidence Reuse
 
-- Edit only allowed files.
-- No unrelated refactors.
-- No delete/move/overwrite/force-write without separate approval.
-- CI workflow changes need separate approval.
-- Release artifacts need separate approval.
-- Eval, audit logging, RAG, application, device or live-write additions need separate approval.
-- No secrets, private raw input, sensitive source text, equipment details, live parameters or credentials.
-- Feature and contract lanes must not edit integration-only authority,
-  workflow, gate, golden, corpus-source-set, or artifact paths.
+After required reading, inspect the current entrypoints and changed areas first.
+Select tool output before returning it: inspected scope, verdict, mismatches or
+failures, and evidence locations. Retain necessary originals; expand relevant
+source reads for contradictions, missing evidence, stale candidates or new failures.
+Reuse a completed verification only for its recorded candidate/input identities,
+command and runtime basis, acceptance scope and original result. Confirm that
+these dependencies still match before reuse. A changed dependency, incomplete
+scope or new finding requires the affected checks; a new cumulative integration
+candidate still needs the checks selected by the verification policy. A hash
+match or summary alone cannot replace required native or independent review.
+When the selected commands are the two standalone Harness checkers, apply the
+sole caller example in [Standalone checker JSON results](../../docs/LOCAL_USAGE.md#standalone-checker-json-results)
+and start with the candidate, actual and reported exits, checked JSON decision
+and raw stdout/stderr evidence references. The task and impact policy still
+select the required verification tier and independent review.
 
-## Verification Commands
-
-Run when safe and available:
-
-- [V0 work-package and scope checks]
-- [V1 focused tests, or V2/V3 integration checks]
-- [command]
-- [command]
-
-If a command is not run, report `NOT RUN` or `ENVIRONMENT BLOCKED` with the reason.
+## Execution Evidence
 
 Keep required reading and verification. Representatives are only for uncertain
 environment, call path or reproduction. For validator/error-test changes, check
@@ -189,22 +225,39 @@ BLOCKED`, or a new JSON enum. Control only an exactly owned run; shared env prov
 ownership. Two evidence-based same-cause failures trigger diagnosis with
 questions, evidence, hypothesis; missing input/authority is no reasoning gap.
 
-## Side-Effect Approval Boundary
+## Optional Evidence Reader
 
-The following actions require separate explicit human approval before execution:
+When this task selects closeout mechanization, also record the exact
+package-root-relative evidence spec, physical target input root and optional
+runtime root at actual start. Use an empty `runtime` list and omit the runtime
+root unless usage evaluation is requested. Accounting is not a prerequisite
+for state/evidence inspection, task execution or completion. The target owner supplies selectors, state
+mappings, candidate SHA and receipt links. See
+[Bounded closeout state and usage](../../docs/LOCAL_USAGE.md#bounded-closeout-state-and-usage).
+Pass these declared inputs to the existing postflight invocation at each
+selected closeout/handoff milestone; its optional in-process hook performs
+the projection and counter aggregation. Do not discover logs or infer gates.
 
-- external sends, messages, notifications, or publication
-- deletion, move, overwrite, force, or broad filesystem changes
-- dependency installation or environment mutation outside the requested scope
-- tag creation, tag movement, release publication, manifest/checksum/SBOM/provenance generation
-- workflow installation or external service changes
-- database mutation, live target mutation, PLC/device write, start, stop, reset, or mode change
+## Optional Utility Evaluation
 
-## Completion Report Format
+When measurement is requested for this work scope, including resumed or delegated
+phases, name one measurement owner and the existing record before work starts.
+Select measures for the actual improvement question; usage accounting is optional,
+not a mandatory Harness feature, default output or completion gate.
+Update it at actual start, verification, independent review, rework and closeout
+transitions, covering coordination and handoff as well. Do not create stages solely
+to measure them. Use `verification_closeout.md` for source, deduplication, cutoff
+and coverage rules.
 
-1. Files changed
-2. Behavior or document summary
-3. Verification result
-4. Safety checks
-5. Unresolved risks or assumptions
-6. Recommended next step
+Before selected evaluation, name the target outcome, candidate or selection
+point, comparison basis, measurement owner, existing record, covered participants
+and phases, and actual milestones. Distinguish accepted outcome quality,
+elapsed work/retries/rework/user interventions, resource use across all phases,
+and benefit relative to Harness preparation and verification effort.
+Select only useful diagnostic measures: first-pass acceptance, defects or
+incorrect verdicts, authority failures, evidence completeness and drift,
+preparation/review overhead, time to useful result or recovery, routing mismatch,
+avoidable human decisions, and actual cost when available. State each selected
+measure's denominator and evidence source. Do not collapse them into one score,
+trade quality or safety for fewer tokens, or infer zero errors from UNKNOWN ground
+truth. Compare total effort per accepted outcome, retaining failed attempts.

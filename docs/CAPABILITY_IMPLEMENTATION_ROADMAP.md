@@ -28,6 +28,8 @@ This roadmap does not authorize implementation or side effects.
 
 | Capability | State | Next decision trigger |
 |---|---|---|
+| Engineering authoring, diagram and review skills | Three optional role sources with conditional references; see current STATUS closeout for verification, installation and loading | Select document family, perspective, stage and format as needed; real target utility remains unmeasured. |
+| Education/knowledge and legacy analysis skills | Design only in `docs/PROMPT_PATTERNS.md` | Implement only for an owner-selected bounded target need. |
 | Authority manifest and docs gate | Implemented | Change only when authority classes or required documents change. |
 | Work-package preflight/postflight | Hardened; external control-plane package root validated | Use same-root by default or an explicitly declared physical-safe local package root; extend only for another reproduced coordination escape. |
 | Verification impact planner | Implemented, advisory | Extend when a real changed path cannot be classified safely. |
@@ -51,8 +53,7 @@ This roadmap does not authorize implementation or side effects.
 
 ## Current Selection
 
-No additional implementation capability is selected. The read-only verification
-environment diagnostic remains part of the locally adopted M01/M02 lineage,
+No additional implementation capability is selected for executable infrastructure. Three optional documentation-only engineering skills and personal Codex/Claude copies are selected; `STATUS.md` owns their current closeout. The read-only verification environment diagnostic remains part of the locally adopted M01/M02 lineage,
 and post-M02 reconciliation started from
 `acd39a3c3e73fa05e752964a75059809e6e16f71`. Authority commit
 `3d54823c557317d54811b9731b3198a41a647e0f`, assertion correction

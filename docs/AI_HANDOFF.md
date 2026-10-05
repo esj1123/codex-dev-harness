@@ -16,6 +16,20 @@ records differ.
 `ACCEPTANCE_TRACE.md` and phase-specific closeouts are historical evidence, not
 default operating context.
 
+## Work Guidance
+
+Optional engineering authoring, diagram and review skills are indexed in
+`docs/PROMPT_PATTERNS.md#optional-workflow-skills`. Their repository sources are
+shared by personal Codex and Claude installations; project rules and formats
+remain target-owned.
+
+Start target work from `README.md` and the short workflows in
+`docs/PROMPT_PATTERNS.md`. Detailed package and execution fields apply only when
+selected or required. The tools below support their declared scopes; they are
+not a checklist for every explanation or document. Target policies and inherited
+global instructions remain applicable. Agent Quality is frozen/not adopted;
+Hermes/MCP is held and Local RAG remains advisory/frozen, as recorded in `STATUS.md`.
+
 ## Control Surface
 
 - Work-package planning and collision checks:
@@ -70,7 +84,31 @@ Historical observations do not update current refs or grant successor action.
 
 ## Task Handoff
 
-The authorized local closeout integration's reviewed candidate, cumulative
+The current three-role expansion is recorded in
+`local/checkpoints/engineering-workflows-20261005/closeout.json`. Read the exact
+candidate, preservation checks, independent review, synthetic cases, required
+verification and each personal installation/loading result before claiming
+completion. Conditional references cover broad document families, design
+derivation, review perspectives and electrical/I/O and CAD examples; real project
+technical criteria remain target-owned. Review-only stays read-only, and the
+review role remains usable without optional sibling references.
+
+The preceding two-skill implementation and loading observations remain historical
+at `local/checkpoints/workflow-skills-20261005/closeout.json`; they do not verify
+this expanded candidate. Installed files are distributions, not proof of native
+document behavior, automatic selection for all requests or adoption by existing
+sessions. No global AGENTS/CLAUDE settings, downstream documents/pins, executable
+interfaces or release artifacts are changed by this expansion.
+
+The prior workflow-guidance and base-template closeout remains historical at
+`local/checkpoints/task-workflows-20261005/closeout.json`; its source changes and
+earlier acceptance-scope edits are preserved. Education/knowledge and legacy
+analysis are designed catalog entries only. Inherited model-recording and
+reporting rules remain applicable. Target utility remains NOT_MEASURED.
+
+### Historical Reader Integration And Target Probe
+
+The completed historical local closeout integration's reviewed candidate, cumulative
 main-base scope, source integration and repair commits, digest-only commit,
 exact final SHA, independent
 review, new V2/Full results and package postflights are linked in
@@ -83,8 +121,10 @@ whose exact identity is in that receipt, until the target owner authorizes
 an exact successor pin/caller change and revalidates the target's current
 acceptance inputs. The saved state probe retained 11 completed, zero pending
 and one UNKNOWN gate, with `TARGET_OWNER_RESOLVE_UNKNOWN_GATES` as its next
-action. `v5_option_restoration` stays UNKNOWN; this is no new target execution
-or blanket reversal of the earlier document acceptance. Office, protected
+action at that checkpoint. `v5_option_restoration` was UNKNOWN in that saved
+probe; it is not a current target verdict. Reconcile the target owner's latest
+scoped decisions before repeating a question or execution. This record grants
+no new target execution or blanket reversal of earlier document acceptance. Office, protected
 inputs, remote, Hosted and release remain outside this local handoff.
 Usage evaluation was not selected; token savings is NOT_MEASURED.
 

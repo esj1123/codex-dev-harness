@@ -8,6 +8,24 @@ Define AI/Codex operating rules for this project.
 
 {{ render.read_order }}
 
+## Work Approach
+
+Start from the user's requested result, scope, and current completion conditions.
+Read available sources before asking questions. Ask only about missing decisions
+that materially change the result, and reuse explicit decisions for the same
+target, action, and scope.
+
+- Inspection: answer the question with relevant evidence and uncertainty.
+- Document work: use the existing format, sources, and user decisions; check
+  content and current open items. Authoring-system changes require that scope.
+- Coding: use existing modules and verify changed behavior and affected dependencies.
+
+Apply checks to the affected parts of mixed work. Follow this project's required
+rules without automatically adding packages, executable tests, or receipt files
+for an explanation or document. Separate current blockers from later finalization;
+missing required approval or evidence remains unresolved. Inherited instructions
+still apply.
+
 ## Project Phase
 
 Set the current phase here.
@@ -22,12 +40,21 @@ List files, folders, systems, and data that must not be changed or exposed.
 
 ## Side-Effect Policy
 
-State dry-run, approval, and apply rules.
+Inspect first and summarize intended changes before applying requested edits.
+An explicit request authorizes necessary reversible local edits within its scope;
+reuse applicable approval. Destructive actions, external sends, protected-input
+access, and live/device actions require explicit authority. Preserve original
+sources, unrelated user changes, and private data. Add project-specific limits here.
 
 ## Verification Plan
 
-State required checks and NOT RUN handling.
+Check the requested content or changed behavior and every requirement of this
+project's applicable policy. Run required integration checks for shared changes.
+Report selected checks not run as NOT RUN with a reason; do not invent tests to
+complete a form. Define project-specific commands and acceptance conditions here.
 
 ## Closeout Receipt
 
-Report changed files, verification, safety checks, risks, and next step.
+Report the requested result, relevant changes, checks and their scope, and any
+remaining decisions or risks. State the next action only when one is needed.
+Create a separate receipt file only when the task or project policy requires it.

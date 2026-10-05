@@ -7,6 +7,36 @@ development. It provides reusable authority, planning, rendering, verification,
 evidence, and handoff mechanisms. It is not a downstream application and does
 not grant authority to perform side effects.
 
+## Workflows And Infrastructure
+
+The user-facing entrypoint is `README.md`; `docs/PROMPT_PATTERNS.md` describes
+inspection, document, and coding workflows. Common guidance fixes the requested
+result, scope, existing decisions, protected inputs, and necessary checks.
+Packages, execution receipts, Hosted verification, and usage evaluation apply
+only when selected or required by the applicable policy. Mixed tasks apply
+checks to each affected surface.
+
+Optional workflow skills add domain decisions only when the requested output
+needs them. `docs/workflows/harness-engineering-documents/`,
+`docs/workflows/harness-engineering-diagrams/` and
+`docs/workflows/harness-engineering-review/` are canonical sources; byte-identical
+personal Codex and Claude copies are distributions, not separate authorities.
+Their SKILL.md files are durable policy but are not added to the default Read Order.
+Conditional references cover document families, design derivation, review
+perspectives and selected electrical/I/O and CAD contexts. They are guidance,
+not normative project evidence. Review remains usable without optional sibling
+references and examines original inputs and actual candidates. Authoring carries
+scoped design feedback and changes across artifacts without a shared database,
+mandatory register or automatic bidirectional synchronization.
+Project rules own document authority, formats, and acceptance; existing artifact
+tools perform the editing and rendering. Education/knowledge and legacy analysis
+remain catalog designs in `docs/PROMPT_PATTERNS.md`, without runtime skill folders.
+
+The planes below describe available infrastructure and Harness maintenance,
+not mandatory stages for every target task. Target document formats and domain
+acceptance remain target-owned. Capability availability and holds are recorded
+in `STATUS.md`; structural implementation does not imply adoption.
+
 ## Authority Plane
 
 `docs/AUTHORITY_MANIFEST.json` is the machine-readable authority index. It
@@ -43,8 +73,8 @@ evidence surfaces. Contract changes return to the integration owner.
 
 ## Template And Render Plane
 
-Base templates provide the common governance surface. Profiles add durable
-workflow-specific guidance for:
+Base templates provide common work guidance and project-owned placeholders.
+Profiles add technology-specific guidance for:
 
 - `python_cli`;
 - `csharp_desktop`; and

@@ -1,8 +1,40 @@
 # codex-dev-harness
 
-Reusable Agentic Development Repo Template for governed AI/Codex coding workflows.
+Reusable guidance and project templates for AI/Codex inspection, document work,
+and coding, with explicit scope and safety boundaries.
 
-This repository is a governed coding workflow template for projects that use AI/Codex to inspect, modify, verify, and hand off software work. The word harness is used as a short repo name, but the scope is broader than a test runner. The target system includes task contracts, agent instructions, side-effect boundaries, verification, example validation, and closeout discipline.
+## Start From The Requested Result
+
+For work in a target project, follow its instructions and choose the relevant
+short pattern. Infer the route from the requested result; users need not fill
+out a workflow questionnaire.
+
+| Requested result | Start here |
+|---|---|
+| Explain, investigate, compare, or review | [Inspection and review](docs/PROMPT_PATTERNS.md#pattern-review-only-task) |
+| Write or revise a document in its existing format | [Document work](docs/PROMPT_PATTERNS.md#pattern-documentation-only-task) |
+| Author engineering content, derive a design, or coordinate related documents | [Engineering documents](docs/workflows/harness-engineering-documents/SKILL.md) |
+| Create or revise an editable engineering drawing | [Engineering diagrams](docs/workflows/harness-engineering-diagrams/SKILL.md) |
+| Review engineering adequacy, evidence, or change impact | [Engineering review](docs/workflows/harness-engineering-review/SKILL.md) |
+| Change code or automation | [Implementation](docs/PROMPT_PATTERNS.md#pattern-implementation-task) |
+| Initialize a new project | [Local usage and rendering](docs/LOCAL_USAGE.md); select a base template and an applicable technology profile |
+
+Common guidance covers the goal, scope, existing decisions, protected inputs,
+necessary checks, and useful result. More detailed contracts are conditional;
+using a template does not require every Harness tool or evidence field.
+
+The three optional engineering skills share one repository source for Codex and
+Claude. See [workflow selection and installation](docs/PROMPT_PATTERNS.md#optional-workflow-skills)
+for triggers, personal installation paths, and the deferred education and legacy
+analysis designs. Installing a skill does not change a project's documents or pin.
+Select only the document family, design perspective, stage and file guidance
+needed by the task. Electrical/I/O and CAD are conditional specializations;
+ordinary edits do not require a design pipeline or independent review by default.
+
+For changes to the Harness itself, use the Read Order below, then
+[change control](docs/CHANGE_CONTROL.md) and [verification](docs/VERIFICATION.md).
+These repository maintenance checks are distinct from a target document's
+content and acceptance checks.
 
 ## Current State
 
@@ -20,9 +52,9 @@ The repository has moved beyond the historical P0 docs-only baseline. It current
 - Work-package v3 preflight/postflight controls with case-insensitive and
   parent/child path conflict detection, frozen contract surfaces, and explicit
   non-authentication of structural PASS results.
-- An Agent Quality control plane with run fingerprints, suite-bound invariant
-  evidence, safe aggregation, semantic review, and approval-gated baseline
-  adoption.
+- Optional Agent Quality code with structural evidence, currently
+  `FROZEN / NOT_ADOPTED`. Hermes/MCP is held; Local RAG is advisory and frozen.
+  These are outside the default task route; `STATUS.md` owns their current state.
 - A completed first greenfield application pilot proving two disjoint feature
   lanes, integration, synthetic E2E evaluation, and cleanup.
 
@@ -71,46 +103,34 @@ Other unlisted documents are non-authoritative reference material.
 
 ## Repository Structure
 
-- AGENTS.md
-- README.md
-- LICENSE
-- SECURITY.md
-- PRODUCT.md
-- MVP.md
-- ROADMAP.md
-- STATUS.md
-- ACCEPTANCE_TRACE.md
-- docs/AUTHORITY_MANIFEST.json
-- docs/CAPABILITY_IMPLEMENTATION_ROADMAP.md
-- code_review.md
-- .github/workflows/
-- artifacts/
-- audits/
-- docs/
-- evals/
-- templates/base/
-- profiles/
-- prompts/
-- scripts/
-- scripts/gates/
-- examples/
-- tests/
-- template.config.example.yml
+| Role | Existing location and use |
+|---|---|
+| Product and maintenance authority | Root contracts and `docs/AUTHORITY_MANIFEST.json`; `STATUS.md` owns current sequencing |
+| Work guidance | `docs/PROMPT_PATTERNS.md` and `prompts/task_contract/`; short patterns first, detailed sections when applicable |
+| Project initialization | `templates/`, `profiles/`, `examples/`, and `template.config.example.yml`; profiles describe technology environments |
+| Execution and verification tools | `scripts/`, `scripts/gates/`, `tests/`, `evals/`, and `.github/workflows/`; use for the selected implementation or maintenance scope |
+| Policies, optional capabilities, and history | `docs/`; follow the existing manifest classifications and capability states |
+| Release and audit evidence | `artifacts/` and `audits/`; retain the original source basis and approval limits |
+| Local task records | Ignored `local/`; keep necessary existing-format evidence without adding a new tracking system |
+
+Historical P0 templates remain supported initialization assets. Historical
+evidence, optional functions, and held capabilities have different roles;
+their age alone is not a reason to remove or activate them.
 
 ## Core Principles
 
 - One-agent-first: begin with one accountable AI/Codex worker before adding orchestration.
 - Read-only first: inspect and summarize before changing files.
 - Explicit side-effect boundary: live writes, deletes, moves, external sends, database writes, and device actions require explicit confirmation.
-- Verification mesh: tests, smoke checks, acceptance trace, policy validation, example validation, and audit evidence are separate but connected.
+- Relevant verification: check the requested result and affected surface; apply repository integration checks when its policy requires them.
 - Private data protection: use synthetic fixtures and summaries instead of private raw input.
-- Closeout receipt: every completed task reports changed files, checks run, safety checks, risks, and next steps.
+- Concise closeout: report the result, changes, checks, and remaining decisions; create a separate receipt file only when required by the task or policy.
 - Authority separation: the manifest distinguishes current authority, durable
   policy, and historical evidence before work is planned.
 
 ## Read-Only Validation
 
-The default operating loop is Local Quick, an approved non-force push of the
+For an approved Hosted integration task, the operating loop is Local Quick, an approved non-force push of the
 reviewed exact SHA, Hosted Integration Verify for that SHA, and a comparable
 closeout. Verification scope, executor, source binding, and evidence export are
 independent attributes; `V3` is hosted exact-SHA evidence, not the next product

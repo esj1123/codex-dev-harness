@@ -6,7 +6,8 @@ codex-dev-harness
 
 ## Product Category
 
-Agentic Development Repo Template / Governed Coding Workflow Template.
+AI-assisted work guidance and project initialization templates, with governed
+coding and integration tools.
 
 ## Purpose
 
@@ -20,7 +21,14 @@ Provide a reusable documentation-first baseline for projects where AI/Codex help
 
 ## Core Value
 
-This template makes AI-assisted development safer by combining task contracts, agent instructions, profile selection, side-effect boundaries, private-data protection, verification, and audit evidence.
+Help the user reach the requested result with fewer unnecessary questions,
+repeated inspections, and corrections. Common scope, approval, and source
+protection rules support distinct inspection, document, and coding workflows.
+Project templates and technology profiles are initialization aids; verification,
+release, and optional capability tools apply only to their selected scope.
+
+The Harness maintains reusable guidance. Each target project owns its document
+formats, domain meaning, acceptance decisions, and adoption of a Harness version.
 
 ## Non-Goals
 
@@ -32,6 +40,8 @@ This template makes AI-assisted development safer by combining task contracts, a
 ## Product Principles
 
 - Documentation before automation.
+- Requested output before authoring-system changes; expand only within user scope.
+- Verification proportional to the affected surface, with required integration checks preserved.
 - One-agent-first before multi-agent orchestration.
 - Read-only first before mutation.
 - Dry-run before apply.

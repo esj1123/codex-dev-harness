@@ -231,8 +231,8 @@ def test_docs_gate_requires_current_post_v0_1_governance_docs() -> None:
     assert POST_V0_1_GOVERNANCE_DOCS <= required_docs
     assert docs_gate.MANIFEST_PATH in required_docs
     assert set(docs_gate.BASELINE_REQUIRED_DOCS) == required_docs - {docs_gate.MANIFEST_PATH}
-    assert len(docs_gate.BASELINE_REQUIRED_DOCS) == 78
-    assert len(docs_gate.REQUIRED_DOCS) == 79
+    assert len(docs_gate.BASELINE_REQUIRED_DOCS) == 81
+    assert len(docs_gate.REQUIRED_DOCS) == 82
     assert len(docs_gate.REQUIRED_DOCS) == len(required_docs)
 
 

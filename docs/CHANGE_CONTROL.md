@@ -25,6 +25,23 @@ This policy applies to durable repository changes, including:
 
 Downstream project content remains downstream-only unless a separate approved task promotes generic, domain-neutral feedback into this repository.
 
+## Applicability To Task Workflows
+
+The short inspection, document, and coding patterns in `PROMPT_PATTERNS.md`
+help select the work, not waive this policy. A read-only explanation or review
+does not create a durable repository change and does not by itself require a
+JSON work package, new receipt file, or executable tests. For ordinary document
+work in a target project, its format, source, and acceptance rules select the
+checks; this Harness repository's maintenance process is not inherited merely
+by using the guidance.
+
+Durable Harness edits still require the change record below and verification
+selected under `VERIFICATION.md`. JSON packages are required for parallel
+repository work and whenever the selected integration or target contract
+requires them. Preserve every declared package, command, approval, and frozen
+surface requirement once applicable. These conditions do not change schema v3,
+preflight/postflight behavior, or their authority boundaries.
+
 ## Change Classes
 
 | class | examples | default path |

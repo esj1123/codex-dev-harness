@@ -14,7 +14,11 @@ State the current project phase.
 
 ## Quick Start
 
-Describe how to inspect the project. Add executable commands only when the project phase allows implementation details.
+Start with [AGENTS.md](AGENTS.md) and the Read Order above. Follow the workflow
+that matches the requested result: inspection, document work, or coding. Use the
+existing project format and sources for document work; use project-specific
+checks for changed code. Describe this project's entrypoints here and add
+executable commands only when the project phase permits them.
 
 ## Safety Defaults
 
@@ -22,4 +26,6 @@ Summarize side-effect and private-data rules.
 
 ## Verification
 
-Summarize expected verification and NOT RUN handling.
+Check the requested result using this project's acceptance conditions and
+applicable verification rules. Distinguish completed checks, unrun required
+checks, and later finalization. Summarize project-specific commands here.

@@ -4,6 +4,10 @@
 
 Maintain a reusable AI/Codex development repo template that combines documentation contracts, profile templates, dry-run rendering, quality gates, and minimal example validation.
 
+Support inspection, document work, and coding through short task-specific
+guidance over common scope and safety rules. Keep Harness maintenance and
+release procedures separate from the default target-task workflow.
+
 ## Current Must Have
 
 - Clear repository purpose.
@@ -42,5 +46,9 @@ At P0, render script, quality gate implementation, smoke test implementation, ex
 - Historical P0 scope is described as completed baseline, not current absence.
 - Safety policy covers side effects and private data.
 - Verification document defines current executable checks.
-- Templates are markdown placeholders, not generated application code.
+- Templates contain common guidance and project-owned Markdown placeholders, not generated application code.
+- README routes inspection, document, coding, and initialization requests to
+  existing guidance; detailed package and evidence sections are conditional.
+- Generated AGENTS and README carry usable common guidance without requiring
+  Harness-only documents or changing the generated file list and Read Order.
 - Example skeletons include profile safety policies and explicit NOT RUN status for missing runtime checks.

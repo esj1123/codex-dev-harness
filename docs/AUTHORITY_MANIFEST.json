@@ -70,7 +70,10 @@
     "docs/VALIDATION_SCOPE.md",
     "docs/adr/ADR-0001-local-first.md",
     "docs/adr/ADR-0002-base-template-over-domain-profile.md",
-    "docs/adr/ADR-0003-approval-gated-side-effect.md"
+    "docs/adr/ADR-0003-approval-gated-side-effect.md",
+    "docs/workflows/harness-engineering-diagrams/SKILL.md",
+    "docs/workflows/harness-engineering-documents/SKILL.md",
+    "docs/workflows/harness-engineering-review/SKILL.md"
   ],
   "historical_evidence": [
     "ACCEPTANCE_TRACE.md",

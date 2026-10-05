@@ -11,6 +11,23 @@ current result, but they must not redefine the tier contract.
 
 ## Verification Tiers
 
+### Applicability
+
+These tiers govern the selected Harness repository or work-package verification
+contract. They do not require Core pytest for every document produced using the
+Harness. Inspection checks whether the question is answered from relevant
+evidence. Target document work checks content, format, sources, applicable
+decisions, and current acceptance. Coding checks changed behavior and affected
+dependencies. Mixed work applies the relevant checks to each changed surface.
+
+Durable Harness changes, including reusable prompts and generated templates,
+retain their impact-selected integration requirements. No short pattern, task
+label, or absence of runtime-code changes waives a required check. Reuse prior
+results only within their recorded candidate, input, command, runtime, and
+acceptance scope; run the required cumulative checks for a new candidate.
+
+### Tier Contract
+
 | Machine ID | Semantic name | Required evidence |
 |---|---|---|
 | `V0` | `CONTRACT_SCOPE` | Work-package validation, base-SHA and allowed-file review, and `git diff --check`. |
@@ -83,9 +100,9 @@ approval, integration, release, or deployment.
 
 ## Local Verification Flow
 
-Recommended local command:
+Select the lane from the task's required scope. For official Core integration:
 
-`powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1`
+`powershell -ExecutionPolicy Bypass -File scripts/run_local_verify.ps1 -Lane Core`
 
 Before choosing a verification lane, the same wrapper can emit a read-only
 environment diagnostic and exit:
