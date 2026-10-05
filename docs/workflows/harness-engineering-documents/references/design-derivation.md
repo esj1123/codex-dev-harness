@@ -11,6 +11,9 @@ and existing decisions. Distinguish supplied facts, derived results, approved
 provisional choices and unknowns. Identify authority at the fact or decision
 level; one workbook may contain both source requirements and derived allocations.
 Do not choose authority from format, filename, recency or convenient agreement.
+When the user or project has established a revision-priority rule (for example,
+cabinet quantities follow the latest INPUT DATA calculation sheet), follow it
+within its agreed scope without re-asking the decision or requiring approval again.
 
 Use existing IDs and references to connect source items, derivation and affected
 outputs. A copied value without its applicability or units may change meaning.

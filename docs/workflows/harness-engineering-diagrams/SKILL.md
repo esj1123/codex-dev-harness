@@ -11,13 +11,18 @@ change and does not supply equipment facts or authorize native/device actions.
 
 ## Establish the drawing change
 
+Read the project's work-guidance entrypoint (such as README or AGENTS) first when
+present, and give the rules and decisions it points to precedence over this skill.
 Read the affected page, object identities, connections, and current source or
 decision that supports the change. Reuse known facts before asking questions.
 Identify a missing decision only when it changes topology, output, or the allowed
 action. Keep independent layout work moving when that decision does not affect it.
 
 Reuse the existing frame, title block, revision convention, legend, symbols, and
-components. Follow the user's selected tool and native format. Propose a different
+components. Distinguish working-file versions (for example, v1-v9) from formal
+document revisions and issue stages (for example, Rev A, IDC -> IFR -> IFC);
+follow project meanings and sequencing, and preserve earlier working versions.
+Follow the user's selected tool and native format. Propose a different
 method only when a material limitation requires a choice. Do not build an icon
 library, generator, or converter as an automatic precondition to a drawing edit.
 

@@ -11,6 +11,8 @@ or permission to edit. It applies beyond electrical, I/O and CAD work.
 
 ## Select the question and evidence
 
+Read the project's work-guidance entrypoint (such as README or AGENTS) first when
+present, and give the rules and decisions it points to precedence over this skill.
 Establish the requested result, affected items and revisions, document purpose,
 design stage, and current acceptance criteria from existing context. Infer the
 appropriate review; do not ask the user to classify routine work or complete a
@@ -73,6 +75,9 @@ without a relevant change or new concern.
 
 Author self-checks remain useful but are distinct from independent review. Use
 independence when requested, required by the project or warranted by material
-design risk; do not spawn another reviewer for every minor edit. A claim of
+design risk (for example, changes affecting procurement quantities, external
+interfaces, or safety/operating limits); do not spawn another reviewer for every
+minor edit. These are examples, not a closed list; a stage name alone neither
+requires nor exempts independent review. A claim of
 independent review requires a separate reviewer examining the candidate and
 necessary original evidence, not a second label on the author's own check.

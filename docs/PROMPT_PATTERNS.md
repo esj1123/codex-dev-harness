@@ -35,7 +35,9 @@ The short patterns do not waive those rules or inherited global instructions.
 Select a specialization from the requested output, without making the user name
 a workflow. Common inspection/document/coding guidance stays the entrypoint.
 Use only the specialization relevant to the changed surface; a mixed document
-and drawing task may use both. Select document family, design perspective,
+and drawing task may use both.
+Handle linked outputs in one session, choosing the lead guidance by the main output or purpose: documents for calculations and document updates, diagrams for layout and drawings, review for review-only work, or the originating source when ambiguous; do not create a session or handoff for each skill.
+Select document family, design perspective,
 stage and format details only as needed. Review-only work uses the review role;
 authorized review-and-correction continues into authoring within the existing
 scope. Author self-checks and independent review are distinct. A skill adds

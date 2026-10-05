@@ -12,6 +12,8 @@ the user's scope, and explicit decisions govern the work.
 
 ## Start with the intended result
 
+Read the project's work-guidance entrypoint (such as README or AGENTS) first when
+present, and give the rules and decisions it points to precedence over this skill.
 Read the affected document, applicable format, source references, and latest
 decisions. State the intended change briefly using facts already available.
 Reuse the user's chosen authoring approach. Ask only about a missing decision
@@ -19,7 +21,9 @@ that materially changes the result or prevents an authorized change; continue
 independent work while it is unresolved. Do not ask the user to complete a new
 workflow form or choose among equivalent implementation methods.
 
-Resolve the current revision and document of record before editing. Preserve
+Resolve the current revision and document of record before editing. Keep working-file
+versions separate from formal revisions and issue stages, following project meanings
+and order while preserving earlier working versions. Preserve
 unrelated changes, identifiers, tables, cross-references, and protected sources.
 Work in the existing document or designated candidate. Create a companion
 register, schema, converter, or authoring pipeline only when requested.
@@ -76,7 +80,10 @@ Check both the derivation and its transcription where calculations or allocation
 changed. Matching values in several outputs do not prove the shared result is
 correct. Keep author self-checks distinct from independent review: request or
 perform independent review when the user's scope, project rules, or material
-design risk calls for it, without adding it to every minor edit. Review findings
+design risk (for example, changes affecting procurement quantities, external
+interfaces, or safety/operating limits) calls for it, without adding it to every
+minor edit. These are examples, not a closed list; a stage name alone neither
+requires nor exempts independent review. Review findings
 may be repaired under an existing request covering review and correction; a
 review-only request provides no editing permission.
 
