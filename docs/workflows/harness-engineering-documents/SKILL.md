@@ -87,7 +87,14 @@ requires nor exempts independent review. Review findings
 may be repaired under an existing request covering review and correction; a
 review-only request provides no editing permission.
 
-Use the requested editable format and the existing template. If the required
+Use the requested editable format and the existing template.
+For existing Office templates and formatted documents, start by changing only
+the affected package parts (for example, the edited worksheet XML) instead of
+rewriting the whole package with a general-purpose library, and treat any lost
+headers, images or other parts as defects.
+Verify preservation by comparing internal parts against the original, with only
+intended parts differing and previews serving as supporting evidence.
+If the required
 source or native tool is unavailable, complete the useful authorized preparation
 and identify exactly what remains unedited or unverified. Do not present a text
 draft, exported preview, or static check as a verified native document.
