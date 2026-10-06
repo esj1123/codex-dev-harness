@@ -82,11 +82,18 @@ they do not replace or migrate those enum values. Work-package schema versions,
 release provenance schemas, and Agent Quality run schemas are separate
 namespaces and do not imply a verification tier.
 
-Planner command IDs describe the package command contract. Without an applicable
-package, `work_package_preflight` is not applicable; do not create a package to
-execute that placeholder. Retain scope/base review, diff checks and the
-impact-selected content or executable checks. Selected package checks remain
-mandatory for their own contract.
+Planner command IDs describe applicable checks, not a requirement to create a
+package. Pass `--package-selected` only for a task using a work package; only
+then does the planner require `work_package_preflight`. The flag declares task
+context, not package validity or approval. Selected package checks remain
+mandatory for their own contract. Without a package, retain scope/base review,
+diff checks and impact-selected checks. For prose-only V1, `allowed_file_review`
+includes changed-content and applicable-link review; `focused_pytest` is added
+by executable/test rules, not by the V1 tier alone.
+JSON keys and command contracts are unchanged. Consumers use the returned
+applicable IDs; preflight is omitted without the flag even for older maps.
+The selected head still supplies its own map, so historical heads retain their
+historical path/test rules; the planner does not read uncommitted map edits.
 
 The tier identifier is not a product-version sequence. Verification work has
 four independent attributes: scope (`focused`, `integration`, or `extended`),
@@ -474,6 +481,13 @@ If a digest artifact is not generated, report it as `NOT RUN` or `not
 generated`. Do not imply digest generation or retrieval verification passed.
 
 ## Approved Corpus Digest Check Flow
+
+While Local RAG is frozen, changing a corpus source document alone does not
+require a digest check. Checks remain required for changes to the digest,
+approved source set, generator or retriever (including their tests), and before
+actually reusing the corpus even when no Git paths changed. This exemption does
+not make a stale digest current: report stale entries honestly and do not use
+them as current evidence or refresh the digest without separate authorization.
 
 Safe check-only command:
 

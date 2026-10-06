@@ -139,7 +139,7 @@ def test_empty_diff_returns_v0_advisory_plan(planner_repo: tuple[Path, str]) -> 
     assert result["reason_codes"] == []
     assert result["performed_actions"] == []
     assert result["required_command_ids"] == sorted(
-        ["work_package_preflight", "base_sha_check", "allowed_file_review", "git_diff_check"]
+        ["base_sha_check", "allowed_file_review", "git_diff_check"]
     )
     assert [item["command_id"] for item in result["required_command_contracts"]] == (
         result["required_command_ids"]
@@ -214,7 +214,9 @@ def test_document_change_returns_v1(planner_repo: tuple[Path, str]) -> None:
     assert result["status"] == "PASS"
     assert result["minimum_tier"] == "V1"
     assert result["matched_rule_ids"] == ["documentation"]
-    assert "focused_pytest" in result["required_command_ids"]
+    assert result["required_command_ids"] == [
+        "allowed_file_review", "base_sha_check", "git_diff_check",
+    ]
     assert result["digest_check_required"] is False
     assert result["integration_owner_required"] is False
 
@@ -431,7 +433,7 @@ def test_three_prompt_contracts_share_v2_without_unknown_escalation(
         ("config/tool.cfg", "full_pytest", None, True),
         ("scripts/work_package_conflict_check.py", "full_pytest", None, False),
         ("pytest.ini", "full_pytest", None, False),
-        ("docs/corpus-policy.md", "corpus_digest_check", "digest_check_required", False),
+        ("scripts/generate_corpus_digest.py", "corpus_digest_check", "digest_check_required", False),
         ("scripts/render_template.py", "render_dry_runs", "render_check_required", False),
         ("artifacts/release-manifest.json", "checksum_verify", "checksum_check_required", False),
         ("scripts/hermes_sidecar.py", "hermes_mcp_static_check", None, False),
@@ -511,16 +513,112 @@ def test_critic_review_classification_uses_selected_head_not_later_or_dirty_map(
     assert "full_pytest" not in result["required_command_ids"]
 
 
-def test_corpus_source_change_requires_digest_check(planner_repo: tuple[Path, str]) -> None:
+def test_frozen_corpus_source_prose_does_not_require_digest_check(planner_repo: tuple[Path, str]) -> None:
     repo, base_sha = planner_repo
     commit_file(repo, "docs/corpus-policy.md", "# Policy\n")
 
     result = inspect(repo, base_sha)
 
     assert result["minimum_tier"] == "V1"
+    assert result["digest_check_required"] is False
+    assert result["matched_rule_ids"] == ["documentation"]
+    assert result["required_command_ids"] == [
+        "allowed_file_review", "base_sha_check", "git_diff_check",
+    ]
+
+
+def test_9599c68_skill_and_prompt_prose_path_replay(planner_repo) -> None:
+    # Fixed paths/change kinds from 9599c68; no dependency on local Git history.
+    repo, _ = planner_repo
+    paths = [
+        "docs/PROMPT_PATTERNS.md",
+        "docs/workflows/harness-engineering-diagrams/SKILL.md",
+        "docs/workflows/harness-engineering-documents/SKILL.md",
+        "docs/workflows/harness-engineering-documents/references/design-derivation.md",
+        "docs/workflows/harness-engineering-review/SKILL.md",
+    ]
+    for path in paths:
+        write_text(repo, path, "# Existing guidance\n")
+    git(repo, "add", ".")
+    git(repo, "commit", "-m", "existing skill guidance")
+    base_sha = git(repo, "rev-parse", "HEAD").stdout.strip()
+    for path in paths:
+        write_text(repo, path, "# Clarified guidance\n")
+    git(repo, "add", ".")
+    git(repo, "commit", "-m", "9599c68 path replay")
+
+    result = inspect(repo, base_sha)
+
+    assert result["status"] == "PASS"
+    assert result["minimum_tier"] == "V1"
+    assert result["changed_paths"] == sorted(paths)
+    assert result["matched_rule_ids"] == ["documentation"]
+    assert result["required_command_ids"] == [
+        "allowed_file_review", "base_sha_check", "git_diff_check",
+    ]
+
+
+@pytest.mark.parametrize("relative_path, tier, pytest_command", [
+    ("docs/APPROVED_CORPUS_SOURCE_SET.v2.json", "V2", "core_pytest"),
+    ("artifacts/corpus-digest.json", "V1", None),
+    ("scripts/generate_corpus_digest.py", "V1", "focused_pytest"),
+    ("tests/test_generate_corpus_digest.py", "V1", "focused_pytest"),
+    ("scripts/local_rag_retriever.py", "V1", "local_rag_static_check"),
+    ("tests/test_local_rag_retriever.py", "V1", "local_rag_static_check"),
+])
+def test_corpus_controls_retain_digest_and_applicable_tests(
+    planner_repo, relative_path, tier, pytest_command,
+) -> None:
+    repo, base_sha = planner_repo
+    content = ((repo / relative_path).read_text(encoding="utf-8") + "\n"
+               if (repo / relative_path).exists() else "# Changed implementation\n")
+    commit_file(repo, relative_path, content)
+
+    result = inspect(repo, base_sha)
+
+    assert result["status"] == "PASS"
+    assert result["minimum_tier"] == tier
     assert result["digest_check_required"] is True
-    assert "approved_corpus_sources" in result["matched_rule_ids"]
     assert "corpus_digest_check" in result["required_command_ids"]
+    assert "work_package_preflight" not in result["required_command_ids"]
+    if pytest_command:
+        assert pytest_command in result["required_command_ids"]
+
+
+def test_unrelated_prose_does_not_load_frozen_invalid_source_set(planner_repo) -> None:
+    repo, _ = planner_repo
+    base_sha = commit_file(repo, verification_plan.CORPUS_SOURCE_SET_PATH, "{}\n")
+    commit_file(repo, "docs/guide.md", "# Prose only\n")
+    result = inspect(repo, base_sha)
+    assert result["status"] == "PASS"
+    assert result["digest_check_required"] is False
+
+
+@pytest.mark.parametrize("relative_path", ["docs/guide.md", "docs/VERIFICATION.md"])
+@pytest.mark.parametrize("legacy_defaults", [False, True])
+def test_package_context_adds_only_preflight_without_changing_tier(
+    planner_repo, relative_path, legacy_defaults,
+) -> None:
+    repo, base_sha = planner_repo
+    if legacy_defaults:
+        payload = json.loads(MAP_PATH.read_text(encoding="utf-8"))
+        for commands in payload["tier_command_ids"].values():
+            commands.insert(0, "work_package_preflight")
+        base_sha = commit_file(repo, verification_plan.MAP_PATH, json.dumps(payload) + "\n")
+    commit_file(repo, relative_path, "# Change\n")
+    ordinary = inspect(repo, base_sha)
+    packaged = verification_plan.inspect_plan(
+        repo_root=repo, base_sha=base_sha, package_selected=True,
+    )
+    assert ordinary["status"] == packaged["status"] == "PASS"
+    assert ordinary["minimum_tier"] == packaged["minimum_tier"]
+    assert "work_package_preflight" not in ordinary["required_command_ids"]
+    assert set(packaged["required_command_ids"]) == (
+        set(ordinary["required_command_ids"]) | {"work_package_preflight"}
+    )
+    assert packaged["performed_actions"] == []
+    assert [c["command_id"] for c in packaged["required_command_contracts"]] == packaged["required_command_ids"]
+    assert "work_package_preflight" not in packaged["not_required_command_ids"]
 
 
 def test_generated_digest_membership_does_not_define_corpus_sources(
@@ -812,8 +910,9 @@ def test_not_a_repository_is_environment_blocked(tmp_path: Path) -> None:
     assert result["reason_codes"] == ["GIT_COMMAND_FAILED"]
 
 
+@pytest.mark.parametrize("package_selected", [False, True])
 def test_json_cli_is_deterministic_bounded_and_action_free(
-    tmp_path: Path, planner_repo: tuple[Path, str], capsys
+    tmp_path: Path, planner_repo: tuple[Path, str], capsys, package_selected,
 ) -> None:
     repo, base_sha = planner_repo
     commit_file(repo, "docs/guide.md", "# Guide\n")
@@ -824,6 +923,8 @@ def test_json_cli_is_deterministic_bounded_and_action_free(
         base_sha,
         "--json",
     ]
+    if package_selected:
+        args.append("--package-selected")
 
     first_exit = verification_plan.main(args)
     first = capsys.readouterr().out
@@ -838,6 +939,7 @@ def test_json_cli_is_deterministic_bounded_and_action_free(
     parsed = json.loads(first)
     assert set(parsed) == set(verification_plan.base_result())
     assert parsed["performed_actions"] == []
+    assert ("work_package_preflight" in parsed["required_command_ids"]) is package_selected
 
 
 def test_map_and_runtime_are_bounded_read_only_contracts() -> None:

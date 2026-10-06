@@ -237,7 +237,7 @@
       "command_ids": [
         "local_rag_static_check"
       ],
-      "digest_check_required": false,
+      "digest_check_required": true,
       "integration_owner_required": false,
       "match_kind": "exact",
       "minimum_tier": "V1",
@@ -394,7 +394,7 @@
     },
     {
       "checksum_check_required": false,
-      "command_ids": [],
+      "command_ids": ["focused_pytest"],
       "digest_check_required": false,
       "integration_owner_required": false,
       "match_kind": "prefix",
@@ -447,31 +447,28 @@
       ],
       "digest_check_required": true,
       "integration_owner_required": false,
-      "match_kind": "corpus_sources",
+      "match_kind": "exact",
       "minimum_tier": "V1",
       "patterns": [
+        "artifacts/corpus-digest.json",
         "docs/APPROVED_CORPUS_SOURCE_SET.v2.json"
       ],
       "render_check_required": false,
-      "rule_id": "approved_corpus_sources"
+      "rule_id": "corpus_control_surface"
     },
     {
       "checksum_check_required": false,
-      "command_ids": [
-        "corpus_digest_check"
-      ],
+      "command_ids": ["corpus_digest_check", "focused_pytest"],
       "digest_check_required": true,
       "integration_owner_required": false,
       "match_kind": "exact",
       "minimum_tier": "V1",
       "patterns": [
-        "artifacts/corpus-digest.json",
-        "docs/APPROVED_CORPUS_SOURCE_SET.v2.json",
         "scripts/generate_corpus_digest.py",
         "tests/test_generate_corpus_digest.py"
       ],
       "render_check_required": false,
-      "rule_id": "corpus_control_surface"
+      "rule_id": "corpus_generation_surface"
     },
     {
       "checksum_check_required": true,
@@ -497,7 +494,7 @@
     {
       "checksum_check_required": true,
       "command_ids": [
-        "checksum_verify"
+        "checksum_verify", "focused_pytest"
       ],
       "digest_check_required": false,
       "integration_owner_required": false,
@@ -524,20 +521,16 @@
   "schema_version": "1",
   "tier_command_ids": {
     "V0": [
-      "work_package_preflight",
       "base_sha_check",
       "allowed_file_review",
       "git_diff_check"
     ],
     "V1": [
-      "work_package_preflight",
       "base_sha_check",
       "allowed_file_review",
-      "git_diff_check",
-      "focused_pytest"
+      "git_diff_check"
     ],
     "V2": [
-      "work_package_preflight",
       "base_sha_check",
       "allowed_file_review",
       "git_diff_check",

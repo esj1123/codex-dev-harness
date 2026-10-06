@@ -441,6 +441,7 @@ def build_plan(
     impact_map: dict[str, Any],
     *,
     skill_lifecycle_paths: list[str] | None = None,
+    package_selected: bool = False,
 ) -> dict[str, Any]:
     result = base_result()
     result["status"] = "PASS"
@@ -502,7 +503,13 @@ def build_plan(
 
     required_commands = set(impact_map["tier_command_ids"][minimum_tier])
     required_commands.update(additional_commands)
+    # Package selection is task context, not something a changed path proves.
+    # Apply this even to older maps that included preflight in every tier.
+    required_commands.discard("work_package_preflight")
+    if package_selected:
+        required_commands.add("work_package_preflight")
     if result["digest_check_required"]:
+        corpus_source_paths(repo_root, head_sha, CORPUS_SOURCE_SET_PATH)
         required_commands.add("corpus_digest_check")
     if result["checksum_check_required"]:
         required_commands.add("checksum_verify")
@@ -531,6 +538,7 @@ def inspect_plan(
     repo_root: Path = REPO_ROOT,
     base_sha: str,
     head_sha: str | None = None,
+    package_selected: bool = False,
 ) -> dict[str, Any]:
     result = base_result()
     if SHA_PATTERN.fullmatch(base_sha) is None:
@@ -576,6 +584,7 @@ def inspect_plan(
         return build_plan(
             root, resolved_head, changed_paths, impact_map,
             skill_lifecycle_paths=skill_lifecycle_paths,
+            package_selected=package_selected,
         )
     except GitObservationError as exc:
         result["status"] = "ENVIRONMENT BLOCKED"
@@ -603,6 +612,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--repo-root", default=str(REPO_ROOT), help="Repository root")
     parser.add_argument("--base-sha", required=True, help="40-hex base commit")
     parser.add_argument("--head-sha", help="40-hex head commit; defaults to HEAD")
+    parser.add_argument(
+        "--package-selected", action="store_true",
+        help="Include preflight for a selected work package; does not validate or authorize it",
+    )
     parser.add_argument("--json", action="store_true", required=True, help="Emit deterministic JSON")
     return parser
 
@@ -613,6 +626,7 @@ def main(argv: list[str] | None = None) -> int:
         repo_root=Path(args.repo_root),
         base_sha=args.base_sha,
         head_sha=args.head_sha,
+        package_selected=args.package_selected,
     )
     try:
         sys.stdout.buffer.write(json_bytes(result))
