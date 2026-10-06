@@ -15,25 +15,34 @@ Those records are completed observations, not self-updating local or remote refs
 
 ## NOW
 
-Current work: `HARNESS MAINTENANCE SIMPLIFICATION`.
+Current work: `ENGINEERING PILOT FOLLOW-UP` (2026-10-06).
 
-The selected scope separates progress updates from policy changes, makes
-completion reports proportional to the work, and corrects scanner aggregate
-claims. Implementation and scoped results are recorded in
-`local/checkpoints/maintenance-simplification-20261005/REPORT.md`.
-Read the recorded result before claiming verification or completion.
+Local commits `d53a58d` (verification command alignment) and `381dfcd`
+(Office template part preservation guidance) are complete and unpushed.
+Local `main` is 11 commits ahead of its recorded upstream tracking ref.
 
-The engineering authoring, diagram and review skills are the preceding local
-candidate. Their installation/loading and synthetic checks remain bound to
-`local/checkpoints/engineering-workflows-20261005/closeout.json`; actual target
-utility remains NOT_MEASURED.
+The read-only pilot is complete per the user-relayed report: quantity notation
+in the current reference drawing matches the latest applicable source; the
+derivation basis of those quantities remains unverified.
+
+Authoring pilot A1 is complete: the RevA template copy's `I_O Quantity` sheet
+is populated. Claude's relayed independent check confirms values match the
+sources, originals are preserved, and only one worksheet part changed among
+28 package parts. General-purpose saving lost header images during A1; the
+candidate was repaired by targeted part replacement, and the preservation
+guidance is recorded in `381dfcd`.
+
+Earlier maintenance results remain in
+`local/checkpoints/maintenance-simplification-20261005/REPORT.md`;
+engineering skill installation/loading and synthetic checks remain bound to
+`local/checkpoints/engineering-workflows-20261005/closeout.json`.
+These pilot observations do not establish comparative utility, which remains
+NOT_MEASURED.
 
 ## NEXT
 
-Read the selected task report for completed checks and any remaining
-corrections. The next work choice is pending after this local two-commit handoff.
-Pilot preparation, actual document/CAD use, additional skills, pushes,
-launchpad pin changes and workspace cleanup are outside this selected work.
+The drawing revision pilot (A2) awaits the user's concrete change values.
+Push remains a separate user decision.
 
 ## Operational Capability Status
 
